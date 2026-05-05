@@ -355,7 +355,11 @@ function NavbarContent({
             <Link href={primaryNavHref} onClick={requireAuth()} className="hover:opacity-80 transition">
               {primaryNavLabel}
             </Link>
-            <Link href={secondaryNavHref} onClick={requireAuth()} className="hover:opacity-80 transition">
+            <Link
+              href={secondaryNavHref}
+              onClick={useGolocalHomeNav ? undefined : requireAuth()}
+              className="hover:opacity-80 transition"
+            >
               {secondaryNavLabel}
             </Link>
           </nav>

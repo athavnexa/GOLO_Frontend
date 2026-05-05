@@ -8,6 +8,7 @@ import { useAuth } from "../context/AuthContext";
 import Navbar from "../components/Navbar";
 import CategoryBar from "../components/CategoryBar";
 import Footer from "../components/Footer";
+import AuthRequiredModal from "../components/AuthRequiredModal";
 import { getNearbyOffers } from "../lib/api";
 
 const OFFER_TYPES = [
@@ -168,6 +169,7 @@ function matchOfferType(row, typeLabel) {
 function NearbyDealsPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { isAuthenticated } = useAuth();
 
   const [activeView, setActiveView] = useState("grid");
   const [distanceRadius, setDistanceRadius] = useState(5);
@@ -203,7 +205,14 @@ function NearbyDealsPageContent() {
   const [rawOffers, setRawOffers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showAuthPrompt, setShowAuthPrompt] = useState(false);
+  const [authRedirectTo, setAuthRedirectTo] = useState("/nearby-deals");
   const lastLocationUpdateRef = useRef(0);
+
+  const selectedTypeLabels = useMemo(
+    () => Object.keys(selectedOfferTypes).filter((key) => selectedOfferTypes[key]),
+    [selectedOfferTypes],
+  );
 
   const location = useMemo(() => searchParams.get("location") || "", [searchParams]);
   const query = useMemo(() => searchParams.get("q") || "", [searchParams]);
@@ -320,15 +329,25 @@ function NearbyDealsPageContent() {
           ? userCoordinates.lng
           : undefined;
 
+      // If user explicitly provided a location (navbar/manual), prefer that
+      // and do not constrain results by current GPS coordinates.
+      const useManualLocation = Boolean(location && String(location).trim().length > 0);
+      const fetchLat = useManualLocation ? undefined : resolvedLat;
+      const fetchLng = useManualLocation ? undefined : resolvedLng;
+
       try {
         const response = await getNearbyOffers({
-          lat: resolvedLat,
-          lng: resolvedLng,
+          lat: fetchLat,
+          lng: fetchLng,
           radiusKm: distanceRadius,
           location,
           q: query,
+          sort: sortBy,
           maxPrice: priceRange < 5000 ? priceRange : undefined,
           applyPriceFilter: priceRange < 5000,
+          offerTypes: selectedTypeLabels.join(','),
+          topDiscountOnly: topDiscountOnly,
+          activeNowOnly: activeNowOnly,
           page: 1,
           limit: 100,
         });
@@ -339,15 +358,19 @@ function NearbyDealsPageContent() {
 
         // Graceful fallback: if strict geofence returns empty, show relevant offers
         // instead of a blank state (helps when merchant coords are incomplete/inaccurate).
-        if (primaryRows.length === 0 && resolvedLat !== undefined && resolvedLng !== undefined) {
+        if (primaryRows.length === 0 && fetchLat !== undefined && fetchLng !== undefined) {
           const fallbackResponse = await getNearbyOffers({
             lat: undefined,
             lng: undefined,
             radiusKm: distanceRadius,
             location,
             q: query,
+            sort: sortBy,
             maxPrice: priceRange < 5000 ? priceRange : undefined,
             applyPriceFilter: priceRange < 5000,
+            offerTypes: selectedTypeLabels.join(','),
+            topDiscountOnly: topDiscountOnly,
+            activeNowOnly: activeNowOnly,
             page: 1,
             limit: 100,
           });
@@ -369,20 +392,11 @@ function NearbyDealsPageContent() {
     };
 
     loadNearbyOffers();
-  }, [distanceRadius, priceRange, location, query, userCoordinates?.lat, userCoordinates?.lng]);
-
-  const selectedTypeLabels = useMemo(
-    () => Object.keys(selectedOfferTypes).filter((key) => selectedOfferTypes[key]),
-    [selectedOfferTypes],
-  );
+  }, [distanceRadius, priceRange, location, query, sortBy, userCoordinates?.lat, userCoordinates?.lng, selectedTypeLabels, topDiscountOnly, activeNowOnly]);
 
   const filteredDeals = useMemo(() => {
     const rows = rawOffers.filter((row) => {
-      // Business rule: offers must not appear before startDate or after endDate.
-      if (!row?.isActiveNow) {
-        return false;
-      }
-
+      // Respect activeNowOnly toggle: when enabled, hide offers outside visibility window.
       if (activeNowOnly && !row?.isActiveNow) {
         return false;
       }
@@ -425,14 +439,21 @@ function NearbyDealsPageContent() {
       return sortedRows;
     }
 
+    // Keep the selected sort order stable while prioritizing rows matching manual location.
     const locationNeedle = String(location).trim().toLowerCase();
-    return sortedRows.sort((a, b) => {
-      const addressA = String(a?.merchant?.address || "").toLowerCase();
-      const addressB = String(b?.merchant?.address || "").toLowerCase();
-      const scoreA = addressA.includes(locationNeedle) ? 1 : 0;
-      const scoreB = addressB.includes(locationNeedle) ? 1 : 0;
-      return scoreB - scoreA;
-    });
+    const matched = [];
+    const unmatched = [];
+
+    for (const row of sortedRows) {
+      const address = String(row?.merchant?.address || "").toLowerCase();
+      if (address.includes(locationNeedle)) {
+        matched.push(row);
+      } else {
+        unmatched.push(row);
+      }
+    }
+
+    return [...matched, ...unmatched];
   }, [rawOffers, activeNowOnly, topDiscountOnly, selectedTypeLabels, location, sortBy]);
 
   const summary = useMemo(() => {
@@ -479,6 +500,14 @@ function NearbyDealsPageContent() {
   };
 
   const openDealDetails = (deal) => {
+    const targetUrl = `/nearby-deals/deal?offerId=${deal.offerId}`;
+
+    if (!isAuthenticated) {
+      setAuthRedirectTo(targetUrl);
+      setShowAuthPrompt(true);
+      return;
+    }
+
     if (typeof window !== "undefined") {
       try {
         sessionStorage.setItem(
@@ -489,7 +518,7 @@ function NearbyDealsPageContent() {
       }
     }
 
-    router.push(`/nearby-deals/deal?offerId=${deal.offerId}`);
+    router.push(targetUrl);
   };
 
   return (
@@ -718,6 +747,14 @@ function NearbyDealsPageContent() {
       </section>
 
       <Footer />
+
+      <AuthRequiredModal
+        isOpen={showAuthPrompt}
+        onClose={() => setShowAuthPrompt(false)}
+        title="Login or Register"
+        description="Please log in or register to open deal details. You can still browse nearby deals without signing in."
+        redirectTo={authRedirectTo}
+      />
     </main>
   );
 }

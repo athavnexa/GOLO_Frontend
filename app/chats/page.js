@@ -17,6 +17,9 @@ import {
 } from "../lib/api";
 
 const API_BASE = "/api";
+const SOCKET_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL?.trim().replace(/\/$/, "") ||
+  "https://golo-backend-new.onrender.com";
 const CALL_ICE_SERVERS = [{ urls: "stun:stun.l.google.com:19302" }];
 
 const formatCallDuration = (value) => {
@@ -100,14 +103,6 @@ function ChatsPageContent() {
   const [selectedConversation, setSelectedConversation] = useState(null);
   const [messages, setMessages] = useState([]);
   const [loadingConversations, setLoadingConversations] = useState(true);
-
-  if (isLoading) {
-    return <LoadingScreen />;
-  }
-
-  if (!isAuthorized) {
-    return null;
-  }
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [sending, setSending] = useState(false);
   const [pageError, setPageError] = useState("");
@@ -734,7 +729,7 @@ function ChatsPageContent() {
       const { io } = await import("socket.io-client");
       if (!mounted) return;
 
-      const socket = io(`${API_BASE}/chat`, {
+      const socket = io(`${SOCKET_BASE_URL}/chat`, {
         transports: ["websocket", "polling"],
         reconnection: true,
         reconnectionAttempts: 20,
@@ -890,7 +885,7 @@ function ChatsPageContent() {
       const { io } = await import("socket.io-client");
       if (!mounted) return;
 
-      const socket = io(`${API_BASE}/calls`, {
+      const socket = io(`${SOCKET_BASE_URL}/calls`, {
         transports: ["websocket", "polling"],
         reconnection: true,
         reconnectionAttempts: 20,
@@ -1447,6 +1442,14 @@ function ChatsPageContent() {
     });
     setIsMuted(nextMuted);
   };
+
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
+
+  if (!isAuthorized) {
+    return null;
+  }
 
   const otherUserId = selectedConversation?.otherUser?.id;
   const selectedPresence = otherUserId ? presenceMap[otherUserId] : null;

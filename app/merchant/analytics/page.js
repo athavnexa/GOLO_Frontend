@@ -279,7 +279,7 @@ export default function MerchantAnalyticsPage() {
                 {likedOffers.length === 0 ? (
                   <p className="mt-4 text-[12px] text-[#999] italic">No liked offers yet. When customers like your offers, they will appear here.</p>
                 ) : (
-                  <div className="mt-3 space-y-2">
+                  <div className="mt-3 max-h-[340px] overflow-y-auto space-y-2">
                     {likedOffers.map((offer, index) => (
                       <div key={`${offer.offerId || offer.name}_${index}`} className="rounded-[8px] border border-[#efefef] bg-[#fafafa] px-3 py-2">
                         <div className="flex items-center gap-3">
@@ -306,12 +306,7 @@ export default function MerchantAnalyticsPage() {
                     ))}
                   </div>
                 )}
-
-                {likedOffers.length > 0 && (
-                  <button className="mt-4 h-9 w-full rounded-full border border-[#7db897] bg-white text-[12px] font-semibold text-[#2f8f55]">
-                    View All Liked Offers ›
-                  </button>
-                )}
+                {/* Removed 'View All Liked Offers' per request; content scrolls */}
               </section>
 
               <section className="rounded-[12px] border border-[#d9d9d9] bg-white p-4">
@@ -326,7 +321,7 @@ export default function MerchantAnalyticsPage() {
                 {likedProducts.length === 0 ? (
                   <p className="mt-4 text-[12px] text-[#999] italic">No liked products yet. When customers like an offer with products, they will appear here.</p>
                 ) : (
-                  <div className="mt-3 space-y-2">
+                  <div className="mt-3 max-h-[340px] overflow-y-auto space-y-2">
                     {likedProducts.map((product, index) => (
                       <div key={`${product.productId || product.name}_${index}`} className="rounded-[8px] border border-[#efefef] bg-[#fafafa] px-3 py-2">
                         <div className="flex items-center gap-3">
@@ -353,12 +348,7 @@ export default function MerchantAnalyticsPage() {
                     ))}
                   </div>
                 )}
-
-                {likedProducts.length > 0 && (
-                  <button className="mt-4 h-9 w-full rounded-full border border-[#7db897] bg-white text-[12px] font-semibold text-[#2f8f55]">
-                    View All Liked Products ›
-                  </button>
-                )}
+                {/* Removed 'View All Liked Products' per request; content scrolls */}
               </section>
             </aside>
           </section>

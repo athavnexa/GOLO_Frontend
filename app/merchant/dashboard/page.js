@@ -260,7 +260,7 @@ export default function MerchantDashboardPage() {
                 <button className="text-[12px] font-semibold text-[#1e8b4f]">View All Orders</button>
               </div>
 
-              <div>
+              <div className="max-h-[320px] overflow-y-auto">
                 {(summary?.recentOrders || []).map((order) => (
                   <div key={order._id || order.orderNumber} className="px-4 py-3 border-b border-[#f0f0f0] last:border-b-0 flex items-center gap-3">
                     <div className="h-8 w-8 rounded-full bg-[#ebf8ef] border border-[#cce9d4] text-[#1f8f4f] flex items-center justify-center">
@@ -290,7 +290,7 @@ export default function MerchantDashboardPage() {
                 <button className="text-[#888]">⋮</button>
               </div>
 
-              <div className="mt-3 space-y-3">
+              <div className="mt-3 max-h-[360px] overflow-y-auto space-y-3">
                 {(summary?.latestReviews || []).map((review) => (
                   <article key={review._id || review.userName} className="rounded-[10px] border border-[#ececec] bg-[#fbfbfb] p-3">
                     <div className="flex items-start justify-between gap-3">
@@ -309,8 +309,6 @@ export default function MerchantDashboardPage() {
                   </article>
                 ))}
               </div>
-
-              <button className="mt-4 h-9 w-full rounded-[8px] border border-[#d8d8d8] bg-white text-[12px] font-semibold text-[#343434]">Read All 48 Reviews</button>
             </div>
 
             {/* Loyalty Leaderboard Section */}

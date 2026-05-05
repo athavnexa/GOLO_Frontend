@@ -756,6 +756,9 @@ export async function getNearbyOffers({
     sort,
     maxPrice,
     applyPriceFilter = false,
+    offerTypes,
+    topDiscountOnly = false,
+    activeNowOnly = true,
     page = 1,
     limit = 20,
 } = {}) {
@@ -767,6 +770,9 @@ export async function getNearbyOffers({
     if (q) params.set('q', String(q));
     if (category) params.set('category', String(category));
     if (sort) params.set('sort', String(sort));
+    if (offerTypes) params.set('offerTypes', String(offerTypes));
+    if (topDiscountOnly) params.set('topDiscount', String(topDiscountOnly));
+    if (activeNowOnly === false) params.set('activeNow', 'false');
     if (
         applyPriceFilter &&
         typeof maxPrice === 'number' &&
