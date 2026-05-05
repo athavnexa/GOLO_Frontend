@@ -165,7 +165,7 @@ function NearbyDealDetailsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user } = useAuth();
-  const { claimOfferHandler, loading: claimLoading } = useVoucher();
+  const { myVouchers, claimOfferHandler, loading: claimLoading } = useVoucher();
 
   const [offer, setOffer] = useState(null);
   const [relatedOffers, setRelatedOffers] = useState([]);
@@ -200,6 +200,23 @@ function NearbyDealDetailsContent() {
     offerEndsTs >= nowTs;
 
   const allowClaim = Boolean(offerActiveNow);
+
+  useEffect(() => {
+    if (!offerId) {
+      setIsClaimed(false);
+      return;
+    }
+
+    const hasClaimedVoucher = Array.isArray(myVouchers)
+      ? myVouchers.some(
+          (voucher) =>
+            String(voucher?.offerId || "") === offerId &&
+            String(voucher?.status || "").toLowerCase() !== "expired"
+        )
+      : false;
+
+    setIsClaimed(hasClaimedVoucher);
+  }, [offerId, myVouchers]);
 
   // Handle like/unlike
   const handleToggleLike = async () => {
@@ -506,6 +523,7 @@ function NearbyDealDetailsContent() {
 
   const handleClaimOffer = async () => {
     if (!offerId) return;
+    if (isClaimed) return;
     if (!allowClaim) {
       setClaimError("This offer is not active yet.");
       return;

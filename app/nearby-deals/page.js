@@ -47,6 +47,16 @@ function toNumber(value, fallback = 0) {
   return Number.isNaN(parsed) ? fallback : parsed;
 }
 
+function getDaysRemainingText(endDate) {
+  if (!endDate) return null;
+  const end = new Date(endDate).getTime();
+  if (Number.isNaN(end)) return null;
+  const diff = end - Date.now();
+  if (diff <= 0) return "Expired";
+  const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+  return days <= 1 ? "1 day left" : `${days} days left`;
+}
+
 function computeBestDiscountPercent(products = [], fallback = 0) {
   const fallbackValue = toNumber(fallback, 0);
   if (fallbackValue > 0) {
@@ -713,6 +723,9 @@ function NearbyDealsPageContent() {
                       </span>
                       <span className="absolute left-2 top-8 rounded-md bg-white/95 px-2 py-0.5 text-[9px] font-semibold text-gray-700 shadow-sm">
                         {formatDistance(deal.distanceKm)}
+                      </span>
+                      <span className={`absolute right-2 top-2 rounded-full px-2 py-0.5 text-[10px] font-bold shadow-sm ${getDaysRemainingText(deal.endsAt) === "Expired" ? "bg-red-500 text-white" : "bg-white/95 text-[#157A4F]"}`}>
+                        {getDaysRemainingText(deal.endsAt) || "N/A"}
                       </span>
                     </div>
                     <div className="p-3">
