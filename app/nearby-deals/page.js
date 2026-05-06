@@ -226,6 +226,7 @@ function NearbyDealsPageContent() {
 
   const location = useMemo(() => searchParams.get("location") || "", [searchParams]);
   const query = useMemo(() => searchParams.get("q") || "", [searchParams]);
+  const selectedCategory = useMemo(() => searchParams.get("category") || "", [searchParams]);
 
   useEffect(() => {
     if (typeof window === "undefined" || !("geolocation" in navigator)) {
@@ -352,6 +353,7 @@ function NearbyDealsPageContent() {
           radiusKm: distanceRadius,
           location,
           q: query,
+          category: selectedCategory || undefined,
           sort: sortBy,
           maxPrice: priceRange < 5000 ? priceRange : undefined,
           applyPriceFilter: priceRange < 5000,
@@ -375,6 +377,7 @@ function NearbyDealsPageContent() {
             radiusKm: distanceRadius,
             location,
             q: query,
+            category: selectedCategory || undefined,
             sort: sortBy,
             maxPrice: priceRange < 5000 ? priceRange : undefined,
             applyPriceFilter: priceRange < 5000,
@@ -402,7 +405,7 @@ function NearbyDealsPageContent() {
     };
 
     loadNearbyOffers();
-  }, [distanceRadius, priceRange, location, query, sortBy, userCoordinates?.lat, userCoordinates?.lng, selectedTypeLabels, topDiscountOnly, activeNowOnly]);
+  }, [distanceRadius, priceRange, location, query, selectedCategory, sortBy, userCoordinates?.lat, userCoordinates?.lng, selectedTypeLabels, topDiscountOnly, activeNowOnly]);
 
   const filteredDeals = useMemo(() => {
     const rows = rawOffers.filter((row) => {
@@ -635,9 +638,10 @@ function NearbyDealsPageContent() {
           <div>
             <div className="mb-4 flex items-start justify-between gap-4">
               <div>
-                <h1 className="text-[34px] font-extrabold text-gray-900">Deals near you</h1>
+                <h1 className="text-[34px] font-extrabold text-gray-900">{selectedCategory || "Deals near you"}</h1>
                 <p className="mt-1 text-xs text-gray-500">
                   Showing {summary.total} offers
+                  {selectedCategory ? ` in ${selectedCategory}` : ""}
                   {query ? ` for \"${query}\"` : ""}
                   {location ? ` in ${location}` : ""}
                 </p>

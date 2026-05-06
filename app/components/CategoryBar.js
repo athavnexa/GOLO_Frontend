@@ -77,6 +77,16 @@ function CategoryBarContent({ variant = "choja" }) {
     return match ? decodeURIComponent(match[1]) : null;
   })();
 
+  const activeGolocalCategoryFromUrl = (() => {
+    if (pathname !== "/nearby-deals") return null;
+    if (typeof window === "undefined") return null;
+    const params = new URLSearchParams(window.location.search);
+    const category = params.get("category");
+    return category ? decodeURIComponent(category) : null;
+  })();
+
+  const activeGolocalCategory = activeGolocalCategoryFromUrl || golocalActiveCategory;
+
   const golocalCategories = [
     { name: "Food & Restaurants" },
     { name: "Home Services" },
@@ -119,6 +129,37 @@ function CategoryBarContent({ variant = "choja" }) {
   }, []);
 
   const navigateToCategory = (categoryName, sub = null) => {
+    if (variant === "golocal") {
+      const nextParams = new URLSearchParams();
+      nextParams.set("category", categoryName);
+
+      const currentParams =
+        typeof window !== "undefined"
+          ? new URLSearchParams(window.location.search)
+          : null;
+
+      const currentLocation = currentParams?.get("location");
+      if (currentLocation) {
+        nextParams.set("location", currentLocation);
+      }
+
+      const currentQuery = currentParams?.get("q");
+      if (currentQuery) {
+        nextParams.set("q", currentQuery);
+      }
+
+      const targetUrl = `/nearby-deals?${nextParams.toString()}`;
+
+      if (typeof window !== "undefined") {
+        window.location.assign(targetUrl);
+      }
+
+      setGolocalActiveCategory(categoryName);
+      setActiveDropdown(null);
+      setShowAllModal(false);
+      return;
+    }
+
     const encoded = encodeURIComponent(categoryName);
     const url = sub
       ? `/category/${encoded}?sub=${encodeURIComponent(sub)}`
@@ -134,9 +175,7 @@ function CategoryBarContent({ variant = "choja" }) {
 
   const handleCategoryClick = (cat) => {
     if (variant === "golocal") {
-      setGolocalActiveCategory(cat.name);
-      setActiveDropdown(null);
-      setShowAllModal(false);
+      navigateToCategory(cat.name);
       return;
     }
 
@@ -199,21 +238,21 @@ function CategoryBarContent({ variant = "choja" }) {
                     minHeight: variant === "golocal" ? "38px" : "auto",
                     overflow: variant === "golocal" ? "hidden" : "visible",
                     background: variant === "golocal"
-                      ? golocalActiveCategory === cat.name
+                      ? activeGolocalCategory === cat.name
                         ? "#e6f4ee"
                         : "#f8faf9"
                       : activeCat === cat.name || activeDropdown === cat.name
                         ? "#e6f4ee"
                         : "transparent",
                     color: variant === "golocal"
-                      ? golocalActiveCategory === cat.name
+                      ? activeGolocalCategory === cat.name
                         ? "#157A4F"
                         : "#374151"
                       : activeCat === cat.name || activeDropdown === cat.name
                         ? "#157A4F"
                         : "#374151",
                     fontWeight: variant === "golocal"
-                      ? golocalActiveCategory === cat.name
+                      ? activeGolocalCategory === cat.name
                         ? 700
                         : 600
                       : activeCat === cat.name
@@ -222,7 +261,7 @@ function CategoryBarContent({ variant = "choja" }) {
                     fontSize: variant === "golocal" ? "14px" : "14px", cursor: variant === "golocal" ? "pointer" : "pointer", lineHeight: 1,
                     whiteSpace: "nowrap", transition: "all 0.15s",
                     borderBottom: variant === "golocal" ? "none" : activeCat === cat.name ? "2px solid #157A4F" : "2px solid transparent",
-                    boxShadow: variant === "golocal" ? (golocalActiveCategory === cat.name ? "0 8px 20px rgba(21,122,79,0.12)" : "0 1px 3px rgba(0,0,0,0.04)") : "none",
+                    boxShadow: variant === "golocal" ? (activeGolocalCategory === cat.name ? "0 8px 20px rgba(21,122,79,0.12)" : "0 1px 3px rgba(0,0,0,0.04)") : "none",
                     borderRadius: variant === "golocal" ? "999px" : activeCat === cat.name ? "12px 12px 0 0" : "999px",
                   }}
                   onMouseEnter={e => { if (variant !== "golocal" && activeCat !== cat.name && activeDropdown !== cat.name) { e.currentTarget.style.background = "#f9fafb"; e.currentTarget.style.color = "#157A4F"; } }}

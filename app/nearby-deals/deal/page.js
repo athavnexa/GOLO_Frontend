@@ -850,10 +850,17 @@ function NearbyDealDetailsContent() {
 
             {offer?.exampleUsage && (
               <div className="mt-6 pt-6 border-t border-[#e5e7eb]">
-                <h3 className="font-bold text-[#1f2329] mb-2">How to Use</h3>
-                <p className="text-sm text-[#5d6670] leading-relaxed">
-                  {offer.exampleUsage}
-                </p>
+                <div className="rounded-xl border border-[#dce8df] bg-[#f7fcf9] p-4 md:p-5">
+                  <div className="mb-3 flex items-center gap-2">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#157a4f] text-white">
+                      <Info size={14} />
+                    </div>
+                    <h3 className="text-[17px] font-bold text-[#1f2329]">How to Use</h3>
+                  </div>
+                  <p className="text-sm leading-7 text-[#475467] whitespace-pre-line">
+                    {offer.exampleUsage}
+                  </p>
+                </div>
               </div>
             )}
 
@@ -952,32 +959,32 @@ function NearbyDealDetailsContent() {
           <h2 className="text-2xl font-bold text-[#1f2329] mb-4">
             Terms & Restrictions
           </h2>
-          <div className="space-y-3">
+          <p className="text-sm text-[#66707b] mb-5">
+            Please review the important conditions before claiming this offer.
+          </p>
+
+          <div className="space-y-4">
             {offer?.termsAndConditions ? (
-              <div className="border border-[#e5e7eb] rounded-lg overflow-hidden">
-                <button
-                  onClick={() =>
-                    setExpandedTerms(expandedTerms === 0 ? null : 0)
-                  }
-                  className="w-full flex items-center justify-between p-4 hover:bg-[#f9fafb] transition"
-                >
-                  <p className="font-bold text-[#1f2329]">
-                    Terms & Conditions
-                  </p>
-                  <ChevronDown
-                    size={20}
-                    className={`text-[#666] transition-transform ${
-                      expandedTerms === 0 ? "rotate-180" : ""
-                    }`}
-                  />
-                </button>
-                {expandedTerms === 0 && (
-                  <div className="px-4 pb-4 bg-[#f9fafb]">
-                    <p className="text-sm text-[#5d6670]">
-                      {offer.termsAndConditions}
-                    </p>
+              <div className="rounded-xl border border-[#e7edf3] bg-[#fbfcfd] p-4 md:p-5">
+                <div className="mb-3 flex items-center gap-2">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#dbeafe] text-[#1d4ed8]">
+                    <Shield size={14} />
                   </div>
-                )}
+                  <h3 className="text-base font-bold text-[#1f2329]">
+                    Terms & Conditions
+                  </h3>
+                </div>
+                <div className="space-y-2.5 text-sm leading-7 text-[#4b5563]">
+                  {String(offer.termsAndConditions)
+                    .split(/\r?\n+/)
+                    .map((line) => line.trim())
+                    .filter(Boolean)
+                    .map((line, idx) => (
+                      <p key={`offer-term-${idx}`} className="rounded-lg bg-white px-3 py-2 border border-[#eef2f7]">
+                        {line}
+                      </p>
+                    ))}
+                </div>
               </div>
             ) : (
               [
@@ -999,27 +1006,17 @@ function NearbyDealDetailsContent() {
               ].map((item, idx) => (
                 <div
                   key={item.title}
-                  className="border border-[#e5e7eb] rounded-lg overflow-hidden"
+                  className="rounded-xl border border-[#e7edf3] bg-[#fbfcfd] p-4 md:p-5"
                 >
-                  <button
-                    onClick={() =>
-                      setExpandedTerms(expandedTerms === idx ? null : idx)
-                    }
-                    className="w-full flex items-center justify-between p-4 hover:bg-[#f9fafb] transition"
-                  >
-                    <p className="font-bold text-[#1f2329]">{item.title}</p>
-                    <ChevronDown
-                      size={20}
-                      className={`text-[#666] transition-transform ${
-                        expandedTerms === idx ? "rotate-180" : ""
-                      }`}
-                    />
-                  </button>
-                  {expandedTerms === idx && (
-                    <div className="px-4 pb-4 bg-[#f9fafb]">
-                      <p className="text-sm text-[#5d6670]">{item.content}</p>
+                  <div className="mb-3 flex items-center gap-2">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#fff4db] text-[#a96d00]">
+                      <AlertCircle size={14} />
                     </div>
-                  )}
+                    <h3 className="text-base font-bold text-[#1f2329]">{item.title}</h3>
+                  </div>
+                  <p className="rounded-lg border border-[#eef2f7] bg-white px-3 py-2 text-sm leading-7 text-[#4b5563]">
+                    {item.content}
+                  </p>
                 </div>
               ))
             )}
