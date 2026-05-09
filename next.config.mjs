@@ -6,6 +6,8 @@ const API_URL =
   'https://golo-backend-new.onrender.com';
 
 const nextConfig = {
+  // Use standalone output for smaller production image
+  output: 'standalone',
   reactCompiler: true,
   distDir: '.next',
   images: {
