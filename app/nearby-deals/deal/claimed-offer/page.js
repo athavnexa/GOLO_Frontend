@@ -592,8 +592,8 @@ function ClaimedOfferContent() {
           <div className="space-y-3">
             <aside className="rounded-[12px] border border-[#d8dce3] bg-white p-4 shadow-[0_4px_14px_rgba(16,24,40,0.05)]">
               <div className="flex items-start gap-3">
-                <div className="h-12 w-12 overflow-hidden rounded-full border border-[#d8dce3]">
-                  <Image src={resolvedOfferImage} alt={resolvedMerchantName} width={64} height={64} className="h-full w-full object-cover" />
+                <div className="h-12 w-12 shrink-0 aspect-square overflow-hidden rounded-full border border-[#d8dce3]">
+                  <Image src={resolvedOfferImage} alt={resolvedMerchantName} width={64} height={64} className="h-full w-full rounded-full object-cover" />
                 </div>
                 <div>
                   <p className="text-[15px] font-bold text-[#1f2329]">{resolvedMerchantName}</p>

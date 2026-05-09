@@ -46,10 +46,6 @@ const PUBLIC_AUTH_ENDPOINTS = new Set([
 
 export async function apiClient(endpoint, options = {}) {
     const url = `${BASE_URL}${endpoint}`;
-    // Debug: Print the full URL being called
-    if (typeof window !== 'undefined') {
-        console.log('[API DEBUG] Full API URL:', url);
-    }
     const isPublicAuthEndpoint = [...PUBLIC_AUTH_ENDPOINTS].some((path) => endpoint.startsWith(path));
 
     const headers = {
@@ -61,11 +57,7 @@ export async function apiClient(endpoint, options = {}) {
     if (typeof window !== 'undefined') {
         const token = localStorage.getItem('accessToken');
         if (token) {
-            // Debug token format
-            console.log(`[API] Using token for ${endpoint}: ${token.substring(0, 20)}...`);
             headers['Authorization'] = `Bearer ${token}`;
-        } else if (!isPublicAuthEndpoint) {
-            console.warn(`[API] No token found in localStorage for ${endpoint}`);
         }
     }
 
@@ -73,11 +65,6 @@ export async function apiClient(endpoint, options = {}) {
         ...options,
         headers,
     };
-
-    console.log(`[API] ${options.method || 'GET'} ${endpoint} with headers:`, {
-        'Content-Type': headers['Content-Type'],
-        'Authorization': headers['Authorization'] ? 'Present' : 'Missing',
-    });
 
     let response;
     try {
@@ -99,7 +86,6 @@ export async function apiClient(endpoint, options = {}) {
 
     // Handle 401 — try to refresh token
     if (response.status === 401 && typeof window !== 'undefined' && !isPublicAuthEndpoint) {
-        console.warn(`[API] Got 401 for ${endpoint} - attempting token refresh`);
         const refreshed = await tryRefreshToken();
         if (refreshed) {
             // Retry original request with new token

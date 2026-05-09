@@ -44,10 +44,10 @@ const CATEGORY_OPTIONS = [
 ];
 
 const BACKEND_CATEGORY_MAP = {
-  "food-restaurants": "Food & Dining",
+  "food-restaurants": "Food & Restaurants",
   "home-services": "Home Services",
-  "beauty-wellness": "Beauty",
-  "healthcare-medical": "Healthcare",
+  "beauty-wellness": "Beauty & Wellness",
+  "healthcare-medical": "Healthcare & Medical",
   "hotels-accommodation": "Hotels & Accommodation",
   "shopping-retail": "Shopping & Retail",
   "education-training": "Education & Training",
@@ -112,6 +112,14 @@ export default function GolocalOnboardingPage() {
     try {
       await savePreferredCategories(preferredCategories);
       await refreshProfile();
+
+      // Mark onboarding as done so it never shows again on login
+      if (typeof window !== "undefined" && user?.email) {
+        const normalizedEmail = user.email.trim().toLowerCase();
+        localStorage.setItem(`golo_golocal_onboarding_done_email_${normalizedEmail}`, "1");
+        localStorage.removeItem("golo_pending_first_login_email");
+      }
+
       router.push("/");
     } catch {
       setSaveError("Failed to save preferences. Please try again.");
