@@ -7,6 +7,7 @@ import { useSearchParams } from "next/navigation";
 import { getAllAds, getNearbyAds, searchAds } from "../lib/api";
 import { useAuth } from "../context/AuthContext";
 import AuthRequiredModal from "./AuthRequiredModal";
+import { normalizeAppPath } from "../lib/path";
 
 const SORT_OPTIONS = [
     { label: "Newest First", value: "createdAt_desc" },
@@ -76,7 +77,7 @@ function assignBentoLayout(adsList) {
 
 function RecentListingsContent() {
     const searchParams = useSearchParams();
-    const pathname = usePathname();
+    const pathname = normalizeAppPath(usePathname());
     const [ads, setAds] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");

@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, useMemo } from "react";
 import { usePathname } from "next/navigation";
 import { ChevronDown, Grid } from "lucide-react";
 import { createPortal } from "react-dom";
+import { normalizeAppPath } from "../lib/path";
 
 const mainCategories = [
   { name: "Education" },
@@ -70,7 +71,7 @@ function CategoryBarContent({ variant = "choja", preferredCategories = [] }) {
   const wrapperRef = useRef(null);
   const dropdownRef = useRef(null);
 
-  const pathname = usePathname();
+  const pathname = normalizeAppPath(usePathname());
   // Derive active category from URL like /category/Vehicle
   const activeCat = (() => {
     const match = pathname?.match(/^\/category\/([^/?]+)/);
@@ -173,7 +174,7 @@ function CategoryBarContent({ variant = "choja", preferredCategories = [] }) {
         nextParams.set("q", currentQuery);
       }
 
-      const targetUrl = `/nearby-deals?${nextParams.toString()}`;
+      const targetUrl = `/api/nearby-deals?${nextParams.toString()}`;
 
       if (typeof window !== "undefined") {
         window.location.assign(targetUrl);
@@ -187,8 +188,8 @@ function CategoryBarContent({ variant = "choja", preferredCategories = [] }) {
 
     const encoded = encodeURIComponent(categoryName);
     const url = sub
-      ? `/category/${encoded}?sub=${encodeURIComponent(sub)}`
-      : `/category/${encoded}`;
+      ? `/api/category/${encoded}?sub=${encodeURIComponent(sub)}`
+      : `/api/category/${encoded}`;
 
     if (typeof window !== "undefined") {
       window.location.assign(url);

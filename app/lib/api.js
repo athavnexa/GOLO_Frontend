@@ -32,9 +32,9 @@ export async function submitUserReport(userId, reason, description) {
 
 const RAW_API_URL = process.env.NEXT_PUBLIC_API_URL?.trim();
 const NORMALIZED_REMOTE_API_URL = RAW_API_URL ? RAW_API_URL.replace(/\/$/, '') : '';
-// Prefer the real backend URL when it is configured so browser requests do not
-// depend on the Next.js rewrite proxy in development.
-const BASE_URL = NORMALIZED_REMOTE_API_URL || '/api';
+// Always talk to the backend gateway directly so the frontend can use /api as
+// its own base path without colliding with API requests.
+const BASE_URL = NORMALIZED_REMOTE_API_URL || 'http://localhost:3002/api';
 const PUBLIC_AUTH_ENDPOINTS = new Set([
     '/users/login',
     '/users/register',
@@ -53,17 +53,10 @@ export async function apiClient(endpoint, options = {}) {
         ...options.headers,
     };
 
-    // Attach JWT token if available
-    if (typeof window !== 'undefined') {
-        const token = localStorage.getItem('accessToken');
-        if (token) {
-            headers['Authorization'] = `Bearer ${token}`;
-        }
-    }
-
     const config = {
         ...options,
         headers,
+        credentials: 'include',
     };
 
     let response;
@@ -88,8 +81,6 @@ export async function apiClient(endpoint, options = {}) {
     if (response.status === 401 && typeof window !== 'undefined' && !isPublicAuthEndpoint) {
         const refreshed = await tryRefreshToken();
         if (refreshed) {
-            // Retry original request with new token
-            headers['Authorization'] = `Bearer ${localStorage.getItem('accessToken')}`;
             const retryResponse = await fetch(url, { ...config, headers });
             return handleResponse(retryResponse);
         }
@@ -132,28 +123,18 @@ async function handleResponse(response) {
 
 async function tryRefreshToken() {
     try {
-        const refreshToken = localStorage.getItem('refreshToken');
-        if (!refreshToken) return false;
-
         const response = await fetch(`${BASE_URL}/users/refresh`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ refreshToken }),
+            credentials: 'include',
         });
 
         if (!response.ok) {
-            // Refresh failed — clear tokens
-            localStorage.removeItem('accessToken');
-            localStorage.removeItem('refreshToken');
             localStorage.removeItem('user');
+            window.dispatchEvent(new Event('golo-auth-cleared'));
             return false;
         }
 
-        const data = await response.json();
-        localStorage.setItem('accessToken', data.data.accessToken);
-        if (data.data.refreshToken) {
-            localStorage.setItem('refreshToken', data.data.refreshToken);
-        }
         return true;
     } catch {
         return false;
@@ -273,17 +254,15 @@ export async function registerUser({
     }
 }
 
-export async function refreshTokenApi(refreshToken) {
+export async function refreshTokenApi() {
     return apiClient('/users/refresh', {
         method: 'POST',
-        body: JSON.stringify({ refreshToken }),
     });
 }
 
-export async function logoutUser(refreshToken) {
+export async function logoutUser() {
     return apiClient('/users/logout', {
         method: 'POST',
-        body: JSON.stringify({ refreshToken }),
     });
 }
 
@@ -660,7 +639,7 @@ export async function getActiveHomepageBanners(limit = 5) {
     return apiClient(`/banners/promotions/active?limit=${limit}`);
 }
 
-const LOCAL_BACKEND_URL = '/api';
+const LOCAL_BACKEND_URL = NORMALIZED_REMOTE_API_URL || 'http://localhost:3002/api';
 let nearbyOffersRouteMissingOnPrimary = false;
 const NEARBY_OFFERS_PRIMARY_UNSUPPORTED_KEY = 'golo_nearby_offers_primary_unsupported';
 
@@ -701,18 +680,12 @@ async function fetchAbsoluteJson(url) {
         'Content-Type': 'application/json',
     };
 
-    if (typeof window !== 'undefined') {
-        const token = localStorage.getItem('accessToken');
-        if (token) {
-            headers['Authorization'] = `Bearer ${token}`;
-        }
-    }
-
     let response;
     try {
         response = await fetch(url, {
             method: 'GET',
             headers,
+            credentials: 'include',
         });
     } catch (error) {
         const networkError = new Error(`Unable to connect to ${url}`);

@@ -6,8 +6,7 @@ const API_URL =
   'https://golo-backend-new.onrender.com';
 
 const nextConfig = {
-  // Use standalone output for smaller production image
-  output: 'standalone',
+  basePath: '/api',
   reactCompiler: true,
   distDir: '.next',
   images: {
@@ -21,14 +20,6 @@ const nextConfig = {
         hostname: '**',
       },
     ],
-  },
-  async rewrites() {
-    return [
-      {
-        source: '/api/:path*',
-        destination: `${API_URL}/:path*`,
-      },
-    ];
   },
 };
 

@@ -6,6 +6,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
 import AuthRequiredModal from "./AuthRequiredModal";
 import { getNotifications, markNotificationRead, markAllNotificationsRead } from "../lib/api";
+import { normalizeAppPath } from "../lib/path";
 
 function NavbarContent({
   searchQuery: externalSearchQuery = "",
@@ -47,7 +48,7 @@ function NavbarContent({
   const profileRef = useRef(null);
   const notifRef = useRef(null);
   const router = useRouter();
-  const pathname = usePathname();
+  const pathname = normalizeAppPath(usePathname());
   const { user, isAuthenticated, logout } = useAuth();
   const logoHref = isAuthenticated && user?.accountType === "merchant"
     ? "/"

@@ -182,7 +182,7 @@ function NearbyDealsPageContent() {
    const { isAuthenticated, user } = useAuth();
 
   const [activeView, setActiveView] = useState("grid");
-  const [distanceRadius, setDistanceRadius] = useState(5);
+  const [distanceRadius, setDistanceRadius] = useState(50);
   const [priceRange, setPriceRange] = useState(5000);
   const [userCoordinates, setUserCoordinates] = useState(null);
   const [locationStatus, setLocationStatus] = useState("detecting");
@@ -483,7 +483,7 @@ function NearbyDealsPageContent() {
   }, [filteredDeals]);
 
   const clearAllFilters = () => {
-    setDistanceRadius(5);
+    setDistanceRadius(50);
     setPriceRange(5000);
     setTopDiscountOnly(false);
     setActiveNowOnly(true);
@@ -713,10 +713,10 @@ function NearbyDealsPageContent() {
               ) : (
                 filteredDeals.map((deal) => (
                   <article
-                    key={deal.offerId}
-                    className="group overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-[#157A4F] hover:shadow-lg"
-                  >
-                    <div className="relative h-36 w-full overflow-hidden bg-gray-100">
+                      key={deal.offerId}
+                      className="group flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-[#157A4F] hover:shadow-lg"
+                    >
+                      <div className="relative h-36 w-full overflow-hidden bg-gray-100">
                       <img
                         src={deal.imageUrl || "/images/deal2.avif"}
                         alt={deal.title}
@@ -732,7 +732,7 @@ function NearbyDealsPageContent() {
                         {getDaysRemainingText(deal.endsAt) || "N/A"}
                       </span>
                     </div>
-                    <div className="p-3">
+                    <div className="p-3 flex flex-col flex-1">
                       <h3 className="line-clamp-1 text-sm font-bold text-gray-900">{deal.title}</h3>
                       <p className="mt-1 text-[11px] text-gray-500">{deal.merchant?.name || "Merchant"}</p>
                       <p className="mt-2 text-[11px] text-gray-500 line-clamp-1 flex items-center gap-1">
@@ -750,7 +750,7 @@ function NearbyDealsPageContent() {
                       </p>
                       <button
                         onClick={() => openDealDetails(deal)}
-                        className="mt-3 w-full rounded-lg border border-gray-200 bg-[#F7F7F7] py-2 text-xs font-bold text-gray-800 transition-colors duration-200 hover:border-[#157A4F] hover:bg-[#157A4F] hover:text-white"
+                        className="mt-auto w-full rounded-lg border border-gray-200 bg-[#F7F7F7] py-2 text-xs font-bold text-gray-800 transition-colors duration-200 hover:border-[#157A4F] hover:bg-[#157A4F] hover:text-white"
                       >
                         View Deal
                       </button>
@@ -782,21 +782,21 @@ function NearbyDealsSkeleton({ view = "grid" }) {
       {Array.from({ length: view === "list" ? 5 : 8 }).map((_, idx) => (
         <article
           key={idx}
-          className="group overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm"
+          className="group flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm"
         >
           <div className="relative h-36 w-full overflow-hidden bg-gray-100">
             <div className="h-full w-full animate-pulse bg-[#e6ebf1]" />
             <span className="absolute left-2 top-2 h-5 w-20 animate-pulse rounded-full bg-[#d9dee5]" />
             <span className="absolute left-2 top-8 h-4 w-16 animate-pulse rounded-md bg-[#e2e6ec]" />
           </div>
-          <div className="p-3">
+          <div className="p-3 flex flex-col flex-1">
             <div className="h-4 w-3/4 animate-pulse rounded bg-[#e5e7eb]" />
             <div className="mt-2 h-3 w-1/2 animate-pulse rounded bg-[#edf0f4]" />
             <div className="mt-2 h-3 w-full animate-pulse rounded bg-[#edf0f4]" />
             <div className="mt-2 h-3 w-5/6 animate-pulse rounded bg-[#edf0f4]" />
             <div className="mt-2 h-3 w-2/3 animate-pulse rounded bg-[#edf0f4]" />
             <div className="mt-2 h-6 w-1/3 animate-pulse rounded bg-[#e5e7eb]" />
-            <div className="mt-3 h-[34px] w-full animate-pulse rounded-lg bg-[#e5e7eb]" />
+            <div className="mt-auto h-[34px] w-full animate-pulse rounded-lg bg-[#e5e7eb]" />
           </div>
         </article>
       ))}

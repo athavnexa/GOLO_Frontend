@@ -20,6 +20,7 @@ const API_BASE = "/api";
 const SOCKET_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL?.trim().replace(/\/$/, "") ||
   "https://golo-backend-new.onrender.com";
+const SOCKET_ORIGIN = SOCKET_BASE_URL.replace(/\/api$/, "");
 const CALL_ICE_SERVERS = [{ urls: "stun:stun.l.google.com:19302" }];
 
 const formatCallDuration = (value) => {
@@ -720,23 +721,18 @@ function ChatsPageContent() {
   useEffect(() => {
     if (!isAuthenticated || typeof window === "undefined") return;
 
-    const token = localStorage.getItem("accessToken");
-    if (!token) return;
-
     let mounted = true;
 
     const setupSocket = async () => {
       const { io } = await import("socket.io-client");
       if (!mounted) return;
 
-      const socket = io(`${SOCKET_BASE_URL}/chat`, {
+      const socket = io(`${SOCKET_ORIGIN}/chat`, {
         transports: ["websocket", "polling"],
         reconnection: true,
         reconnectionAttempts: 20,
         reconnectionDelay: 1000,
-        auth: {
-          token,
-        },
+        withCredentials: true,
       });
 
       socket.on("connect", () => {
@@ -876,23 +872,18 @@ function ChatsPageContent() {
   useEffect(() => {
     if (!isAuthenticated || typeof window === "undefined") return;
 
-    const token = localStorage.getItem("accessToken");
-    if (!token) return;
-
     let mounted = true;
 
     const setupCallSocket = async () => {
       const { io } = await import("socket.io-client");
       if (!mounted) return;
 
-      const socket = io(`${SOCKET_BASE_URL}/calls`, {
+      const socket = io(`${SOCKET_ORIGIN}/calls`, {
         transports: ["websocket", "polling"],
         reconnection: true,
         reconnectionAttempts: 20,
         reconnectionDelay: 1000,
-        auth: {
-          token,
-        },
+        withCredentials: true,
       });
 
       socket.on("connect", () => {

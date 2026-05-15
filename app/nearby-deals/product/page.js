@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
+import ImageCarousel from "../../components/ImageCarousel";
 import { useAuth } from "../../context/AuthContext";
 import {
   getMerchantProductById,
@@ -105,7 +106,6 @@ function ProductDetailContent() {
   const [merchant, setMerchant] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [imageLoaded, setImageLoaded] = useState(false);
   const [lastUpdatedAt, setLastUpdatedAt] = useState(null);
   const { isAuthenticated } = useAuth();
   const [isWishlisted, setIsWishlisted] = useState(false);
@@ -215,6 +215,34 @@ function ProductDetailContent() {
     };
   }, [productId]);
 
+  // Fetch merchant data when product loads and has merchantId
+  useEffect(() => {
+    let cancelled = false;
+
+    async function fetchMerchantData() {
+      const merchantId = product?.merchantId;
+      if (!merchantId) {
+        setMerchant(null);
+        return;
+      }
+
+      try {
+        const merchantRes = await getPublicMerchantProfile(merchantId);
+        if (!cancelled && merchantRes?.data) {
+          setMerchant(merchantRes.data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch merchant data:", err);
+        // Don't set error state here, merchant info is supplementary
+      }
+    }
+
+    fetchMerchantData();
+    return () => {
+      cancelled = true;
+    };
+  }, [product?.merchantId]);
+
   // Wishlist: fetch wishlist ids and wishlist count when product loads or auth changes
   useEffect(() => {
     let cancelled = false;
@@ -310,7 +338,7 @@ function ProductDetailContent() {
   const productName = product?.productName || product?.name || "Product";
   const productPrice = Number(product?.offerPrice || product?.price || 0);
   const originalPrice = Number(product?.originalPrice || 0);
-  const productImage = product?.imageUrl || product?.image || "/images/deal2.avif";
+  const productImages = product?.images && product.images.length > 0 ? product.images : [product?.imageUrl || product?.image || "/images/deal2.avif"];
   const productDescription = product?.description || "Description unavailable.";
   const safeStock = Number(product?.stockQuantity ?? 0);
   const refreshedAt = lastUpdatedAt
@@ -327,6 +355,58 @@ function ProductDetailContent() {
   const merchantReviewCount = Number(
     merchant?.reviewCount ?? merchant?.totalReviews ?? merchant?.profile?.reviewCount ?? 0
   );
+  const productOfferIds = useMemo(() => {
+    const rawCandidates = [
+      product?.offerId,
+      product?.offer?._id,
+      product?.offer?.id,
+      product?.offer?.offerId,
+      product?.offerIds,
+      product?.offerIds?.map?.((item) => item?._id || item?.id || item?.offerId || item),
+      product?.offers,
+      product?.selectedOffers,
+      product?.relatedOffers,
+    ];
+
+    const ids = [];
+
+    const pushId = (value) => {
+      const id = String(value || "").trim();
+      if (id && !ids.includes(id)) {
+        ids.push(id);
+      }
+    };
+
+    rawCandidates.forEach((candidate) => {
+      if (!candidate) return;
+      if (Array.isArray(candidate)) {
+        candidate.forEach((item) => {
+          if (item && typeof item === "object") {
+            pushId(item._id || item.id || item.offerId);
+          } else {
+            pushId(item);
+          }
+        });
+        return;
+      }
+
+      if (typeof candidate === "object") {
+        pushId(candidate._id || candidate.id || candidate.offerId);
+        return;
+      }
+
+      pushId(candidate);
+    });
+
+    return ids;
+  }, [product]);
+
+  const selectedOfferId = useMemo(() => {
+    if (productOfferIds.length === 0) return null;
+    if (productOfferIds.length === 1) return productOfferIds[0];
+    const randomIndex = Math.floor(Math.random() * productOfferIds.length);
+    return productOfferIds[randomIndex];
+  }, [productOfferIds]);
 
   const dynamicSpecs = [
     { label: "Sub-category", value: product?.subCategory || product?.subcategory || null },
@@ -374,27 +454,15 @@ function ProductDetailContent() {
 
         <section className="bg-white rounded-2xl overflow-hidden shadow-sm mb-8">
           <div className="grid lg:grid-cols-[1.2fr_1fr] gap-6 p-4 lg:p-6">
-            <div className="relative overflow-hidden rounded-xl bg-[#f0f0f0]">
-              <div className="relative h-[400px] lg:h-[500px]">
-                <Image
-                  src={productImage}
-                  alt={productName}
-                  fill
-                  className={`object-cover transition-opacity duration-300 ${imageLoaded ? "opacity-100" : "opacity-0"}`}
-                  onLoad={() => setImageLoaded(true)}
-                />
-                {!imageLoaded && (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="text-sm text-[#666]">Loading image...</div>
-                  </div>
-                )}
-              </div>
+            {/* Image Carousel */}
+            <div className="relative">
+              <ImageCarousel images={productImages} alt={productName} />
               {discount > 0 && (
-                <span className="absolute top-4 left-4 bg-[#e7a91d] text-white px-3 py-1 rounded-full text-sm font-bold">
+                <span className="absolute top-4 left-4 bg-[#e7a91d] text-white px-3 py-1 rounded-full text-sm font-bold z-10">
                   {discount}% OFF
                 </span>
               )}
-              <span className="absolute top-4 right-4 bg-[#157a4f] text-white px-3 py-1 rounded-full text-sm font-bold">
+              <span className="absolute top-4 right-4 bg-[#157a4f] text-white px-3 py-1 rounded-full text-sm font-bold z-10">
                 Stock: {safeStock}
               </span>
             </div>
@@ -436,20 +504,21 @@ function ProductDetailContent() {
                 <button
                   className="w-full h-12 bg-[#157a4f] text-white rounded-lg font-bold text-lg transition-all hover:bg-[#0f6a42] flex items-center justify-center gap-2"
                   onClick={() => {
-                    const merchantStoreId = product?.merchantId || product?.merchant?.merchantId || product?.merchant?._id || product?.merchant?.id;
-                    if (merchantStoreId) {
-                      sessionStorage.setItem("merchantId", merchantStoreId);
-                      router.push("/nearby-deals/store");
-                    } else {
-                      router.back();
-                    }
+                    if (!selectedOfferId) return;
+                    sessionStorage.setItem("selectedOfferId", selectedOfferId);
+                    router.push(`/nearby-deals/deal?offerId=${selectedOfferId}`);
                   }}
+                  disabled={!selectedOfferId}
                 >
                   <ShoppingCart size={20} />
-                  Visit Store
+                  View Offers on Product
                 </button>
 
-                <p className="text-xs text-[#666] text-center mt-2">Visit the store to explore more products</p>
+                <p className="text-xs text-[#666] text-center mt-2">
+                  {selectedOfferId
+                    ? "Open one available offer for this product"
+                    : "No offers available for this product"}
+                </p>
               </div>
 
               <div className="bg-[#f0f9f6] rounded-lg p-3 mb-4">
@@ -460,8 +529,8 @@ function ProductDetailContent() {
               </div>
 
               <div className="text-xs text-[#666] space-y-1">
-                <p>• Product ID: {product?._id || product?.productId || "-"}</p>
-                <p>• Merchant: {merchant?.name || product?.merchantName || "Unavailable"}</p>
+                <p>• Product ID: {product?._id || product?.productId || product?.id || "-"}</p>
+                <p>• Merchant: {merchant?.name || merchant?.merchantProfile?.storeName || product?.merchantName || "Unavailable"}</p>
                 {product?.offerPrice && <p>• Discounted pricing available</p>}
               </div>
             </div>
@@ -524,13 +593,6 @@ function ProductDetailContent() {
               </div>
 
               <div className="space-y-3">
-                <button
-                  onClick={() => merchantId && router.push(`/nearby-deals/store?merchantId=${merchantId}`)}
-                  className="w-full h-10 bg-[#fef5e7] border border-[#e7a91d] text-[#8f6515] rounded-lg font-semibold text-sm hover:bg-[#fcecd8] transition"
-                >
-                  View Store →
-                </button>
-
                 <button
                   onClick={() => router.push("/nearby-deals")}
                   className="w-full h-10 bg-[#f0f4ff] border border-[#4a5fc1] text-[#4a5fc1] rounded-lg font-semibold text-sm hover:bg-[#e6edff] transition"
