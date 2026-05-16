@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronLeft, User } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
 import { createMerchantProduct, getMerchantProfile } from "../../../lib/api";
 import MerchantNavbar from "../../MerchantNavbar";
@@ -34,7 +34,7 @@ function pickStoreImage(user, merchantProfile) {
     merchantProfile?.shopPhoto ||
     user?.profilePhoto ||
     user?.shopPhoto ||
-    ""
+    "/images/deal2.avif"
   );
 }
 
@@ -265,12 +265,8 @@ export default function AddProductPage() {
                 {/* Brand Display */}
                 <div className="rounded-[10px] border border-[#e2e2e2] bg-[#f9f9f9] p-4 mb-5 flex items-center justify-center min-h-[80px]">
                   <div className="flex flex-col items-center gap-2">
-                    <div className="h-12 w-12 rounded-full overflow-hidden border border-[#ececec] bg-white flex items-center justify-center">
-                      {brandImage && String(brandImage).trim() ? (
-                        <Image src={brandImage} alt="Store" width={48} height={48} className="h-full w-full object-cover" />
-                      ) : (
-                        <User size={22} className="text-[#9ca3af]" />
-                      )}
+                    <div className="h-12 w-12 rounded-full overflow-hidden border border-[#ececec] bg-white">
+                      <Image src={brandImage} alt="Store" width={48} height={48} className="h-full w-full object-cover" />
                     </div>
                     <div className="text-center">
                       <p className="text-[13px] font-semibold text-[#333]">{storeName}</p>

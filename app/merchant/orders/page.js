@@ -24,19 +24,7 @@ export default function MerchantOrdersPage() {
 
   const filteredOrders = useMemo(() => {
     if (activeTab === "all") return orders;
-    if (activeTab === "completed") {
-      // Show accepted and completed orders
-      return orders.filter((order) =>
-        ["accepted", "completed"].includes(order.fulfillmentStatus)
-      );
-    }
-    if (activeTab === "pending") {
-      // Show pending and rejected orders
-      return orders.filter((order) =>
-        ["pending", "rejected"].includes(order.fulfillmentStatus)
-      );
-    }
-    return orders;
+    return orders.filter((order) => order.fulfillmentStatus === activeTab);
   }, [activeTab, orders]);
 
   const formatOrderForUi = (order) => {

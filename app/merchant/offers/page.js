@@ -101,7 +101,7 @@ export default function MerchantOffersPage() {
     const needle = query.trim().toLowerCase();
     if (!needle) return offers;
     return offers.filter((offer) =>
-      String(offer?.title || "").toLowerCase().includes(needle),
+      String(offer?.bannerTitle || "").toLowerCase().includes(needle),
     );
   }, [offers, query]);
 
@@ -124,8 +124,8 @@ export default function MerchantOffersPage() {
   const openEditForm = (offer) => {
     setEditingOfferId(offer.requestId);
     setFormData({
-      title: offer.title || "",
-      category: offer.category || "Special",
+      title: offer.bannerTitle || "",
+      category: offer.bannerCategory || "Special",
       imageUrl: offer.imageUrl || "",
       startDate: toDateInputValue(offer.startDate),
       endDate: toDateInputValue(offer.endDate),
@@ -164,8 +164,8 @@ export default function MerchantOffersPage() {
         );
 
         await updateMyOfferPromotion(editingOfferId, {
-          title: title,
-          category: formData.category,
+          bannerTitle: title,
+          bannerCategory: formData.category,
           imageUrl: formData.imageUrl.trim(),
           selectedDates,
         });
@@ -181,7 +181,7 @@ export default function MerchantOffersPage() {
   };
 
   const onDeleteOffer = async (offer) => {
-    if (!window.confirm(`Delete offer \"${offer.title}\"?`)) return;
+    if (!window.confirm(`Delete offer \"${offer.bannerTitle}\"?`)) return;
     try {
       await deleteMyOfferPromotion(offer.requestId);
       await loadOffers();
@@ -198,17 +198,6 @@ export default function MerchantOffersPage() {
 
   return (
     <div className="min-h-screen bg-[#ececec] text-[#1b1b1b]" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
-      <style>{`
-        @keyframes shimmer-sweep {
-          0% { background-position: -400px 0; }
-          100% { background-position: 400px 0; }
-        }
-        .shimmer-offers {
-          background: linear-gradient(90deg, #e8e8e8 25%, #f4f4f4 50%, #e8e8e8 75%);
-          background-size: 800px 100%;
-          animation: shimmer-sweep 1.4s ease-in-out infinite;
-        }
-      `}</style>
       <MerchantNavbar activeKey="offers" />
 
       <main className="w-full px-8 lg:px-10 py-6">
@@ -374,24 +363,16 @@ export default function MerchantOffersPage() {
                 </thead>
                 <tbody>
                   {pageLoading ? (
-                    <>
-                      {[...Array(5)].map((_, i) => (
-                        <tr key={i} className="border-t border-[#f0f0f0]">
-                          <td className="px-4 py-3"><div className="h-4 w-28 rounded shimmer-offers" /></td>
-                          <td className="px-4 py-3"><div className="h-4 w-20 rounded shimmer-offers" /></td>
-                          <td className="px-4 py-3"><div className="h-5 w-14 rounded-full shimmer-offers" /></td>
-                          <td className="px-4 py-3"><div className="h-4 w-20 rounded shimmer-offers" /></td>
-                          <td className="px-4 py-3"><div className="h-4 w-24 rounded shimmer-offers" /></td>
-                        </tr>
-                      ))}
-                    </>
+                    <tr>
+                      <td className="px-4 py-8 text-center text-[#666]" colSpan={5}>Loading offers...</td>
+                    </tr>
                   ) : filteredOffers.length === 0 ? (
                     <tr>
                       <td className="px-4 py-8 text-center text-[#666]" colSpan={5}>No offers found</td>
                     </tr>
                   ) : filteredOffers.map((row) => (
                     <tr key={row.requestId} className="border-t border-[#f0f0f0]">
-                      <td className="px-4 py-3 font-semibold text-[#2a2a2a]">{row.title}</td>
+                      <td className="px-4 py-3 font-semibold text-[#2a2a2a]">{row.bannerTitle}</td>
                       <td className="px-4 py-3 text-[#2c2c2c]">{new Date(row.createdAt).toLocaleDateString()}</td>
                       <td className="px-4 py-3">
                         {row.status === "active" ? (

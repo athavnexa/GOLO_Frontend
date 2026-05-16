@@ -30,10 +30,7 @@ export async function submitUserReport(userId, reason, description) {
 // Centralized API Layer — Choja Frontend → ads-microservice
 // ============================================================
 
-const RAW_API_URL = process.env.NEXT_PUBLIC_API_URL?.trim();
-const BASE_URL = RAW_API_URL
-    ? RAW_API_URL.replace(/\/$/, '')
-    : '/api';
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === 'production' ? '' : 'http://localhost:3002');
 const PUBLIC_AUTH_ENDPOINTS = new Set([
     '/users/login',
     '/users/register',
@@ -45,10 +42,6 @@ const PUBLIC_AUTH_ENDPOINTS = new Set([
 
 export async function apiClient(endpoint, options = {}) {
     const url = `${BASE_URL}${endpoint}`;
-    // Debug: Print the full URL being called
-    if (typeof window !== 'undefined') {
-        console.log('[API DEBUG] Full API URL:', url);
-    }
     const isPublicAuthEndpoint = [...PUBLIC_AUTH_ENDPOINTS].some((path) => endpoint.startsWith(path));
 
     const headers = {
@@ -112,31 +105,17 @@ export async function apiClient(endpoint, options = {}) {
 }
 
 async function handleResponse(response) {
-    const contentType = response.headers.get('content-type') || '';
     let data = null;
-    let rawText = '';
-
     try {
-        if (contentType.includes('application/json')) {
-            data = await response.json();
-        } else {
-            rawText = await response.text();
-        }
+        data = await response.json();
     } catch {
         data = null;
     }
 
     if (!response.ok) {
-        const fallbackMessage = rawText
-            ? rawText.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 200)
-            : '';
-        const error = new Error(
-            data?.message ||
-            fallbackMessage ||
-            `API request failed (${response.status})`
-        );
+        const error = new Error(data?.message || 'API request failed');
         error.status = response.status;
-        error.data = data || (rawText ? { message: fallbackMessage || rawText } : null);
+        error.data = data;
         throw error;
     }
 
@@ -204,67 +183,10 @@ export async function registerUser({
     storeSubCategory,
     contactNumber,
     storeLocation,
-    storeLocationLatitude,
-    storeLocationLongitude,
 }) {
-    const payload = {
-        name,
-        email,
-        password,
-        phone,
-        accountType,
-        storeName,
-        storeEmail,
-        gstNumber,
-        storeCategory,
-        storeSubCategory,
-        contactNumber,
-        storeLocation,
-        storeLocationLatitude,
-        storeLocationLongitude,
-    };
-
-    try {
-        return await apiClient('/users/register', {
-            method: 'POST',
-            body: JSON.stringify(payload),
-        });
-    } catch (error) {
-        const messageText = Array.isArray(error?.data?.message)
-            ? error.data.message.join(" ")
-            : String(error?.data?.message || error?.message || "");
-        const unsupportedCoordinateFields =
-            messageText.includes("storeLocationLatitude should not exist") ||
-            messageText.includes("storeLocationLongitude should not exist");
-
-        if (!unsupportedCoordinateFields) {
-            throw error;
-        }
-
-        if (
-            typeof window !== "undefined" &&
-            accountType === "merchant" &&
-            typeof storeLocationLatitude === "number" &&
-            !Number.isNaN(storeLocationLatitude) &&
-            typeof storeLocationLongitude === "number" &&
-            !Number.isNaN(storeLocationLongitude)
-        ) {
-            try {
-                // Persist pending merchant location on server for sync after login
-                await apiClient('/users/pending-location', {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        email: String(storeEmail || email || "").trim().toLowerCase(),
-                        address: String(storeLocation || "").trim(),
-                        latitude: storeLocationLatitude,
-                        longitude: storeLocationLongitude,
-                    }),
-                });
-            } catch {
-            }
-        }
-
-        const fallbackPayload = {
+    return apiClient('/users/register', {
+        method: 'POST',
+        body: JSON.stringify({
             name,
             email,
             password,
@@ -277,13 +199,8 @@ export async function registerUser({
             storeSubCategory,
             contactNumber,
             storeLocation,
-        };
-
-        return apiClient('/users/register', {
-            method: 'POST',
-            body: JSON.stringify(fallbackPayload),
-        });
-    }
+        }),
+    });
 }
 
 export async function refreshTokenApi(refreshToken) {
@@ -384,7 +301,7 @@ export async function markAllNotificationsRead() {
 }
 
 export async function clearAllNotifications() {
-    return apiClient('/users/notifications', { method: 'DELETE' });
+    return apiClient('/users/notifications/clear-all', { method: 'POST' });
 }
 
 // ============================================================
@@ -523,18 +440,7 @@ function buildLegacyPromotionPayload(payload = {}) {
         ...legacyPayload
     } = payload;
 
-    // Map new field names to legacy banner API names
-    const mapped = { ...legacyPayload };
-    if (mapped.title !== undefined) {
-        mapped.bannerTitle = mapped.title;
-        delete mapped.title;
-    }
-    if (mapped.category !== undefined) {
-        mapped.bannerCategory = mapped.category;
-        delete mapped.category;
-    }
-
-    return mapped;
+    return legacyPayload;
 }
 
 function isNonWhitelistedPayloadError(error) {
@@ -613,7 +519,7 @@ export async function submitOfferPromotionRequest(payload) {
     const enrichedPayload = { ...payload, promotionType: 'offer' };
 
     try {
-        const response = await apiClient('/offers/request', {
+        const response = await apiClient('/banners/promotions/request', {
             method: 'POST',
             body: JSON.stringify(enrichedPayload),
         });
@@ -624,7 +530,7 @@ export async function submitOfferPromotionRequest(payload) {
             throw error;
         }
 
-        const response = await apiClient('/offers/request', {
+        const response = await apiClient('/banners/promotions/request', {
             method: 'POST',
             body: JSON.stringify(buildLegacyPromotionPayload(enrichedPayload)),
         });
@@ -645,7 +551,7 @@ export async function getMyBannerPromotions() {
 }
 
 export async function getMyOfferPromotions() {
-    const response = await apiClient('/offers/my');
+    const response = await apiClient('/banners/promotions/my?type=offer');
     const rows = Array.isArray(response?.data) ? response.data : [];
     const trackedOfferIds = readTrackedOfferPromotionIds();
 
@@ -666,7 +572,7 @@ export async function getActiveHomepageBanners(limit = 5) {
     return apiClient(`/banners/promotions/active?limit=${limit}`);
 }
 
-const LOCAL_BACKEND_URL = '/api';
+const LOCAL_BACKEND_URL = 'http://localhost:3002';
 let nearbyOffersRouteMissingOnPrimary = false;
 const NEARBY_OFFERS_PRIMARY_UNSUPPORTED_KEY = 'golo_nearby_offers_primary_unsupported';
 
@@ -776,7 +682,7 @@ export async function getNearbyOffers({
     }
     params.set('page', String(page));
     params.set('limit', String(limit));
-    const endpoint = `/offers/nearby?${params.toString()}`;
+    const endpoint = `/banners/promotions/offers/nearby?${params.toString()}`;
     const safePage = Number(page) || 1;
     const safeLimit = Number(limit) || 20;
 
@@ -805,7 +711,7 @@ export async function getNearbyOffers({
 }
 
 export async function getNearbyOfferDetails(offerId) {
-    const endpoint = `/offers/${offerId}`;
+    const endpoint = `/banners/promotions/offers/${offerId}`;
 
     if (isNearbyOffersPrimaryUnsupported()) {
         return fetchAbsoluteJson(`${LOCAL_BACKEND_URL}${endpoint}`);
@@ -821,6 +727,39 @@ export async function getNearbyOfferDetails(offerId) {
         markNearbyOffersPrimaryUnsupported();
         return fetchAbsoluteJson(`${LOCAL_BACKEND_URL}${endpoint}`);
     }
+}
+
+// ============================================================
+// PUBLIC MERCHANT APIS
+// ============================================================
+
+export async function getPublicMerchantProfile(merchantId) {
+    return apiClient(`/merchant/public/${merchantId}/profile`);
+}
+
+export async function getPublicMerchantStoreLocation(merchantId) {
+    return apiClient(`/merchant/public/${merchantId}/store-location`);
+}
+
+export async function getPublicMerchantProducts(merchantId, { page = 1, limit = 10, search = '' } = {}) {
+    const params = new URLSearchParams({ page, limit });
+    if (search) params.append('search', search);
+    return apiClient(`/merchant/products/public/${merchantId}?${params.toString()}`);
+}
+
+// ============================================================
+// VOUCHERS / REVIEWS
+// ============================================================
+
+export async function getPublicVoucherStatus(voucherId) {
+    return apiClient(`/vouchers/public/${voucherId}/status`);
+}
+
+export async function submitOfferReview(voucherId, payload) {
+    return apiClient(`/reviews/vouchers/${voucherId}`, {
+        method: 'POST',
+        body: JSON.stringify(payload),
+    });
 }
 
 // ============================================================
@@ -1170,20 +1109,6 @@ export async function getMerchantStoreLocation() {
     return apiClient('/merchant/store-location');
 }
 
-export async function getPublicMerchantProfile(merchantId) {
-    return apiClient(`/merchant/public/${merchantId}/profile`);
-}
-
-export async function getPublicMerchantStoreLocation(merchantId) {
-    return apiClient(`/merchant/public/${merchantId}/store-location`);
-}
-
-export async function getPublicMerchantProducts(merchantId, { page = 1, limit = 10, search = '' } = {}) {
-    const params = new URLSearchParams({ page, limit });
-    if (search) params.append('search', search);
-    return apiClient(`/merchant/products/public/${merchantId}?${params.toString()}`);
-}
-
 /**
  * Update merchant profile information
  * @param {Object} profileData - Merchant profile data to update
@@ -1226,15 +1151,7 @@ export async function getMyVouchers({ page = 1, limit = 10, status } = {}) {
  * @param {string} voucherId - The voucher ID
  */
 export async function getVoucherById(voucherId) {
-    return apiClient(`/vouchers/${voucherId}`, {
-        cache: 'no-store',
-    });
-}
-
-export async function getPublicVoucherStatus(voucherId) {
-    return apiClient(`/vouchers/public/${voucherId}/status`, {
-        cache: 'no-store',
-    });
+    return apiClient(`/vouchers/${voucherId}`);
 }
 
 /**
@@ -1338,64 +1255,11 @@ export async function getMerchantOrderStats() {
 }
 
 /**
- * Get merchant realtime analytics payload for dashboard sections
- */
-export async function getMerchantRealtimeAnalytics() {
-    return apiClient('/merchant-dashboard/analytics/realtime');
-}
-
-/**
- * Get merchant trend analytics
- */
-export async function getMerchantTrendAnalytics() {
-    return apiClient('/merchant-dashboard/analytics/trend');
-}
-
-/**
- * Get merchant events analytics
- */
-export async function getMerchantEventsAnalytics() {
-    return apiClient('/merchant-dashboard/analytics/events');
-}
-
-/**
- * Get merchant top products analytics
- */
-export async function getMerchantTopProductsAnalytics() {
-    return apiClient('/merchant-dashboard/analytics/top-products');
-}
-
-/**
- * Get merchant top regions analytics
- */
-export async function getMerchantTopRegionsAnalytics() {
-    return apiClient('/merchant-dashboard/analytics/top-regions');
-}
-
-/**
- * Get merchant device analytics
- */
-export async function getMerchantDeviceAnalytics() {
-    return apiClient('/merchant-dashboard/analytics/device-breakdown');
-}
-
-/**
  * Get analytics device breakdown
  * @param {string} dateRange - Time range for analytics (e.g., '7days', '30days')
  */
 export async function getAnalyticsDeviceBreakdown(dateRange = '7days') {
     return apiClient(`/analytics/device-breakdown?dateRange=${dateRange}`);
-}
-
-// ============================================================
-// LOYALTY POINTS APIs
-// ============================================================
-
-/**
- * Get merchant loyalty leaderboard (top customers by loyalty points)
- */
-export async function getMerchantLoyaltyLeaderboard() {
-    return apiClient('/merchant-dashboard/loyalty-leaderboard');
 }
 
 /**
@@ -1458,7 +1322,7 @@ export async function updateMerchantOrderStatus(orderId, status) {
  * @param {object} params - {status, search, page, limit}
  */
 export async function getMerchantReviews({ status, search, page = 1, limit = 30 } = {}) {
-    let url = `/reviews/merchant?page=${page}&limit=${limit}`;
+    let url = `/merchant/reviews?page=${page}&limit=${limit}`;
     if (status) url += `&status=${status}`;
     if (search) url += `&search=${encodeURIComponent(search)}`;
     return apiClient(url);
@@ -1468,7 +1332,7 @@ export async function getMerchantReviews({ status, search, page = 1, limit = 30 
  * Get merchant review statistics
  */
 export async function getMerchantReviewStats() {
-    return apiClient('/reviews/merchant/stats');
+    return apiClient('/merchant/reviews/stats');
 }
 
 /**
@@ -1478,32 +1342,9 @@ export async function getMerchantReviewStats() {
  * @param {string} response - Merchant response
  */
 export async function updateMerchantReviewStatus(reviewId, status, response = '') {
-    return apiClient(`/reviews/${reviewId}/status`, {
-        method: 'PATCH',
+    return apiClient(`/merchant/reviews/${reviewId}/status`, {
+        method: 'PUT',
         body: JSON.stringify({ status, response }),
-    });
-}
-
-/**
- * Get public reviews for an offer
- * @param {string} offerId - Offer ID
- * @param {object} params - {page, limit}
- */
-export async function getOfferReviews(offerId, { page = 1, limit = 10 } = {}) {
-    return apiClient(`/reviews/offers/${offerId}?page=${page}&limit=${limit}`, {
-        cache: 'no-store',
-    });
-}
-
-/**
- * Submit or update a redeemed-offer review
- * @param {string} voucherId - Voucher ID or voucher code id
- * @param {object} payload - {rating, content}
- */
-export async function submitOfferReview(voucherId, payload) {
-    return apiClient(`/reviews/vouchers/${voucherId}`, {
-        method: 'POST',
-        body: JSON.stringify(payload),
     });
 }
 
@@ -1524,18 +1365,6 @@ export async function updateMerchantProduct(productId, updateData) {
 }
 
 // ============================================================
-// MERCHANT ANALYTICS APIS
-// ============================================================
-
-/**
- * Get merchant's liked products (offers sorted by wishlist count)
- * @param {number} limit - Number of results to return
- */
-export async function getMerchantLikedProducts(limit = 10) {
-    return apiClient(`/offers/merchant/liked-products?limit=${limit}`);
-}
-
-// ============================================================
 // BANNER PROMOTION APIs
 // ============================================================
 
@@ -1552,7 +1381,7 @@ export async function updateMyBannerPromotion(promotionId, updateData) {
 }
 
 export async function updateMyOfferPromotion(promotionId, updateData) {
-    const response = await apiClient(`/offers/${promotionId}`, {
+    const response = await apiClient(`/banners/promotions/${promotionId}?type=offer`, {
         method: 'PUT',
         body: JSON.stringify(updateData),
     });
@@ -1571,7 +1400,7 @@ export async function deleteMyBannerPromotion(promotionId) {
 }
 
 export async function deleteMyOfferPromotion(promotionId) {
-    const response = await apiClient(`/offers/${promotionId}`, {
+    const response = await apiClient(`/banners/promotions/${promotionId}?type=offer`, {
         method: 'DELETE',
     });
     forgetOfferPromotionId(promotionId);
@@ -1582,7 +1411,7 @@ export async function deleteMyOfferPromotion(promotionId) {
  * Save merchant offer template in backend cache (Redis)
  */
 export async function saveMyOfferTemplate(payload) {
-    return apiClient('/offers/template/save', {
+    return apiClient('/banners/promotions/template/save', {
         method: 'POST',
         body: JSON.stringify(payload),
     });
@@ -1592,14 +1421,14 @@ export async function saveMyOfferTemplate(payload) {
  * Get merchant offer template from backend cache (Redis)
  */
 export async function getMyOfferTemplate() {
-    return apiClient('/offers/template');
+    return apiClient('/banners/promotions/template');
 }
 
 /**
  * Clear merchant offer template from backend cache (Redis)
  */
 export async function clearMyOfferTemplate() {
-    return apiClient('/offers/template', {
+    return apiClient('/banners/promotions/template', {
         method: 'DELETE',
     });
 }
@@ -1613,7 +1442,7 @@ export async function clearMyOfferTemplate() {
  * @param {object} params - {status, page, limit}
  */
 export async function getMerchantModerationReports({ status, page = 1, limit = 30 } = {}) {
-    let url = `/ads/reports/merchant/my?page=${page}&limit=${limit}`;
+    let url = `/merchant/moderation-reports?page=${page}&limit=${limit}`;
     if (status) url += `&status=${status}`;
     return apiClient(url);
 }
@@ -1623,10 +1452,10 @@ export async function getMerchantModerationReports({ status, page = 1, limit = 3
  * @param {string} reportId - Report ID
  * @param {string} status - New status
  */
-export async function updateMerchantModerationReportStatus(reportId, status, adminNotes = '') {
-    return apiClient(`/ads/reports/${reportId}/merchant-status`, {
+export async function updateMerchantModerationReportStatus(reportId, status) {
+    return apiClient(`/merchant/moderation-reports/${reportId}/status`, {
         method: 'PUT',
-        body: JSON.stringify({ status, adminNotes }),
+        body: JSON.stringify({ status }),
     });
 }
 

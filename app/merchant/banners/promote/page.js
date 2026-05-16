@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { CalendarDays, ChevronLeft, Upload } from "lucide-react";
+import { CalendarDays, ChevronLeft, Upload, User } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
 import { submitBannerPromotionRequest } from "../../../lib/api";
 import MerchantNavbar from "../../MerchantNavbar";
@@ -62,31 +62,13 @@ function dateToString(date) {
   return `${year}-${month}-${day}`;
 }
 
-function computeRangeDates(startDate, endDate) {
-  if (!startDate || !endDate) return [];
-  const start = new Date(startDate);
-  const end = new Date(endDate);
-  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return [];
-  if (end < start) return [];
-
-  const days = [];
-  const cursor = new Date(start);
-  while (cursor <= end) {
-    days.push(dateToString(cursor));
-    cursor.setDate(cursor.getDate() + 1);
-    if (days.length > 370) break;
-  }
-  return days;
-}
-
 export default function PromoteBannerPage() {
   const router = useRouter();
   const { user, loading } = useAuth();
 
   const [bannerTitle, setBannerTitle] = useState("");
   const [bannerCategory, setBannerCategory] = useState("Fashion");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [selectedDates, setSelectedDates] = useState([]);
   const [bannerPreview, setBannerPreview] = useState("");
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
@@ -94,7 +76,6 @@ export default function PromoteBannerPage() {
   const [submitMessage, setSubmitMessage] = useState("");
   const [submitError, setSubmitError] = useState("");
 
-  const selectedDates = useMemo(() => computeRangeDates(startDate, endDate), [startDate, endDate]);
   const selectedDays = useMemo(() => selectedDates.length, [selectedDates]);
   const subtotal = selectedDays * DAILY_BANNER_RATE;
   const platformFee = selectedDays > 0 ? 49 : 0;
@@ -134,8 +115,7 @@ export default function PromoteBannerPage() {
 
       setSubmitMessage("Banner request submitted for admin review.");
       setBannerTitle("");
-      setStartDate("");
-      setEndDate("");
+      setSelectedDates([]);
       setBannerPreview("");
     } catch (error) {
       setSubmitError(error?.data?.message || "Failed to submit banner request.");
@@ -160,8 +140,6 @@ export default function PromoteBannerPage() {
   }
 
   if (user.accountType !== "merchant") return null;
-
-  const todayIso = new Date().toISOString().split("T")[0];
 
   return (
     <div className="min-h-screen bg-[#ececec] text-[#1b1b1b]" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
@@ -282,42 +260,6 @@ export default function PromoteBannerPage() {
                             </button>
                           </div>
 
-                          <div className="grid grid-cols-2 gap-2 mb-4">
-                            <div>
-                              <label className="block text-[10px] font-semibold text-[#666] mb-1">Start Date</label>
-                              <input
-                                type="date"
-                                min={todayIso}
-                                value={startDate}
-                                onChange={(e) => {
-                                  const next = e.target.value;
-                                  setStartDate(next);
-                                  if (endDate && next && endDate < next) {
-                                    setEndDate("");
-                                  }
-                                  if (next) {
-                                    const parsed = new Date(next);
-                                    if (!Number.isNaN(parsed.getTime())) {
-                                      setCurrentMonth(parsed.getMonth());
-                                      setCurrentYear(parsed.getFullYear());
-                                    }
-                                  }
-                                }}
-                                className="h-9 w-full rounded-[8px] border border-[#e4e4e4] bg-white px-3 text-[11px] outline-none focus:border-[#2f9e58]"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-[10px] font-semibold text-[#666] mb-1">End Date</label>
-                              <input
-                                type="date"
-                                min={startDate || todayIso}
-                                value={endDate}
-                                onChange={(e) => setEndDate(e.target.value)}
-                                className="h-9 w-full rounded-[8px] border border-[#e4e4e4] bg-white px-3 text-[11px] outline-none focus:border-[#2f9e58]"
-                              />
-                            </div>
-                          </div>
-
                           {/* Weekday Headers */}
                           <div className="grid grid-cols-7 gap-1 mb-2">
                             {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
@@ -335,8 +277,6 @@ export default function PromoteBannerPage() {
                                 : null;
                               const dateStr = dateObj ? dateToString(dateObj) : null;
                               const isSelected = dateStr && selectedDates.includes(dateStr);
-                              const isStart = dateStr && startDate === dateStr;
-                              const isEnd = dateStr && endDate === dateStr;
                               const isToday =
                                 dateObj &&
                                 dateObj.toDateString() === new Date().toDateString();
@@ -347,19 +287,11 @@ export default function PromoteBannerPage() {
                                   key={idx}
                                   onClick={() => {
                                     if (!dateStr || isPast) return;
-                                    if (!startDate || (startDate && endDate)) {
-                                      setStartDate(dateStr);
-                                      setEndDate("");
-                                      return;
+                                    if (isSelected) {
+                                      setSelectedDates(selectedDates.filter((d) => d !== dateStr));
+                                    } else {
+                                      setSelectedDates([...selectedDates, dateStr].sort());
                                     }
-
-                                    if (dateStr < startDate) {
-                                      setStartDate(dateStr);
-                                      setEndDate("");
-                                      return;
-                                    }
-
-                                    setEndDate(dateStr);
                                   }}
                                   disabled={isPast}
                                   className={`h-7 rounded-[4px] text-[11px] font-medium transition ${
@@ -367,13 +299,11 @@ export default function PromoteBannerPage() {
                                       ? "bg-transparent"
                                       : isPast
                                         ? "bg-[#f0f0f0] text-[#ccc] cursor-not-allowed"
-                                        : isStart || isEnd
-                                          ? "bg-[#1f8f4f] text-white font-semibold"
-                                          : isSelected
+                                        : isSelected
+                                          ? "bg-[#2f9e58] text-white font-semibold"
+                                          : isToday
                                             ? "bg-[#e8f5e9] text-[#2f9e58] border border-[#2f9e58]"
-                                            : isToday
-                                              ? "bg-[#eef2ff] text-[#4338ca] border border-[#4338ca]"
-                                              : "bg-white border border-[#e4e4e4] text-[#2f2f2f] hover:bg-[#f9f9f9]"
+                                            : "bg-white border border-[#e4e4e4] text-[#2f2f2f] hover:bg-[#f9f9f9]"
                                   }`}
                                 >
                                   {day}
@@ -386,30 +316,10 @@ export default function PromoteBannerPage() {
                         {/* Right Column: Selected Dates */}
                         <div className="space-y-3 flex flex-col overflow-hidden">
                           <div className="flex-1 space-y-2 overflow-hidden flex flex-col">
-                            <div className="flex items-center justify-between">
-                              <p className="text-[11px] text-[#6c6c6c] font-medium">Selected Dates ({selectedDates.length})</p>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setStartDate("");
-                                  setEndDate("");
-                                }}
-                                className="text-[10px] font-semibold text-[#2f9e58] hover:text-[#1a6b38]"
-                              >
-                                Clear
-                              </button>
-                            </div>
+                            <p className="text-[11px] text-[#6c6c6c] font-medium">Selected Dates ({selectedDates.length})</p>
                             <div className="bg-white rounded-[8px] border border-[#e4e4e4] p-3 space-y-2 flex-1 overflow-y-auto">
                               {selectedDates.length > 0 ? (
                                 <div className="space-y-2">
-                                  <div className="rounded-[8px] border border-[#ececec] bg-[#fafafa] px-3 py-2 text-[11px] text-[#444]">
-                                    <p>
-                                      Range:{" "}
-                                      <span className="font-semibold">{formatDate(startDate)}</span>{" "}
-                                      -{" "}
-                                      <span className="font-semibold">{formatDate(endDate)}</span>
-                                    </p>
-                                  </div>
                                   {selectedDates.map((dateStr) => (
                                     <div
                                       key={dateStr}
@@ -424,7 +334,7 @@ export default function PromoteBannerPage() {
                                       </span>
                                       <button
                                         onClick={() =>
-                                          (setStartDate(""), setEndDate(""))
+                                          setSelectedDates(selectedDates.filter((d) => d !== dateStr))
                                         }
                                         className="text-[#2f9e58] hover:text-[#1a6b38] font-bold text-xs leading-none"
                                       >

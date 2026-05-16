@@ -13,7 +13,15 @@ import { updateMerchantStoreLocation, getMerchantStoreLocation, getMerchantProfi
 
 const topTabs = ["Profile Settings", "Loyalty Rewards", "Help", "Settings", "Logout"];
 
-import { getMerchantLoyaltyLeaderboard } from "../../lib/api";
+const loyaltyRows = [
+  { customer: "Amit Singh", offers: 16, points: 146, star: true },
+  { customer: "Rakesh Patel", offers: 14, points: 102, star: true },
+  { customer: "Amit Singh", offers: 10, points: 102, star: true },
+  { customer: "Rakesh Patel", offers: 10, points: 95, star: false },
+  { customer: "Amit Singh", offers: 6, points: 73, star: false },
+  { customer: "Rakesh Patel", offers: 4, points: 50, star: false },
+  { customer: "Amit Singh", offers: 2, points: 23, star: false },
+];
 
 export default function MerchantProfilePage() {
   return <MerchantProfilePageContent />;
@@ -62,8 +70,8 @@ function MerchantProfileContent({ user, logout, router }) {
     shopName: "",
     location: "",
   });
-  const [merchantPhoto, setMerchantPhoto] = useState("");
-  const [shopPhoto, setShopPhoto] = useState("");
+  const [merchantPhoto, setMerchantPhoto] = useState("/images/deal2.avif");
+  const [shopPhoto, setShopPhoto] = useState("/images/place2.avif");
   const [merchantPhotoFile, setMerchantPhotoFile] = useState(null);
   const [shopPhotoFile, setShopPhotoFile] = useState(null);
   const [storeLocation, setStoreLocation] = useState({
@@ -71,35 +79,6 @@ function MerchantProfileContent({ user, logout, router }) {
     latitude: 0,
     longitude: 0,
   });
-  const [loyaltyRows, setLoyaltyRows] = useState([]);
-  const [loyaltyLoading, setLoyaltyLoading] = useState(false);
-  // Pagination state for loyalty leaderboard
-  const [loyaltyPage, setLoyaltyPage] = useState(1);
-  const LOYALTY_PAGE_SIZE = 15;
-
-  useEffect(() => {
-    if (activeTab === "Loyalty Rewards") {
-      setLoyaltyLoading(true);
-      getMerchantLoyaltyLeaderboard()
-        .then((res) => {
-          // Debug: Print the full API response
-          console.log('[LOYALTY DEBUG] API response:', res);
-          // Accept both res.data (array) and res.data.data (array)
-          let rows = [];
-          if (Array.isArray(res?.data)) {
-            rows = res.data;
-          } else if (Array.isArray(res?.data?.data)) {
-            rows = res.data.data;
-          }
-          setLoyaltyRows(rows.slice(0, 10));
-        })
-        .catch((err) => {
-          console.error('[LOYALTY DEBUG] API error:', err);
-          setLoyaltyRows([])
-        })
-        .finally(() => setLoyaltyLoading(false));
-    }
-  }, [activeTab]);
 
   // Load merchant profile data on mount
   useEffect(() => {
@@ -334,15 +313,15 @@ function MerchantProfileContent({ user, logout, router }) {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="h-[56px] rounded-[8px] border border-[#b8bdc6] bg-white px-4 flex items-center justify-between">
                   <p className="text-[13px] font-semibold text-[#1f9b57]">Total Customers</p>
-                  <p className="text-[30px] leading-none font-semibold text-[#1f1f1f]">{loyaltyRows.length}</p>
+                  <p className="text-[30px] leading-none font-semibold text-[#1f1f1f]">228</p>
                 </div>
                 <div className="h-[56px] rounded-[8px] border border-[#b8bdc6] bg-white px-4 flex items-center justify-between">
                   <p className="text-[13px] font-semibold text-[#f1a61b]">Reward Champs</p>
-                  <p className="text-[30px] leading-none font-semibold text-[#1f1f1f]">{loyaltyRows.slice(0, 3).length}</p>
+                  <p className="text-[30px] leading-none font-semibold text-[#1f1f1f]">3</p>
                 </div>
                 <div className="h-[56px] rounded-[8px] border border-[#b8bdc6] bg-white px-4 flex items-center justify-between">
                   <p className="text-[13px] font-semibold text-[#323232]">Reward Points</p>
-                  <p className="text-[30px] leading-none font-semibold text-[#1f1f1f]">{loyaltyRows.reduce((acc, row) => acc + (row.points || 0), 0)}</p>
+                  <p className="text-[30px] leading-none font-semibold text-[#1f1f1f]">100</p>
                 </div>
               </div>
 
@@ -353,54 +332,26 @@ function MerchantProfileContent({ user, logout, router }) {
                   <p className="text-center">Number of Offers Claimed</p>
                   <p className="text-right">Loyalty Rewards</p>
                 </div>
-                {loyaltyLoading ? (
-                  <div className="text-center text-[#888] py-6">Loading leaderboard...</div>
-                ) : loyaltyRows.length === 0 ? (
-                  <div className="text-center text-[#888] py-6">No loyalty data yet.</div>
-                ) : (
-                  <>
-                    {loyaltyRows
-                      .slice((loyaltyPage - 1) * LOYALTY_PAGE_SIZE, loyaltyPage * LOYALTY_PAGE_SIZE)
-                      .map((row, index) => {
-                        const globalIndex = (loyaltyPage - 1) * LOYALTY_PAGE_SIZE + index;
-                        return (
-                          <div key={row.email || globalIndex} className="grid grid-cols-3 px-6 py-3 text-[13px] text-[#2f2f2f] border-b border-[#bfc3cb] last:border-b-0">
-                            <p className="pl-6">
-                              <span className="font-bold mr-2">{globalIndex + 1}.</span>
-                              {row.name || row.email || "Customer"}
-                            </p>
-                            <p className="text-center">{row.offersClaimed ?? '-'}
-                            </p>
-                            <p className="text-right pr-6">
-                              {globalIndex < 3 ? <span className="text-[#e5ad1d]">★</span> : null}
-                              {globalIndex < 3 ? " / " : ""}
-                              {row.points}
-                            </p>
-                          </div>
-                        );
-                      })}
-                    {/* Pagination controls */}
-                    <div className="flex justify-end items-center gap-3 px-6 py-4 bg-[#f9f9f9] border-t border-[#bfc3cb]">
-                      <button
-                        className="px-4 py-2 rounded bg-[#ececec] text-[#222] text-[13px] font-semibold disabled:opacity-60"
-                        onClick={() => setLoyaltyPage((p) => Math.max(1, p - 1))}
-                        disabled={loyaltyPage === 1}
-                      >
-                        Previous
-                      </button>
-                      <span className="text-[13px] font-semibold text-[#666]">
-                        Page {loyaltyPage} of {Math.max(1, Math.ceil(loyaltyRows.length / LOYALTY_PAGE_SIZE))}
-                      </span>
-                      <button
-                        className="px-4 py-2 rounded bg-[#ececec] text-[#222] text-[13px] font-semibold disabled:opacity-60"
-                        onClick={() => setLoyaltyPage((p) => Math.min(Math.ceil(loyaltyRows.length / LOYALTY_PAGE_SIZE), p + 1))}
-                        disabled={loyaltyPage >= Math.ceil(loyaltyRows.length / LOYALTY_PAGE_SIZE)}
-                      >
-                        Next
-                      </button>
-                    </div>
-                  </>
-                )}
+
+                {loyaltyRows.map((row, index) => (
+                  <div key={`${row.customer}-${index}`} className="grid grid-cols-3 px-6 py-3 text-[13px] text-[#2f2f2f] border-b border-[#bfc3cb] last:border-b-0">
+                    <p className="pl-6">{row.customer}</p>
+                    <p className="text-center">{row.offers}</p>
+                    <p className="text-right pr-6">
+                      {row.star ? <span className="text-[#e5ad1d]">★</span> : null}
+                      {row.star ? " / " : ""}
+                      {row.points}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="rounded-[8px] bg-[#d9dbe0] px-5 py-3 flex items-center justify-between">
+                <p className="text-[11px] text-[#5f6064]">Showing 5 of 97 products</p>
+                <div className="flex items-center gap-2">
+                  <button className="h-7 px-3 rounded-[8px] border border-[#8f949d] bg-white text-[10px] text-[#5f6064]">Previous</button>
+                  <button className="h-7 px-3 rounded-[8px] border border-[#86c490] bg-[#e6f8eb] text-[10px] text-[#1f9b57]">Next</button>
+                </div>
               </div>
             </div>
           ) : (
@@ -425,21 +376,15 @@ function MerchantProfileContent({ user, logout, router }) {
                   </div>
                   <div className="relative px-8 pb-7 pt-0">
                     <div className="absolute left-1/2 -translate-x-1/2 -top-14 w-28 h-28 rounded-full overflow-hidden border-4 border-white shadow-lg bg-white cursor-pointer group" onClick={() => isEditMode && handlePhotoClick(false)}>
-                      {merchantPhoto && String(merchantPhoto).trim() ? (
-                        <Image src={merchantPhoto} alt="Merchant profile" fill className="object-cover group-hover:brightness-75 transition" />
-                      ) : (
-                        <div className="h-full w-full bg-[#f3f4f6] flex items-center justify-center text-[#9ca3af]">
-                          <User size={44} />
-                        </div>
-                      )}
+                      <Image src={merchantPhoto} alt="Merchant profile" fill className="object-cover group-hover:brightness-75 transition" />
                     </div>
                     {isEditMode && (
-                      <div className="absolute left-1/2 translate-x-1 top-[24px] w-8 h-8 rounded-full bg-[#157a4f] border-2 border-white flex items-center justify-center text-white shadow-sm cursor-pointer hover:bg-[#0f5a3a] transition" onClick={() => handlePhotoClick(false)}>
+                      <div className="absolute left-1/2 translate-x-[28px] top-[24px] w-8 h-8 rounded-full bg-[#157a4f] border-2 border-white flex items-center justify-center text-white shadow-sm cursor-pointer hover:bg-[#0f5a3a] transition" onClick={() => handlePhotoClick(false)}>
                         <Camera size={15} />
                       </div>
                     )}
                     {!isEditMode && (
-                      <div className="absolute left-1/2 translate-x-1 top-[24px] w-8 h-8 rounded-full bg-[#bdbdbd] border-2 border-white flex items-center justify-center text-white shadow-sm">
+                      <div className="absolute left-1/2 translate-x-[28px] top-[24px] w-8 h-8 rounded-full bg-[#bdbdbd] border-2 border-white flex items-center justify-center text-white shadow-sm">
                         <Camera size={15} />
                       </div>
                     )}
@@ -447,17 +392,29 @@ function MerchantProfileContent({ user, logout, router }) {
                     <div className="pt-20 space-y-5">
                       <div>
                         <label className="block text-[14px] font-semibold text-[#222] mb-2">Username</label>
-                        <input value={formData.username} onChange={(e) => handleInputChange("username", e.target.value)} disabled={!isEditMode} className="h-10 w-full rounded-[4px] bg-white px-3 text-[12px] text-[#3a3a3a] border border-[#d9d9d9] focus:border-[#157a4f] focus:ring-1 focus:ring-[#157a4f] transition disabled:bg-[#f3f3f6] disabled:cursor-not-allowed" />
+                        {isEditMode ? (
+                          <input value={formData.username} onChange={(e) => handleInputChange("username", e.target.value)} className="h-10 w-full rounded-[4px] bg-[#f3f3f6] px-3 text-[12px] text-[#3a3a3a] outline-none" />
+                        ) : (
+                          <div className="h-10 rounded-[4px] bg-[#f3f3f6] px-3 flex items-center text-[12px] text-[#3a3a3a]">{formData.username}</div>
+                        )}
                       </div>
 
                       <div>
                         <label className="block text-[14px] font-semibold text-[#222] mb-2">Phone Number</label>
-                        <input value={formData.phone} onChange={(e) => handleInputChange("phone", e.target.value)} disabled={!isEditMode} className="h-10 w-full rounded-[4px] bg-white px-3 text-[12px] text-[#3a3a3a] border border-[#d9d9d9] focus:border-[#157a4f] focus:ring-1 focus:ring-[#157a4f] transition disabled:bg-[#f3f3f6] disabled:cursor-not-allowed" />
+                        {isEditMode ? (
+                          <input value={formData.phone} onChange={(e) => handleInputChange("phone", e.target.value)} className="h-10 w-full rounded-[4px] bg-[#f3f3f6] px-3 text-[12px] text-[#3a3a3a] outline-none" />
+                        ) : (
+                          <div className="h-10 rounded-[4px] bg-[#f3f3f6] px-3 flex items-center text-[12px] text-[#3a3a3a]">{formData.phone}</div>
+                        )}
                       </div>
 
                       <div>
                         <label className="block text-[14px] font-semibold text-[#222] mb-2">Email</label>
-                        <input value={formData.email} onChange={(e) => handleInputChange("email", e.target.value)} disabled={!isEditMode} className="h-10 w-full rounded-[4px] bg-white px-3 text-[12px] text-[#3a3a3a] border border-[#d9d9d9] focus:border-[#157a4f] focus:ring-1 focus:ring-[#157a4f] transition disabled:bg-[#f3f3f6] disabled:cursor-not-allowed" />
+                        {isEditMode ? (
+                          <input value={formData.email} onChange={(e) => handleInputChange("email", e.target.value)} className="h-10 w-full rounded-[4px] bg-[#f3f3f6] px-3 text-[12px] text-[#3a3a3a] outline-none" />
+                        ) : (
+                          <div className="h-10 rounded-[4px] bg-[#f3f3f6] px-3 flex items-center text-[12px] text-[#3a3a3a]">{formData.email}</div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -469,21 +426,15 @@ function MerchantProfileContent({ user, logout, router }) {
                   </div>
                   <div className="relative px-8 pb-7 pt-0">
                     <div className="absolute left-1/2 -translate-x-1/2 -top-14 w-28 h-28 rounded-full overflow-hidden border-4 border-white shadow-lg bg-white cursor-pointer group" onClick={() => isEditMode && handlePhotoClick(true)}>
-                      {shopPhoto && String(shopPhoto).trim() ? (
-                        <Image src={shopPhoto} alt="Shop" fill className="object-cover group-hover:brightness-75 transition" />
-                      ) : (
-                        <div className="h-full w-full bg-[#f3f4f6] flex items-center justify-center text-[#9ca3af]">
-                          <User size={44} />
-                        </div>
-                      )}
+                      <Image src={shopPhoto} alt="Shop" fill className="object-cover group-hover:brightness-75 transition" />
                     </div>
                     {isEditMode && (
-                      <div className="absolute left-1/2 translate-x-1 top-[24px] w-8 h-8 rounded-full bg-[#157a4f] border-2 border-white flex items-center justify-center text-white shadow-sm cursor-pointer hover:bg-[#0f5a3a] transition" onClick={() => handlePhotoClick(true)}>
+                      <div className="absolute left-1/2 translate-x-[28px] top-[24px] w-8 h-8 rounded-full bg-[#157a4f] border-2 border-white flex items-center justify-center text-white shadow-sm cursor-pointer hover:bg-[#0f5a3a] transition" onClick={() => handlePhotoClick(true)}>
                         <Camera size={15} />
                       </div>
                     )}
                     {!isEditMode && (
-                      <div className="absolute left-1/2 translate-x-1 top-[24px] w-8 h-8 rounded-full bg-[#bdbdbd] border-2 border-white flex items-center justify-center text-white shadow-sm">
+                      <div className="absolute left-1/2 translate-x-[28px] top-[24px] w-8 h-8 rounded-full bg-[#bdbdbd] border-2 border-white flex items-center justify-center text-white shadow-sm">
                         <Camera size={15} />
                       </div>
                     )}
@@ -491,7 +442,11 @@ function MerchantProfileContent({ user, logout, router }) {
                     <div className="pt-20 space-y-5">
                       <div>
                         <label className="block text-[14px] font-semibold text-[#222] mb-2">Shop Name</label>
-                        <input value={formData.shopName} onChange={(e) => handleInputChange("shopName", e.target.value)} disabled={!isEditMode} className="h-10 w-full rounded-[4px] bg-white px-3 text-[12px] text-[#3a3a3a] border border-[#d9d9d9] focus:border-[#157a4f] focus:ring-1 focus:ring-[#157a4f] transition disabled:bg-[#f3f3f6] disabled:cursor-not-allowed" />
+                        {isEditMode ? (
+                          <input value={formData.shopName} onChange={(e) => handleInputChange("shopName", e.target.value)} className="h-10 w-full rounded-[4px] bg-[#f3f3f6] px-3 text-[12px] text-[#3a3a3a] outline-none" />
+                        ) : (
+                          <div className="h-10 rounded-[4px] bg-[#f3f3f6] px-3 flex items-center text-[12px] text-[#3a3a3a]">{formData.shopName}</div>
+                        )}
                       </div>
 
                       <div>
@@ -602,7 +557,7 @@ function MerchantProfileContent({ user, logout, router }) {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-14 lg:gap-20 text-[10px] text-[#6b520f]">
+          <div className="grid grid-cols-3 gap-14 lg:gap-20 text-[10px] text-[#6b520f]">
             <div>
               <p className="font-semibold text-[#1b1b1b] mb-3">Links</p>
               <ul className="space-y-2">

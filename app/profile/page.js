@@ -33,7 +33,6 @@ export default function ProfilePage() {
 
   const [savingEdit, setSavingEdit] = useState(false);
   const [editError, setEditError] = useState("");
-  const [editSuccess, setEditSuccess] = useState("");
   const [avatarPreview, setAvatarPreview] = useState("");
   const [editForm, setEditForm] = useState({
     name: "",
@@ -103,16 +102,12 @@ export default function ProfilePage() {
     displayUser?.profile?.city || displayUser?.profile?.state
       ? `${displayUser?.profile?.city || ""}${displayUser?.profile?.city && displayUser?.profile?.state ? ", " : ""}${displayUser?.profile?.state || ""}`
       : "Pulewadi, IN";
-  
-  // Use loyalty points from API, fallback to calculated points
-  const loyaltyPoints = displayUser?.loyaltyPoints ?? Math.max(12450, activeAdsCount * 140);
-  const loyaltyTier = displayUser?.loyaltyTier || 'Bronze';
-  const monthlyLoyaltyPoints = displayUser?.monthlyLoyaltyPoints ?? 0;
+  const points = Math.max(12450, activeAdsCount * 140);
   const pointsGoal = 15000;
-  const progressPct = Math.min(100, Math.round((loyaltyPoints / pointsGoal) * 100));
-  const neededPoints = Math.max(0, pointsGoal - loyaltyPoints);
+  const progressPct = Math.min(100, Math.round((points / pointsGoal) * 100));
+  const neededPoints = Math.max(0, pointsGoal - points);
   const formattedPhone = displayUser?.profile?.phone || displayUser?.phone || "+91 9876543212";
-  const interests = displayUser?.profile?.interests || [
+  const interests = [
     "Home Services",
     "Real Estate",
     "Beauty & Wellness",
@@ -120,21 +115,14 @@ export default function ProfilePage() {
     "Food & Restaurants",
   ];
   const modalCategories = [
-    "Food & Restaurants",
+    "Art & Culture",
+    "Local Dining",
+    "Sustainable Living",
     "Home Services",
     "Beauty & Wellness",
-    "Healthcare & Medical",
-    "Hotels & Accommodation",
     "Shopping & Retail",
-    "Education & Training",
-    "Real Estate",
-    "Events & Entertainment",
-    "Professional Services",
-    "Automotive Services",
-    "Home Improvement",
-    "Fitness & Sports",
-    "Daily Needs & Utilities",
-    "Local Businesses & Vendors",
+    "Food & Restaurants",
+    "Travel",
   ];
 
   const openEditModal = () => {
@@ -149,11 +137,9 @@ export default function ProfilePage() {
       email: source?.email || "",
       phone: source?.profile?.phone || source?.phone || "+1 (503) 555-0192",
       location: existingLocation,
-      categories: source?.profile?.interests || ["Home Services", "Real Estate", "Beauty & Wellness", "Shopping & Retail", "Food & Restaurants"],
+      categories: ["Art & Culture", "Local Dining", "Sustainable Living"],
     });
     setEditError("");
-    setEditSuccess("");
-    setAvatarPreview("");
     setShowEditModal(true);
   };
 
@@ -179,164 +165,48 @@ export default function ProfilePage() {
   const handleAvatarPick = (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
-
-    // Validate file
-    if (!file.type.startsWith("image/")) {
-      setEditError("Please upload a valid image file");
-      return;
-    }
-
-    // Compress image before converting to base64
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const img = new Image();
-      img.onload = () => {
-        // Create canvas for compression
-        const canvas = document.createElement("canvas");
-        let width = img.width;
-        let height = img.height;
-
-        // Resize if too large (max 600x600)
-        if (width > 600 || height > 600) {
-          const ratio = Math.min(600 / width, 600 / height);
-          width *= ratio;
-          height *= ratio;
-        }
-
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext("2d");
-        ctx.drawImage(img, 0, 0, width, height);
-
-        // Convert to JPEG with compression (0.8 quality)
-        const compressedData = canvas.toDataURL("image/jpeg", 0.8);
-        const compressedSize = Buffer.byteLength(compressedData, "utf8") / 1024 / 1024;
-
-        if (compressedSize > 2) {
-          setEditError(`Image too large even after compression. Current: ${compressedSize.toFixed(2)}MB, Max: 2MB`);
-          return;
-        }
-
-        setAvatarPreview(compressedData);
-        setEditError("");
-      };
-      img.onerror = () => {
-        setEditError("Failed to load image file");
-      };
-      img.src = e.target.result;
-    };
-    reader.onerror = () => {
-      setEditError("Failed to read image file");
-    };
-    reader.readAsDataURL(file);
+    const blobUrl = URL.createObjectURL(file);
+    setAvatarPreview(blobUrl);
   };
 
   const handleSaveProfileFromModal = async () => {
-    // Validation
-    if (!editForm.name.trim()) {
-      setEditError("Full name is required");
-      return;
-    }
-    if (!editForm.email.trim()) {
-      setEditError("Email is required");
-      return;
-    }
-    if (!editForm.phone.trim()) {
-      setEditError("Phone number is required");
-      return;
-    }
-    if (editForm.categories.length < 5) {
-      setEditError("Please select at least 5 categories");
+    if (!editForm.name.trim() || !editForm.email.trim() || !editForm.phone.trim()) {
+      setEditError("Full name, email and phone number are required.");
       return;
     }
 
     setSavingEdit(true);
     setEditError("");
 
+    const [cityPart, statePart] = String(editForm.location || "").split(",").map((item) => item.trim());
+
     try {
-      // Parse location
-      const locationParts = String(editForm.location || "").split(",").map((item) => item.trim());
-      const city = locationParts[0] || editForm.location;
-      const state = locationParts[1] || "IN";
-
-      // Build profile data
-      const profileData = {
-        name: editForm.name.trim(),
-        email: editForm.email.trim(),
+      const res = await updateProfile({
+        name: editForm.name,
+        email: editForm.email,
         profile: {
-          phone: editForm.phone.trim(),
-          city: city,
-          state: state,
-          interests: editForm.categories,
+          phone: editForm.phone,
+          city: cityPart || editForm.location,
+          state: statePart || "IN",
         },
-      };
-
-      // Add profile photo if it's a data URL (newly uploaded)
-      if (avatarPreview && avatarPreview.startsWith("data:image")) {
-        profileData.profilePhoto = avatarPreview;
-      }
-
-      // Call API
-      console.log("[Profile] Sending update with data:", {
-        name: profileData.name,
-        email: profileData.email,
-        hasPhoto: !!profileData.profilePhoto,
-        photoSize: profileData.profilePhoto ? 
-          (Buffer.byteLength(profileData.profilePhoto, 'utf8') / 1024 / 1024).toFixed(2) + "MB" : 
-          "N/A",
-        categories: profileData.profile.interests.length,
       });
 
-      const res = await updateProfile(profileData);
-
-      console.log("[Profile] Update response:", res);
-
       if (!res?.success) {
-        setEditError(res?.message || "Failed to update profile. Please try again.");
+        setEditError(res?.message || "Failed to update profile.");
         return;
       }
 
-      // IMPORTANT: Wait a moment for database to persist, then refresh
-      await new Promise(resolve => setTimeout(resolve, 800));
-
-      // Refresh profile data from server with explicit force
-      try {
-        const refreshed = await getProfile();
-        console.log("[Profile] Complete refreshed profile data:", JSON.stringify(refreshed?.data, null, 2));
-        
-        if (refreshed?.success && refreshed?.data) {
-          console.log("[Profile] Setting profile with photo:", !!refreshed.data.profilePhoto);
-          console.log("[Profile] Setting profile with interests:", refreshed.data.profile?.interests);
-          setProfile(refreshed.data);
-          
-          // Force state update to trigger re-render
-          setProfile(prev => ({ ...prev }));
-        }
-      } catch (refreshError) {
-        console.warn("[Profile] Error refreshing profile:", refreshError);
+      const refreshed = await getProfile();
+      if (refreshed?.success) {
+        setProfile(refreshed.data);
+      }
+      if (typeof refreshProfile === "function") {
+        await refreshProfile();
       }
 
-      // Refresh auth context if available
-      try {
-        if (typeof refreshProfile === "function") {
-          await refreshProfile();
-        }
-      } catch (authError) {
-        console.warn("[Profile] Error refreshing auth context:", authError);
-      }
-
-      // Success - close modal
       setShowEditModal(false);
-      setAvatarPreview("");
-      setEditSuccess("Profile updated successfully! ✓");
-      setEditError("");
-      
-      // Auto-close success message after 3 seconds
-      setTimeout(() => setEditSuccess(""), 3000);
     } catch (error) {
-      console.error("[Profile] Save error:", error);
-      const errorMessage = error?.data?.message || error?.message || "Failed to update profile";
-      setEditError(errorMessage);
+      setEditError(error?.data?.message || error?.message || "Failed to update profile.");
     } finally {
       setSavingEdit(false);
     }
@@ -352,28 +222,14 @@ export default function ProfilePage() {
             <GolocalProfileSidebar active="profile" />
 
             <main className="p-5 lg:p-8 space-y-5">
-                {editSuccess && (
-                  <div className="p-4 rounded-lg bg-[#dcfce7] border border-[#86efac] text-[#166534] font-semibold">
-                    {editSuccess}
-                  </div>
-                )}
                 <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
                   <div className="flex items-start gap-4">
-                    {displayUser?.profilePhoto ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={displayUser.profilePhoto}
-                        alt={displayUser?.name || "Profile"}
-                        className="w-[84px] h-[84px] rounded-full shadow-sm object-cover"
-                      />
-                    ) : (
-                      <div className="w-[84px] h-[84px] rounded-full bg-[#e6b03f] text-white flex items-center justify-center text-4xl font-medium relative shadow-sm">
-                        {initials}
-                        <span className="absolute right-1 bottom-1 w-5 h-5 rounded-full bg-[#157a4f] border-2 border-white flex items-center justify-center text-[10px] text-white">
-                          <User size={10} />
-                        </span>
-                      </div>
-                    )}
+                    <div className="w-[84px] h-[84px] rounded-full bg-[#e6b03f] text-white flex items-center justify-center text-4xl font-medium relative shadow-sm">
+                      {initials}
+                      <span className="absolute right-1 bottom-1 w-5 h-5 rounded-full bg-[#157a4f] border-2 border-white flex items-center justify-center text-[10px] text-white">
+                        <User size={10} />
+                      </span>
+                    </div>
                     <div>
                       <h1 className="text-[36px] leading-none font-semibold text-[#1d1d1d]">{displayUser?.name || "Kaustubh Khamkar"}</h1>
                       <div className="mt-2 space-y-1 text-sm text-[#4f4f4f]">
@@ -399,9 +255,9 @@ export default function ProfilePage() {
                       <span className="w-8 h-8 rounded-lg bg-[#eff6f2] text-[#157a4f] flex items-center justify-center"><Star size={14} /></span>
                       <span className="text-[11px] text-[#157a4f] bg-[#ecf8f1] px-2 py-0.5 rounded-full">Lifetime</span>
                     </div>
-                    <p className="text-3xl font-semibold text-[#1f1f1f] mt-4">{loyaltyPoints?.toLocaleString() ?? 0}</p>
-                    <p className="text-sm text-[#4d4d4d]">Total Points ({loyaltyTier})</p>
-                    <p className="text-xs text-[#8a8a8a] mt-3">{`You've earned ${monthlyLoyaltyPoints} points this month!`}</p>
+                    <p className="text-3xl font-semibold text-[#1f1f1f] mt-4">12,450</p>
+                    <p className="text-sm text-[#4d4d4d]">Total Points</p>
+                    <p className="text-xs text-[#8a8a8a] mt-3">You've earned 850 points this month!</p>
                   </div>
 
                   <div className="rounded-xl border border-[#b6e7d0] bg-[#c9f1df] p-4">
@@ -409,9 +265,9 @@ export default function ProfilePage() {
                       <span className="w-8 h-8 rounded-lg bg-[#e5f7ef] text-[#157a4f] flex items-center justify-center"><Award size={14} /></span>
                       <span className="text-[11px] text-[#157a4f] bg-[#d9f6e8] px-2 py-0.5 rounded-full">Lifetime</span>
                     </div>
-                    <p className="text-3xl font-semibold text-[#1f1f1f] mt-4">{loyaltyTier} Local</p>
+                    <p className="text-3xl font-semibold text-[#1f1f1f] mt-4">Platinum Local</p>
                     <p className="text-sm text-[#4d4d4d]">Current Tier</p>
-                    <p className="text-xs text-[#5b7d6d] mt-3">{profile?.tierDescription || `You are in the ${loyaltyTier} tier.`}</p>
+                    <p className="text-xs text-[#5b7d6d] mt-3">Top 5% of users in Portland area.</p>
                   </div>
 
                   <div className="rounded-xl border border-[#e7e7e7] p-4">
@@ -419,9 +275,9 @@ export default function ProfilePage() {
                       <span className="w-8 h-8 rounded-lg bg-[#eff6f2] text-[#157a4f] flex items-center justify-center"><Ticket size={14} /></span>
                       <span className="text-[11px] text-[#157a4f] bg-[#ecf8f1] px-2 py-0.5 rounded-full">Lifetime</span>
                     </div>
-                    <p className="text-3xl font-semibold text-[#1f1f1f] mt-4">{profile?.dealsRedeemed ?? 0}</p>
+                    <p className="text-3xl font-semibold text-[#1f1f1f] mt-4">48</p>
                     <p className="text-sm text-[#4d4d4d]">Deals Redeemed</p>
-                    <p className="text-xs text-[#8a8a8a] mt-3">{profile?.savingsText || `Estimated ₹${profile?.totalSavings ?? 0} saved on local goods.`}</p>
+                    <p className="text-xs text-[#8a8a8a] mt-3">Estimated ₹120 saved on local goods.</p>
                   </div>
                 </section>
 
@@ -443,7 +299,7 @@ export default function ProfilePage() {
                     </div>
                   </div>
 
-                  <div className="mt-4 text-sm font-semibold text-[#3f3f3f]">{loyaltyPoints.toLocaleString()} / {pointsGoal.toLocaleString()} Points</div>
+                  <div className="mt-4 text-sm font-semibold text-[#3f3f3f]">{points.toLocaleString()} / {pointsGoal.toLocaleString()} Points</div>
                   <div className="w-full h-2.5 rounded-full bg-[#f2e5c6] mt-2 overflow-hidden">
                     <div className="h-full rounded-full bg-[#157a4f]" style={{ width: `${progressPct}%` }} />
                   </div>
@@ -530,13 +386,10 @@ export default function ProfilePage() {
 
             <div className="px-6 py-5 border-t border-[#edf1ef] overflow-y-auto">
               <div className="flex items-center gap-4 pb-5 border-b border-[#ececec]">
-                <div className="w-16 h-16 rounded-full bg-[#edb744] text-white flex items-center justify-center text-3xl font-medium overflow-hidden">
+                <div className="w-16 h-16 rounded-full bg-[#edb744] text-white flex items-center justify-center text-3xl font-medium">
                   {avatarPreview ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={avatarPreview} alt="Profile preview" className="w-full h-full object-cover" />
-                  ) : displayUser?.profilePhoto ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={displayUser.profilePhoto} alt="Current profile" className="w-full h-full object-cover" />
+                    <img src={avatarPreview} alt="Profile preview" className="w-full h-full rounded-full object-cover" />
                   ) : (
                     editForm.name?.charAt(0)?.toUpperCase() || "A"
                   )}
@@ -624,19 +477,15 @@ export default function ProfilePage() {
                       </button>
                     );
                   })}
+                  <button className="rounded-full border border-[#e4dbc5] bg-[#efe6cf] text-[#4d4737] px-4 py-1.5 text-sm font-semibold inline-flex items-center gap-1.5">
+                    <Plus size={14} />
+                    Add Category
+                  </button>
                 </div>
               </div>
 
               {editError && (
-                <div className="mt-4 p-3 rounded-lg bg-[#fee2e2] border border-[#fecaca] text-[#dc2626] text-sm font-semibold">
-                  {editError}
-                </div>
-              )}
-
-              {editSuccess && (
-                <div className="mt-4 p-3 rounded-lg bg-[#dcfce7] border border-[#86efac] text-[#166534] text-sm font-semibold">
-                  {editSuccess}
-                </div>
+                <p className="mt-4 text-[#d45555] text-sm font-semibold">{editError}</p>
               )}
             </div>
 
