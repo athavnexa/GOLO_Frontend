@@ -63,7 +63,7 @@ RUN chown -R nextjs:nextjs /app
 USER nextjs
 
 # Expose app port
-EXPOSE 3000
+EXPOSE 3001
 
 # Healthcheck
 HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
