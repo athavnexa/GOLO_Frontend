@@ -30,12 +30,21 @@ export async function submitUserReport(userId, reason, description) {
 // Centralized API Layer — Choja Frontend → ads-microservice
 // ============================================================
 
-const FALLBACK_API_URL = 'http://localhost:3002';
-const ACCESS_TOKEN_STORAGE_KEY = 'golo-access-token';
-const REFRESH_TOKEN_STORAGE_KEY = 'golo-refresh-token';
+// DO NOT use localhost as a fallback for production deployments
+// For Dokploy multi-container setup, services are accessed via service names
+const FALLBACK_API_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
 function normalizeBackendApiBaseUrl(rawValue, fallbackUrl = FALLBACK_API_URL) {
     const trimmedValue = String(rawValue || '').trim();
+
+    // If no value and no fallback, leave empty (will cause proper error in browser)
+    if (!trimmedValue && !fallbackUrl) {
+        console.warn(
+            'WARNING: NEXT_PUBLIC_API_URL is not set. ' +
+            'API calls will fail. Please configure the environment variable.'
+        );
+        return '';
+    }
 
     if (!trimmedValue) {
         return fallbackUrl;
@@ -53,10 +62,17 @@ function normalizeBackendApiBaseUrl(rawValue, fallbackUrl = FALLBACK_API_URL) {
     return normalizedValue;
 }
 
-export const API_BASE_URL = normalizeBackendApiBaseUrl(process.env.NEXT_PUBLIC_API_URL);
+// In Next.js, `NEXT_PUBLIC_*` values are baked at build time for browser bundles.
+// Ensure NEXT_PUBLIC_API_URL is set during build in your Dokploy config
+export const API_BASE_URL = normalizeBackendApiBaseUrl(
+    process.env.NEXT_PUBLIC_API_URL,
+    FALLBACK_API_URL,
+);
 export const API_ORIGIN_URL = API_BASE_URL;
+
 // Keep the backend base URL as a plain origin so auth routes resolve to /users/*.
-const BASE_URL = API_BASE_URL || (process.env.NODE_ENV === 'production' ? '' : 'http://localhost:3002');
+const BASE_URL = API_BASE_URL;
+
 const PUBLIC_AUTH_ENDPOINTS = new Set([
     '/users/login',
     '/users/register',
@@ -69,9 +85,10 @@ export function getStoredAccessToken() {
         return '';
     }
 
+    // Read from canonical key first, then fall back to legacy keys for compatibility.
     return (
-        localStorage.getItem(ACCESS_TOKEN_STORAGE_KEY) ||
         localStorage.getItem('accessToken') ||
+        localStorage.getItem('golo-access-token') ||
         localStorage.getItem('authToken') ||
         ''
     );
@@ -82,9 +99,10 @@ export function getStoredRefreshToken() {
         return '';
     }
 
+    // Read from canonical key first, then fall back to legacy key.
     return (
-        localStorage.getItem(REFRESH_TOKEN_STORAGE_KEY) ||
         localStorage.getItem('refreshToken') ||
+        localStorage.getItem('golo-refresh-token') ||
         ''
     );
 }
@@ -95,20 +113,16 @@ export function setStoredAuthTokens({ accessToken = '', refreshToken = '' } = {}
     }
 
     if (accessToken) {
-        localStorage.setItem(ACCESS_TOKEN_STORAGE_KEY, accessToken);
         localStorage.setItem('accessToken', accessToken);
         localStorage.setItem('authToken', accessToken);
     } else {
-        localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
         localStorage.removeItem('accessToken');
         localStorage.removeItem('authToken');
     }
 
     if (refreshToken) {
-        localStorage.setItem(REFRESH_TOKEN_STORAGE_KEY, refreshToken);
         localStorage.setItem('refreshToken', refreshToken);
     } else {
-        localStorage.removeItem(REFRESH_TOKEN_STORAGE_KEY);
         localStorage.removeItem('refreshToken');
     }
 }
@@ -118,16 +132,29 @@ export function clearStoredAuthTokens() {
         return;
     }
 
-    localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
-    localStorage.removeItem(REFRESH_TOKEN_STORAGE_KEY);
+    // Remove canonical and legacy keys to clean up any previous storage variants.
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
+    localStorage.removeItem('golo-access-token');
+    localStorage.removeItem('golo-refresh-token');
     localStorage.removeItem('authToken');
 }
 
 // --------------- Core Fetch Wrapper ---------------
 
 export async function apiClient(endpoint, options = {}) {
+    if (!BASE_URL) {
+        const configError = new Error(
+            'API base URL is not configured. Please set NEXT_PUBLIC_API_URL environment variable.'
+        );
+        configError.status = 0;
+        configError.data = {
+            message: configError.message,
+            endpoint,
+        };
+        throw configError;
+    }
+
     const url = `${BASE_URL}${endpoint}`;
     const isPublicAuthEndpoint = [...PUBLIC_AUTH_ENDPOINTS].some((path) => endpoint.startsWith(path));
 
@@ -152,8 +179,9 @@ export async function apiClient(endpoint, options = {}) {
         response = await fetch(url, config);
     } catch (error) {
         const networkError = new Error(
-            `Unable to connect to API at ${BASE_URL || '(same-origin)'}. ` +
-            `Please ensure the backend is running and NEXT_PUBLIC_API_URL is correct.`
+            `Unable to connect to API at ${BASE_URL}. ` +
+            `Please ensure the backend service is running and accessible. ` +
+            `For Dokploy deployments, verify the service URL in your environment configuration.`
         );
         networkError.status = 0;
         networkError.data = {
@@ -197,6 +225,10 @@ async function handleResponse(response) {
 
 async function tryRefreshToken() {
     try {
+        if (!BASE_URL) {
+            return false;
+        }
+
         const refreshToken = getStoredRefreshToken();
         if (!refreshToken) {
             return false;
@@ -607,24 +639,40 @@ export async function submitBannerPromotionRequest(payload) {
 export async function submitOfferPromotionRequest(payload) {
     const enrichedPayload = { ...payload, promotionType: 'offer' };
 
+    // Primary: use the dedicated offers endpoint. Fallback to legacy banner
+    // promotions endpoint only if the primary route is unavailable (older backends).
     try {
-        const response = await apiClient('/banners/promotions/request', {
-            method: 'POST',
-            body: JSON.stringify(enrichedPayload),
-        });
-        rememberOfferPromotionId(getPromotionRowId(response?.data));
-        return response;
-    } catch (error) {
-        if (!isNonWhitelistedPayloadError(error)) {
-            throw error;
+        try {
+            const response = await apiClient('/offers/request', {
+                method: 'POST',
+                body: JSON.stringify(enrichedPayload),
+            });
+            rememberOfferPromotionId(getPromotionRowId(response?.data));
+            return response;
+        } catch (error) {
+            if (!isNonWhitelistedPayloadError(error)) {
+                throw error;
+            }
+
+            const response = await apiClient('/offers/request', {
+                method: 'POST',
+                body: JSON.stringify(buildLegacyPromotionPayload(enrichedPayload)),
+            });
+            rememberOfferPromotionId(getPromotionRowId(response?.data));
+            return response;
+        }
+    } catch (err) {
+        // If offers route truly doesn't exist (404), fall back to legacy banner promotions
+        if (err?.status === 404) {
+            const response = await apiClient('/banners/promotions/request', {
+                method: 'POST',
+                body: JSON.stringify(enrichedPayload),
+            });
+            rememberOfferPromotionId(getPromotionRowId(response?.data));
+            return response;
         }
 
-        const response = await apiClient('/banners/promotions/request', {
-            method: 'POST',
-            body: JSON.stringify(buildLegacyPromotionPayload(enrichedPayload)),
-        });
-        rememberOfferPromotionId(getPromotionRowId(response?.data));
-        return response;
+        throw err;
     }
 }
 
@@ -671,15 +719,8 @@ export async function getActiveHomepageBanners(limit = 5) {
     return apiClient(`/banners/promotions/active?limit=${limit}`);
 }
 
-export async function getHomeSectionConfig() {
-    return apiClient('/home-sections/config', {
-        cache: 'no-store',
-    });
-}
-
-const LOCAL_BACKEND_URL = API_ORIGIN_URL || 'http://localhost:3002';
-let nearbyOffersRouteMissingOnPrimary = false;
 const NEARBY_OFFERS_PRIMARY_UNSUPPORTED_KEY = 'golo_nearby_offers_primary_unsupported';
+let nearbyOffersRouteMissingOnPrimary = false;
 
 function markNearbyOffersPrimaryUnsupported() {
     nearbyOffersRouteMissingOnPrimary = true;
@@ -711,43 +752,6 @@ function emptyNearbyOffersResponse(page = 1, limit = 20) {
             pages: 0,
         },
     };
-}
-
-async function fetchAbsoluteJson(url) {
-    const headers = {
-        'Content-Type': 'application/json',
-    };
-
-    let response;
-    try {
-        response = await fetch(url, {
-            method: 'GET',
-            headers,
-            credentials: 'include',
-        });
-    } catch (error) {
-        const networkError = new Error(`Unable to connect to ${url}`);
-        networkError.status = 0;
-        networkError.data = { message: networkError.message, url };
-        networkError.cause = error;
-        throw networkError;
-    }
-
-    let data = null;
-    try {
-        data = await response.json();
-    } catch {
-        data = null;
-    }
-
-    if (!response.ok) {
-        const requestError = new Error(data?.message || `Request failed (${response.status})`);
-        requestError.status = response.status;
-        requestError.data = data;
-        throw requestError;
-    }
-
-    return data;
 }
 
 export async function getNearbyOffers({
@@ -793,14 +797,6 @@ export async function getNearbyOffers({
     const safePage = Number(page) || 1;
     const safeLimit = Number(limit) || 20;
 
-    if (isNearbyOffersPrimaryUnsupported()) {
-        try {
-            return await fetchAbsoluteJson(`${LOCAL_BACKEND_URL}${endpoint}`);
-        } catch {
-            return emptyNearbyOffersResponse(safePage, safeLimit);
-        }
-    }
-
     try {
         return await apiClient(endpoint);
     } catch (error) {
@@ -809,21 +805,14 @@ export async function getNearbyOffers({
         }
 
         markNearbyOffersPrimaryUnsupported();
-        try {
-            return await fetchAbsoluteJson(`${LOCAL_BACKEND_URL}${endpoint}`);
-        } catch {
-            return emptyNearbyOffersResponse(safePage, safeLimit);
-        }
+        // Don't fall back to a hardcoded URL - just return empty response
+        return emptyNearbyOffersResponse(safePage, safeLimit);
     }
 }
 
 export async function getNearbyOfferDetails(offerId) {
     const endpoint = `/offers/${offerId}`;
 
-    if (isNearbyOffersPrimaryUnsupported()) {
-        return fetchAbsoluteJson(`${LOCAL_BACKEND_URL}${endpoint}`);
-    }
-
     try {
         return await apiClient(endpoint);
     } catch (error) {
@@ -832,7 +821,7 @@ export async function getNearbyOfferDetails(offerId) {
         }
 
         markNearbyOffersPrimaryUnsupported();
-        return fetchAbsoluteJson(`${LOCAL_BACKEND_URL}${endpoint}`);
+        throw error;  // Don't fall back - let the error propagate
     }
 }
 
@@ -1529,12 +1518,25 @@ export async function updateMyBannerPromotion(promotionId, updateData) {
 }
 
 export async function updateMyOfferPromotion(promotionId, updateData) {
-    const response = await apiClient(`/offers/${promotionId}`, {
-        method: 'PUT',
-        body: JSON.stringify(updateData),
-    });
-    rememberOfferPromotionId(promotionId);
-    return response;
+    try {
+        const response = await apiClient(`/offers/${promotionId}`, {
+            method: 'PUT',
+            body: JSON.stringify(updateData),
+        });
+        rememberOfferPromotionId(promotionId);
+        return response;
+    } catch (err) {
+        if (err?.status === 404) {
+            // Fallback for older backends
+            const response = await apiClient(`/banners/promotions/${promotionId}?type=offer`, {
+                method: 'PUT',
+                body: JSON.stringify(updateData),
+            });
+            rememberOfferPromotionId(promotionId);
+            return response;
+        }
+        throw err;
+    }
 }
 
 /**
@@ -1548,37 +1550,74 @@ export async function deleteMyBannerPromotion(promotionId) {
 }
 
 export async function deleteMyOfferPromotion(promotionId) {
-    const response = await apiClient(`/offers/${promotionId}`, {
-        method: 'DELETE',
-    });
-    forgetOfferPromotionId(promotionId);
-    return response;
+    try {
+        const response = await apiClient(`/offers/${promotionId}`, {
+            method: 'DELETE',
+        });
+        forgetOfferPromotionId(promotionId);
+        return response;
+    } catch (err) {
+        if (err?.status === 404) {
+            const response = await apiClient(`/banners/promotions/${promotionId}?type=offer`, {
+                method: 'DELETE',
+            });
+            forgetOfferPromotionId(promotionId);
+            return response;
+        }
+        throw err;
+    }
 }
 
 /**
  * Save merchant offer template in backend cache (Redis)
  */
 export async function saveMyOfferTemplate(payload) {
-    return apiClient('/offers/template/save', {
-        method: 'POST',
-        body: JSON.stringify(payload),
-    });
+    try {
+        return await apiClient('/offers/template/save', {
+            method: 'POST',
+            body: JSON.stringify(payload),
+        });
+    } catch (err) {
+        if (err?.status === 404) {
+            return apiClient('/banners/promotions/template/save', {
+                method: 'POST',
+                body: JSON.stringify(payload),
+            });
+        }
+        throw err;
+    }
 }
 
 /**
  * Get merchant offer template from backend cache (Redis)
  */
 export async function getMyOfferTemplate() {
-    return apiClient('/offers/template');
+    try {
+        return await apiClient('/offers/template');
+    } catch (err) {
+        if (err?.status === 404) {
+            return apiClient('/banners/promotions/template');
+        }
+        throw err;
+    }
 }
 
 /**
  * Clear merchant offer template from backend cache (Redis)
  */
 export async function clearMyOfferTemplate() {
-    return apiClient('/offers/template', {
-        method: 'DELETE',
-    });
+    try {
+        return await apiClient('/offers/template', {
+            method: 'DELETE',
+        });
+    } catch (err) {
+        if (err?.status === 404) {
+            return apiClient('/banners/promotions/template', {
+                method: 'DELETE',
+            });
+        }
+        throw err;
+    }
 }
 
 // ============================================================
