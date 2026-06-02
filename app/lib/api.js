@@ -54,19 +54,13 @@ function normalizeBackendApiBaseUrl(rawValue, fallbackUrl = FALLBACK_API_URL) {
     return normalizedValue;
 }
 
-// In Next.js, `NEXT_PUBLIC_*` values are baked at build time for browser bundles.
-// If the value is missing in production we intentionally do NOT fall back to localhost,
-// because that will break for real users and hides misconfiguration during deploy.
-const apiBaseUrlFallback =
-    process.env.NODE_ENV === 'production' ? '' : FALLBACK_API_URL;
-
 export const API_BASE_URL = normalizeBackendApiBaseUrl(
     process.env.NEXT_PUBLIC_API_URL,
-    apiBaseUrlFallback,
+    FALLBACK_API_URL,
 );
 export const API_ORIGIN_URL = API_BASE_URL;
 // Keep the backend base URL as a plain origin so auth routes resolve to /users/*.
-const BASE_URL = API_BASE_URL || (process.env.NODE_ENV === 'production' ? '' : 'http://localhost:3002');
+const BASE_URL = API_BASE_URL;
 const PUBLIC_AUTH_ENDPOINTS = new Set([
     '/users/login',
     '/users/register',
