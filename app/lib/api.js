@@ -704,6 +704,12 @@ export async function getActiveHomepageBanners(limit = 5) {
     return apiClient(`/banners/promotions/active?limit=${limit}`);
 }
 
+export async function getHomeSectionConfig() {
+    return apiClient('/home-sections/config', {
+        cache: 'no-store',
+    });
+}
+
 const LOCAL_BACKEND_URL = API_ORIGIN_URL || 'http://localhost:3002';
 let nearbyOffersRouteMissingOnPrimary = false;
 const NEARBY_OFFERS_PRIMARY_UNSUPPORTED_KEY = 'golo_nearby_offers_primary_unsupported';
