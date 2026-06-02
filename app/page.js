@@ -531,16 +531,6 @@ function HomeContent() {
           <Hero />
         </div>
 
-        <div className="border-b border-[#d6d9df] bg-white py-4">
-          <div className="mx-auto flex max-w-[1260px] items-center justify-center gap-4 px-4 lg:px-6">
-            <span className="h-3.5 w-3.5 rounded-full bg-[#3aa23d]" />
-            <span className="h-3.5 w-3.5 rounded-full bg-[#d7dce4]" />
-            <span className="h-3.5 w-3.5 rounded-full bg-[#d7dce4]" />
-            <span className="h-3.5 w-3.5 rounded-full bg-[#d7dce4]" />
-            <span className="h-3.5 w-3.5 rounded-full bg-[#d7dce4]" />
-          </div>
-        </div>
-
         {isLoadingRows ? (
           <>
             <SectionSkeleton title="Popular Shops" />

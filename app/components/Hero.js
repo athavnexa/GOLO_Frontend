@@ -177,10 +177,13 @@ export default function Hero() {
     });
   };
 
+  const imageClassName =
+    "absolute inset-0 h-full w-full object-contain object-center sm:object-cover";
+
   if (loading) {
     return (
       <section className="relative w-full overflow-hidden bg-[#F8F6F2]">
-        <div className="relative h-[240px] w-full bg-[#ece9e1] sm:h-[340px] md:h-[520px]" />
+        <div className="relative aspect-[3/1] w-full bg-[#ece9e1] sm:h-[340px] sm:aspect-auto md:h-[520px]" />
       </section>
     );
   }
@@ -203,7 +206,7 @@ export default function Hero() {
     <section className="relative w-full overflow-hidden bg-[#F8F6F2]">
 
       {/* Carousel Wrapper */}
-      <div className="relative h-[240px] w-full sm:h-[340px] md:h-[520px]">
+      <div className="relative aspect-[3/1] w-full overflow-hidden sm:h-[340px] sm:aspect-auto md:h-[520px]">
 
         {slides.map((slide, index) => (
           <div
@@ -223,7 +226,7 @@ export default function Hero() {
                   <img
                     src={slide.url}
                     alt={`Slide ${index + 1}`}
-                    className="absolute inset-0 h-full w-full object-cover"
+                    className={imageClassName}
                     loading={index === 0 ? "eager" : "lazy"}
                     referrerPolicy="no-referrer"
                     onError={() => handleImageError(slide.url)}
@@ -235,7 +238,7 @@ export default function Hero() {
                     fill
                     priority={index === 0}
                     sizes="100vw"
-                    className="object-cover"
+                    className="object-contain object-center sm:object-cover"
                     onError={() => handleImageError(slide.url)}
                   />
                 )}
@@ -244,7 +247,7 @@ export default function Hero() {
               <img
                 src={slide.url}
                 alt={`Slide ${index + 1}`}
-                className="absolute inset-0 h-full w-full object-cover"
+                className={imageClassName}
                 loading={index === 0 ? "eager" : "lazy"}
                 referrerPolicy="no-referrer"
                 onError={() => handleImageError(slide.url)}
@@ -256,7 +259,7 @@ export default function Hero() {
                 fill
                 priority={index === 0}
                 sizes="100vw"
-                className="object-cover"
+                className="object-contain object-center sm:object-cover"
                 onError={() => handleImageError(slide.url)}
               />
             )}
@@ -268,14 +271,15 @@ export default function Hero() {
 
         {/* Dots Indicator */}
         {slides.length > 1 && (
-          <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex gap-3 z-10">
+          <div className="absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 gap-2 sm:bottom-6 sm:gap-3">
             {slides.map((_, index) => (
               <button
                 key={index}
                 onClick={() => setCurrent(index)}
-                className={`w-3 h-3 rounded-full transition-all ${
-                  current === index ? "bg-[#F5B849] w-6" : "bg-white/70"
+                className={`h-2.5 w-2.5 rounded-full transition-all sm:h-3 sm:w-3 ${
+                  current === index ? "w-5 bg-[#F5B849] sm:w-6" : "bg-white/70"
                 }`}
+                aria-label={`Show banner ${index + 1}`}
               />
             ))}
           </div>

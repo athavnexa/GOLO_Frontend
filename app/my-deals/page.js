@@ -189,13 +189,9 @@ export default function MyDeals() {
                             </button>
                           )}
                           <button 
-                            onClick={() => router.push(
-                              deal.status === "active" || deal.status === "claimed"
-                                ? `/nearby-deals/deal/claimed-offer?voucherId=${deal._id}`
-                                : `/nearby-deals/deal?offerId=${deal.offerId}`
-                            )}
+                            onClick={() => router.push(`/nearby-deals/deal/claimed-offer?voucherId=${deal._id}`)}
                             className="h-8 w-8 rounded-md border border-[#e0e0e0] text-[#777] flex items-center justify-center hover:border-[#c9c9c9]"
-                            aria-label={deal.status === "active" || deal.status === "claimed" ? "Open claimed voucher QR" : "View deal details"}
+                            aria-label="Open deal history"
                           >
                             <ChevronRight size={14} />
                           </button>

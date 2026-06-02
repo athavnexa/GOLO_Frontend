@@ -135,6 +135,7 @@ function ProductDetailContent() {
   const [isTogglingWishlist, setIsTogglingWishlist] = useState(false);
   const [wishlistCount, setWishlistCount] = useState(null);
   const [isOpeningOffer, setIsOpeningOffer] = useState(false);
+  const [offerPopup, setOfferPopup] = useState(null);
 
   const normalizeId = (value) => String(value || "").trim();
   const getMerchantLookupId = (sourceProduct) =>
@@ -519,7 +520,10 @@ function ProductDetailContent() {
 
       const selectedOfferId = pickRandomItem(candidateOfferIds);
       if (!selectedOfferId) {
-        alert("No offers available for this product right now.");
+        setOfferPopup({
+          title: "No Offers Available",
+          message: "No offers available for this product right now.",
+        });
         return;
       }
 
@@ -527,7 +531,10 @@ function ProductDetailContent() {
       router.push(`/nearby-deals/deal?offerId=${encodeURIComponent(selectedOfferId)}`);
     } catch (err) {
       console.error("Failed to open product offers:", err);
-      alert("Unable to open offers for this product right now.");
+      setOfferPopup({
+        title: "Unable To Open Offers",
+        message: "Unable to open offers for this product right now.",
+      });
     } finally {
       setIsOpeningOffer(false);
     }
@@ -565,6 +572,24 @@ function ProductDetailContent() {
   return (
     <main className="min-h-screen bg-[#f5f5f5]">
       <Navbar />
+      {offerPopup && (
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/35 px-4">
+          <div className="w-full max-w-[360px] rounded-[12px] bg-white p-5 text-center shadow-2xl border border-[#ececec]">
+            <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-[#fff4d8] text-[#b77900]">
+              <Tag size={20} />
+            </div>
+            <h2 className="text-[18px] font-bold text-[#1f2329]">{offerPopup.title}</h2>
+            <p className="mt-2 text-[13px] leading-5 text-[#626b76]">{offerPopup.message}</p>
+            <button
+              type="button"
+              onClick={() => setOfferPopup(null)}
+              className="mt-5 h-10 w-full rounded-[8px] bg-[#157A4F] text-[13px] font-semibold text-white transition hover:bg-[#0f5c3d]"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="mx-auto max-w-[1260px] px-4 lg:px-6 py-4 lg:py-6">
         <button onClick={handleBack} className="flex items-center gap-2 text-sm text-[#666] hover:text-[#333] mb-4 transition">
