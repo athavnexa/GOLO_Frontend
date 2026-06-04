@@ -585,9 +585,8 @@ body {
 }
 
 .register-card {
-  max-height: calc(100vh - 120px);
-  overflow-y: auto;
-  scrollbar-width: thin;
+  max-height: none;
+  overflow: visible;
 }
 
 .merchant-register-card {

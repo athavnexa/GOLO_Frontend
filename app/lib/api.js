@@ -64,6 +64,9 @@ const PUBLIC_AUTH_ENDPOINTS = new Set([
     '/users/register',
     '/users/social-auth',
     '/users/refresh',
+    '/users/forgot-password/send-otp',
+    '/users/forgot-password/verify-otp',
+    '/users/forgot-password/reset',
 ]);
 
 export function getStoredAccessToken() {
@@ -322,6 +325,27 @@ export async function refreshTokenApi() {
 export async function logoutUser() {
     return apiClient('/users/logout', {
         method: 'POST',
+    });
+}
+
+export async function sendForgotPasswordOTP(email) {
+    return apiClient('/users/forgot-password/send-otp', {
+        method: 'POST',
+        body: JSON.stringify({ email }),
+    });
+}
+
+export async function verifyForgotPasswordOTP(email, otp) {
+    return apiClient('/users/forgot-password/verify-otp', {
+        method: 'POST',
+        body: JSON.stringify({ email, otp }),
+    });
+}
+
+export async function resetForgotPassword(email, otp, newPassword) {
+    return apiClient('/users/forgot-password/reset', {
+        method: 'POST',
+        body: JSON.stringify({ email, otp, newPassword }),
     });
 }
 

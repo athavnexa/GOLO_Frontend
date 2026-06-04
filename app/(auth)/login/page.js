@@ -94,9 +94,8 @@ export default function LoginPage() {
   };
 
   const handleForgotPassword = () => {
-    if (validateEmail()) {
-      router.push("/check-email");
-    }
+    const cleanEmail = email.trim().toLowerCase();
+    router.push(cleanEmail ? `/check-email?email=${encodeURIComponent(cleanEmail)}` : "/check-email");
   };
 
   const handleLogin = async (e) => {
