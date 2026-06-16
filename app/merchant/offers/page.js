@@ -752,7 +752,7 @@ export default function MerchantOffersPage() {
                       </td>
                       <td className="px-4 py-3 text-[#2c2c2c]">{formatDateForDisplay(row.endDate)}</td>
                       <td className="px-4 py-3 text-[11px]">
-                        <button onClick={() => openViewForm(row)} className="text-[#1f6fb3] font-semibold">View</button>
+                        <button onClick={() => router.push(`/merchant/offers/details?id=${getOfferActionId(row)}`)} className="text-[#1f6fb3] font-semibold">View</button>
                         <span className="mx-2 text-[#cfcfcf]">/</span>
                         <button onClick={() => onDeleteOffer(row)} className="text-[#ef4d4d] font-semibold">Delete</button>
                       </td>

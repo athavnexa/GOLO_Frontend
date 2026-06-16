@@ -115,16 +115,12 @@ export default function MerchantDashboardPage() {
     ? redemptionTrend.values
     : [0, 0, 0, 0, 0, 0, 0];
   const maxRedemptionValue = Math.max(1, ...redemptionValues);
-  const chartWidth = 702;
-  const chartHeight = 240;
-  const chartPadding = 18;
-  const redemptionPoints = redemptionValues
-    .map((value, index) => {
-      const x = chartPadding + ((chartWidth - chartPadding * 2) / Math.max(redemptionValues.length - 1, 1)) * index;
-      const y = chartHeight - chartPadding - ((chartHeight - chartPadding * 2) * value) / maxRedemptionValue;
-      return `${x.toFixed(1)},${y.toFixed(1)}`;
-    })
-    .join(" ");
+  const chartLeft = 38;
+  const chartRight = 740;
+  const chartTop = 40;
+  const chartBottom = 280;
+  const barSlotWidth = (chartRight - chartLeft) / Math.max(redemptionValues.length, 1);
+  const barWidth = Math.min(54, Math.max(20, barSlotWidth * 0.52));
 
   return (
     <div className="min-h-screen bg-[#ececec] text-[#1b1b1b]" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
@@ -185,6 +181,12 @@ export default function MerchantDashboardPage() {
                   <p>Today: <span className="font-semibold text-[#1f8f4f]">{redemptionTrend.today ?? redemptionValues[redemptionValues.length - 1] ?? 0}</span></p>
                 </div>
                 <svg viewBox="0 0 760 320" className="h-[190px] w-full lg:h-[300px]">
+                  <defs>
+                    <linearGradient id="redemptionBarGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#35b96a" />
+                      <stop offset="100%" stopColor="#1f8f4f" />
+                    </linearGradient>
+                  </defs>
                   {[280, 220, 160, 100, 40].map((y) => (
                     <g key={y}>
                       <line x1="38" y1={320 - y} x2="740" y2={320 - y} stroke="#d8d8d8" strokeDasharray="4 4" />
@@ -192,20 +194,21 @@ export default function MerchantDashboardPage() {
                     </g>
                   ))}
 
-                  <polyline
-                    fill="none"
-                    stroke="#219653"
-                    strokeWidth="2.5"
-                    points={redemptionPoints}
-                  />
-
                   {redemptionValues.map((value, index) => {
-                    const x = chartPadding + ((chartWidth - chartPadding * 2) / Math.max(redemptionValues.length - 1, 1)) * index;
-                    const y = chartHeight - chartPadding - ((chartHeight - chartPadding * 2) * value) / maxRedemptionValue;
+                    const barHeight = ((chartBottom - chartTop) * Number(value || 0)) / maxRedemptionValue;
+                    const x = chartLeft + barSlotWidth * index + barSlotWidth / 2 - barWidth / 2;
+                    const y = chartBottom - barHeight;
                     return (
                       <g key={`${redemptionLabels[index] || index}-${index}`}>
-                        <circle cx={x} cy={y} r="3.5" fill="#219653" />
-                        <text x={x} y="314" textAnchor="middle" fontSize="10" fill="#8a8a8a">{redemptionLabels[index] || ""}</text>
+                        <rect
+                          x={x}
+                          y={y}
+                          width={barWidth}
+                          height={barHeight}
+                          rx="8"
+                          fill="url(#redemptionBarGradient)"
+                        />
+                        <text x={x + barWidth / 2} y="314" textAnchor="middle" fontSize="10" fill="#8a8a8a">{redemptionLabels[index] || ""}</text>
                       </g>
                     );
                   })}

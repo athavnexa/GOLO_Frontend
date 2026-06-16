@@ -355,7 +355,7 @@ function SectionCarousel({ title, items, onItemClick }) {
                     className={`mt-auto h-10 w-full rounded-[7px] text-[13px] font-semibold text-white transition ${
                       item.type === "shop"
                         ? "bg-[#2f9d3c] hover:bg-[#278531]"
-                        : "bg-[#ff9012] hover:bg-[#e57f0c]"
+                        : "bg-[#2f9d3c] hover:bg-[#278531]"
                     }`}
                   >
                     {item.buttonLabel}

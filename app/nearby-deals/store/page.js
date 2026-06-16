@@ -464,7 +464,7 @@ function NearbyStoreContent() {
                         <div className="w-8 h-8 bg-[#f0f9f6] rounded-lg flex items-center justify-center text-[#157a4f]">
                           <ShieldCheck size={20} />
                         </div>
-                        <h2 className="text-xl font-bold text-[#1f2329]">Popular Services</h2>
+                        <h2 className="text-xl font-bold text-[#1f2329]">Popular Deals</h2>
                       </div>
 
                       <div className="-mx-4 px-4 overflow-x-auto">

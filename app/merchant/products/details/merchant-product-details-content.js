@@ -153,8 +153,11 @@ export default function MerchantProductDetailsContent() {
             <div className="flex items-center justify-between mb-4">
               <h1 className="text-[35px] font-semibold leading-none">Product Details</h1>
               {!isEditMode && (
-                <button onClick={handleEditClick} className="h-9 rounded-[8px] bg-[#79c68f] px-5 text-[13px] font-semibold text-[#19462a] inline-flex items-center gap-1.5">
-                  Edit <Pencil size={13} />
+                <button
+                  onClick={handleEditClick}
+                  className="inline-flex h-11 items-center gap-2 rounded-[12px] border border-[#157a4f] bg-white px-5 text-[13px] font-semibold text-[#157a4f] shadow-sm transition hover:bg-[#f4fbf7]"
+                >
+                  Edit Product <Pencil size={13} />
                 </button>
               )}
             </div>
