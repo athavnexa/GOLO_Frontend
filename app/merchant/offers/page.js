@@ -558,7 +558,6 @@ export default function MerchantOffersPage() {
                     <div className="flex flex-col md:flex-row gap-4">
                       <div className="w-full md:w-48">
                         {formData.imageUrl ? (
-                          // eslint-disable-next-line @next/next/no-img-element
                           <img src={formData.imageUrl} alt="Offer" className="w-full h-24 object-cover rounded border border-[#dedede]" />
                         ) : (
                           <div className="w-full h-24 bg-[#f2f2f2] rounded border border-[#dedede] flex items-center justify-center text-[12px] text-[#888]">No image</div>

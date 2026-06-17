@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
+import { searchLocations } from "../services/leafletService";
 
 export default function PostAdForm({
   adTitleState,
@@ -53,6 +54,9 @@ export default function PostAdForm({
   // All hooks at top level
   const scrollRef = useRef(null);
   const [input, setInput] = useState("");
+  const [locationSuggestions, setLocationSuggestions] = useState([]);
+  const [showLocationSuggestions, setShowLocationSuggestions] = useState(false);
+  const [locationLoading, setLocationLoading] = useState(false);
   // error states
   const [titleError, setTitleError] = useState(false);
   const [descError, setDescError] = useState(false);
@@ -321,7 +325,6 @@ export default function PostAdForm({
     };
   };
 
-  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (!initialAd) return;
 
@@ -522,13 +525,32 @@ export default function PostAdForm({
     setOtherDescription(categoryData.description || "");
     setOtherPrice(categoryData.price != null ? String(categoryData.price) : "");
   }, [initialAd]);
-  /* eslint-enable react-hooks/set-state-in-effect */
 
   useEffect(() => {
     if (!initialAd && selectedCategory === null && categories.length > 0) {
       setSelectedCategory(categories[0]);
     }
   }, [initialAd, selectedCategory]);
+
+  useEffect(() => {
+    if (!input.trim()) return;
+
+    const delay = setTimeout(async () => {
+      setLocationLoading(true);
+      try {
+        const results = await searchLocations(input.trim(), { limit: 6, country: "in" });
+        setLocationSuggestions(results || []);
+        setShowLocationSuggestions(true);
+      } catch (error) {
+        setLocationSuggestions([]);
+        setShowLocationSuggestions(false);
+      } finally {
+        setLocationLoading(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(delay);
+  }, [input]);
 
   const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   const currentYear = new Date().getFullYear();
@@ -905,16 +927,23 @@ export default function PostAdForm({
     });
   };
 
-  const addCity = () => {
-    if (input.trim() && !cities.includes(input.trim())) {
-      setCities([...cities, input.trim()]);
-      setInput("");
-      setLocationError(false);
-    }
+  const addCity = (value = input.trim()) => {
+    const normalizedValue = value.trim();
+    if (!normalizedValue) return;
+
+    setCities((prev) => {
+      if (prev.includes(normalizedValue)) {
+        return prev;
+      }
+      return [...prev, normalizedValue];
+    });
+    setInput("");
+    setLocationError(false);
+    setShowLocationSuggestions(false);
   };
 
   const removeCity = (cityToRemove) => {
-    setCities(cities.filter((city) => city !== cityToRemove));
+    setCities((prev) => prev.filter((city) => city !== cityToRemove));
   };
 
   const handleKeyDown = (e) => {
@@ -1356,34 +1385,64 @@ export default function PostAdForm({
             Locations
           </label>
 
-          <div className={`w-full min-h-[56px] px-3 py-2 rounded-lg border bg-white flex flex-wrap items-center gap-2 focus-within:ring-2 focus-within:ring-gray-300 ${locationError ? "border-red-500" : "border-gray-300"
-            }`}>
-            {/* City Chips */}
-            {cities.map((city, index) => (
-              <span
-                key={index}
-                className="flex items-center gap-1 px-3 py-1 text-sm bg-gray-100 rounded-full border border-gray-200"
-              >
-                {city}
-                <button
-                  type="button"
-                  onClick={() => removeCity(city)}
-                  className="text-gray-500 hover:text-gray-700"
+          <div className={`w-full rounded-lg border bg-white focus-within:ring-2 focus-within:ring-gray-300 ${locationError ? "border-red-500" : "border-gray-300"}`}> 
+            <div className="min-h-[56px] px-3 py-2 flex flex-wrap items-center gap-2">
+              {/* City Chips */}
+              {cities.map((city, index) => (
+                <span
+                  key={index}
+                  className="flex items-center gap-1 px-3 py-1 text-sm bg-gray-100 rounded-full border border-gray-200"
                 >
-                  ×
-                </button>
-              </span>
-            ))}
+                  {city}
+                  <button
+                    type="button"
+                    onClick={() => removeCity(city)}
+                    className="text-gray-500 hover:text-gray-700"
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
 
-            {/* Inline Input */}
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Add city"
-              className="flex-1 min-w-[120px] outline-none text-sm"
-            />
+              {/* Inline Input */}
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                onFocus={() => input.trim() && setShowLocationSuggestions(true)}
+                onBlur={() => setTimeout(() => setShowLocationSuggestions(false), 150)}
+                placeholder="Search city or area"
+                className="flex-1 min-w-[120px] outline-none text-sm"
+              />
+            </div>
+
+            {showLocationSuggestions && (
+              <div className="border-t border-gray-200 max-h-56 overflow-y-auto">
+                {locationLoading ? (
+                  <div className="px-3 py-2 text-sm text-gray-500">Searching cities...</div>
+                ) : locationSuggestions.length > 0 ? (
+                  locationSuggestions.map((suggestion, index) => {
+                    const suggestionLabel = suggestion.displayName || suggestion.name || suggestion.address || "Unknown location";
+                    const suggestionValue = suggestion.name || suggestion.displayName || suggestion.address || suggestionLabel;
+                    return (
+                      <button
+                        key={suggestion.id || `${suggestionValue}-${index}`}
+                        type="button"
+                        className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50"
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => addCity(suggestionValue)}
+                      >
+                        <div className="font-medium text-gray-800">{suggestionValue}</div>
+                        <div className="text-xs text-gray-500">{suggestionLabel !== suggestionValue ? suggestionLabel : "City suggestion"}</div>
+                      </button>
+                    );
+                  })
+                ) : (
+                  <div className="px-3 py-2 text-sm text-gray-500">No suggestions found</div>
+                )}
+              </div>
+            )}
           </div>
         </div>
 

@@ -722,7 +722,6 @@ function MerchantProfileContent({ user, logout, router, initialTab = "Profile Se
                           onClick={() => isEditMode && handlePhotoClick(false)}
                         >
                           {merchantPhotoSrc ? (
-                            // eslint-disable-next-line @next/next/no-img-element
                             <img src={merchantPhotoSrc} alt="Merchant profile" className="h-full w-full object-cover" />
                           ) : (
                             <div className="flex h-full w-full items-center justify-center bg-[#f4f4f5] text-[#9ca3af]">
@@ -796,7 +795,6 @@ function MerchantProfileContent({ user, logout, router, initialTab = "Profile Se
 
                     <div className="relative mb-6 h-[260px] overflow-hidden rounded-[18px] bg-[#f3f4f6]">
                       {shopPhotoSrc ? (
-                        // eslint-disable-next-line @next/next/no-img-element
                         <img src={shopPhotoSrc} alt={shopDisplayName} className="h-full w-full object-cover" />
                       ) : (
                         <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#fff4dd] to-[#f5f5f5] text-[#9ca3af]">

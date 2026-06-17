@@ -12,7 +12,7 @@ export default function FormContent() {
   // Shared form state
   const [adTitleState, setAdTitleState] = useState("");
   const [adDescriptionState, setAdDescriptionState] = useState("");
-  const [cities, setCities] = useState(["Mumbai", "Pune"]);
+  const [cities, setCities] = useState([]);
   const [uploadedImages, setUploadedImages] = useState([]);
   const [primaryContact, setPrimaryContact] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -23,20 +23,36 @@ export default function FormContent() {
   const [isReviewStarted, setIsReviewStarted] = useState(false);
   const [isCategoryDetailsComplete, setIsCategoryDetailsComplete] = useState(false);
   const [categoryDetailsData, setCategoryDetailsData] = useState(null);
+  const [detectedLatitude, setDetectedLatitude] = useState(null);
+  const [detectedLongitude, setDetectedLongitude] = useState(null);
 
   const searchParams = useSearchParams();
-  const templateParam = searchParams.get("template");
-  const [templateId, setTemplateId] = useState(null);
+  const [templateId, setTemplateId] = useState(() => {
+    const templateParam = searchParams.get("template");
+    const parsed = Number(templateParam);
+    return Number.isFinite(parsed) ? parsed : null;
+  });
 
   useEffect(() => {
-    if (templateParam) setTemplateId(Number(templateParam));
-  }, [templateParam]);
+    if (typeof navigator === "undefined" || !navigator.geolocation) return;
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setDetectedLatitude(position.coords.latitude);
+        setDetectedLongitude(position.coords.longitude);
+      },
+      () => {
+        setDetectedLatitude(null);
+        setDetectedLongitude(null);
+      },
+      { enableHighAccuracy: true, timeout: 5000, maximumAge: 60000 }
+    );
+  }, []);
 
   // Step completion logic
   const isBasicInfoComplete =
     adTitleState.trim() &&
     adDescriptionState.trim() &&
-    cities.length > 0 &&
     primaryContact.trim();
 
   const isSchedulingComplete = selectedDates.length > 0;
@@ -126,6 +142,8 @@ export default function FormContent() {
               setIsReviewStarted={setIsReviewStarted}
               templateId={templateId}
               selectedDates={selectedDates}
+              detectedLatitude={detectedLatitude}
+              detectedLongitude={detectedLongitude}
             />
           </div>
 

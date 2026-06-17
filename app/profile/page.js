@@ -393,7 +393,6 @@ export default function ProfilePage() {
                 <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
                   <div className="flex items-start gap-4">
                     {profilePhotoSrc ? (
-                      // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={profilePhotoSrc}
                         alt={displayUser?.name || "Profile"}
@@ -565,10 +564,8 @@ export default function ProfilePage() {
               <div className="flex items-center gap-4 pb-5 border-b border-[#ececec]">
                 <div className="w-16 h-16 rounded-full bg-[#edb744] text-white flex items-center justify-center text-3xl font-medium overflow-hidden">
                   {avatarPreview ? (
-                    // eslint-disable-next-line @next/next/no-img-element
                     <img src={avatarPreview} alt="Profile preview" className="w-full h-full object-cover" />
                   ) : profilePhotoSrc ? (
-                    // eslint-disable-next-line @next/next/no-img-element
                     <img src={profilePhotoSrc} alt="Current profile" className="w-full h-full object-cover" />
                   ) : (
                     editForm.name?.charAt(0)?.toUpperCase() || "A"

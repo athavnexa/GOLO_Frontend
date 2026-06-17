@@ -565,7 +565,6 @@ function ClaimedOfferContent() {
             <div className="px-6 pb-7 pt-6 text-center">
               <div className="mx-auto flex h-[232px] w-[232px] items-center justify-center rounded-[18px] border border-[#d8dce3] bg-white p-4 shadow-[0_6px_18px_rgba(16,24,40,0.05)]">
                 {selectedVoucher?.qrImage ? (
-                  // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={selectedVoucher.qrImage}
                     alt={`QR code for ${resolvedOfferTitle}`}

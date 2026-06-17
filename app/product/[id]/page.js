@@ -2,6 +2,7 @@
 
 import { use, useState, useEffect, useRef } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Navbar from "./../../components/Navbar";
 import Footer from "./../../components/Footer";
@@ -360,7 +361,10 @@ export default function ProductDetails({ params }) {
 			<div className="bg-[#F8F6F2] min-h-screen">
 				<div className="max-w-7xl mx-auto px-6 py-10">
 					<p className="text-sm text-gray-500 mb-6">
-						Home &nbsp;›&nbsp; {ad?.category || "Category"} &nbsp;›&nbsp; {ad?.subCategory || "Sub Category"} &nbsp;›&nbsp;
+						<Link href="/" className="hover:text-[#157A4F] transition-colors">
+							Home
+						</Link>
+						<span className="mx-1">›</span>
 						<span className="text-gray-800 font-medium">
 							{ad?.title || "Product"}
 						</span>
