@@ -137,12 +137,6 @@ export default function MerchantProductDetails({ params }) {
       <Navbar />
       <div className="bg-[#F8F6F2] min-h-screen">
         <div className="max-w-5xl mx-auto px-6 py-10">
-          {/* Breadcrumb */}
-          <p className="text-sm text-gray-500 mb-6">
-            Home &nbsp;›&nbsp; {product?.category || "Category"} &nbsp;›&nbsp;
-            <span className="text-gray-800 font-medium">{product?.name || "Product"}</span>
-          </p>
-
           <div className="grid md:grid-cols-3 gap-10">
             {/* LEFT SECTION */}
             <div className="md:col-span-2">

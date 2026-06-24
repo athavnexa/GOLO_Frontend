@@ -57,6 +57,28 @@ function extractMerchantId(item) {
   ).trim();
 }
 
+function parseDateValue(value) {
+  if (!value) return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function getBannerDisplayStatus(item) {
+  const rawStatus = String(item?.status || "").trim().toLowerCase();
+  if (rawStatus === "rejected") return "rejected";
+  if (rawStatus === "under_review" || rawStatus === "pending") return "under_review";
+
+  const startDate = parseDateValue(item?.startDate || item?.start || item?.start_date);
+  const endDate = parseDateValue(item?.endDate || item?.end || item?.end_date);
+  const now = new Date();
+
+  if (startDate && now < startDate) return "upcoming";
+  if (endDate && now > endDate) return "expired";
+  if (rawStatus === "active" || rawStatus === "approved") return "active";
+  if (!startDate && !endDate) return rawStatus || "active";
+  return "active";
+}
+
 export default function Hero() {
   const [slides, setSlides] = useState([]);
   const [current, setCurrent] = useState(0);
@@ -95,10 +117,7 @@ export default function Hero() {
         }
 
         const dynamicSlides = rows
-          .filter((item) => {
-            const status = String(item?.status || "").toLowerCase();
-            return status === "approved" || status === "active" || !status;
-          })
+          .filter((item) => getBannerDisplayStatus(item) === "active")
           .map((item) => {
             const imageUrl = normalizeImageUrl(extractBannerImageUrl(item));
             if (!imageUrl) return null;

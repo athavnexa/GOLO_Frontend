@@ -871,13 +871,9 @@ function MerchantProfileContent({ user, logout, router, initialTab = "Profile Se
                               <p className="text-[14px] font-semibold text-[#30343c]">
                                 {storeLocation.address || formData.location || "Store address not set"}
                               </p>
-                              <button
-                                type="button"
-                                onClick={() => (isEditMode ? setShowLocationPicker(true) : setIsEditMode(true))}
-                                className="mt-4 text-[13px] font-semibold text-[#ff8b1f]"
-                              >
-                                {isEditMode ? "Update Store Location" : "View Store Location"}
-                              </button>
+                              <p className="mt-2 text-[12px] text-[#6b7280]">
+                                {isEditMode ? "Tap the map to update your store location." : "Your store location is shown on the map above."}
+                              </p>
                             </div>
                           </>
                         )}

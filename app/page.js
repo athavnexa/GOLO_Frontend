@@ -541,6 +541,12 @@ function HomeContent() {
         ) : (
           <>
             <SectionCarousel
+              title="Recommended Deals"
+              items={recommendedDeals}
+              onItemClick={handleDealClick}
+            />
+
+            <SectionCarousel
               title="Popular Shops"
               items={shops}
               onItemClick={handleShopClick}
@@ -549,12 +555,6 @@ function HomeContent() {
             <SectionCarousel
               title="Deals Under 2 KM"
               items={dealsUnder2Km}
-              onItemClick={handleDealClick}
-            />
-
-            <SectionCarousel
-              title="Recommended Deals"
-              items={recommendedDeals}
               onItemClick={handleDealClick}
             />
 

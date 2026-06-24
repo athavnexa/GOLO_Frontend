@@ -648,16 +648,6 @@ function NearbyDealDetailsContent() {
       <Navbar />
 
       <div className="mx-auto max-w-[1260px] px-4 lg:px-6 py-4 lg:py-6">
-        {/* Breadcrumb */}
-        <p className="text-[11px] text-[#7b7b7b] mb-4">
-          Deals <span className="mx-1">›</span> {offer?.category || "All Categories"}{" "}
-          <span className="mx-1">›</span>
-          <span className="font-semibold text-[#2d2d2d]">
-            {" "}
-            {offer?.title || "Offer"}
-          </span>
-        </p>
-
         {/* Hero Section */}
         <section className="bg-white rounded-2xl overflow-hidden shadow-sm mb-8">
           <div className="grid lg:grid-cols-[1.5fr_1fr] gap-6 p-4 lg:p-6">

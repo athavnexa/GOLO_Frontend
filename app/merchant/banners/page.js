@@ -22,8 +22,64 @@ function normalizeStatus(status) {
     rejected: "Rejected",
     active: "Active",
     expired: "Expired",
+    upcoming: "Upcoming",
   };
   return map[status] || status;
+}
+
+function parseDateValue(value) {
+  if (!value) return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function getBannerDisplayStatus(row) {
+  const rawStatus = String(row?.status || "").trim().toLowerCase();
+  if (rawStatus === "rejected") return "rejected";
+  if (rawStatus === "under_review" || rawStatus === "pending") return "under_review";
+
+  const startDate = parseDateValue(row?.startDate || row?.start || row?.start_date);
+  const endDate = parseDateValue(row?.endDate || row?.end || row?.end_date);
+  const now = new Date();
+
+  if (startDate && now < startDate) return "upcoming";
+  if (endDate && now > endDate) return "expired";
+  if (rawStatus === "active" || rawStatus === "approved") return "active";
+  if (!startDate && !endDate) return rawStatus || "active";
+  return "active";
+}
+
+function isBannerActive(row) {
+  return getBannerDisplayStatus(row) === "active";
+}
+
+function downloadCsv(filename, rows) {
+  if (!rows?.length) return;
+
+  const headers = ["Banner Title", "Category", "Posted Date", "Visibility Dates", "Status", "Budget"];
+  const escapeCell = (value) => {
+    const stringValue = String(value ?? "");
+    return /[",\n]/.test(stringValue) ? `"${stringValue.replace(/"/g, '""')}"` : stringValue;
+  };
+
+  const csvContent = [headers.join(","), ...rows.map((row) => [
+    escapeCell(row.bannerTitle),
+    escapeCell(row.bannerCategory),
+    escapeCell(formatDate(row.createdAt)),
+    escapeCell(`${formatDate(row.startDate)} - ${formatDate(row.endDate)}`),
+    escapeCell(normalizeStatus(row.status)),
+    escapeCell(`Rs. ${row.totalPrice || 0}`),
+  ].join(","))].join("\n");
+
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 }
 
 export default function MerchantBannersPage() {
@@ -61,22 +117,35 @@ export default function MerchantBannersPage() {
     }
   };
 
+  const handleExportCsv = () => {
+    const exportRows = (filteredRows.length > 0 ? filteredRows : rows).map((row) => ({
+      bannerTitle: row.bannerTitle,
+      bannerCategory: row.bannerCategory,
+      postedDate: formatDate(row.createdAt),
+      visibilityDates: `${formatDate(row.startDate)} - ${formatDate(row.endDate)}`,
+      status: normalizeStatus(getBannerDisplayStatus(row)),
+      budget: `Rs. ${row.totalPrice || 0}`,
+    }));
+
+    downloadCsv("merchant-banners.csv", exportRows);
+  };
+
   const summary = useMemo(() => {
     const total = rows.length;
-    const active = rows.filter((row) => row.status === "active").length;
+    const active = rows.filter((row) => isBannerActive(row)).length;
     const spend = rows.reduce((sum, row) => sum + Number(row.totalPrice || 0), 0);
     return { total, active, spend };
   }, [rows]);
 
-  const filteredRows = useMemo(() => {
+  const filteredRows = (() => {
     const query = searchTerm.trim().toLowerCase();
     if (!query) return rows;
     return rows.filter((row) => {
-      return [row.bannerTitle, row.bannerCategory, row.status]
+      return [row.bannerTitle, row.bannerCategory, getBannerDisplayStatus(row)]
         .filter(Boolean)
         .some((value) => String(value).toLowerCase().includes(query));
     });
-  }, [rows, searchTerm]);
+  })();
 
   useEffect(() => {
     if (!loading && user && user.accountType === "merchant") {
@@ -144,7 +213,7 @@ export default function MerchantBannersPage() {
               </div>
 
               <div className="flex items-center gap-2">
-                <button className="h-9 rounded-[8px] border border-[#e2e2e2] bg-white px-4 text-[11px] text-[#666] inline-flex items-center gap-1.5" onClick={loadRequests}>
+                <button className="h-9 rounded-[8px] border border-[#e2e2e2] bg-white px-4 text-[11px] text-[#666] inline-flex items-center gap-1.5" onClick={handleExportCsv}>
                   <Download size={12} /> Export CSV
                 </button>
                 <button onClick={() => router.push("/merchant/banners/promote")} className="h-9 rounded-[8px] bg-[#2f9e58] px-4 text-[11px] font-semibold text-white inline-flex items-center gap-1.5">
@@ -178,7 +247,9 @@ export default function MerchantBannersPage() {
                     <tr>
                       <td colSpan={9} className="px-4 py-6 text-center text-[#666]">No banner requests found.</td>
                     </tr>
-                  ) : filteredRows.map((row) => (
+                  ) : filteredRows.map((row) => {
+                    const displayStatus = getBannerDisplayStatus(row);
+                    return (
                     <tr key={row.requestId} className="border-t border-[#f0f0f0]">
                       <td className="px-4 py-3">
                         <div className="h-8 w-8 rounded-full overflow-hidden border border-[#ececec]">
@@ -191,33 +262,42 @@ export default function MerchantBannersPage() {
                       <td className="px-4 py-3 text-[#2c2c2c]">{formatDate(row.startDate)} - {formatDate(row.endDate)}</td>
                       <td className="px-4 py-3">
                         <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold ${
-                          row.status === "active"
+                          displayStatus === "active"
                             ? "bg-[#e7f7ec] text-[#2f9e58]"
-                            : row.status === "rejected"
+                            : displayStatus === "rejected"
                               ? "bg-[#fee2e2] text-[#dc2626]"
-                              : row.status === "approved"
-                                ? "bg-[#e8f1ff] text-[#1d4ed8]"
-                                : "bg-[#f3f4f6] text-[#4b5563]"
+                              : displayStatus === "expired"
+                                ? "bg-[#fef2f2] text-[#b91c1c]"
+                                : displayStatus === "upcoming"
+                                  ? "bg-[#eef2ff] text-[#4338ca]"
+                                  : "bg-[#f3f4f6] text-[#4b5563]"
                         }`}
                         >
-                          {normalizeStatus(row.status)}
+                          {normalizeStatus(displayStatus)}
                         </span>
                       </td>
                       <td className="px-4 py-3 text-[11px] font-semibold text-[#1f1f1f]">Rs. {row.totalPrice || 0}</td>
                       <td className="px-4 py-3">
-                        {row.status === "approved" && row.paymentStatus !== "paid" ? (
+                        <div className="flex flex-wrap items-center gap-2">
                           <button
-                            onClick={() => handlePayNow(row.requestId)}
-                            className="h-7 rounded-[6px] bg-[#157a4f] px-3 text-[10px] font-semibold text-white"
+                            onClick={() => router.push(`/merchant/banners/edit?id=${encodeURIComponent(row.requestId || row._id || "")}`)}
+                            className="h-7 rounded-[6px] border border-[#d7dce4] px-3 text-[10px] font-semibold text-[#374151]"
                           >
-                            Pay Now
+                            Edit
                           </button>
-                        ) : (
-                          <span className="text-[10px] text-[#888]">-</span>
-                        )}
+                          {row.status === "approved" && row.paymentStatus !== "paid" ? (
+                            <button
+                              onClick={() => handlePayNow(row.requestId)}
+                              className="h-7 rounded-[6px] bg-[#157a4f] px-3 text-[10px] font-semibold text-white"
+                            >
+                              Pay Now
+                            </button>
+                          ) : null}
+                        </div>
                       </td>
                     </tr>
-                  ))}
+                    );
+                  })}
                 </tbody>
               </table>
 

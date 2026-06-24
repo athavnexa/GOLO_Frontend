@@ -31,6 +31,42 @@ const latestReviews = [
   },
 ];
 
+function buildCompletedOrderSeries(ordersData = [], totalOrders = 0) {
+  const source = Array.isArray(ordersData) ? ordersData : [];
+  const values = Array.from({ length: 7 }, () => 0);
+
+  source.slice(0, 7).forEach((_, index) => {
+    values[index % values.length] += 1;
+  });
+
+  const highestPossible = Math.max(1, totalOrders || source.length || 7);
+  return values.map((value) => Math.min(100, Math.round((value / highestPossible) * 100)));
+}
+
+function downloadCsv(filename, rows) {
+  if (!rows?.length) return;
+
+  const escapeCell = (value) => {
+    const stringValue = String(value ?? "");
+    if (stringValue.includes(",") || stringValue.includes('"') || stringValue.includes("\n")) {
+      return `"${stringValue.replace(/"/g, '""')}"`;
+    }
+    return stringValue;
+  };
+
+  const headers = Object.keys(rows[0]);
+  const csvContent = [headers.join(","), ...rows.map((row) => headers.map((header) => escapeCell(row[header])).join(","))].join("\n");
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
 export default function MerchantDashboardPage() {
   const router = useRouter();
   const { user, loading, logout, getUserAccountType } = useAuth();
@@ -43,6 +79,42 @@ export default function MerchantDashboardPage() {
   const handleMerchantLogout = async () => {
     await logout();
     router.push("/login");
+  };
+
+  const handleExportReports = () => {
+    const exportRows = [
+      { section: "Overview", metric: "Store Name", value: merchantProfile?.shopName || merchantProfile?.storeName || user?.shopName || "My Store" },
+      { section: "Overview", metric: "Total Orders", value: summary?.stats?.totalOrders || 0 },
+      { section: "Overview", metric: "Store Rating", value: summary?.stats?.averageRating || 0 },
+      { section: "Overview", metric: "Revenue", value: summary?.stats?.revenue || 0 },
+      { section: "Overview", metric: "Last Updated", value: new Date(lastUpdated).toLocaleString() },
+    ];
+
+    redemptionLabels.forEach((label, index) => {
+      exportRows.push({ section: "Redemption Trend", label, value: redemptionValues[index] ?? 0 });
+    });
+
+    (summary?.recentOrders || orders).forEach((order) => {
+      exportRows.push({
+        section: "Recent Orders",
+        orderId: order.id || order.orderNumber || order._id || "",
+        placedAt: order.time || order.placedAt || "",
+        amount: typeof order.amount === "string" ? order.amount : `₹${order.amount || 0}`,
+        quantity: order.qty || order.itemsCount || "",
+      });
+    });
+
+    (summary?.latestReviews || latestReviews).forEach((review) => {
+      exportRows.push({
+        section: "Latest Reviews",
+        reviewer: review.name || review.userName || "Customer",
+        rating: review.rating ? "★".repeat(review.rating) : "★★★★★",
+        time: review.time || new Date(review.createdAt).toLocaleDateString(),
+        feedback: review.text || review.content || "",
+      });
+    });
+
+    downloadCsv("merchant-overview.csv", exportRows);
   };
 
   useEffect(() => {
@@ -111,10 +183,9 @@ export default function MerchantDashboardPage() {
 
   const redemptionTrend = realtimeAnalytics?.redemptions || {};
   const redemptionLabels = redemptionTrend.labels || ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-  const redemptionValues = (redemptionTrend.values && redemptionTrend.values.length > 0)
-    ? redemptionTrend.values
-    : [0, 0, 0, 0, 0, 0, 0];
-  const maxRedemptionValue = Math.max(1, ...redemptionValues);
+  const redemptionValues = buildCompletedOrderSeries(summary?.recentOrders || orders, summary?.stats?.totalOrders || 0);
+  const todayValue = redemptionValues[redemptionValues.length - 1] ?? 0;
+  const maxRedemptionValue = 100;
   const chartLeft = 38;
   const chartRight = 740;
   const chartTop = 40;
@@ -145,11 +216,11 @@ export default function MerchantDashboardPage() {
               </div>
 
               <div className="flex w-full items-center gap-2 mt-1 sm:w-auto">
-                <button className="h-9 flex-1 px-3 rounded-[8px] border border-[#d5d5d5] bg-white text-[11px] font-semibold text-[#343434] inline-flex items-center justify-center gap-2 lg:h-10 lg:flex-none lg:px-4 lg:text-[12px]">
-                  <Download size={13} /> Export Reports
+                <button onClick={handleExportReports} className="h-9 flex-1 px-3 rounded-[8px] border border-[#d5d5d5] bg-white text-[11px] font-semibold text-[#343434] inline-flex items-center justify-center gap-2 lg:h-10 lg:flex-none lg:px-4 lg:text-[12px]">
+                  <Download size={13} /> Export CSV
                 </button>
-                <button onClick={() => router.push("/merchant/add-new-listing")} className="h-9 flex-1 px-3 rounded-[8px] bg-[#1f8f4f] text-white text-[11px] font-semibold inline-flex items-center justify-center gap-2 lg:h-10 lg:flex-none lg:px-4 lg:text-[12px]">
-                  <Plus size={13} /> Add New Listing
+                <button onClick={() => router.push("/merchant/offers/create")} className="h-9 flex-1 px-3 rounded-[8px] bg-[#1f8f4f] text-white text-[11px] font-semibold inline-flex items-center justify-center gap-2 lg:h-10 lg:flex-none lg:px-4 lg:text-[12px]">
+                  <Plus size={13} /> Add New Offer
                 </button>
               </div>
             </div>
@@ -178,7 +249,7 @@ export default function MerchantDashboardPage() {
               <div className="mt-4 rounded-[10px] bg-[#fbfbfb] border border-[#ececec] p-3">
                 <div className="mb-3 flex items-center justify-between text-[11px] text-[#6b6b6b]">
                   <p>Live merchant-side redemption activity</p>
-                  <p>Today: <span className="font-semibold text-[#1f8f4f]">{redemptionTrend.today ?? redemptionValues[redemptionValues.length - 1] ?? 0}</span></p>
+                  <p>Today: <span className="font-semibold text-[#1f8f4f]">{redemptionTrend.today ?? todayValue}</span></p>
                 </div>
                 <svg viewBox="0 0 760 320" className="h-[190px] w-full lg:h-[300px]">
                   <defs>
@@ -187,10 +258,10 @@ export default function MerchantDashboardPage() {
                       <stop offset="100%" stopColor="#1f8f4f" />
                     </linearGradient>
                   </defs>
-                  {[280, 220, 160, 100, 40].map((y) => (
+                  {[100, 80, 60, 40, 20, 0].map((y) => (
                     <g key={y}>
-                      <line x1="38" y1={320 - y} x2="740" y2={320 - y} stroke="#d8d8d8" strokeDasharray="4 4" />
-                      <text x="2" y={324 - y} fontSize="10" fill="#888">{Math.round((maxRedemptionValue * y) / 280)}</text>
+                      <line x1="38" y1={320 - ((chartBottom - chartTop) * y) / maxRedemptionValue} x2="740" y2={320 - ((chartBottom - chartTop) * y) / maxRedemptionValue} stroke="#d8d8d8" strokeDasharray="4 4" />
+                      <text x="2" y={324 - ((chartBottom - chartTop) * y) / maxRedemptionValue} fontSize="10" fill="#888">{y}</text>
                     </g>
                   ))}
 
@@ -241,7 +312,7 @@ export default function MerchantDashboardPage() {
             <div className="rounded-[12px] border border-[#d8d8d8] bg-white overflow-hidden">
               <div className="px-4 py-3 border-b border-[#ececec] flex items-center justify-between">
                 <h3 className="text-[23px] font-bold leading-none lg:text-[31px]">Recent Orders</h3>
-                <button className="text-[12px] font-semibold text-[#1e8b4f]">View All Orders</button>
+                <button onClick={() => router.push("/merchant/orders")} className="text-[12px] font-semibold text-[#1e8b4f]">View All Orders</button>
               </div>
 
               <div className="max-h-[320px] overflow-y-auto">
@@ -271,7 +342,6 @@ export default function MerchantDashboardPage() {
             <div className="rounded-[12px] border border-[#d8d8d8] bg-white p-4 lg:p-5">
               <div className="flex items-center justify-between">
                 <h3 className="text-[23px] font-bold leading-none lg:text-[31px]">Latest Reviews</h3>
-                <button className="text-[#888]">⋮</button>
               </div>
 
               <div className="mt-3 max-h-[360px] overflow-y-auto space-y-3">

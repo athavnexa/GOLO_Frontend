@@ -1020,7 +1020,7 @@ function NavbarContent({
 
           <nav className="hidden md:flex gap-6 text-sm font-semibold text-white">
             <Link href={homeNavHref} className="hover:opacity-80 transition">
-              Home
+              Choja
             </Link>
             <Link href={primaryNavHref} onClick={requireAuth()} className="hover:opacity-80 transition">
               {primaryNavLabel}
@@ -1182,6 +1182,10 @@ function NavbarContent({
 
               {isGolocalSurface && showProfileMenu && (
                 <div className="absolute top-12 right-0 w-[calc(100vw-2rem)] max-w-56 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-[9999]">
+                  <div className="border-b border-gray-100 px-4 py-3">
+                    <p className="text-sm font-semibold text-gray-800">{user?.name || "Account"}</p>
+                    <p className="text-xs text-gray-500">{user?.email || "Signed in"}</p>
+                  </div>
                   <Link
                     href="/profile"
                     onClick={() => setShowProfileMenu(false)}
