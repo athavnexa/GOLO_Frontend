@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Download, Plus, ChevronRight, ShoppingBag, Box, Star, User } from "lucide-react";
@@ -68,7 +69,7 @@ function downloadCsv(filename, rows) {
   URL.revokeObjectURL(url);
 }
 
-export default function MerchantDashboardPage() {
+function MerchantDashboardContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, loading, logout, getUserAccountType } = useAuth();
@@ -427,5 +428,13 @@ export default function MerchantDashboardPage() {
         <div className="mx-auto w-full max-w-[1400px] px-4 py-2 border-t border-[#d49b22] flex items-center justify-between gap-3 text-[10px] lg:px-10 lg:py-3 lg:text-[11px]"><p>© 2026 GOLO Dashboard. All rights reserved.</p></div>
       </footer>
     </div>
+  );
+}
+
+export default function MerchantDashboardPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#efefef]" />}>
+      <MerchantDashboardContent />
+    </Suspense>
   );
 }

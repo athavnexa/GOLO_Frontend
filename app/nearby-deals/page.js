@@ -273,7 +273,22 @@ function matchOfferType(row, typeLabel) {
 function NearbyDealsPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-   const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, loading } = useAuth();
+  const isMerchantPreview = searchParams.get("view") === "merchant-preview";
+
+  useEffect(() => {
+    if (!loading && user && user.accountType === "merchant" && !isMerchantPreview) {
+      router.replace("/merchant/dashboard");
+    }
+  }, [user, loading, router, isMerchantPreview]);
+
+  if (loading) {
+    return <main className="min-h-screen bg-[#F3F3F3]" />;
+  }
+
+  if (user && user.accountType === "merchant" && !isMerchantPreview) {
+    return null;
+  }
 
   const [activeView, setActiveView] = useState("grid");
   const [distanceRadius, setDistanceRadius] = useState(50);
@@ -307,7 +322,7 @@ function NearbyDealsPageContent() {
     "Free Gift Offer": false,
   });
   const [rawOffers, setRawOffers] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loadingOffers, setLoadingOffers] = useState(false);
   const [error, setError] = useState("");
   const [showAuthPrompt, setShowAuthPrompt] = useState(false);
   const [authRedirectTo, setAuthRedirectTo] = useState("/nearby-deals");
@@ -443,7 +458,7 @@ function NearbyDealsPageContent() {
   useEffect(() => {
     const loadNearbyOffers = async () => {
       const fetchSeq = ++nearbyFetchSeqRef.current;
-      setLoading(true);
+      setLoadingOffers(true);
       setError("");
 
       const resolvedLat =
@@ -505,7 +520,7 @@ function NearbyDealsPageContent() {
         if (hasLocationQuery && !hasCoordinateSearch && strictRows.length === 0) {
           if (fetchSeq !== nearbyFetchSeqRef.current) return;
           setRawOffers([]);
-          setLoading(false);
+          setLoadingOffers(false);
           return;
         }
 
@@ -553,7 +568,7 @@ function NearbyDealsPageContent() {
         }
       } finally {
         if (fetchSeq !== nearbyFetchSeqRef.current) return;
-        setLoading(false);
+        setLoadingOffers(false);
       }
     };
 
@@ -870,7 +885,7 @@ function NearbyDealsPageContent() {
             {error ? <p className="mb-3 text-[12px] text-red-600">{error}</p> : null}
 
             <div className={activeView === "list" ? "space-y-4" : "grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4"}>
-              {loading ? (
+              {loadingOffers ? (
                 <NearbyDealsSkeleton view={activeView} />
               ) : filteredDeals.length === 0 ? (
                 <div className="col-span-full rounded-xl border border-gray-200 bg-white p-6 text-center text-sm text-gray-500">
@@ -975,26 +990,6 @@ function NearbyDealsSkeleton({ view = "grid" }) {
 }
 
 export default function NearbyDealsPage() {
-  const router = useRouter();
-  const { user, loading } = useAuth();
-  const searchParams = useSearchParams();
-  const isMerchantPreview = searchParams.get("view") === "merchant-preview";
-
-  // Redirect merchants away from user pages unless they are previewing as a customer
-  useEffect(() => {
-    if (!loading && user && user.accountType === "merchant" && !isMerchantPreview) {
-      router.replace("/merchant/dashboard");
-    }
-  }, [user, loading, router, isMerchantPreview]);
-
-  if (loading) {
-    return <main className="min-h-screen bg-[#F3F3F3]" />;
-  }
-
-  if (user && user.accountType === "merchant" && !isMerchantPreview) {
-    return null;
-  }
-
   return (
     <Suspense fallback={<main className="min-h-screen bg-[#F3F3F3]" />}>
       <NearbyDealsPageContent />

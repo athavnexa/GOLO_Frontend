@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Bell, Download, Plus, ShoppingBag, Star, User } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
@@ -17,11 +17,11 @@ function getSafeAvatarSrc(src) {
   return value;
 }
 
-export default function MerchantOrdersPage() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const { user, loading, logout } = useAuth();
-  const highlightOrderId = searchParams.get("highlight") || "";
+function MerchantOrdersPageContent() {
+   const router = useRouter();
+   const searchParams = useSearchParams();
+   const { user, loading, logout } = useAuth();
+   const highlightOrderId = searchParams.get("highlight") || "";
 
   const handleMerchantLogout = async () => {
     await logout();
@@ -365,6 +365,14 @@ export default function MerchantOrdersPage() {
         </div>
         <div className="mx-auto w-full max-w-[1400px] px-4 py-2 border-t border-[#d49b22] flex items-center justify-between gap-3 text-[10px] lg:px-10 lg:py-3 lg:text-[11px]"><p>© 2026 GOLO Dashboard. All rights reserved.</p></div>
       </footer>
-    </div>
+</div>
+   );
+}
+
+export default function MerchantOrdersPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#F3F3F3]" />}>
+      <MerchantOrdersPageContent />
+    </Suspense>
   );
 }
