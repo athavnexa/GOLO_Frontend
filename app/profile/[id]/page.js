@@ -5,18 +5,13 @@ import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/app/components/Navbar";
 import Footer from "@/app/components/Footer";
-import Recommended from "@/app/components/Recommended";
 import { getUserById, getAdsByUser } from "@/app/lib/api";
 import { Flag, MessageCircle, MapPin, Package, Mail } from "lucide-react";
 import UserReportModal from "@/app/components/UserReportModal";
 
 function getAdImage(ad) {
-  return (
-    ad?.images?.[0] ||
-    ad?.imageUrl ||
-    ad?.image ||
-    "/images/deal2.avif"
-  );
+  if (!ad?.images || ad.images.length === 0) return null;
+  return ad.images[0];
 }
 
 function getAdPrice(ad) {
@@ -190,24 +185,37 @@ export default function UserProfile({ params }) {
               <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
                 {ads.map((ad) => {
                   const price = getAdPrice(ad);
+                  const isTextOnlyAd = ad?.templateId === 3 || !ad?.images || ad.images.length === 0;
                   return (
                     <article
                       key={ad._id}
                       className="group overflow-hidden rounded-[24px] border border-[#e8edf3] bg-white shadow-[0_10px_30px_rgba(15,23,42,0.05)] transition hover:-translate-y-1 hover:shadow-[0_18px_36px_rgba(15,23,42,0.10)]"
                     >
-                      <div className="relative h-52 overflow-hidden bg-[#f4f6f8]">
-                        <Image
-                          src={getAdImage(ad)}
-                          alt={ad?.title || "Ad"}
-                          fill
-                          className="object-cover transition duration-500 group-hover:scale-105"
-                          unoptimized
-                        />
-                        <div className="absolute left-4 top-4 rounded-full bg-white/92 px-3 py-1 text-[11px] font-semibold text-[#157A4F] shadow-sm">
-                          {ad?.category || "Listing"}
+                      {!isTextOnlyAd ? (
+                        <div className="relative h-52 overflow-hidden bg-[#f4f6f8]">
+                          <Image
+                            src={getAdImage(ad) || "/images/deal2.avif"}
+                            alt={ad?.title || "Ad"}
+                            fill
+                            className="object-cover transition duration-500 group-hover:scale-105"
+                            unoptimized
+                          />
+                          <div className="absolute left-4 top-4 rounded-full bg-white/92 px-3 py-1 text-[11px] font-semibold text-[#157A4F] shadow-sm">
+                            {ad?.category || "Listing"}
+                          </div>
                         </div>
-                      </div>
-
+                      ) : (
+                        <div className="p-5 pb-0">
+                          <div className="rounded-[16px] bg-[#F8F6F2] border border-gray-200 p-4">
+                            <span className="text-[10px] font-semibold bg-[#EAF6F0] text-[#157A4F] px-2.5 py-1 rounded-full">Text Only Ad</span>
+                            {ad?.subCategory && (
+                              <span className="text-[10px] font-semibold bg-gray-100 text-gray-600 px-2.5 py-1 rounded-full ml-2">{ad.subCategory}</span>
+                            )}
+                            <h3 className="line-clamp-2 text-[16px] font-bold leading-5 text-[#111827] mt-3">{ad?.title || "Untitled Ad"}</h3>
+                            <p className="mt-2 line-clamp-3 text-[13px] leading-5 text-[#667085]">{ad?.description || "No description available."}</p>
+                          </div>
+                        </div>
+                      )}
                       <div className="p-5">
                         <div className="flex items-start justify-between gap-3">
                           <h3 className="line-clamp-2 text-[18px] font-bold leading-6 text-[#111827]">
@@ -251,7 +259,6 @@ export default function UserProfile({ params }) {
         </div>
       </div>
 
-      <Recommended />
       <Footer />
       <UserReportModal
         isOpen={showReportModal}

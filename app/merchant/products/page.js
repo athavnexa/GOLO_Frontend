@@ -298,7 +298,15 @@ export default function MerchantProductsPage() {
                           <span>{item.status}</span>
                         )}
                       </td>
-                      <td className={`px-4 py-3 ${item.status === "Out of Stock" ? "text-[#ef4d4d]" : ""}`}>{item.stock}</td>
+                      <td className="px-4 py-3">
+                        {(() => {
+                          const raw = item.stockQuantity ?? item.stock ?? 0;
+                          const num = Number(raw) || 0;
+                          if (num === 0) return <span className="font-semibold text-[#c53030]">{String(num)}</span>;
+                          if (num < 10) return <span className="font-semibold text-[#ed6464]">{String(num)}</span>;
+                          return <span>{String(num)}</span>;
+                        })()}
+                      </td>
                       <td className="px-4 py-3 text-[11px]">
                         <button
                           onClick={() => router.push(`/merchant/products/details?id=${item.id}`)}

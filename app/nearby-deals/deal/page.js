@@ -209,6 +209,7 @@ function NearbyDealDetailsContent() {
   const [loadError, setLoadError] = useState("");
   const [claimError, setClaimError] = useState("");
   const [isClaimed, setIsClaimed] = useState(false);
+  const [isRedeemed, setIsRedeemed] = useState(false);
   const [expandedTerms, setExpandedTerms] = useState(null);
   const [timeRemaining, setTimeRemaining] = useState(null);
   const [offerReviews, setOfferReviews] = useState([]);
@@ -240,6 +241,7 @@ function NearbyDealDetailsContent() {
   useEffect(() => {
     if (!offerId) {
       setIsClaimed(false);
+      setIsRedeemed(false);
       return;
     }
 
@@ -252,6 +254,16 @@ function NearbyDealDetailsContent() {
       : false;
 
     setIsClaimed(hasClaimedVoucher);
+
+    const hasRedeemedVoucher = Array.isArray(myVouchers)
+      ? myVouchers.some(
+          (voucher) =>
+            String(voucher?.offerId || "") === offerId &&
+            String(voucher?.status || "").toLowerCase() === "redeemed"
+        )
+      : false;
+
+    setIsRedeemed(hasRedeemedVoucher);
   }, [offerId, myVouchers]);
 
   // Fetch claimed vouchers when user is authenticated
@@ -773,6 +785,10 @@ function NearbyDealDetailsContent() {
                 >
                   {claimLoading ? (
                     "Claiming..."
+                  ) : isRedeemed ? (
+                    <>
+                      <Check size={20} /> Redeemed
+                    </>
                   ) : isClaimed ? (
                     <>
                       <Check size={20} /> Claimed

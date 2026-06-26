@@ -1,5 +1,6 @@
 "use client";
 
+import { createPortal } from "react-dom";
 import { ArrowLeft, Check, CheckCheck, Paperclip, Phone, PhoneIncoming, PhoneMissed, PhoneOutgoing, Send, X, MoreVertical } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import UserReportModal from "../components/UserReportModal";
@@ -170,12 +171,17 @@ export default function ChatWindow({
             </div>
           )}
         </div>
-            <UserReportModal
-              isOpen={showReportModal}
-              onClose={() => setShowReportModal(false)}
-              userId={conversation?.otherUser?.id || conversation?.otherUser?._id || ""}
-              userName={conversation?.otherUser?.name}
-            />
+          {showReportModal &&
+            typeof window !== "undefined" &&
+            createPortal(
+              <UserReportModal
+                isOpen={showReportModal}
+                onClose={() => setShowReportModal(false)}
+                userId={conversation?.otherUser?.id || conversation?.otherUser?._id || ""}
+                userName={conversation?.otherUser?.name}
+              />,
+              document.body,
+            )}
       </div>
 
       {/* SCROLLABLE MESSAGES AREA */}

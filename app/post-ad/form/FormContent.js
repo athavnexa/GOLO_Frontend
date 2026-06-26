@@ -83,7 +83,7 @@ export default function FormContent() {
       <Navbar />
 
       {/* Main Content */}
-      <div className="flex-1 max-w-7xl mx-auto w-full px-6 py-12">
+      <div className="mx-auto w-full max-w-7xl flex-1 px-3 py-5 sm:px-6 sm:py-12">
 
         {/* Step Progress */}
         <StepProgress
@@ -95,7 +95,7 @@ export default function FormContent() {
         />
 
         {/* Form Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 mt-12">
+        <div className="mt-5 grid grid-cols-1 gap-5 sm:mt-12 lg:grid-cols-3 lg:gap-10">
 
           {/* LEFT FORM */}
           <div className="lg:col-span-2">

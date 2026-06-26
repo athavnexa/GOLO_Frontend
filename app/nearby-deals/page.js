@@ -977,19 +977,21 @@ function NearbyDealsSkeleton({ view = "grid" }) {
 export default function NearbyDealsPage() {
   const router = useRouter();
   const { user, loading } = useAuth();
+  const searchParams = useSearchParams();
+  const isMerchantPreview = searchParams.get("view") === "merchant-preview";
 
-  // Redirect merchants away from user pages
+  // Redirect merchants away from user pages unless they are previewing as a customer
   useEffect(() => {
-    if (!loading && user && user.accountType === "merchant") {
+    if (!loading && user && user.accountType === "merchant" && !isMerchantPreview) {
       router.replace("/merchant/dashboard");
     }
-  }, [user, loading, router]);
+  }, [user, loading, router, isMerchantPreview]);
 
   if (loading) {
     return <main className="min-h-screen bg-[#F3F3F3]" />;
   }
 
-  if (user && user.accountType === "merchant") {
+  if (user && user.accountType === "merchant" && !isMerchantPreview) {
     return null;
   }
 

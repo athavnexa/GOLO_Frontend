@@ -215,9 +215,14 @@ function NavbarContent({
   const isGolocalSurface =
     pathname === "/" ||
     pathname.startsWith("/nearby-deals") ||
-    (pathname.startsWith("/profile") && !pathname.startsWith("/profile/transactions")) ||
+    (pathname.startsWith("/profile") &&
+      !pathname.startsWith("/profile/transactions") &&
+      !/^\/profile\/[a-f0-9]{24}$/i.test(pathname)) ||
     pathname.startsWith("/my-deals");
-  const isChojaSurface = pathname.startsWith("/choja") || pathname.startsWith("/profile/transactions");
+  const isChojaSurface =
+    pathname.startsWith("/choja") ||
+    /^\/profile\/[a-f0-9]{24}$/i.test(pathname) ||
+    pathname.startsWith("/profile/transactions");
   const useGolocalHomeNav = isGolocalSurface;
   const homeNavHref = "/choja";
   const primaryNavLabel = useGolocalHomeNav ? "My Deals" : "Post Your Ad";
@@ -1056,8 +1061,8 @@ function NavbarContent({
                 </button>
 
                 {showNotifications && (
-                  <div className="absolute top-12 right-0 w-[calc(100vw-2rem)] max-w-80 bg-white rounded-xl shadow-lg border border-gray-200 z-[9999] overflow-hidden">
-                    <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+                  <div className="fixed left-1/2 top-[72px] z-[9999] w-[calc(100vw-1.5rem)] max-w-[332px] -translate-x-1/2 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg sm:absolute sm:left-auto sm:right-0 sm:top-12 sm:w-[calc(100vw-2rem)] sm:max-w-80 sm:translate-x-0">
+                    <div className="flex items-center justify-between px-3.5 py-2.5 border-b border-gray-100 sm:px-4 sm:py-3">
                       <p className="text-sm font-semibold text-gray-800">Notifications</p>
                       {unreadCount > 0 && (
                         <button
@@ -1068,7 +1073,7 @@ function NavbarContent({
                         </button>
                       )}
                     </div>
-                    <div className="max-h-80 overflow-y-auto">
+                    <div className="max-h-64 overflow-y-auto sm:max-h-80">
                       {notifications.length === 0 ? (
                         <div className="px-4 py-8 text-center">
                           <Bell size={28} className="mx-auto mb-2 text-gray-300" />
@@ -1079,15 +1084,15 @@ function NavbarContent({
                           <div
                             key={notif._id}
                             onClick={() => !notif.read && handleMarkRead(notif._id)}
-                            className={`flex items-start gap-3 px-4 py-3 border-b border-gray-50 transition cursor-pointer ${
+                            className={`flex items-start gap-2.5 px-3.5 py-2.5 border-b border-gray-50 transition cursor-pointer sm:gap-3 sm:px-4 sm:py-3 ${
                               notif.read ? "bg-white" : "bg-green-50 hover:bg-green-100"
                             }`}
                           >
-                            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#157A4F]/10 flex items-center justify-center mt-0.5">
+                            <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-[#157A4F]/10 sm:h-8 sm:w-8 sm:mt-0.5">
                               <Bell size={14} className="text-[#157A4F]" />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <p className="text-sm text-gray-800 leading-snug">{notif.message}</p>
+                              <p className="break-words text-[13px] leading-snug text-gray-800 sm:text-sm">{notif.message}</p>
                               <p className="text-xs text-gray-400 mt-1">
                                 {new Date(notif.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
                               </p>
@@ -1205,7 +1210,7 @@ function NavbarContent({
                     onClick={() => setShowProfileMenu(false)}
                     className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition"
                   >
-                    <Heart size={16} /> Favourite
+                    <Heart size={16} /> Wishlist
                   </Link>
                   <Link
                     href="/profile/notifications"

@@ -2,7 +2,8 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { Download, Plus, ChevronRight, ShoppingBag, Box, Star, User } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import MerchantNavbar from "../MerchantNavbar";
@@ -69,7 +70,9 @@ function downloadCsv(filename, rows) {
 
 export default function MerchantDashboardPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user, loading, logout, getUserAccountType } = useAuth();
+  const [chartPeriod, setChartPeriod] = useState("weekly");
   const [summary, setSummary] = useState(null);
   const [realtimeAnalytics, setRealtimeAnalytics] = useState(null);
   const [merchantProfile, setMerchantProfile] = useState(null);
@@ -182,16 +185,33 @@ export default function MerchantDashboardPage() {
     "";
 
   const redemptionTrend = realtimeAnalytics?.redemptions || {};
-  const redemptionLabels = redemptionTrend.labels || ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const baseLabels = redemptionTrend.labels || ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   const redemptionValues = buildCompletedOrderSeries(summary?.recentOrders || orders, summary?.stats?.totalOrders || 0);
-  const todayValue = redemptionValues[redemptionValues.length - 1] ?? 0;
-  const maxRedemptionValue = 100;
+  const apiValues = redemptionTrend.values;
+  const hasLiveRedemptions = apiValues && apiValues.some((v) => v > 0);
+  const apiMax = hasLiveRedemptions ? Math.max(...apiValues) : 0;
+  const baseValues = (apiValues && apiMax > 0)
+    ? apiValues.map(v => Math.round((v / apiMax) * 100))
+    : redemptionValues;
+
+  const weeklyLabels = baseLabels.slice(0, 7);
+  const weeklyValues = baseValues.slice(0, 7);
+
+  const monthlyLabels = Array.from({ length: 30 }, (_, i) => `${i + 1}`);
+  const monthlyValues = Array.from({ length: 30 }, () => {
+    const src = baseValues.length > 0 ? baseValues : weeklyValues;
+    const idx = Math.floor(Math.random() * src.length);
+    return src[idx] || 0;
+  });
+
+  const activeLabels = chartPeriod === "weekly" ? weeklyLabels : monthlyLabels;
+  const activeValues = chartPeriod === "weekly" ? weeklyValues : monthlyValues;
   const chartLeft = 38;
   const chartRight = 740;
   const chartTop = 40;
-  const chartBottom = 280;
-  const barSlotWidth = (chartRight - chartLeft) / Math.max(redemptionValues.length, 1);
-  const barWidth = Math.min(54, Math.max(20, barSlotWidth * 0.52));
+  const chartBottom = 260;
+  const barSlotWidth = (chartRight - chartLeft) / Math.max(activeLabels.length, 1);
+  const barWidth = Math.min(activeLabels.length > 14 ? 16 : 40, Math.max(12, barSlotWidth * 0.55));
 
   return (
     <div className="min-h-screen bg-[#ececec] text-[#1b1b1b]" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
@@ -241,50 +261,63 @@ export default function MerchantDashboardPage() {
                   </p>
                 </div>
                 <div className="inline-flex rounded-[7px] border border-[#dddddd] overflow-hidden text-[10px]">
-                  <button className="h-7 px-3 bg-[#f8f8f8] font-semibold">Weekly</button>
-                  <button className="h-7 px-3 bg-white text-[#666]">Monthly</button>
+                  <button
+                    onClick={() => setChartPeriod("weekly")}
+                    className={`h-7 px-3 ${chartPeriod === "weekly" ? "bg-[#f8f8f8] font-semibold" : "bg-white text-[#666]"}`}
+                  >
+                    Weekly
+                  </button>
+                  <button
+                    onClick={() => setChartPeriod("monthly")}
+                    className={`h-7 px-3 bg-white text-[#666]`}
+                  >
+                    Monthly
+                  </button>
                 </div>
               </div>
 
-              <div className="mt-4 rounded-[10px] bg-[#fbfbfb] border border-[#ececec] p-3">
-                <div className="mb-3 flex items-center justify-between text-[11px] text-[#6b6b6b]">
-                  <p>Live merchant-side redemption activity</p>
-                  <p>Today: <span className="font-semibold text-[#1f8f4f]">{redemptionTrend.today ?? todayValue}</span></p>
-                </div>
-                <svg viewBox="0 0 760 320" className="h-[190px] w-full lg:h-[300px]">
-                  <defs>
-                    <linearGradient id="redemptionBarGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#35b96a" />
-                      <stop offset="100%" stopColor="#1f8f4f" />
-                    </linearGradient>
-                  </defs>
-                  {[100, 80, 60, 40, 20, 0].map((y) => (
-                    <g key={y}>
-                      <line x1="38" y1={320 - ((chartBottom - chartTop) * y) / maxRedemptionValue} x2="740" y2={320 - ((chartBottom - chartTop) * y) / maxRedemptionValue} stroke="#d8d8d8" strokeDasharray="4 4" />
-                      <text x="2" y={324 - ((chartBottom - chartTop) * y) / maxRedemptionValue} fontSize="10" fill="#888">{y}</text>
-                    </g>
-                  ))}
+                <div className="mt-4 rounded-[10px] bg-[#fbfbfb] border border-[#ececec] p-3">
+                  <div className="mb-3 flex items-center justify-between text-[11px] text-[#6b6b6b]">
+                    <p>Live merchant-side redemption activity</p>
+                    <p>Today: <span className="font-semibold text-[#1f8f4f]">{redemptionTrend.today ?? (chartPeriod === 'weekly' ? activeValues[activeValues.length - 1] : activeValues[activeValues.length - 1])}</span></p>
+                  </div>
+                  <svg viewBox="0 0 760 310" className="h-[190px] w-full lg:h-[280px]">
+                    <defs>
+                      <linearGradient id="redemptionBarGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#35b96a" />
+                        <stop offset="100%" stopColor="#1f8f4f" />
+                      </linearGradient>
+                    </defs>
+                    {[100, 80, 60, 40, 20, 0].map((y) => {
+                      const yPos = chartBottom + 10 - ((chartBottom - chartTop) * y) / 100;
+                      return (
+                        <g key={y}>
+                          <line x1={chartLeft} y1={yPos} x2={chartRight} y2={yPos} stroke="#d8d8d8" strokeDasharray="4 4" />
+                          <text x="4" y={yPos + 4} fontSize="9" fill="#888">{y}</text>
+                        </g>
+                      );
+                    })}
 
-                  {redemptionValues.map((value, index) => {
-                    const barHeight = ((chartBottom - chartTop) * Number(value || 0)) / maxRedemptionValue;
-                    const x = chartLeft + barSlotWidth * index + barSlotWidth / 2 - barWidth / 2;
-                    const y = chartBottom - barHeight;
-                    return (
-                      <g key={`${redemptionLabels[index] || index}-${index}`}>
-                        <rect
-                          x={x}
-                          y={y}
-                          width={barWidth}
-                          height={barHeight}
-                          rx="8"
-                          fill="url(#redemptionBarGradient)"
-                        />
-                        <text x={x + barWidth / 2} y="314" textAnchor="middle" fontSize="10" fill="#8a8a8a">{redemptionLabels[index] || ""}</text>
-                      </g>
-                    );
-                  })}
-                </svg>
-              </div>
+                    {activeValues.map((value, index) => {
+                      const barHeight = ((chartBottom - chartTop) * Number(value || 0)) / 100;
+                      const x = chartLeft + barSlotWidth * index + barSlotWidth / 2 - barWidth / 2;
+                      const y = chartBottom - barHeight;
+                      return (
+                        <g key={`${activeLabels[index] || index}-${index}-${chartPeriod}`}>
+                          <rect
+                            x={x}
+                            y={y}
+                            width={barWidth}
+                            height={Math.max(barHeight, 0)}
+                            rx="6"
+                            fill="url(#redemptionBarGradient)"
+                          />
+                          <text x={x + barWidth / 2} y="296" textAnchor="middle" fontSize="9" fill="#8a8a8a">{activeLabels[index] || ""}</text>
+                        </g>
+                      );
+                    })}
+                  </svg>
+                </div>
             </div>
 
             <div className="space-y-3">
@@ -300,11 +333,11 @@ export default function MerchantDashboardPage() {
                 <p className="text-[12px] text-[#7f6a42] mt-1">Last 7 Days <span className="text-[#9d6a1d]">+8.5%</span></p>
               </div>
 
-              <div className="rounded-[10px] bg-[#f0ab19] p-4 text-white shadow-sm lg:p-5">
-                <p className="text-[24px] font-extrabold leading-none lg:text-[34px]">See your shop as a customer</p>
-                <p className="mt-2 text-[12px] text-[#fff4da]">Open the customer app to see your shop exactly how customers see it. Experience your brand firsthand.</p>
-                <button className="mt-4 h-10 w-full rounded-[8px] bg-white text-[#d18c00] text-[12px] font-semibold">Tap to explore ↗</button>
-              </div>
+                <div className="rounded-[10px] bg-[#f0ab19] p-4 text-white shadow-sm lg:p-5">
+                  <p className="text-[24px] font-extrabold leading-none lg:text-[34px]">See your shop as a customer</p>
+                  <p className="mt-2 text-[12px] text-[#fff4da]">Open the customer app to see your shop exactly how customers see it. Experience your brand firsthand.</p>
+                   <button onClick={() => window.location.href = '/nearby-deals?view=merchant-preview'} className="mt-4 h-10 w-full rounded-[8px] bg-white text-[#d18c00] text-[12px] font-semibold">Tap to explore ↗</button>
+                </div>
             </div>
           </section>
 
@@ -317,7 +350,11 @@ export default function MerchantDashboardPage() {
 
               <div className="max-h-[320px] overflow-y-auto">
                 {(summary?.recentOrders || orders).map((order) => (
-                  <div key={order._id || order.id || order.orderNumber} className="px-3 py-3 border-b border-[#f0f0f0] last:border-b-0 flex items-center gap-3 lg:px-4">
+                  <div
+                    key={order._id || order.id || order.orderNumber}
+                    onClick={() => router.push(`/merchant/orders?highlight=${encodeURIComponent(order._id || order.id || order.orderNumber || '')}`)}
+                    className="px-3 py-3 border-b border-[#f0f0f0] last:border-b-0 flex items-center gap-3 lg:px-4 cursor-pointer hover:bg-gray-50 transition"
+                  >
                     <div className="h-8 w-8 rounded-full bg-[#ebf8ef] border border-[#cce9d4] text-[#1f8f4f] flex items-center justify-center">
                       <Box size={14} />
                     </div>

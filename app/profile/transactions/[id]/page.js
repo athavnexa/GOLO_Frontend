@@ -86,38 +86,40 @@ export default function TransactionDetailPage({ params }) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-white">
       <Navbar />
-      <div className="flex max-w-6xl mx-auto pt-8 pb-16 px-4 lg:px-0">
-        <ProfileSidebar />
-        <div className="flex-1 bg-white rounded-xl shadow-lg p-8 ml-8">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-semibold text-[#157A4F]">Transaction Details</h2>
+      <div className="mx-auto flex max-w-6xl px-3 pb-10 pt-5 sm:px-4 sm:pb-16 sm:pt-8 lg:px-0">
+        <div className="hidden lg:block">
+          <ProfileSidebar />
+        </div>
+        <div className="flex-1 rounded-xl bg-white p-4 shadow-lg sm:p-8 lg:ml-8">
+          <div className="mb-5 flex flex-col gap-3 sm:mb-6 sm:flex-row sm:items-center sm:justify-between">
+            <h2 className="text-xl font-semibold text-[#157A4F] sm:text-2xl">Transaction Details</h2>
             <Link href="/profile/transactions" className="text-sm font-semibold text-[#157A4F] hover:underline">
               ← Back to History
             </Link>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-4 mb-8">
-            <div className="bg-gray-50 rounded-lg p-4">
+          <div className="mb-6 grid gap-3 sm:mb-8 md:grid-cols-2 md:gap-4">
+            <div className="rounded-lg bg-gray-50 p-3 sm:p-4">
               <p className="text-xs text-gray-500">Payment ID</p>
               <p className="font-semibold text-gray-900 break-all">{transaction.paymentId}</p>
             </div>
-            <div className="bg-gray-50 rounded-lg p-4">
+            <div className="rounded-lg bg-gray-50 p-3 sm:p-4">
               <p className="text-xs text-gray-500">Razorpay Order ID</p>
               <p className="font-semibold text-gray-900 break-all">{transaction.razorpayOrderId || '-'}</p>
             </div>
-            <div className="bg-gray-50 rounded-lg p-4">
+            <div className="rounded-lg bg-gray-50 p-3 sm:p-4">
               <p className="text-xs text-gray-500">Razorpay Payment ID</p>
               <p className="font-semibold text-gray-900 break-all">{transaction.razorpayPaymentId || '-'}</p>
             </div>
-            <div className="bg-gray-50 rounded-lg p-4">
+            <div className="rounded-lg bg-gray-50 p-3 sm:p-4">
               <p className="text-xs text-gray-500">Paid On</p>
               <p className="font-semibold text-gray-900">{new Date(transaction.createdAt).toLocaleString()}</p>
             </div>
-            <div className="bg-gray-50 rounded-lg p-4">
+            <div className="rounded-lg bg-gray-50 p-3 sm:p-4">
               <p className="text-xs text-gray-500">Payment Method</p>
               <p className="font-semibold text-gray-900">{transaction.method || '-'}</p>
             </div>
-            <div className="bg-gray-50 rounded-lg p-4">
+            <div className="rounded-lg bg-gray-50 p-3 sm:p-4">
               <p className="text-xs text-gray-500">Payment Status</p>
               <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold mt-1 ${statusClasses(transaction.status)}`}>
                 {toDisplayStatus(transaction.status)}
@@ -125,11 +127,11 @@ export default function TransactionDetailPage({ params }) {
             </div>
           </div>
 
-          <div className="border border-gray-100 rounded-xl overflow-hidden mb-8">
+          <div className="mb-6 overflow-hidden rounded-xl border border-gray-100 sm:mb-8">
             <div className="bg-green-50 px-5 py-3 border-b border-gray-100">
               <h3 className="font-semibold text-gray-900">Payment Summary</h3>
             </div>
-            <div className="p-5 space-y-3 text-sm">
+            <div className="space-y-3 p-4 text-sm sm:p-5">
               <div className="flex justify-between"><span className="text-gray-600">Amount</span><span className="font-medium text-gray-900">₹{subtotal.toFixed(2)}</span></div>
               <div className="flex justify-between"><span className="text-gray-600">Estimated GST (18%)</span><span className="font-medium text-gray-900">₹{taxEstimate.toFixed(2)}</span></div>
               <div className="border-t border-gray-200 pt-3 flex justify-between text-base">
@@ -139,7 +141,7 @@ export default function TransactionDetailPage({ params }) {
             </div>
           </div>
 
-          <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 text-sm">
+          <div className="rounded-lg border border-blue-100 bg-blue-50 p-3 text-sm sm:p-4">
             <p className="font-semibold text-gray-900 mb-1">Additional Notes</p>
             <p className="text-gray-700">Provider: Razorpay • Currency: {transaction.currency || 'INR'}</p>
             {transaction.failureDescription && (

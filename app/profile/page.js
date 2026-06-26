@@ -391,15 +391,15 @@ export default function ProfilePage() {
                   </div>
                 )}
                 <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-                  <div className="flex items-start gap-4">
+                  <div className="flex min-w-0 items-start gap-3 sm:gap-4">
                     {profilePhotoSrc ? (
                       <img
                         src={profilePhotoSrc}
                         alt={displayUser?.name || "Profile"}
-                        className="w-[84px] h-[84px] rounded-full shadow-sm object-cover"
+                        className="h-[68px] w-[68px] shrink-0 rounded-full object-cover shadow-sm sm:h-[84px] sm:w-[84px]"
                       />
                     ) : (
-                      <div className="w-[84px] h-[84px] rounded-full bg-[#e6b03f] text-white flex items-center justify-center text-4xl font-medium relative shadow-sm">
+                      <div className="relative flex h-[68px] w-[68px] shrink-0 items-center justify-center rounded-full bg-[#e6b03f] text-3xl font-medium text-white shadow-sm sm:h-[84px] sm:w-[84px] sm:text-4xl">
                         {initials}
                         <span className="absolute right-1 bottom-1 w-5 h-5 rounded-full bg-[#157a4f] border-2 border-white flex items-center justify-center text-[10px] text-white">
                           <User size={10} />

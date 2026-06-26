@@ -213,6 +213,7 @@ export default function GolocalFavoritesPage() {
               )}
 
               {/* Trending Section - kept as placeholder */}
+              {/*
               {filteredAds.length > 0 && (
                 <div className="mt-8 border-t border-[#ececec] pt-6">
                   <div className="flex items-center justify-between">
@@ -237,6 +238,7 @@ export default function GolocalFavoritesPage() {
                   </div>
                 </div>
               )}
+              */}
             </main>
           </div>
         </div>

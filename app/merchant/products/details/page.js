@@ -284,12 +284,27 @@ function MerchantProductDetailsContent() {
                     <label className="block rounded-[14px] border border-[#edf0f4] bg-white p-2.5 shadow-sm">
                       <span className="mb-1 block text-[12px] font-semibold text-[#4a5565]">Category</span>
                       {isEditMode ? (
-                        <input
-                          type="text"
+                        <select
                           value={formData.category}
                           onChange={(e) => handleInputChange("category", e.target.value)}
-                          className="h-10 w-full rounded-[10px] border border-[#e4e7ec] bg-[#fcfdff] px-3 py-2 text-[12px] text-[#1f2937] outline-none transition focus:border-[#157a4f] focus:ring-2 focus:ring-[#d8efe1]"
-                        />
+                          className="h-10 w-full rounded-[10px] border border-[#e4e7ec] bg-[#fcfdff] px-3 text-[12px] text-[#1f2937] outline-none transition focus:border-[#157a4f] focus:ring-2 focus:ring-[#d8efe1]"
+                        >
+                          <option>Clothing</option>
+                          <option>Electronics</option>
+                          <option>Home & Kitchen</option>
+                          <option>Beauty & Personal Care</option>
+                          <option>Sports & Outdoors</option>
+                          <option>Toys & Games</option>
+                          <option>Books & Media</option>
+                          <option>Jewellery & Accessories</option>
+                          <option>Footwear</option>
+                          <option>Furniture</option>
+                          <option>Health & Wellness</option>
+                          <option>Food & Groceries</option>
+                          <option>Pet Supplies</option>
+                          <option>Garden & Outdoor</option>
+                          <option>Arts & Crafts</option>
+                        </select>
                       ) : (
                         <p className="rounded-[12px] bg-[#f8fbfa] px-3 py-3 text-[13px] text-[#1f2937]">{formData.category || "—"}</p>
                       )}

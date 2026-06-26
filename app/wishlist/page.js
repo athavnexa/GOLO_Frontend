@@ -19,6 +19,12 @@ export default function WishlistPage() {
   const { isLoading, isAuthorized } = useRoleProtection("user");
   const router = useRouter();
 
+  const isChojaAd = (item) => {
+    if (!item || item._type === "offer") return false;
+    if (item.offerId || item.offerPublicId || item.offerRequestId || item.requestId) return false;
+    return Boolean(item.adId || item._id || item.title);
+  };
+
   if (isLoading) {
     return <LoadingScreen />;
   }
@@ -40,13 +46,15 @@ export default function WishlistPage() {
       if (res.success && Array.isArray(res.data)) {
         // Filter out nulls in case some ads were deleted
         const validAds = res.data.filter(Boolean);
-        
+
         // Remove any duplicates by ad ID
         const uniqueAds = Array.from(
           new Map(validAds.map(ad => [ad.adId || ad._id, ad])).values()
         );
-        
-        setAds(uniqueAds);
+
+        const adsOnly = uniqueAds.filter(ad => ad._type !== 'offer');
+
+        setAds(adsOnly);
       }
     } catch (err) {
       console.error("Failed to fetch wishlist", err);
@@ -79,17 +87,17 @@ export default function WishlistPage() {
     <>
       <Navbar />
 
-      <div className="min-h-screen bg-[#F8F6F2] py-14 px-6">
-        <div className="max-w-7xl mx-auto grid lg:grid-cols-4 gap-10">
+      <div className="min-h-screen bg-[#F8F6F2] px-3 py-5 sm:px-6 sm:py-14">
+        <div className="mx-auto grid max-w-7xl gap-5 lg:grid-cols-4 lg:gap-10">
           
           {/* SIDEBAR */}
           <ProfileSidebar />
 
           {/* CONTENT */}
           <div className="lg:col-span-3">
-            <div className="bg-white rounded-3xl shadow-sm p-10 min-h-[500px]">
-              <div className="flex items-center justify-between mb-10">
-                <h2 className="text-3xl font-semibold text-black">
+            <div className="min-h-[420px] rounded-2xl bg-white p-4 shadow-sm sm:min-h-[500px] sm:rounded-3xl sm:p-10">
+              <div className="mb-5 flex items-center justify-between sm:mb-10">
+                <h2 className="text-2xl font-semibold text-black sm:text-3xl">
                   My Wishlist
                 </h2>
                 <span className="text-gray-500 text-sm">
@@ -109,7 +117,7 @@ export default function WishlistPage() {
                   </div>
                   <h3 className="text-xl font-semibold text-gray-800 mb-2">Your wishlist is empty</h3>
                   <p className="text-gray-500 mb-8 max-w-md">
-                    You haven't added any items to your wishlist yet. Discover great deals and save them for later!
+                    You haven't added any Choja ads to your wishlist yet. Discover listings and save them for later!
                   </p>
                   <Link href="/choja">
                     <button className="bg-[#157A4F] text-white px-8 py-3 rounded-full font-medium hover:bg-[#0f5c3a] transition-colors">
@@ -118,7 +126,7 @@ export default function WishlistPage() {
                   </Link>
                 </div>
               ) : (
-                <div className="grid md:grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-8">
                   {ads.map((ad, index) => {
                     // wishlistId: the UUID stored in the wishlist array (for backend toggle & filter)
                     // linkId: used in the URL — prefer UUID, fallback to _id
@@ -128,15 +136,15 @@ export default function WishlistPage() {
                     const isExternalImage = ad?.images?.length > 0;
                     
                     return (
-                      <div key={`${linkId}-${index}`} className="group bg-white border border-gray-200 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 flex flex-col pt-1">
+                      <div key={`${linkId}-${index}`} className="group flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white pt-1 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
                         
-                        <div className="relative overflow-hidden pt-4 px-4 h-64">
+                        <div className="relative h-48 overflow-hidden px-3 pt-3 sm:h-64 sm:px-4 sm:pt-4">
                           <button 
                             onClick={(e) => {
                               e.preventDefault();
                               handleRemove(wishlistId);
                             }}
-                            className="absolute z-10 top-6 right-6 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-red-50 text-red-500 transition-colors"
+                            className="absolute right-5 top-5 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white text-red-500 shadow-md transition-colors hover:bg-red-50 sm:right-6 sm:top-6 sm:h-10 sm:w-10"
                             title="Remove from wishlist"
                           >
                             <Trash2 size={18} />
@@ -153,23 +161,23 @@ export default function WishlistPage() {
                           </Link>
                         </div>
 
-                        <div className="p-6 flex flex-col flex-1">
+                        <div className="flex flex-1 flex-col p-4 sm:p-6">
                           <Link href={`/product/${linkId}`} className="block flex-1">
-                            <h3 className="text-lg font-semibold text-black group-hover:text-[#F5B849] transition line-clamp-2">
+                            <h3 className="line-clamp-2 text-base font-semibold text-black transition group-hover:text-[#F5B849] sm:text-lg">
                               {ad.title || "Product Name"}
                             </h3>
-                            <p className="text-[#157A4F] text-xl font-bold mt-2">
+                            <p className="mt-2 text-lg font-bold text-[#157A4F] sm:text-xl">
                               ₹{price}
                             </p>
-                            <div className="mt-2 text-sm text-gray-500 flex items-center gap-2">
+                            <div className="mt-2 flex min-w-0 items-center gap-2 text-xs text-gray-500 sm:text-sm">
                               <span className="truncate">{ad.location || ad.city || "Location not specified"}</span>
                               <span>•</span>
                               <span>{ad.category || "General"}</span>
                             </div>
                           </Link>
 
-                          <Link href={`/product/${linkId}`} className="block mt-6">
-                            <button className="w-full bg-[#F5B849] hover:bg-[#e0a631] transition-all duration-300 py-3 rounded-xl text-black font-medium shadow-sm hover:shadow-md">
+                          <Link href={`/product/${linkId}`} className="mt-4 block sm:mt-6">
+                            <button className="w-full rounded-xl bg-[#F5B849] py-2.5 font-medium text-black shadow-sm transition-all duration-300 hover:bg-[#e0a631] hover:shadow-md sm:py-3">
                               View Details
                             </button>
                           </Link>

@@ -12,7 +12,6 @@ import { CalendarDays, ChevronRight, Search, Tag, ShieldCheck, CircleHelp, Arrow
 
 const tabs = ["All Deals", "Claimed", "Redeemed", "Expired"];
 
-// Dynamic stats calculation
 function useDealStats(myVouchers) {
   return useMemo(() => {
     if (!myVouchers || myVouchers.length === 0) {
@@ -54,14 +53,12 @@ export default function MyDeals() {
   const [filteredDeals, setFilteredDeals] = useState([]);
   const stats = useDealStats(myVouchers);
 
-  // Fetch vouchers on mount
   useEffect(() => {
     if (user) {
       fetchMyVouchers({ page: 1, limit: 100 });
     }
   }, [user, fetchMyVouchers]);
 
-  // Filter vouchers by tab
   useEffect(() => {
     if (!myVouchers || myVouchers.length === 0) {
       setFilteredDeals([]);
@@ -76,7 +73,7 @@ export default function MyDeals() {
     } else if (activeTab === "Expired") {
       filtered = myVouchers.filter(v => v.status === "expired");
     }
-    
+
     setFilteredDeals(filtered);
   }, [activeTab, myVouchers]);
 
@@ -127,7 +124,7 @@ export default function MyDeals() {
               <div className="mt-8 rounded-[12px] border border-[#ececec] bg-white px-3 md:px-4 py-3 shadow-sm">
                 <div className="flex flex-wrap items-center gap-2 justify-between">
                   <div className="flex flex-wrap items-center gap-2">
-                    {tabs.map((tab, index) => (
+                    {tabs.map((tab) => (
                       <button
                         key={tab}
                         onClick={() => setActiveTab(tab)}
@@ -151,52 +148,73 @@ export default function MyDeals() {
                 </div>
               </div>
 
-                            <div className="mt-6 grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
+              <div className="mt-6 grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
                 {filteredDeals.map((deal) => (
                   <article key={deal._id} className="group rounded-[12px] border border-[#282828] bg-white overflow-hidden shadow-[0_1px_0_rgba(0,0,0,0.03)]">
-                        <div className="relative h-[132px] bg-[#f3efe5] overflow-hidden">
-                        <Image 
-                          src={deal.offerImage || deal.image || "/images/deal2.avif"} 
-                          alt={deal.offerTitle || "Deal Image"} 
-                          fill 
-                          className="object-cover" 
-                        />
-                        <div className="absolute inset-x-0 top-0 flex items-start justify-between px-2 py-2">
-                          <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold shadow-sm ${deal.status === "active" || deal.status === "claimed" ? "bg-[#d3f3dd] text-[#15803d]" : deal.status === "redeemed" ? "bg-[#dce6ff] text-[#334155]" : "bg-[#f5e2d7] text-[#b45309]"}`}>
-                            {deal.status === "active" ? "claimed" : deal.status}
-                          </span>
-                          {deal.badge && <span className="rounded-full bg-[#7a4af4] px-2.5 py-0.5 text-[10px] font-semibold text-white shadow-sm">{deal.badge}</span>}
-                        </div>
+                    <div className="relative h-[132px] bg-[#f3efe5] overflow-hidden">
+                      <Image
+                        src={deal.offerImage || deal.image || "/images/deal2.avif"}
+                        alt={deal.offerTitle || "Deal Image"}
+                        fill
+                        className="object-cover"
+                      />
+                      <div className="absolute inset-x-0 top-0 flex items-start justify-between px-2 py-2">
+                        <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold shadow-sm ${deal.status === "active" || deal.status === "claimed" ? "bg-[#d3f3dd] text-[#15803d]" : deal.status === "redeemed" ? "bg-[#dce6ff] text-[#334155]" : "bg-[#f5e2d7] text-[#b45309]"}`}>
+                          {deal.status === "active" ? "claimed" : deal.status}
+                        </span>
+                        {deal.badge && <span className="rounded-full bg-[#7a4af4] px-2.5 py-0.5 text-[10px] font-semibold text-white shadow-sm">{deal.badge}</span>}
+                      </div>
+                    </div>
+
+                    <div className="px-3 pt-2.5 pb-3">
+                      <p className="text-[9px] font-semibold tracking-[0.18em] text-[#4ca5ef] uppercase">{deal.merchantName || "Merchant"}</p>
+                      <h3 className="mt-1 text-[16px] leading-tight font-semibold text-[#222] min-h-[38px]">{deal.offerTitle || "Untitled Deal"}</h3>
+
+                      <div className="mt-4 flex items-center gap-1 text-[11px] text-[#737373]">
+                        <CalendarDays size={13} className="text-[#8f8f8f]" />
+                        <span>Expires {deal.expiresAt ? new Date(deal.expiresAt).toLocaleDateString() : (deal.expiry || "N/A")}</span>
                       </div>
 
-                      <div className="px-3 pt-2.5 pb-3">
-                        <p className="text-[9px] font-semibold tracking-[0.18em] text-[#4ca5ef] uppercase">{deal.merchantName || "Merchant"}</p>
-                        <h3 className="mt-1 text-[16px] leading-tight font-semibold text-[#222] min-h-[38px]">{deal.offerTitle || "Untitled Deal"}</h3>
-
-                        <div className="mt-4 flex items-center gap-1 text-[11px] text-[#737373]">
-                          <CalendarDays size={13} className="text-[#8f8f8f]" />
-                          <span>Expires {deal.expiresAt ? new Date(deal.expiresAt).toLocaleDateString() : (deal.expiry || "N/A")}</span>
-                        </div>
-
-                        <div className="mt-4 flex items-center gap-2">
-                          {(deal.status === "active" || deal.status === "claimed") && (
-                            <button 
-                              onClick={() => router.push(`/nearby-deals/deal/claimed-offer?voucherId=${deal._id}`)}
-                              className="h-8 flex-1 rounded-md bg-[#d3f3dd] text-[#15803d] text-[12px] font-semibold cursor-not-allowed"
-                              disabled
-                            >
-                              Claimed
-                            </button>
-                          )}
-                          <button 
+                      <div className="mt-4 flex items-center gap-2">
+                        {(deal.status === "active" || deal.status === "claimed") && (
+                          <button
                             onClick={() => router.push(`/nearby-deals/deal/claimed-offer?voucherId=${deal._id}`)}
-                            className="h-8 w-8 rounded-md border border-[#e0e0e0] text-[#777] flex items-center justify-center hover:border-[#c9c9c9]"
-                            aria-label="Open deal history"
+                            className="h-8 flex-1 rounded-md bg-[#d3f3dd] text-[#15803d] text-[12px] font-semibold"
                           >
-                            <ChevronRight size={14} />
+                            Claimed
                           </button>
-                        </div>
+                        )}
+                        {deal.status === "redeemed" && (
+                          <button
+                            onClick={() => router.push(`/nearby-deals/deal?offerId=${deal.offerId}`)}
+                            className="h-8 flex-1 rounded-md bg-[#dce6ff] text-[#334155] text-[12px] font-semibold"
+                          >
+                            Redeemed
+                          </button>
+                        )}
+                        {deal.status === "expired" && (
+                          <button
+                            onClick={() => router.push(`/nearby-deals/deal?offerId=${deal.offerId}`)}
+                            className="h-8 flex-1 rounded-md bg-[#f5e2d7] text-[#b45309] text-[12px] font-semibold"
+                          >
+                            Expired
+                          </button>
+                        )}
+                        <button
+                          onClick={() => {
+                            if (deal.status === "redeemed" || deal.status === "expired") {
+                              router.push(`/nearby-deals/deal?offerId=${deal.offerId}`);
+                            } else {
+                              router.push(`/nearby-deals/deal/claimed-offer?voucherId=${deal._id}`);
+                            }
+                          }}
+                          className="h-8 w-8 rounded-md border border-[#e0e0e0] text-[#777] flex items-center justify-center hover:border-[#c9c9c9]"
+                          aria-label="Open deal history"
+                        >
+                          <ChevronRight size={14} />
+                        </button>
                       </div>
+                    </div>
                   </article>
                 ))}
               </div>

@@ -261,12 +261,11 @@ export default function ProductDetails({ params }) {
 		);
 	};
 
-	const basicInformationEntries = [
-		["Title", ad?.title],
-		["Description", ad?.description],
-		["Contact", ad?.primaryContact || ad?.contactInfo?.phone],
-		["Category", ad?.category],
-	].filter(([, value]) => hasDisplayValue(value));
+ 	const basicInformationEntries = [
+ 		["Title", ad?.title],
+ 		["Description", ad?.description],
+ 		["Contact", ad?.primaryContact || ad?.contactInfo?.phone],
+ 	].filter(([, value]) => hasDisplayValue(value));
 
 	const categoryDataSource = [
 		ad?.categorySpecificData,
@@ -429,19 +428,21 @@ export default function ProductDetails({ params }) {
 										))}
 									</div>
 
-									<div className="flex-1 bg-white p-6 rounded-2xl shadow-sm relative border border-gray-200">
-										<Image
-											src={images[selectedImage]}
-											width={900}
-											height={600}
-											alt={ad?.title || "Product"}
-											className="rounded-xl w-full object-cover transition-all duration-300"
-											unoptimized={isExternalImage}
-										/>
-										<div className="absolute bottom-8 right-10 bg-[#157A4F] text-white text-xs px-3 py-1 rounded-full">
-											{selectedImage + 1} / {images.length} Photos
-										</div>
-									</div>
+ 								<div className="flex-1 bg-white p-6 rounded-2xl shadow-sm relative border border-gray-200">
+ 									<div className="relative h-[320px] sm:h-[400px] md:h-[480px]">
+ 										<Image
+ 											src={images[selectedImage]}
+ 											width={900}
+ 											height={600}
+ 											alt={ad?.title || "Product"}
+ 											className="rounded-xl w-full h-full object-cover transition-all duration-300"
+ 											unoptimized={isExternalImage}
+ 										/>
+ 									</div>
+ 									<div className="absolute bottom-6 right-6 bg-[#157A4F] text-white text-xs px-3 py-1 rounded-full">
+ 										{selectedImage + 1} / {images.length} Photos
+ 									</div>
+ 								</div>
 								</div>
 							)}
 

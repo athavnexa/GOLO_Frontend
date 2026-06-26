@@ -52,6 +52,20 @@ function pickLiveImageFromProducts(products = []) {
   return "";
 }
 
+function formatExpiryLabel(voucher) {
+  const validityHours = Number(voucher?.validityHours || 6);
+  const claimedAt = voucher?.claimedAt ? new Date(voucher.claimedAt).getTime() : Date.now();
+  const expiresAt = voucher?.expiresAt ? new Date(voucher.expiresAt).getTime() : claimedAt + validityHours * 60 * 60 * 1000;
+  const local = new Date(expiresAt);
+  if (Number.isNaN(local.getTime())) return "Today, 8:45 PM";
+
+  const now = new Date();
+  const isToday = local.toDateString() === now.toDateString();
+  const label = isToday ? "Today" : local.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+  const time = local.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
+  return `${label}, ${time}`;
+}
+
 function QrPattern() {
   return (
     <svg viewBox="0 0 220 220" className="h-[164px] w-[164px]" role="img" aria-label="Offer QR Code">
@@ -499,10 +513,18 @@ function ClaimedOfferContent() {
     selectedVoucher?.description ||
     "";
   const resolvedOfferPrice = Number(
-    offerDetails?.displayPrice ?? offerDetails?.totalPrice ?? selectedVoucher?.price ?? 0,
+    offerDetails?.displayPrice ??
+      offerDetails?.totalPrice ??
+      selectedVoucher?.displayPrice ??
+      selectedVoucher?.totalPrice ??
+      selectedVoucher?.price ??
+      0,
   );
   const resolvedOriginalPrice = Number(
-    offerDetails?.totalPrice ?? selectedVoucher?.originalPrice ?? 0,
+    offerDetails?.totalPrice ??
+      selectedVoucher?.totalPrice ??
+      selectedVoucher?.originalPrice ??
+      0,
   );
   const resolvedMerchantRating = Number(merchantProfile?.averageRating ?? 0);
   const resolvedMerchantReviews = Number(merchantProfile?.totalReviews ?? 0);
@@ -579,7 +601,7 @@ function ClaimedOfferContent() {
 
               <div className="mx-auto mt-4 w-fit min-w-[290px] rounded-[10px] bg-[#f0f2f5] px-4 py-3 border border-[#e2e6eb]">
                 <p className="text-[11px] text-[#7a828d]">This QR is valid for {selectedVoucher?.validityHours || 6} hours from claim time</p>
-                <p className="mt-1 text-[13px] font-bold text-[#1e232b]">Expires: {selectedVoucher?.expiresAt || "Today, 8:45 PM"}</p>
+                <p className="mt-1 text-[13px] font-bold text-[#1e232b]">Expires: {formatExpiryLabel(selectedVoucher)}</p>
               </div>
 
               {/* MANUAL VERIFICATION CODE */}

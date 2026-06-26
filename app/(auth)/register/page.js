@@ -575,19 +575,19 @@ export default function RegisterPage() {
                             className="dropdown-panel"
                             role="listbox"
                             style={{
+                              position: "absolute",
                               left: 0,
                               right: 0,
-                              width: "100%",
-                              padding: "8px",
-                              borderRadius: "16px",
-                              background: "#FFFFFF",
-                              border: "1px solid #E5E7EB",
-                              boxShadow: "0 18px 45px rgba(15, 23, 42, 0.16)",
-                              display: "grid",
-                              gap: "6px",
-                              maxHeight: "240px",
-                              overflowY: "auto",
-                              zIndex: 60,
+                              top: "calc(100% - 8px)",
+                              zIndex: 100,
+                              background: "rgba(255, 255, 255, 0.98)",
+                              border: "1px solid rgba(148, 163, 184, 0.22)",
+                              borderRadius: "18px",
+                              boxShadow: "0 24px 48px rgba(15, 23, 42, 0.12)",
+                              backdropFilter: "blur(10px)",
+                              padding: "10px",
+                              maxHeight: "320px",
+                              overflow: "auto",
                             }}
                           >
                             {GENDER_OPTIONS.map((option) => {

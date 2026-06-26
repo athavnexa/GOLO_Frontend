@@ -9,6 +9,24 @@ import MerchantNavbar from "../../MerchantNavbar";
 import { getMyBannerPromotions, updateMyBannerPromotion } from "../../../lib/api";
 import { uploadToCloudinary } from "../../../services/cloudinaryConfig";
 
+const BANNER_CATEGORIES = [
+  "Fashion",
+  "Electronics",
+  "Groceries",
+  "Home Decor",
+  "Beauty",
+  "Healthcare",
+  "Sports",
+  "Books",
+  "Toys",
+  "Automotive",
+  "Jewelry",
+  "Food & Beverages",
+  "Pet Supplies",
+  "Stationery",
+  "Services",
+];
+
 function toDateInputValue(dateValue) {
   if (!dateValue) return "";
   if (typeof dateValue === "string" && /^\d{4}-\d{2}-\d{2}/.test(dateValue)) return dateValue.slice(0, 10);
@@ -225,7 +243,15 @@ function MerchantBannerEditContent() {
                       </label>
                       <label className="text-[12px] font-semibold text-[#374151]">
                         Category
-                        <input value={formData.bannerCategory} onChange={(event) => handleInputChange("bannerCategory", event.target.value)} className="mt-2 h-11 w-full rounded-[12px] border border-[#d7dce4] bg-white px-3 text-[13px] outline-none" placeholder="Fashion" />
+                        <select
+                          value={formData.bannerCategory}
+                          onChange={(event) => handleInputChange("bannerCategory", event.target.value)}
+                          className="mt-2 h-11 w-full rounded-[12px] border border-[#d7dce4] bg-white px-3 text-[13px] outline-none"
+                        >
+                          {BANNER_CATEGORIES.map((item) => (
+                            <option key={item} value={item}>{item}</option>
+                          ))}
+                        </select>
                       </label>
                       <label className="text-[12px] font-semibold text-[#374151] md:col-span-2">
                         Banner image

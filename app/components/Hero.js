@@ -197,12 +197,12 @@ export default function Hero() {
   };
 
   const imageClassName =
-    "absolute inset-0 h-full w-full object-contain object-center sm:object-cover";
+    "absolute inset-0 h-full w-full object-cover object-center";
 
   if (loading) {
     return (
       <section className="relative w-full overflow-hidden bg-[#F8F6F2]">
-        <div className="relative aspect-[3/1] w-full bg-[#ece9e1] sm:h-[340px] sm:aspect-auto md:h-[520px]" />
+        <div className="relative h-[150px] w-full bg-[#ece9e1] sm:h-[340px] sm:aspect-auto md:h-[520px]" />
       </section>
     );
   }
@@ -225,7 +225,7 @@ export default function Hero() {
     <section className="relative w-full overflow-hidden bg-[#F8F6F2]">
 
       {/* Carousel Wrapper */}
-      <div className="relative aspect-[3/1] w-full overflow-hidden sm:h-[340px] sm:aspect-auto md:h-[520px]">
+      <div className="relative h-[150px] w-full overflow-hidden sm:h-[340px] sm:aspect-auto md:h-[520px]">
 
         {slides.map((slide, index) => (
           <div
@@ -257,7 +257,7 @@ export default function Hero() {
                     fill
                     priority={index === 0}
                     sizes="100vw"
-                    className="object-contain object-center sm:object-cover"
+                    className="object-cover object-center"
                     onError={() => handleImageError(slide.url)}
                   />
                 )}
@@ -278,7 +278,7 @@ export default function Hero() {
                 fill
                 priority={index === 0}
                 sizes="100vw"
-                className="object-contain object-center sm:object-cover"
+                className="object-cover object-center"
                 onError={() => handleImageError(slide.url)}
               />
             )}
