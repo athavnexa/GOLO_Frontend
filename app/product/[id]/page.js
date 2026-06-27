@@ -377,14 +377,6 @@ export default function ProductDetails({ params }) {
 										<span className="text-xs font-semibold bg-[#EAF6F0] text-[#157A4F] px-3 py-1 rounded-full">
 											Text Only Ad
 										</span>
-										<span className="text-xs font-semibold bg-gray-100 text-gray-600 px-3 py-1 rounded-full">
-											{ad?.category || "General"}
-										</span>
-										{ad?.subCategory && (
-											<span className="text-xs font-semibold bg-gray-100 text-gray-600 px-3 py-1 rounded-full">
-												{ad.subCategory}
-											</span>
-										)}
 									</div>
 
 									<div className="max-w-4xl">
@@ -451,14 +443,6 @@ export default function ProductDetails({ params }) {
 									{ad?.isPromoted && (
 										<span className="text-xs font-semibold bg-[#FFF3D6] text-[#157A4F] px-3 py-1 rounded-full">
 											Featured Ad
-										</span>
-									)}
-									<span className="text-xs font-semibold bg-gray-200 text-gray-700 px-3 py-1 rounded-full">
-										{ad?.category || "General"}
-									</span>
-									{ad?.subCategory && (
-										<span className="text-xs font-semibold bg-gray-200 text-gray-700 px-3 py-1 rounded-full">
-											{ad.subCategory}
 										</span>
 									)}
 								</div>

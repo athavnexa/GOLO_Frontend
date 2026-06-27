@@ -95,6 +95,10 @@ function RecentListingsContent() {
     const q = searchParams.get("q") || "";
     const category = searchParams.get("category") || "";
     const location = searchParams.get("location") || "";
+    const latFromUrl = searchParams.get("lat");
+    const lngFromUrl = searchParams.get("lng");
+    const manualLatitude = latFromUrl ? parseFloat(latFromUrl) : null;
+    const manualLongitude = lngFromUrl ? parseFloat(lngFromUrl) : null;
 
     // Get user location for proximity sorting
     useEffect(() => {
@@ -113,14 +117,16 @@ function RecentListingsContent() {
             try {
                 setLoading(true);
                 const [sortBy, sortOrder] = sortValue.split("_");
+                const resolvedLat = manualLatitude !== null ? manualLatitude : userLocation?.lat;
+                const resolvedLng = manualLongitude !== null ? manualLongitude : userLocation?.lng;
 
                 let response;
                 // Choja should show the full public feed by default.
                 // Use nearby ads only when the user explicitly selects Nearby.
-                if (sortValue === "distance_asc" && userLocation?.lat && userLocation?.lng) {
+                if (sortValue === "distance_asc" && resolvedLat && resolvedLng) {
                     response = await getNearbyAds({
-                        lat: userLocation?.lat,
-                        lng: userLocation?.lng,
+                        lat: resolvedLat,
+                        lng: resolvedLng,
                         category,
                         page: 1,
                         limit: 50
@@ -132,6 +138,8 @@ function RecentListingsContent() {
                         location,
                         sortBy,
                         sortOrder,
+                        lat: manualLatitude || undefined,
+                        lng: manualLongitude || undefined,
                         page: 1,
                         limit: 50,
                     });
@@ -160,7 +168,7 @@ function RecentListingsContent() {
             }
         }
         fetchAds();
-    }, [q, category, location, sortValue, userLocation]);
+    }, [q, category, location, sortValue, userLocation, manualLatitude, manualLongitude]);
 
     const layoutAds = assignBentoLayout(ads);
 

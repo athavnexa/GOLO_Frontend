@@ -1,11 +1,29 @@
 "use client";
 import Link from "next/link";
 import { useState, useRef, useEffect, Suspense } from "react";
-import { Search, MapPin, User, X, LogOut, ChevronDown, Shield, ShieldCheck, FileText, Bell, Trophy, Heart, Mic } from "lucide-react";
+import {
+  Search,
+  MapPin,
+  User,
+  X,
+  LogOut,
+  ChevronDown,
+  Shield,
+  ShieldCheck,
+  FileText,
+  Bell,
+  Trophy,
+  Heart,
+  Mic,
+} from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
 import AuthRequiredModal from "./AuthRequiredModal";
-import { getNotifications, markNotificationRead, markAllNotificationsRead } from "../lib/api";
+import {
+  getNotifications,
+  markNotificationRead,
+  markAllNotificationsRead,
+} from "../lib/api";
 import { normalizeAppPath } from "../lib/path";
 import { reverseGeocode, searchLocations } from "../services/leafletService";
 
@@ -15,9 +33,9 @@ const MIC_PERMISSION_STORAGE_KEY = "golo_voice_mic_permission";
 function getShortLocationLabel(locationDetails) {
   const rawAddress = String(
     locationDetails?.address ||
-    locationDetails?.displayName ||
-    locationDetails?.name ||
-    "",
+      locationDetails?.displayName ||
+      locationDetails?.name ||
+      "",
   );
 
   const parts = rawAddress
@@ -50,7 +68,11 @@ function getBestSpeechTranscript(results = []) {
           const currentConfidence = Number(current?.confidence || 0);
           const bestConfidence = Number(best?.confidence || 0);
           if (currentConfidence > bestConfidence) return current;
-          if (currentConfidence === bestConfidence && String(current?.transcript || "").length > String(best?.transcript || "").length) {
+          if (
+            currentConfidence === bestConfidence &&
+            String(current?.transcript || "").length >
+              String(best?.transcript || "").length
+          ) {
             return current;
           }
           return best;
@@ -63,13 +85,16 @@ function getBestSpeechTranscript(results = []) {
 
 function NavbarContent({
   searchQuery: externalSearchQuery = "",
-  setSearchQuery: setExternalSearchQuery = () => { },
+  setSearchQuery: setExternalSearchQuery = () => {},
 }) {
   const searchParams = useSearchParams();
-  const [searchQuery, setSearchQuery] = useState(externalSearchQuery || searchParams.get("q") || "");
+  const [searchQuery, setSearchQuery] = useState(
+    externalSearchQuery || searchParams.get("q") || "",
+  );
   const [location, setLocation] = useState(searchParams.get("location") || "");
   const [currentLocationLabel, setCurrentLocationLabel] = useState("");
-  const [currentLocationCoordinates, setCurrentLocationCoordinates] = useState(null);
+  const [currentLocationCoordinates, setCurrentLocationCoordinates] =
+    useState(null);
   const hasManualLocationRef = useRef(false);
   const hasCurrentLocationAccessRef = useRef(false);
   const urlLocation = searchParams.get("location") || "";
@@ -127,7 +152,10 @@ function NavbarContent({
         setCurrentLocationCoordinates(coordinates);
 
         try {
-          const locationDetails = await reverseGeocode(coordinates.lng, coordinates.lat);
+          const locationDetails = await reverseGeocode(
+            coordinates.lng,
+            coordinates.lat,
+          );
           if (cancelled) return;
 
           const label = getShortLocationLabel(locationDetails);
@@ -145,7 +173,9 @@ function NavbarContent({
           if (cancelled) return;
           hasCurrentLocationAccessRef.current = true;
           setCurrentLocationLabel(fallbackLabel);
-          setLocation((prev) => (hasManualLocationRef.current ? prev : fallbackLabel));
+          setLocation((prev) =>
+            hasManualLocationRef.current ? prev : fallbackLabel,
+          );
         }
       },
       () => {
@@ -209,9 +239,8 @@ function NavbarContent({
   const router = useRouter();
   const pathname = normalizeAppPath(usePathname());
   const { user, isAuthenticated, logout } = useAuth();
-  const logoHref = isAuthenticated && user?.accountType === "merchant"
-    ? "/"
-    : "/";
+  const logoHref =
+    isAuthenticated && user?.accountType === "merchant" ? "/" : "/";
   const isGolocalSurface =
     pathname === "/" ||
     pathname.startsWith("/nearby-deals") ||
@@ -231,19 +260,42 @@ function NavbarContent({
   const secondaryNavHref = useGolocalHomeNav ? "/nearby-deals" : "/chats";
 
   const defaultLocationSuggestions = [
-    { name: "Pune", displayName: "Pune, Maharashtra, India", address: "Pune, Maharashtra, India" },
-    { name: "Mumbai", displayName: "Mumbai, Maharashtra, India", address: "Mumbai, Maharashtra, India" },
-    { name: "Kolhapur", displayName: "Kolhapur, Maharashtra, India", address: "Kolhapur, Maharashtra, India" },
-    { name: "Bangalore", displayName: "Bangalore, Karnataka, India", address: "Bangalore, Karnataka, India" },
+    {
+      name: "Pune",
+      displayName: "Pune, Maharashtra, India",
+      address: "Pune, Maharashtra, India",
+    },
+    {
+      name: "Mumbai",
+      displayName: "Mumbai, Maharashtra, India",
+      address: "Mumbai, Maharashtra, India",
+    },
+    {
+      name: "Kolhapur",
+      displayName: "Kolhapur, Maharashtra, India",
+      address: "Kolhapur, Maharashtra, India",
+    },
+    {
+      name: "Bangalore",
+      displayName: "Bangalore, Karnataka, India",
+      address: "Bangalore, Karnataka, India",
+    },
     { name: "Delhi", displayName: "Delhi, India", address: "Delhi, India" },
-    { name: "Hyderabad", displayName: "Hyderabad, Telangana, India", address: "Hyderabad, Telangana, India" },
+    {
+      name: "Hyderabad",
+      displayName: "Hyderabad, Telangana, India",
+      address: "Hyderabad, Telangana, India",
+    },
   ];
 
   useEffect(() => {
-    if (typeof window === "undefined" || typeof navigator === "undefined") return;
+    if (typeof window === "undefined" || typeof navigator === "undefined")
+      return;
 
     try {
-      if (window.sessionStorage.getItem(MIC_PERMISSION_STORAGE_KEY) === "granted") {
+      if (
+        window.sessionStorage.getItem(MIC_PERMISSION_STORAGE_KEY) === "granted"
+      ) {
         micPermissionGrantedRef.current = true;
       }
     } catch {
@@ -268,7 +320,8 @@ function NavbarContent({
       }
     };
 
-    navigator.permissions?.query?.({ name: "microphone" })
+    navigator.permissions
+      ?.query?.({ name: "microphone" })
       .then((status) => {
         if (cancelled) return;
         permissionStatus = status;
@@ -297,24 +350,17 @@ function NavbarContent({
         setShowSuggestions(false);
       }
 
-      if (
-        profileRef.current &&
-        !profileRef.current.contains(event.target)
-      ) {
+      if (profileRef.current && !profileRef.current.contains(event.target)) {
         setShowProfileMenu(false);
       }
 
-      if (
-        notifRef.current &&
-        !notifRef.current.contains(event.target)
-      ) {
+      if (notifRef.current && !notifRef.current.contains(event.target)) {
         setShowNotifications(false);
       }
     }
 
     document.addEventListener("mousedown", handleClickOutside);
-    return () =>
-      document.removeEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   useEffect(() => {
@@ -338,7 +384,10 @@ function NavbarContent({
     setLocationLoading(true);
     const timer = setTimeout(async () => {
       try {
-        const results = await searchLocations(trimmedLocation, { limit: 6, country: "in" });
+        const results = await searchLocations(trimmedLocation, {
+          limit: 6,
+          country: "in",
+        });
         if (!active) return;
         setLocationSuggestions(
           Array.isArray(results) && results.length > 0
@@ -395,7 +444,9 @@ function NavbarContent({
   const handleMarkRead = async (id) => {
     try {
       await markNotificationRead(id);
-      setNotifications((prev) => prev.map((n) => n._id === id ? { ...n, read: true } : n));
+      setNotifications((prev) =>
+        prev.map((n) => (n._id === id ? { ...n, read: true } : n)),
+      );
       setUnreadCount((prev) => Math.max(0, prev - 1));
     } catch {
       // fail silently
@@ -412,12 +463,18 @@ function NavbarContent({
     }
   };
 
-  const runSearch = (nextSearch = searchQuery, nextLocation = location, nextCoordinates = null) => {
+  const runSearch = (
+    nextSearch = searchQuery,
+    nextLocation = location,
+    nextCoordinates = null,
+  ) => {
     const trimmedSearch = nextSearch.trim();
     const trimmedLocation = nextLocation.trim();
     const resolvedCoordinates =
       nextCoordinates ||
-      (trimmedLocation && trimmedLocation === currentLocationLabel ? currentLocationCoordinates : null);
+      (trimmedLocation && trimmedLocation === currentLocationLabel
+        ? currentLocationCoordinates
+        : null);
     const isDetectedCurrentLocation =
       Boolean(trimmedLocation) &&
       Boolean(currentLocationLabel) &&
@@ -427,15 +484,36 @@ function NavbarContent({
       Number.isFinite(resolvedCoordinates.lng);
 
     const params = new URLSearchParams();
+    const currentCategory = searchParams.get("category");
+    if (currentCategory) params.set("category", currentCategory);
+    const currentView = searchParams.get("view");
+    if (currentView) params.set("view", currentView);
+
     if (trimmedSearch) params.set("q", trimmedSearch);
-    if (trimmedLocation && !isDetectedCurrentLocation) params.set("location", trimmedLocation);
-    if (resolvedCoordinates && Number.isFinite(resolvedCoordinates.lat) && Number.isFinite(resolvedCoordinates.lng)) {
+    if (trimmedLocation && !isDetectedCurrentLocation)
+      params.set("location", trimmedLocation);
+    if (
+      resolvedCoordinates &&
+      Number.isFinite(resolvedCoordinates.lat) &&
+      Number.isFinite(resolvedCoordinates.lng)
+    ) {
       params.set("lat", String(resolvedCoordinates.lat));
       params.set("lng", String(resolvedCoordinates.lng));
     }
 
     const isNearbySurface = pathname.startsWith("/nearby-deals");
-    const targetBase = isNearbySurface || pathname === "/" ? "/nearby-deals" : "/choja";
+    const isUserSurface =
+      pathname === "/my-deals" ||
+      pathname === "/wishlist" ||
+      pathname === "/my-ads" ||
+      pathname.startsWith("/profile");
+    const isCategorySurface = pathname.startsWith("/category/");
+    const targetBase =
+      isNearbySurface || pathname === "/" || isUserSurface
+        ? "/nearby-deals"
+        : isCategorySurface
+          ? pathname
+          : "/choja";
 
     // Nearby deals browsing (including location/city filtering) should work without auth.
     if (!isAuthenticated && targetBase !== "/nearby-deals") {
@@ -443,7 +521,9 @@ function NavbarContent({
       return;
     }
 
-    router.push(params.toString() ? `${targetBase}?${params.toString()}` : targetBase);
+    router.push(
+      params.toString() ? `${targetBase}?${params.toString()}` : targetBase,
+    );
   };
 
   const handleSearch = (e) => {
@@ -499,7 +579,9 @@ function NavbarContent({
     if (micPermissionGrantedRef.current) return true;
 
     try {
-      if (window.sessionStorage.getItem(MIC_PERMISSION_STORAGE_KEY) === "granted") {
+      if (
+        window.sessionStorage.getItem(MIC_PERMISSION_STORAGE_KEY) === "granted"
+      ) {
         micPermissionGrantedRef.current = true;
         return true;
       }
@@ -508,7 +590,9 @@ function NavbarContent({
     }
 
     try {
-      const permissionStatus = await navigator.permissions?.query?.({ name: "microphone" });
+      const permissionStatus = await navigator.permissions?.query?.({
+        name: "microphone",
+      });
       if (sessionId !== voiceSessionRef.current) return false;
 
       if (permissionStatus?.state === "granted") {
@@ -519,7 +603,9 @@ function NavbarContent({
       if (permissionStatus?.state === "denied") {
         cacheMicrophonePermission(false);
         setIsListening(false);
-        setVoiceError("Microphone is blocked. Please allow mic access from browser site settings.");
+        setVoiceError(
+          "Microphone is blocked. Please allow mic access from browser site settings.",
+        );
         return false;
       }
     } catch {
@@ -554,7 +640,9 @@ function NavbarContent({
       if (sessionId !== voiceSessionRef.current) return false;
       cacheMicrophonePermission(false);
       setIsListening(false);
-      setVoiceError("Please allow microphone access once, then tap Speak Again.");
+      setVoiceError(
+        "Please allow microphone access once, then tap Speak Again.",
+      );
       return false;
     }
   };
@@ -590,7 +678,10 @@ function NavbarContent({
     setVoiceModalOpen(false);
   };
 
-  const finalizeVoiceSearch = (spokenValue = voiceTranscriptRef.current, sessionId = voiceSessionRef.current) => {
+  const finalizeVoiceSearch = (
+    spokenValue = voiceTranscriptRef.current,
+    sessionId = voiceSessionRef.current,
+  ) => {
     if (sessionId !== voiceSessionRef.current) return;
     const spokenText = normalizeVoiceTranscript(spokenValue);
     if (!spokenText || voiceFinalizingRef.current) return;
@@ -620,7 +711,8 @@ function NavbarContent({
   };
 
   const startVoiceSearch = async () => {
-    const canUsePublicSearch = pathname === "/" || pathname.startsWith("/nearby-deals");
+    const canUsePublicSearch =
+      pathname === "/" || pathname.startsWith("/nearby-deals");
     if (!isAuthenticated && !canUsePublicSearch) {
       setShowAuthPrompt(true);
       return;
@@ -647,7 +739,9 @@ function NavbarContent({
 
     if (!SpeechRecognition) {
       setIsListening(false);
-      setVoiceError("Voice search is not supported in this browser. Please try Chrome or Edge.");
+      setVoiceError(
+        "Voice search is not supported in this browser. Please try Chrome or Edge.",
+      );
       return;
     }
 
@@ -681,7 +775,12 @@ function NavbarContent({
 
     const restartRecognition = (delay = 180) => {
       if (sessionId !== voiceSessionRef.current) return;
-      if (voiceFinalizingRef.current || voiceTranscriptRef.current || voiceRestartCountRef.current >= 1) return;
+      if (
+        voiceFinalizingRef.current ||
+        voiceTranscriptRef.current ||
+        voiceRestartCountRef.current >= 1
+      )
+        return;
       voiceRestartCountRef.current += 1;
       window.setTimeout(() => {
         if (sessionId !== voiceSessionRef.current) return;
@@ -752,7 +851,9 @@ function NavbarContent({
         }, 650);
       }
 
-      const hasFinalResult = Array.from(event.results).some((result) => result.isFinal);
+      const hasFinalResult = Array.from(event.results).some(
+        (result) => result.isFinal,
+      );
       if (hasFinalResult && spokenText) {
         finalizeVoiceSearch(spokenText, sessionId);
       }
@@ -761,7 +862,10 @@ function NavbarContent({
     recognition.onerror = (event) => {
       if (sessionId !== voiceSessionRef.current) return;
       setIsListening(false);
-      if ((event?.error === "no-speech" || event?.error === "audio-capture") && !voiceTranscriptRef.current) {
+      if (
+        (event?.error === "no-speech" || event?.error === "audio-capture") &&
+        !voiceTranscriptRef.current
+      ) {
         setVoiceError("Listening... please speak a little closer to the mic.");
         restartRecognition(220);
         return;
@@ -791,7 +895,9 @@ function NavbarContent({
     recognition.onnomatch = () => {
       if (sessionId !== voiceSessionRef.current) return;
       if (!voiceTranscriptRef.current) {
-        setVoiceError("I heard something but couldn't understand it. Please speak clearly.");
+        setVoiceError(
+          "I heard something but couldn't understand it. Please speak clearly.",
+        );
         restartRecognition(250);
       }
     };
@@ -803,7 +909,9 @@ function NavbarContent({
       recognition.start();
     } catch {
       setIsListening(false);
-      setVoiceError("Could not start microphone. Please close this popup and try again.");
+      setVoiceError(
+        "Could not start microphone. Please close this popup and try again.",
+      );
     }
   };
 
@@ -833,9 +941,12 @@ function NavbarContent({
       return;
     }
 
-    const currentQuery = typeof window !== "undefined" ? window.location.search : "";
+    const currentQuery =
+      typeof window !== "undefined" ? window.location.search : "";
     const redirectPath = `${pathname}${currentQuery}`;
-    router.push(`/select-location?redirect=${encodeURIComponent(redirectPath)}`);
+    router.push(
+      `/select-location?redirect=${encodeURIComponent(redirectPath)}`,
+    );
   };
 
   const handleLogout = async () => {
@@ -873,72 +984,33 @@ function NavbarContent({
     <>
       <header className="sticky top-0 z-[9999] h-auto min-h-16 bg-[#efb02e] border-b border-[#d7a02a] px-4 shadow-sm md:h-16 md:px-8">
         <div className="w-full h-16 flex items-center justify-between">
-
-        {/* LOGO */}
-        <Link
-          href={logoHref}
-          className="flex min-w-0 items-center gap-2 cursor-pointer sm:gap-3 md:min-w-[180px]"
-        >
-          <div
-            className="w-9 h-9 bg-white rounded-xl flex items-center justify-center shadow font-bold"
-            style={{ color: "#157A4F" }}
+          {/* LOGO */}
+          <Link
+            href={logoHref}
+            className="flex min-w-0 items-center gap-2 cursor-pointer sm:gap-3 md:min-w-[180px]"
           >
-            G
-          </div>
-          <span className="text-lg font-semibold tracking-wide text-white sm:text-xl">
-            GOLO
-          </span>
-        </Link>
-
-        {/* CENTER */}
-        <div className="hidden md:flex items-center gap-5 flex-1 mx-12 max-w-4xl" onClick={(e) => e.stopPropagation()}>
-
-          {/* SEARCH */}
-          <div className="flex-[2] flex items-center rounded-full px-5 h-11 shadow-sm nav-input" onClick={(e) => e.stopPropagation()}>
-            <Search
-              size={18}
-              className="mr-2"
-              style={{ color: "var(--color-text-muted)" }}
-            />
-
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => handleSearchInputChange(e.target.value)}
-              onKeyDown={handleSearch}
-              onFocus={() => {
-                if (!isAuthenticated) setShowAuthPrompt(true);
-              }}
-              placeholder="Search listings..."
-              className="flex-1 outline-none text-sm bg-transparent text-black placeholder-gray-500 focus:outline-none"
-              readOnly={!isAuthenticated}
-            />
-
-            <button
-              type="button"
-              onClick={startVoiceSearch}
-              className="ml-2 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[#157A4F] transition hover:bg-[#edf8f2]"
-              aria-label="Search by voice"
+            <div
+              className="w-9 h-9 bg-white rounded-xl flex items-center justify-center shadow font-bold"
+              style={{ color: "#157A4F" }}
             >
-              <Mic size={17} />
-            </button>
+              G
+            </div>
+            <span className="text-lg font-semibold tracking-wide text-white sm:text-xl">
+              GOLO
+            </span>
+          </Link>
 
-            {searchQuery && (
-              <button
-                onClick={clearSearchAndShowLocationOffers}
-                className="ml-2 transition opacity-70"
-                style={{ color: "var(--color-text-muted)" }}
-                aria-label="Clear search"
-              >
-                <X size={16} />
-              </button>
-            )}
-          </div>
-
-          {/* LOCATION */}
-          <div className="relative flex-[1]" ref={dropdownRef}>
-            <div className="flex items-center rounded-full px-5 h-11 shadow-sm nav-input">
-              <MapPin
+          {/* CENTER */}
+          <div
+            className="hidden md:flex items-center gap-5 flex-1 mx-12 max-w-4xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* SEARCH */}
+            <div
+              className="flex-[2] flex items-center rounded-full px-5 h-11 shadow-sm nav-input"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Search
                 size={18}
                 className="mr-2"
                 style={{ color: "var(--color-text-muted)" }}
@@ -946,313 +1018,414 @@ function NavbarContent({
 
               <input
                 type="text"
-                value={location}
-                onChange={(e) => handleLocationChange(e.target.value)}
+                value={searchQuery}
+                onChange={(e) => handleSearchInputChange(e.target.value)}
                 onKeyDown={handleSearch}
                 onFocus={() => {
-                  if (!isAuthenticated) {
-                    setShowAuthPrompt(true);
-                    return;
-                  }
-                  setShowSuggestions(true);
+                  if (!isAuthenticated) setShowAuthPrompt(true);
                 }}
-                placeholder="Location"
-                className="w-full outline-none text-sm bg-transparent text-black placeholder-gray-500 focus:outline-none"
+                placeholder="Search listings..."
+                className="flex-1 outline-none text-sm bg-transparent text-black placeholder-gray-500 focus:outline-none"
                 readOnly={!isAuthenticated}
               />
 
-              {location && (
+              <button
+                type="button"
+                onClick={startVoiceSearch}
+                className="ml-2 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[#157A4F] transition hover:bg-[#edf8f2]"
+                aria-label="Search by voice"
+              >
+                <Mic size={17} />
+              </button>
+
+              {searchQuery && (
                 <button
-                  onClick={() => {
-                    setLocation("");
-                    hasManualLocationRef.current = false;
-                    setShowSuggestions(false);
-                    runSearch(searchQuery, "");
-                  }}
+                  onClick={clearSearchAndShowLocationOffers}
                   className="ml-2 transition opacity-70"
                   style={{ color: "var(--color-text-muted)" }}
+                  aria-label="Clear search"
                 >
                   <X size={16} />
                 </button>
               )}
             </div>
 
-            {/* LOCATION DROPDOWN */}
-            {showSuggestions && (
-              <div className="absolute top-14 left-0 w-full rounded-xl shadow-lg py-2 z-50 bg-white border border-gray-200">
-                {locationLoading ? (
-                  <div className="px-4 py-3 text-sm text-gray-500">Searching cities...</div>
-                ) : locationSuggestions.length > 0 ? (
-                  locationSuggestions.slice(0, 6).map((place, index) => (
-                    <div key={`${place.displayName || place.name || index}-${index}`}>
+            {/* LOCATION */}
+            <div className="relative flex-[1]" ref={dropdownRef}>
+              <div className="flex items-center rounded-full px-5 h-11 shadow-sm nav-input">
+                <MapPin
+                  size={18}
+                  className="mr-2"
+                  style={{ color: "var(--color-text-muted)" }}
+                />
+
+                <input
+                  type="text"
+                  value={location}
+                  onChange={(e) => handleLocationChange(e.target.value)}
+                  onKeyDown={handleSearch}
+                  onFocus={() => {
+                    if (!isAuthenticated) {
+                      setShowAuthPrompt(true);
+                      return;
+                    }
+                    setShowSuggestions(true);
+                  }}
+                  placeholder="Location"
+                  className="w-full outline-none text-sm bg-transparent text-black placeholder-gray-500 focus:outline-none"
+                  readOnly={!isAuthenticated}
+                />
+
+                {location && (
+                  <button
+                    onClick={() => {
+                      setLocation("");
+                      hasManualLocationRef.current = false;
+                      setShowSuggestions(false);
+                      runSearch(searchQuery, "");
+                    }}
+                    className="ml-2 transition opacity-70"
+                    style={{ color: "var(--color-text-muted)" }}
+                  >
+                    <X size={16} />
+                  </button>
+                )}
+              </div>
+
+              {/* LOCATION DROPDOWN */}
+              {showSuggestions && (
+                <div className="absolute top-14 left-0 w-full rounded-xl shadow-lg py-2 z-50 bg-white border border-gray-200">
+                  {locationLoading ? (
+                    <div className="px-4 py-3 text-sm text-gray-500">
+                      Searching cities...
+                    </div>
+                  ) : locationSuggestions.length > 0 ? (
+                    locationSuggestions.slice(0, 6).map((place, index) => (
                       <div
-                        onClick={() => {
-                          const nextLocation = place.displayName || place.address || place.name || place.city || "";
-                          const nextCoordinates = place.coordinates || null;
-                          hasManualLocationRef.current = true;
-                          hasCurrentLocationAccessRef.current = false;
-                          setLocation(nextLocation);
-                          setShowSuggestions(false);
-                          runSearch(searchQuery, nextLocation, nextCoordinates);
-                        }}
-                        className="flex items-start gap-3 px-4 py-3 cursor-pointer hover:bg-gray-100 transition"
+                        key={`${place.displayName || place.name || index}-${index}`}
                       >
-                        <MapPin
-                          size={16}
-                          style={{ color: "var(--color-primary)" }}
-                        />
-                        <div className="flex flex-col">
-                          <span className="text-sm font-medium text-black">
-                            {place.name || place.city || place.displayName?.split(",")[0] || "Location"}
-                          </span>
-                          <span className="text-xs text-gray-500">
-                            {place.displayName || place.address || place.state || "India"}
-                          </span>
+                        <div
+                          onClick={() => {
+                            const nextLocation =
+                              place.displayName ||
+                              place.address ||
+                              place.name ||
+                              place.city ||
+                              "";
+                            const nextCoordinates = place.coordinates || null;
+                            hasManualLocationRef.current = true;
+                            hasCurrentLocationAccessRef.current = false;
+                            setLocation(nextLocation);
+                            setShowSuggestions(false);
+                            runSearch(searchQuery, nextLocation, nextCoordinates);
+                          }}
+                          className="flex items-start gap-3 px-4 py-3 cursor-pointer hover:bg-gray-100 transition"
+                        >
+                          <MapPin
+                            size={16}
+                            style={{ color: "var(--color-primary)" }}
+                          />
+                          <div className="flex flex-col">
+                            <span className="text-sm font-medium text-black">
+                              {place.name ||
+                                place.city ||
+                                place.displayName?.split(",")[0] ||
+                                "Location"}
+                            </span>
+                            <span className="text-xs text-gray-500">
+                              {place.displayName ||
+                                place.address ||
+                                place.state ||
+                                "India"}
+                            </span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="px-4 py-3 text-sm text-gray-500">No city matches found.</div>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* RIGHT SIDE */}
-        <div className="flex min-w-0 items-center justify-end gap-3 md:min-w-[260px] md:gap-8">
-
-          <nav className="hidden md:flex gap-6 text-sm font-semibold text-white">
-            <Link href={homeNavHref} className="hover:opacity-80 transition">
-              Choja
-            </Link>
-            <Link href={primaryNavHref} onClick={requireAuth()} className="hover:opacity-80 transition">
-              {primaryNavLabel}
-            </Link>
-            <Link
-              href={secondaryNavHref}
-              onClick={useGolocalHomeNav ? undefined : requireAuth()}
-              className="hover:opacity-80 transition"
-            >
-              {secondaryNavLabel}
-            </Link>
-          </nav>
-
-          {/* PROFILE / AUTH */}
-          {isAuthenticated ? (
-            <div className="flex items-center gap-4">
-
-              {/* NOTIFICATION BELL */}
-              <div className="relative" ref={notifRef}>
-                <button
-                  type="button"
-                  onClick={handleNotifBellClick}
-                  className="relative w-9 h-9 rounded-full flex items-center justify-center bg-white shadow-md hover:scale-105 transition"
-                  style={{ color: "#157A4F" }}
-                  aria-label="Notifications"
-                >
-                  <Bell size={18} />
-                  {unreadCount > 0 && (
-                    <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">
-                      {unreadCount > 9 ? "9+" : unreadCount}
-                    </span>
-                  )}
-                </button>
-
-                {showNotifications && (
-                  <div className="fixed left-1/2 top-[72px] z-[9999] w-[calc(100vw-1.5rem)] max-w-[332px] -translate-x-1/2 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg sm:absolute sm:left-auto sm:right-0 sm:top-12 sm:w-[calc(100vw-2rem)] sm:max-w-80 sm:translate-x-0">
-                    <div className="flex items-center justify-between px-3.5 py-2.5 border-b border-gray-100 sm:px-4 sm:py-3">
-                      <p className="text-sm font-semibold text-gray-800">Notifications</p>
-                      {unreadCount > 0 && (
-                        <button
-                          onClick={handleMarkAllRead}
-                          className="text-xs text-[#157A4F] hover:underline"
-                        >
-                          Mark all read
-                        </button>
-                      )}
-                    </div>
-                    <div className="max-h-64 overflow-y-auto sm:max-h-80">
-                      {notifications.length === 0 ? (
-                        <div className="px-4 py-8 text-center">
-                          <Bell size={28} className="mx-auto mb-2 text-gray-300" />
-                          <p className="text-sm text-gray-400">No notifications yet</p>
-                        </div>
-                      ) : (
-                        notifications.map((notif) => (
-                          <div
-                            key={notif._id}
-                            onClick={() => !notif.read && handleMarkRead(notif._id)}
-                            className={`flex items-start gap-2.5 px-3.5 py-2.5 border-b border-gray-50 transition cursor-pointer sm:gap-3 sm:px-4 sm:py-3 ${
-                              notif.read ? "bg-white" : "bg-green-50 hover:bg-green-100"
-                            }`}
-                          >
-                            <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-[#157A4F]/10 sm:h-8 sm:w-8 sm:mt-0.5">
-                              <Bell size={14} className="text-[#157A4F]" />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="break-words text-[13px] leading-snug text-gray-800 sm:text-sm">{notif.message}</p>
-                              <p className="text-xs text-gray-400 mt-1">
-                                {new Date(notif.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
-                              </p>
-                            </div>
-                            {!notif.read && (
-                              <span className="flex-shrink-0 w-2 h-2 rounded-full bg-[#157A4F] mt-2" />
-                            )}
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* PROFILE AVATAR */}
-            <div className="relative" ref={profileRef}>
-              <div
-                onClick={handleProfileAvatarClick}
-                className="flex items-center gap-2 cursor-pointer"
-              >
-                <div
-                  className="w-9 h-9 rounded-full flex items-center justify-center shadow-md hover:scale-105 transition bg-white"
-                  style={{ color: "#157A4F" }}
-                >
-                  {user?.name ? (
-                    <span className="text-sm font-bold">
-                      {user.name.charAt(0).toUpperCase()}
-                    </span>
+                    ))
                   ) : (
-                    <User size={18} />
+                    <div className="px-4 py-3 text-sm text-gray-500">
+                      No city matches found.
+                    </div>
                   )}
-                </div>
-                <ChevronDown size={14} className="hidden text-gray-500 sm:block" />
-              </div>
-
-              {/* Profile Dropdown */}
-              {showProfileMenu && !isGolocalSurface && (
-                <div className="absolute top-12 right-0 w-[calc(100vw-2rem)] max-w-52 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-[9999]">
-                  <div className="px-4 py-2 border-b border-gray-100">
-                    <p className="text-sm font-semibold text-gray-800">{user?.name}</p>
-                    <p className="text-xs text-gray-500">{user?.email}</p>
-                  </div>
-                  <Link
-                    href="/choja/profile"
-                    onClick={() => setShowProfileMenu(false)}
-                    className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition"
-                  >
-                    <User size={16} /> My Profile
-                  </Link>
-                  <Link
-                    href={useGolocalHomeNav ? "/my-deals" : "/my-ads"}
-                    onClick={() => setShowProfileMenu(false)}
-                    className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition"
-                  >
-                    <FileText size={16} /> {useGolocalHomeNav ? "My Deals" : "My Ads"}
-                  </Link>
-                  <Link
-                    href="/wishlist"
-                    onClick={() => setShowProfileMenu(false)}
-                    className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition"
-                  >
-                    <ShieldCheck size={16} className="text-red-500" /> Wishlist
-                  </Link>
-                  <Link
-                    href="/profile/transactions"
-                    onClick={() => setShowProfileMenu(false)}
-                    className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition md:hidden"
-                  >
-                    <FileText size={16} /> Transactions
-                  </Link>
-
-                  {user?.role === "admin" && (
-                    <Link
-                      href="/admin"
-                      onClick={() => setShowProfileMenu(false)}
-                      className="flex items-center gap-2 px-4 py-2.5 text-sm font-bold text-[#157A4F] hover:bg-green-50 transition border-t border-gray-100 mt-1"
-                    >
-                      <Shield size={16} /> Admin Dashboard
-                    </Link>
-                  )}
-                  <div className="border-t border-gray-100 mt-1">
-                    <button
-                      onClick={handleLogout}
-                      className="flex items-center gap-2 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 w-full transition"
-                    >
-                      <LogOut size={16} /> Logout
-                    </button>
-                  </div>
                 </div>
               )}
+            </div>
+          </div>
 
-              {isGolocalSurface && showProfileMenu && (
-                <div className="absolute top-12 right-0 w-[calc(100vw-2rem)] max-w-56 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-[9999]">
-                  <div className="border-b border-gray-100 px-4 py-3">
-                    <p className="text-sm font-semibold text-gray-800">{user?.name || "Account"}</p>
-                    <p className="text-xs text-gray-500">{user?.email || "Signed in"}</p>
-                  </div>
-                  <Link
-                    href="/profile"
-                    onClick={() => setShowProfileMenu(false)}
-                    className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition"
+          {/* RIGHT SIDE */}
+          <div className="flex min-w-0 items-center justify-end gap-3 md:min-w-[260px] md:gap-8">
+            <nav className="hidden md:flex gap-6 text-sm font-semibold text-white">
+              <Link href={homeNavHref} className="hover:opacity-80 transition">
+                Choja
+              </Link>
+              <Link
+                href={primaryNavHref}
+                onClick={requireAuth()}
+                className="hover:opacity-80 transition"
+              >
+                {primaryNavLabel}
+              </Link>
+              <Link
+                href={secondaryNavHref}
+                onClick={useGolocalHomeNav ? undefined : requireAuth()}
+                className="hover:opacity-80 transition"
+              >
+                {secondaryNavLabel}
+              </Link>
+            </nav>
+
+            {/* PROFILE / AUTH */}
+            {isAuthenticated ? (
+              <div className="flex items-center gap-4">
+                {/* NOTIFICATION BELL */}
+                <div className="relative" ref={notifRef}>
+                  <button
+                    type="button"
+                    onClick={handleNotifBellClick}
+                    className="relative w-9 h-9 rounded-full flex items-center justify-center bg-white shadow-md hover:scale-105 transition"
+                    style={{ color: "#157A4F" }}
+                    aria-label="Notifications"
                   >
-                    <User size={16} /> Profile
-                  </Link>
-                  {/* <Link
+                    <Bell size={18} />
+                    {unreadCount > 0 && (
+                      <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">
+                        {unreadCount > 9 ? "9+" : unreadCount}
+                      </span>
+                    )}
+                  </button>
+
+                  {showNotifications && (
+                    <div className="fixed left-1/2 top-[72px] z-[9999] w-[calc(100vw-1.5rem)] max-w-[332px] -translate-x-1/2 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg sm:absolute sm:left-auto sm:right-0 sm:top-12 sm:w-[calc(100vw-2rem)] sm:max-w-80 sm:translate-x-0">
+                      <div className="flex items-center justify-between px-3.5 py-2.5 border-b border-gray-100 sm:px-4 sm:py-3">
+                        <p className="text-sm font-semibold text-gray-800">
+                          Notifications
+                        </p>
+                        {unreadCount > 0 && (
+                          <button
+                            onClick={handleMarkAllRead}
+                            className="text-xs text-[#157A4F] hover:underline"
+                          >
+                            Mark all read
+                          </button>
+                        )}
+                      </div>
+                      <div className="max-h-64 overflow-y-auto sm:max-h-80">
+                        {notifications.length === 0 ? (
+                          <div className="px-4 py-8 text-center">
+                            <Bell
+                              size={28}
+                              className="mx-auto mb-2 text-gray-300"
+                            />
+                            <p className="text-sm text-gray-400">
+                              No notifications yet
+                            </p>
+                          </div>
+                        ) : (
+                          notifications.map((notif) => (
+                            <div
+                              key={notif._id}
+                              onClick={() =>
+                                !notif.read && handleMarkRead(notif._id)
+                              }
+                              className={`flex items-start gap-2.5 px-3.5 py-2.5 border-b border-gray-50 transition cursor-pointer sm:gap-3 sm:px-4 sm:py-3 ${
+                                notif.read
+                                  ? "bg-white"
+                                  : "bg-green-50 hover:bg-green-100"
+                              }`}
+                            >
+                              <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-[#157A4F]/10 sm:h-8 sm:w-8 sm:mt-0.5">
+                                <Bell size={14} className="text-[#157A4F]" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="break-words text-[13px] leading-snug text-gray-800 sm:text-sm">
+                                  {notif.message}
+                                </p>
+                                <p className="text-xs text-gray-400 mt-1">
+                                  {new Date(notif.createdAt).toLocaleDateString(
+                                    "en-IN",
+                                    {
+                                      day: "numeric",
+                                      month: "short",
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                    },
+                                  )}
+                                </p>
+                              </div>
+                              {!notif.read && (
+                                <span className="flex-shrink-0 w-2 h-2 rounded-full bg-[#157A4F] mt-2" />
+                              )}
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* PROFILE AVATAR */}
+                <div className="relative" ref={profileRef}>
+                  <div
+                    onClick={handleProfileAvatarClick}
+                    className="flex items-center gap-2 cursor-pointer"
+                  >
+                    <div
+                      className="w-9 h-9 rounded-full flex items-center justify-center shadow-md hover:scale-105 transition bg-white"
+                      style={{ color: "#157A4F" }}
+                    >
+                      {user?.name ? (
+                        <span className="text-sm font-bold">
+                          {user.name.charAt(0).toUpperCase()}
+                        </span>
+                      ) : (
+                        <User size={18} />
+                      )}
+                    </div>
+                    <ChevronDown
+                      size={14}
+                      className="hidden text-gray-500 sm:block"
+                    />
+                  </div>
+
+                  {/* Profile Dropdown */}
+                  {showProfileMenu && !isGolocalSurface && (
+                    <div className="absolute top-12 right-0 w-[calc(100vw-2rem)] max-w-52 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-[9999]">
+                      <div className="px-4 py-2 border-b border-gray-100">
+                        <p className="text-sm font-semibold text-gray-800">
+                          {user?.name}
+                        </p>
+                        <p className="text-xs text-gray-500">{user?.email}</p>
+                      </div>
+                      <Link
+                        href="/choja/profile"
+                        onClick={() => setShowProfileMenu(false)}
+                        className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition"
+                      >
+                        <User size={16} /> My Profile
+                      </Link>
+                      <Link
+                        href={useGolocalHomeNav ? "/my-deals" : "/my-ads"}
+                        onClick={() => setShowProfileMenu(false)}
+                        className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition"
+                      >
+                        <FileText size={16} />{" "}
+                        {useGolocalHomeNav ? "My Deals" : "My Ads"}
+                      </Link>
+                      <Link
+                        href="/wishlist"
+                        onClick={() => setShowProfileMenu(false)}
+                        className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition"
+                      >
+                        <ShieldCheck size={16} className="text-red-500" />{" "}
+                        Wishlist
+                      </Link>
+                      <Link
+                        href="/profile/transactions"
+                        onClick={() => setShowProfileMenu(false)}
+                        className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition md:hidden"
+                      >
+                        <FileText size={16} /> Transactions
+                      </Link>
+
+                      {user?.role === "admin" && (
+                        <Link
+                          href="/admin"
+                          onClick={() => setShowProfileMenu(false)}
+                          className="flex items-center gap-2 px-4 py-2.5 text-sm font-bold text-[#157A4F] hover:bg-green-50 transition border-t border-gray-100 mt-1"
+                        >
+                          <Shield size={16} /> Admin Dashboard
+                        </Link>
+                      )}
+                      <div className="border-t border-gray-100 mt-1">
+                        <button
+                          onClick={handleLogout}
+                          className="flex items-center gap-2 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 w-full transition"
+                        >
+                          <LogOut size={16} /> Logout
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {isGolocalSurface && showProfileMenu && (
+                    <div className="absolute top-12 right-0 w-[calc(100vw-2rem)] max-w-56 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-[9999]">
+                      <div className="border-b border-gray-100 px-4 py-3">
+                        <p className="text-sm font-semibold text-gray-800">
+                          {user?.name || "Account"}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {user?.email || "Signed in"}
+                        </p>
+                      </div>
+                      <Link
+                        href="/profile"
+                        onClick={() => setShowProfileMenu(false)}
+                        className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition"
+                      >
+                        <User size={16} /> Profile
+                      </Link>
+                      {/* <Link
                     href="/profile/rewards"
                     onClick={() => setShowProfileMenu(false)}
                     className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition"
                   >
                     <Trophy size={16} /> Points & Rewards
                   </Link> */}
-                  <Link
-                    href="/profile/favorites"
-                    onClick={() => setShowProfileMenu(false)}
-                    className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition"
-                  >
-                    <Heart size={16} /> Wishlist
-                  </Link>
-                  <Link
-                    href="/profile/notifications"
-                    onClick={() => setShowProfileMenu(false)}
-                    className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition"
-                  >
-                    <Bell size={16} /> Notifications
-                  </Link>
-                  <div className="border-t border-gray-100 mt-1">
-                    <button
-                      onClick={handleLogout}
-                      className="flex items-center gap-2 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 w-full transition"
-                    >
-                      <LogOut size={16} /> Logout
-                    </button>
-                  </div>
+                      <Link
+                        href="/profile/favorites"
+                        onClick={() => setShowProfileMenu(false)}
+                        className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition"
+                      >
+                        <Heart size={16} /> Wishlist
+                      </Link>
+                      <Link
+                        href="/profile/notifications"
+                        onClick={() => setShowProfileMenu(false)}
+                        className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition"
+                      >
+                        <Bell size={16} /> Notifications
+                      </Link>
+                      <div className="border-t border-gray-100 mt-1">
+                        <button
+                          onClick={handleLogout}
+                          className="flex items-center gap-2 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 w-full transition"
+                        >
+                          <LogOut size={16} /> Logout
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-
-            </div>
-          ) : (
-            <button
-              type="button"
-              onClick={() => router.push(`/login?redirect=${encodeURIComponent(pathname || "/")}`)}
-              className="w-9 h-9 rounded-full flex items-center justify-center shadow-md hover:scale-105 transition cursor-pointer bg-white"
-              style={{ color: "#157A4F" }}
-            >
-              <div
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() =>
+                  router.push(
+                    `/login?redirect=${encodeURIComponent(pathname || "/")}`,
+                  )
+                }
                 className="w-9 h-9 rounded-full flex items-center justify-center shadow-md hover:scale-105 transition cursor-pointer bg-white"
                 style={{ color: "#157A4F" }}
               >
-                <User size={18} />
-              </div>
-            </button>
-          )}
-        </div>
+                <div
+                  className="w-9 h-9 rounded-full flex items-center justify-center shadow-md hover:scale-105 transition cursor-pointer bg-white"
+                  style={{ color: "#157A4F" }}
+                >
+                  <User size={18} />
+                </div>
+              </button>
+            )}
+          </div>
         </div>
         <div className="-mx-4 px-4 pb-2.5 pt-1 md:hidden">
           <div className="mx-auto flex h-[46px] w-full max-w-[358px] items-center rounded-full bg-white px-4 shadow-[0_12px_30px_rgba(15,23,42,0.12)]">
             <div className="flex min-w-0 flex-1 items-center">
-              <Search size={19} strokeWidth={2} className="mr-2.5 shrink-0 text-[#7b7f86]" />
+              <Search
+                size={19}
+                strokeWidth={2}
+                className="mr-2.5 shrink-0 text-[#7b7f86]"
+              />
               <input
                 type="text"
                 value={searchQuery}
@@ -1298,7 +1471,11 @@ function NavbarContent({
                 className="flex h-9 min-w-[84px] max-w-[116px] items-center rounded-full bg-[#f7fffb] px-2.5 text-left"
                 aria-label="Change location"
               >
-                <MapPin size={16} strokeWidth={2.4} className="mr-1.5 shrink-0 text-[#ff7a1a]" />
+                <MapPin
+                  size={16}
+                  strokeWidth={2.4}
+                  className="mr-1.5 shrink-0 text-[#ff7a1a]"
+                />
                 <span className="min-w-0 flex-1 truncate text-[13px] font-bold text-[#2d2d2d]">
                   {location || "Location"}
                 </span>
@@ -1333,10 +1510,17 @@ function NavbarContent({
           </div>
         </div>
         <nav className="-mx-4 flex gap-2 overflow-x-auto border-t border-[#d7a02a]/40 px-4 pb-2 text-[12px] font-semibold text-white md:hidden">
-          <Link href={homeNavHref} className="shrink-0 rounded-full bg-white/15 px-3 py-1.5">
+          <Link
+            href={homeNavHref}
+            className="shrink-0 rounded-full bg-white/15 px-3 py-1.5"
+          >
             Home
           </Link>
-          <Link href={primaryNavHref} onClick={requireAuth()} className="shrink-0 rounded-full bg-white/15 px-3 py-1.5">
+          <Link
+            href={primaryNavHref}
+            onClick={requireAuth()}
+            className="shrink-0 rounded-full bg-white/15 px-3 py-1.5"
+          >
             {primaryNavLabel}
           </Link>
           <Link
@@ -1370,7 +1554,9 @@ function NavbarContent({
           `}</style>
           <div className="w-full max-w-[420px] rounded-[26px] bg-white px-6 py-7 text-center shadow-[0_24px_80px_rgba(0,0,0,0.28)]">
             <div className="mx-auto flex items-center justify-center gap-3">
-              <div className={`flex h-14 w-10 items-center justify-end gap-1 transition-opacity ${isListening ? "opacity-100" : "opacity-0"}`}>
+              <div
+                className={`flex h-14 w-10 items-center justify-end gap-1 transition-opacity ${isListening ? "opacity-100" : "opacity-0"}`}
+              >
                 {[0, 1, 2, 3].map((item) => (
                   <span
                     key={`left-${item}`}
@@ -1383,19 +1569,28 @@ function NavbarContent({
                 ))}
               </div>
 
-              <div className={`relative flex h-20 w-20 items-center justify-center rounded-full transition ${isListening ? "bg-[#fff3dc] shadow-[0_0_0_12px_rgba(239,176,46,0.14)]" : "bg-[#fff3dc]"}`}>
+              <div
+                className={`relative flex h-20 w-20 items-center justify-center rounded-full transition ${isListening ? "bg-[#fff3dc] shadow-[0_0_0_12px_rgba(239,176,46,0.14)]" : "bg-[#fff3dc]"}`}
+              >
                 {isListening ? (
                   <>
                     <span className="voice-ring absolute inset-2 rounded-full border-2 border-[#efb02e]" />
-                    <span className="voice-ring absolute inset-1 rounded-full border border-[#157A4F]" style={{ animationDelay: "0.35s" }} />
+                    <span
+                      className="voice-ring absolute inset-1 rounded-full border border-[#157A4F]"
+                      style={{ animationDelay: "0.35s" }}
+                    />
                   </>
                 ) : null}
-                <div className={`relative z-10 flex h-14 w-14 items-center justify-center rounded-full bg-[#efb02e] text-white shadow-lg transition ${isListening ? "scale-110" : "scale-100"}`}>
+                <div
+                  className={`relative z-10 flex h-14 w-14 items-center justify-center rounded-full bg-[#efb02e] text-white shadow-lg transition ${isListening ? "scale-110" : "scale-100"}`}
+                >
                   <Mic size={28} />
                 </div>
               </div>
 
-              <div className={`flex h-14 w-10 items-center justify-start gap-1 transition-opacity ${isListening ? "opacity-100" : "opacity-0"}`}>
+              <div
+                className={`flex h-14 w-10 items-center justify-start gap-1 transition-opacity ${isListening ? "opacity-100" : "opacity-0"}`}
+              >
                 {[0, 1, 2, 3].map((item) => (
                   <span
                     key={`right-${item}`}
@@ -1423,8 +1618,13 @@ function NavbarContent({
                 {isListening ? "Live transcript" : "Recognized words"}
               </p>
               <p className="mt-1 min-h-6 text-[16px] font-semibold text-[#1f2933] transition-all">
-                {voiceTranscript || (isListening ? "Start speaking..." : "Nothing captured yet")}
-                {isListening && !voiceTranscript ? <span className="ml-1 inline-block animate-pulse text-[#efb02e]">●</span> : null}
+                {voiceTranscript ||
+                  (isListening ? "Start speaking..." : "Nothing captured yet")}
+                {isListening && !voiceTranscript ? (
+                  <span className="ml-1 inline-block animate-pulse text-[#efb02e]">
+                    ●
+                  </span>
+                ) : null}
               </p>
             </div>
 
@@ -1475,11 +1675,13 @@ function NavbarContent({
 
 export default function Navbar(props) {
   return (
-    <Suspense fallback={
-      <header className="theme-footer shadow-sm sticky top-0 z-[9999] border-b border-gray-200 h-16">
-        <div className="w-full px-4 md:px-8 h-16 bg-gray-50 animate-pulse" />
-      </header>
-    }>
+    <Suspense
+      fallback={
+        <header className="theme-footer shadow-sm sticky top-0 z-[9999] border-b border-gray-200 h-16">
+          <div className="w-full px-4 md:px-8 h-16 bg-gray-50 animate-pulse" />
+        </header>
+      }
+    >
       <NavbarContent {...props} />
     </Suspense>
   );

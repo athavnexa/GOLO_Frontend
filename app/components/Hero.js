@@ -45,16 +45,11 @@ function normalizeImageUrl(rawUrl) {
 }
 
 function extractMerchantId(item) {
-  return String(
-    item?.merchantId ||
-      item?.merchant?.merchantId ||
-      item?.merchant?.userId ||
-      item?.merchant?._id ||
-      item?.merchant?.id ||
-      item?.merchantStoreId ||
-      item?.userId ||
-      ""
-  ).trim();
+  const raw = String(item?.merchantId || "").trim();
+  if (raw && !raw.startsWith("shop-")) {
+    return raw;
+  }
+  return "";
 }
 
 function parseDateValue(value) {

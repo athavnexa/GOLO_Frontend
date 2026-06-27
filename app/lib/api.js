@@ -908,7 +908,11 @@ export async function getPublicMerchantProfile(merchantId) {
 }
 
 export async function getPublicMerchantStoreLocation(merchantId) {
-    return apiClient(`/merchant/public/${merchantId}/store-location`);
+  return apiClient(`/merchants/public/${encodeURIComponent(merchantId)}/location`);
+}
+
+export async function getPublicMerchantReviewStats(merchantId) {
+  return apiClient(`/reviews/merchant/${encodeURIComponent(merchantId)}/public-stats`);
 }
 
 export async function getPublicMerchantProducts(merchantId, { page = 1, limit = 10, search = '' } = {}) {

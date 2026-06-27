@@ -6,7 +6,7 @@ import Image from "next/image";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import CategoryBar from "../../components/CategoryBar";
-import { getAdsByCategory } from "../../lib/api";
+import { getAdsByCategory, searchAds, getNearbyAds } from "../../lib/api";
 import { useAuth } from "../../context/AuthContext";
 import AuthRequiredModal from "../../components/AuthRequiredModal";
 
@@ -131,6 +131,10 @@ function CategoryPageContent() {
 
     const categoryName = decodeURIComponent(params.categoryName || "");
     const subFromUrl = searchParams.get("sub") || "";
+    const location = searchParams.get("location") || "";
+    const q = searchParams.get("q") || "";
+    const lat = searchParams.get("lat") || "";
+    const lng = searchParams.get("lng") || "";
 
     const [ads, setAds] = useState([]);
     const [total, setTotal] = useState(0);
@@ -141,6 +145,8 @@ function CategoryPageContent() {
     const [sortOrder, setSortOrder] = useState("desc");
     const [showAuthPrompt, setShowAuthPrompt] = useState(false);
     const [authPromptDescription, setAuthPromptDescription] = useState("Please log in or register to continue.");
+    const [gpsLocation, setGpsLocation] = useState(null);
+    const [gpsReady, setGpsReady] = useState(false);
     const LIMIT = 12;
     const { isAuthenticated } = useAuth();
 
@@ -153,22 +159,72 @@ function CategoryPageContent() {
         callback?.();
     };
 
+    // Acquire GPS coordinates once on mount
+    useEffect(() => {
+        if ("geolocation" in navigator) {
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    setGpsLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+                    setGpsReady(true);
+                },
+                () => {
+                    // Permission denied or unavailable — proceed without GPS
+                    setGpsReady(true);
+                },
+                { timeout: 5000 }
+            );
+        } else {
+            setGpsReady(true);
+        }
+    }, []);
+
     useEffect(() => {
         setPage(1);
         setAds([]);
     }, [categoryName]);
 
     const fetchAds = useCallback(async () => {
+        // Wait until GPS determination is done to avoid double-fetch
+        if (!gpsReady) return;
         setLoading(true);
         setError("");
         try {
             const shouldApplySubFilter = Boolean(subFromUrl);
-            const response = await getAdsByCategory(categoryName, {
-                page: shouldApplySubFilter ? 1 : page,
-                limit: shouldApplySubFilter ? 300 : LIMIT,
-                sortBy,
-                sortOrder,
-            });
+            const resolvedLat = lat ? parseFloat(lat) : gpsLocation?.lat;
+            const resolvedLng = lng ? parseFloat(lng) : gpsLocation?.lng;
+            let response;
+
+            if (location || q) {
+                // Explicit location or text search — use searchAds with the given params
+                response = await searchAds({
+                    q,
+                    category: categoryName,
+                    location,
+                    lat: lat ? parseFloat(lat) : undefined,
+                    lng: lng ? parseFloat(lng) : undefined,
+                    sortBy,
+                    sortOrder,
+                    page: shouldApplySubFilter ? 1 : page,
+                    limit: shouldApplySubFilter ? 300 : LIMIT,
+                });
+            } else if (resolvedLat && resolvedLng) {
+                // No explicit location — default to nearby based on GPS
+                response = await getNearbyAds({
+                    lat: resolvedLat,
+                    lng: resolvedLng,
+                    category: categoryName,
+                    page: shouldApplySubFilter ? 1 : page,
+                    limit: shouldApplySubFilter ? 300 : LIMIT,
+                });
+            } else {
+                // No GPS available — fall back to category listing
+                response = await getAdsByCategory(categoryName, {
+                    page: shouldApplySubFilter ? 1 : page,
+                    limit: shouldApplySubFilter ? 300 : LIMIT,
+                    sortBy,
+                    sortOrder,
+                });
+            }
             if (response.success) {
                 setAds(response.data?.ads || response.data || []);
                 setTotal(response.data?.total || response.total || 0);
@@ -181,12 +237,12 @@ function CategoryPageContent() {
         } finally {
             setLoading(false);
         }
-    }, [categoryName, page, sortBy, sortOrder, subFromUrl]);
+    }, [categoryName, page, sortBy, sortOrder, subFromUrl, location, q, lat, lng, gpsLocation, gpsReady]);
 
     useEffect(() => {
-        if (!categoryName) return;
+        if (!categoryName || !gpsReady) return;
         fetchAds();
-    }, [categoryName, fetchAds]);
+    }, [categoryName, fetchAds, gpsReady]);
 
     const totalPages = subFromUrl ? 1 : Math.max(1, Math.ceil(total / LIMIT));
     const icon = CATEGORY_ICONS[categoryName] || "📂";

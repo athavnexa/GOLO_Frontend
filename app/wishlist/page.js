@@ -134,32 +134,52 @@ export default function WishlistPage() {
                     const linkId = ad.adId || ad._id;
                     const price = ad?.price?.toLocaleString() || "0";
                     const isExternalImage = ad?.images?.length > 0;
+                    const isTextOnly = ad?.templateId === 3 || !ad?.images?.length;
                     
                     return (
                       <div key={`${linkId}-${index}`} className="group flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white pt-1 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
                         
-                        <div className="relative h-48 overflow-hidden px-3 pt-3 sm:h-64 sm:px-4 sm:pt-4">
-                          <button 
-                            onClick={(e) => {
-                              e.preventDefault();
-                              handleRemove(wishlistId);
-                            }}
-                            className="absolute right-5 top-5 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white text-red-500 shadow-md transition-colors hover:bg-red-50 sm:right-6 sm:top-6 sm:h-10 sm:w-10"
-                            title="Remove from wishlist"
-                          >
-                            <Trash2 size={18} />
-                          </button>
-                          <Link href={`/product/${linkId}`}>
-                            <Image
-                              src={getSafeImageSrc(ad)}
-                              alt={ad.title || "Product Image"}
-                              width={500}
-                              height={300}
-                              className="w-full h-full object-cover rounded-xl group-hover:scale-105 transition duration-500"
-                              unoptimized={isExternalImage}
-                            />
-                          </Link>
-                        </div>
+                        {isTextOnly ? (
+                          <div className="relative px-4 pt-4 pb-2">
+                            <button
+                              onClick={(e) => { e.preventDefault(); handleRemove(wishlistId); }}
+                              className="absolute right-5 top-5 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white text-red-500 shadow-md transition-colors hover:bg-red-50 sm:h-10 sm:w-10"
+                              title="Remove from wishlist"
+                            >
+                              <Trash2 size={18} />
+                            </button>
+                            <Link href={`/product/${linkId}`}>
+                              <div className="rounded-xl bg-[#FFF3D6] p-5 min-h-[120px] flex flex-col justify-center">
+                                <span className="text-xs font-semibold text-[#157A4F] bg-[#EAF6F0] px-2 py-0.5 rounded-full self-start mb-2">Text Only Ad</span>
+                                <p className="text-sm font-semibold text-gray-800 line-clamp-3 leading-relaxed">{ad.description || ad.title || "Text ad"}</p>
+                              </div>
+                            </Link>
+                          </div>
+                        ) : (
+                          <div className="relative h-48 overflow-hidden px-3 pt-3 sm:h-64 sm:px-4 sm:pt-4">
+                            <button 
+                              onClick={(e) => {
+                                e.preventDefault();
+                                handleRemove(wishlistId);
+                              }}
+                              className="absolute right-5 top-5 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white text-red-500 shadow-md transition-colors hover:bg-red-50 sm:right-6 sm:top-6 sm:h-10 sm:w-10"
+                              title="Remove from wishlist"
+                            >
+                              <Trash2 size={18} />
+                            </button>
+                            <Link href={`/product/${linkId}`}>
+                              <Image
+                                src={getSafeImageSrc(ad)}
+                                alt={ad.title || "Product Image"}
+                                width={500}
+                                height={300}
+                                className="w-full h-full object-cover rounded-xl group-hover:scale-105 transition duration-500"
+                                unoptimized={isExternalImage}
+                              />
+                            </Link>
+                          </div>
+                        )}
+
 
                         <div className="flex flex-1 flex-col p-4 sm:p-6">
                           <Link href={`/product/${linkId}`} className="block flex-1">
