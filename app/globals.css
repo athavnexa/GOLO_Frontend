@@ -582,6 +582,11 @@ body {
   border-radius: 24px;
   width: 480px;
   box-shadow: 0 20px 50px var(--card-shadow);
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;  /* IE and Edge */
+}
+.login-card::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
 }
 
 .register-card {
@@ -801,7 +806,7 @@ body {
   left: 0;
   right: 0;
   top: calc(100% - 8px);
-  z-index: 100;
+  z-index: 2000;
   background: rgba(255, 255, 255, 0.98);
   border: 1px solid rgba(148, 163, 184, 0.22);
   border-radius: 18px;

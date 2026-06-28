@@ -229,6 +229,16 @@ export default function RegisterPage() {
     return () => clearInterval(interval);
   }, [quotes.length]);
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const typeParam = params.get("type");
+      if (typeParam === "merchant" || typeParam === "user") {
+        setAccountType(typeParam);
+      }
+    }
+  }, []);
+
   const handleAccountTypeChange = (nextAccountType) => {
     setAccountType(nextAccountType);
     setError("");
@@ -236,6 +246,11 @@ export default function RegisterPage() {
     setIsCategoryOpen(false);
     setIsSubCategoryOpen(false);
     setIsGenderOpen(false);
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      url.searchParams.set("type", nextAccountType);
+      window.history.replaceState(null, "", url.pathname + url.search);
+    }
   };
 
   const handleAccountToggleClick = (event) => {
@@ -356,7 +371,7 @@ export default function RegisterPage() {
 
   return (
     <AuthLayout>
-      <div className="login-page-wrapper">
+      <div className="login-page-wrapper" style={{ height: "100vh", overflow: "hidden", display: "flex", flexDirection: "column" }}>
         {/* Logo Section */}
         <div className="logo-container">
           <div className="logo-icon-wrapper">
@@ -367,7 +382,7 @@ export default function RegisterPage() {
           <span className="logo-text">GOLO</span>
         </div>
 
-        <div className="login-content-grid">
+        <div className="login-content-grid" style={{ height: "calc(100vh - 120px)", overflow: "hidden" }}>
           {/* LEFT SIDE */}
           <div className="login-left">
             <div className="testimonial-section">
@@ -375,58 +390,31 @@ export default function RegisterPage() {
               <div className="yellow-square-icon">G</div>
 
               <div className="quote-container">
-                <p className="quote-text" key={currentIndex}>
-                  {quotes[currentIndex]}
+                <p className="quote-text">
+                  The simplest way to manage global ad campaigns in one place.
                 </p>
               </div>
 
               <div className="pagination-dots">
-                <span
-                  className="chevron"
-                  onClick={() =>
-                    setCurrentIndex(
-                      (currentIndex - 1 + quotes.length) % quotes.length
-                    )
-                  }
-                >
-                  ‹
-                </span>
-                {quotes.map((_, index) => (
-                  <span
-                    key={index}
-                    className={`dot ${currentIndex === index ? "active" : ""
-                      }`}
-                    onClick={() => setCurrentIndex(index)}
-                  ></span>
-                ))}
-                <span
-                  className="chevron"
-                  onClick={() =>
-                    setCurrentIndex((currentIndex + 1) % quotes.length)
-                  }
-                >
-                  ›
-                </span>
+                <span className="chevron">‹</span>
+                <span className="dot active"></span>
+                <span className="chevron">›</span>
               </div>
             </div>
           </div>
 
           {/* RIGHT SIDE */}
-          <div className="login-right">
+          <div className="login-right" style={{ height: "100%", overflow: "hidden" }}>
             <div className="card-bg-decoration top"></div>
             <div className="card-bg-decoration bottom"></div>
 
-            <div className={`login-card register-card ${accountType === "merchant" ? "merchant-register-card" : ""}`}>
+            <div className={`login-card register-card ${accountType === "merchant" ? "merchant-register-card" : ""}`} style={{ maxHeight: "100%", overflowY: "auto" }}>
               <h2>
-                {accountType === "user"
-                  ? "Join GOLO Network Group"
-                  : "Register Your Store"}
+                Join GOLO Network Group
               </h2>
 
               <p className="subtitle">
-                {accountType === "user"
-                  ? "Grow Smarter With Every Ad. Join Free"
-                  : "Expand Your Business With GOLO"}
+                Grow Smarter With Every Ad. Join Free
               </p>
 
               {/* TOGGLE */}
@@ -554,7 +542,7 @@ export default function RegisterPage() {
 
                     <div className="input-group">
                       <label>Gender</label>
-                      <div className="input-wrapper dropdown-shell" ref={genderDropdownRef}>
+                      <div className="input-wrapper dropdown-shell" ref={genderDropdownRef} style={{ zIndex: isGenderOpen ? 5000 : 1 }}>
                         <button
                           type="button"
                           className={`dropdown-trigger ${gender ? "has-value" : "is-placeholder"}`}
@@ -692,7 +680,7 @@ export default function RegisterPage() {
 
                     <div className="input-group">
                       <label>Category</label>
-                      <div className="input-wrapper dropdown-shell" ref={categoryDropdownRef}>
+                      <div className="input-wrapper dropdown-shell" ref={categoryDropdownRef} style={{ zIndex: isCategoryOpen ? 5000 : 1 }}>
                         <button
                           type="button"
                           className={`dropdown-trigger ${storeCategory ? "has-value" : "is-placeholder"}`}
@@ -743,7 +731,7 @@ export default function RegisterPage() {
 
                     <div className="input-group">
                       <label>Sub Category</label>
-                      <div className="input-wrapper dropdown-shell" ref={subCategoryDropdownRef}>
+                      <div className="input-wrapper dropdown-shell" ref={subCategoryDropdownRef} style={{ zIndex: isSubCategoryOpen ? 5000 : 1 }}>
                         <button
                           type="button"
                           className={`dropdown-trigger ${storeSubCategory ? "has-value" : "is-placeholder"}`}
@@ -898,7 +886,7 @@ export default function RegisterPage() {
 
               <div className="register-footer">
                 Already have an account?{" "}
-                <Link href="/login">
+                <Link href={`/login?type=${accountType}`}>
                   <span style={{ cursor: "pointer" }}>Sign In</span>
                 </Link>
               </div>

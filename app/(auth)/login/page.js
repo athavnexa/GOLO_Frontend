@@ -48,6 +48,11 @@ export default function LoginPage() {
       const params = new URLSearchParams(window.location.search);
       const reason = params.get("reason");
       if (reason === "session_expired") setSessionExpired(true);
+      
+      const typeParam = params.get("type");
+      if (typeParam === "merchant" || typeParam === "user") {
+        setAccountType(typeParam);
+      }
     }
   }, []);
 
@@ -91,6 +96,15 @@ export default function LoginPage() {
 
     setEmailError("");
     return true;
+  };
+
+  const handleAccountTypeChange = (type) => {
+    setAccountType(type);
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      url.searchParams.set("type", type);
+      window.history.replaceState(null, "", url.pathname + url.search);
+    }
   };
 
   const handleForgotPassword = () => {
@@ -169,7 +183,7 @@ export default function LoginPage() {
         </div>
       )}
     <AuthLayout>
-      <div className="login-page-wrapper">
+      <div className="login-page-wrapper" style={{ height: "100vh", overflow: "hidden", display: "flex", flexDirection: "column" }}>
         {/* Logo Section */}
         <div className="logo-container">
           <div className="logo-icon-wrapper">
@@ -180,7 +194,7 @@ export default function LoginPage() {
           <span className="logo-text">GOLO</span>
         </div>
 
-        <div className="login-content-grid">
+        <div className="login-content-grid" style={{ height: "calc(100vh - 120px)", overflow: "hidden" }}>
           {/* LEFT SIDE */}
           <div className="login-left">
             <div className="testimonial-section">
@@ -188,59 +202,31 @@ export default function LoginPage() {
               <div className="yellow-square-icon">G</div>
 
               <div className="quote-container">
-                <p className="quote-text" key={currentIndex}>
-                  {quotes[currentIndex]}
+                <p className="quote-text">
+                  The simplest way to manage global ad campaigns in one place.
                 </p>
               </div>
 
               <div className="pagination-dots">
-                <span
-                  className="chevron"
-                  onClick={() =>
-                    setCurrentIndex(
-                      (currentIndex - 1 + quotes.length) % quotes.length
-                    )
-                  }
-                >
-                  ‹
-                </span>
-
-                {quotes.map((_, index) => (
-                  <span
-                    key={index}
-                    className={`dot ${currentIndex === index ? "active" : ""}`}
-                    onClick={() => setCurrentIndex(index)}
-                  ></span>
-                ))}
-
-                <span
-                  className="chevron"
-                  onClick={() =>
-                    setCurrentIndex((currentIndex + 1) % quotes.length)
-                  }
-                >
-                  ›
-                </span>
+                <span className="chevron">‹</span>
+                <span className="dot active"></span>
+                <span className="chevron">›</span>
               </div>
             </div>
           </div>
 
           {/* RIGHT SIDE */}
-          <div className="login-right">
+          <div className="login-right" style={{ height: "100%", overflow: "hidden" }}>
             <div className="card-bg-decoration top"></div>
             <div className="card-bg-decoration bottom"></div>
 
-            <div className="login-card">
+            <div className="login-card" style={{ maxHeight: "100%", overflowY: "auto" }}>
               <h2>
-                {accountType === "user"
-                  ? "Welcome to GOLO Network Group"
-                  : "Merchant Portal Login"}
+                Welcome to GOLO Network Group
               </h2>
 
               <p className="subtitle">
-                {accountType === "user"
-                  ? "Grow Smarter With Every Ad. Join Free"
-                  : "Manage Your Store & Campaigns"}
+                Grow Smarter With Every Ad. Join Free
               </p>
 
               {/* TOGGLE */}
@@ -275,8 +261,8 @@ export default function LoginPage() {
                     }}
                   ></div>
 
-                  <div
-                    onClick={() => setAccountType("user")}
+                   <div
+                    onClick={() => handleAccountTypeChange("user")}
                     style={{
                       flex: 1,
                       textAlign: "center",
@@ -293,7 +279,7 @@ export default function LoginPage() {
                   </div>
 
                   <div
-                    onClick={() => setAccountType("merchant")}
+                    onClick={() => handleAccountTypeChange("merchant")}
                     style={{
                       flex: 1,
                       textAlign: "center",
@@ -420,7 +406,7 @@ export default function LoginPage() {
 
               <div className="register-footer">
                 New to Ad Network Group?{" "}
-                <Link href="/register">
+                <Link href={`/register?type=${accountType}`}>
                   <span>Register Now</span>
                 </Link>
               </div>
