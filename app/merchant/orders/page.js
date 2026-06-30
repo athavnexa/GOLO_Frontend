@@ -278,9 +278,19 @@ export default function MerchantOrdersPage() {
                           </button>
                         </>
                       ) : (
-                        <button className="h-8 min-w-[96px] rounded-[8px] bg-[#f5f5f5] px-5 text-[11px] text-[#9c9c9c]">
-                          {order.action}
-                        </button>
+                        <select 
+                          className="h-8 min-w-[120px] rounded-[8px] border border-[#dcdcdc] bg-white px-3 text-[11px] text-[#222] font-semibold outline-none focus:border-[#2f8f55]"
+                          value={order.fulfillmentStatus}
+                          onChange={(e) => handleOrderAction(order._id, e.target.value)}
+                          disabled={order.fulfillmentStatus === 'completed' || order.fulfillmentStatus === 'rejected'}
+                        >
+                          <option value={order.fulfillmentStatus}>{order.action}</option>
+                          {user?.merchantProfile?.plan?.planFeatures?.ordersStatusAllowed?.map(status => {
+                            const val = status.toLowerCase();
+                            if (val === order.fulfillmentStatus) return null;
+                            return <option key={val} value={val}>{status}</option>;
+                          })}
+                        </select>
                       )}
                     </div>
                   </div>

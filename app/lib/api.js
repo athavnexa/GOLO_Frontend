@@ -735,8 +735,38 @@ export async function getActiveHomepageBanners(limit = 5) {
 }
 
 export async function getHomeSectionConfig() {
-    return apiClient('/home-sections/config', {
+    return apiClient('/homepage-config', {
         cache: 'no-store',
+    });
+}
+
+export async function fetchHomepageRecommendations(contextParams = {}) {
+    const params = new URLSearchParams(contextParams);
+    return apiClient(`/v1/recommendations/homepage?${params}`);
+}
+
+export async function reportRecommendationEvents(events) {
+    if (!events || events.length === 0) return;
+    try {
+        return await apiClient('/v1/analytics/events', {
+            method: 'POST',
+            body: JSON.stringify({ events })
+        });
+    } catch (e) {
+        console.error("Failed to report recommendation events", e);
+    }
+}
+
+export async function resetHomeSectionConfig() {
+    return apiClient('/homepage-config/reset', {
+        method: 'POST',
+    });
+}
+
+export async function updateHomeSectionConfig(config) {
+    return apiClient('/homepage-config', {
+        method: 'PUT',
+        body: JSON.stringify(config),
     });
 }
 

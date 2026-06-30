@@ -144,7 +144,7 @@ export default function MerchantBannersPage() {
               </div>
 
               <div className="flex items-center gap-2">
-                <button className="h-9 rounded-[8px] border border-[#e2e2e2] bg-white px-4 text-[11px] text-[#666] inline-flex items-center gap-1.5" onClick={loadRequests}>
+                <button disabled={user?.merchantProfile?.plan?.planFeatures?.canExportCsv === false} className="h-9 rounded-[8px] border border-[#e2e2e2] bg-white px-4 text-[11px] text-[#666] inline-flex items-center gap-1.5 disabled:opacity-60 disabled:cursor-not-allowed" onClick={loadRequests}>
                   <Download size={12} /> Export CSV
                 </button>
                 <button onClick={() => router.push("/merchant/banners/promote")} className="h-9 rounded-[8px] bg-[#2f9e58] px-4 text-[11px] font-semibold text-white inline-flex items-center gap-1.5">

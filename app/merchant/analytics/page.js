@@ -372,7 +372,8 @@ export default function MerchantAnalyticsPage() {
             </aside>
           </section>
 
-          <section className="grid grid-cols-1 lg:grid-cols-[320px_minmax(0,1fr)] gap-4">
+          {user?.merchantProfile?.plan?.planFeatures?.canViewAdvancedAnalytics !== false && (
+            <section className="grid grid-cols-1 lg:grid-cols-[320px_minmax(0,1fr)] gap-4">
             <div className="rounded-[12px] border border-[#d9d9d9] bg-white p-4">
               <h3 className="text-[24px] font-semibold leading-none">Device type</h3>
               <p className="text-[11px] text-[#6f6f6f] mt-1">Primary platforms used by customers</p>
@@ -422,6 +423,7 @@ export default function MerchantAnalyticsPage() {
               </div>
             </div>
           </section>
+          )}
 
           <section className="rounded-[12px] border border-[#d9d9d9] bg-white p-4">
             <div className="flex items-start justify-between">

@@ -277,11 +277,24 @@ export default function OfferProductEditor({ value = [], onChange }) {
                             <td className="px-4 py-3">Rs {Number(item.price || 0).toLocaleString()}</td>
                             <td className="px-4 py-3">{item.stock || "0 units"}</td>
                             <td className="px-4 py-3">
-                              <button type="button" onClick={() => toggleModalSelection(item.id)}>
+                              <button 
+                                type="button" 
+                                onClick={() => toggleModalSelection(item.id)}
+                                disabled={item.offerEligible === false}
+                                className="disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                              >
                                 {checked ? (
                                   <CircleCheck size={18} className="text-[#2f9e58]" />
                                 ) : (
                                   <Circle size={18} className="text-[#3a3a3a]" />
+                                )}
+                                {item.offerEligible === false && (
+                                  <span 
+                                    className="text-[10px] text-[#ef4d4d] font-semibold bg-[#fff0f0] px-2 py-0.5 rounded"
+                                    title={item.offerEligibilityReason || "Product not eligible for offers"}
+                                  >
+                                    Ineligible
+                                  </span>
                                 )}
                               </button>
                             </td>

@@ -20,6 +20,11 @@ import {
 import ReportModal from "@/app/components/ReportModal";
 import UserReportModal from "@/app/components/UserReportModal";
 import AuthRequiredModal from "@/app/components/AuthRequiredModal";
+import RecommendationService from "../../services/recommendation.service";
+import { useRecommendationTracking } from "../../hooks/useRecommendationTracking";
+import { SectionCarousel } from "../../components/SectionCarousel";
+import { SectionSkeleton } from "../../components/SectionSkeleton";
+import { LazySection } from "../../components/LazySection";
 
 export default function ProductDetails({ params }) {
 	const resolvedParams = use(params);
@@ -38,7 +43,66 @@ export default function ProductDetails({ params }) {
 	const [showUserReportModal, setShowUserReportModal] = useState(false);
 	const [showAuthPrompt, setShowAuthPrompt] = useState(false);
 	const [authPromptDescription, setAuthPromptDescription] = useState("Please log in or create an account to continue.");
-	const { isAuthenticated } = useAuth();
+	const { user, isAuthenticated } = useAuth();
+	
+	const [pdpRecommendations, setPdpRecommendations] = useState([]);
+	const [loadingRecommendations, setLoadingRecommendations] = useState(true);
+	const [sessionId, setSessionId] = useState("");
+	const { trackClick } = useRecommendationTracking();
+
+	useEffect(() => {
+		let sid = sessionStorage.getItem("golo_session_id");
+		if (!sid) {
+			sid = "sess_" + Math.random().toString(36).substring(2, 15);
+			sessionStorage.setItem("golo_session_id", sid);
+		}
+		setSessionId(sid);
+	}, []);
+
+	useEffect(() => {
+		if (!adId) return;
+		let cancelled = false;
+
+		async function fetchRecommendations() {
+			setLoadingRecommendations(true);
+			try {
+				const params = { userId: user?.id || undefined };
+				const sectionsData = await RecommendationService.getForProduct(adId, params);
+				if (!cancelled) {
+					setPdpRecommendations(Array.isArray(sectionsData) ? sectionsData : []);
+				}
+			} catch (err) {
+				console.error("Failed to load product recommendations", err);
+			} finally {
+				if (!cancelled) {
+					setLoadingRecommendations(false);
+				}
+			}
+		}
+
+		fetchRecommendations();
+
+		return () => {
+			cancelled = true;
+		};
+	}, [adId, user]);
+
+	const handleRecommendationClick = (item, sectionKey, strategy, position, requestId) => {
+		const targetId = item.offerId || item.merchantId || item.id || item._id;
+		if (!targetId || String(targetId).startsWith("mock-")) return;
+		
+		trackClick(sectionKey, strategy, item, position + 1, {
+			userId: user?.id,
+			sessionId,
+			requestId
+		});
+
+		if (item.type === "merchant" || item.merchantId) {
+			router.push(`/nearby-deals/store?merchantId=${encodeURIComponent(targetId)}`);
+		} else {
+			router.push(`/product/${encodeURIComponent(targetId)}`);
+		}
+	};
 
 	const getSafeImageSrc = (value) => {
 		if (!value || typeof value !== "string") return "/images/placeholder.webp";
@@ -648,6 +712,36 @@ export default function ProductDetails({ params }) {
 							</div>
 						</div>
 					</div>
+				</div>
+
+				{/* Recommendations Section */}
+				<div className="max-w-7xl mx-auto px-6 pb-10">
+					{loadingRecommendations ? (
+						<>
+							{Array.from({ length: 2 }).map((_, i) => (
+								<SectionSkeleton key={`skeleton-${i}`} title="Loading recommendations..." />
+							))}
+						</>
+					) : (
+						<>
+							{pdpRecommendations.map((section, index) => (
+								<LazySection 
+									key={section.key || `section-${index}`}
+									sectionKey={section.key}
+									strategy={section.strategy}
+									products={section.products}
+									context={{ userId: user?.id, sessionId, requestId: section.metadata?.requestId }}
+									priority={index === 0} // Render first recommendation section immediately
+								>
+									<SectionCarousel 
+										title={section.title} 
+										products={section.products} 
+										onItemClick={(item, idx) => handleRecommendationClick(item, section.key, section.strategy, idx, section.metadata?.requestId)} 
+									/>
+								</LazySection>
+							))}
+						</>
+					)}
 				</div>
 			</div>
 
