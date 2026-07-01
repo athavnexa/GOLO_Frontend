@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import Image from 'next/image';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-export function SectionCarousel({ title, products, onItemClick }) {
+export function SectionCarousel({ title, strategy, products, onItemClick }) {
   const scrollRef = useRef(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
@@ -34,7 +34,28 @@ export function SectionCarousel({ title, products, onItemClick }) {
     element.scrollBy({ left: direction * element.clientWidth, behavior: "smooth" });
   };
 
-  if (!products || products.length === 0) return null;
+  if (!products || products.length === 0) {
+    const merchandisingStrategies = ['trending_near_you', 'best_sellers', 'flash_deals', 'new_arrivals', 'nearby_you'];
+    const strategyName = typeof window !== 'undefined' ? (title.toLowerCase().includes('trending') ? 'trending_near_you' : (title.toLowerCase().includes('best') ? 'best_sellers' : (title.toLowerCase().includes('flash') ? 'flash_deals' : (title.toLowerCase().includes('new') ? 'new_arrivals' : (title.toLowerCase().includes('nearby') ? 'nearby_you' : 'other'))))) : 'other';
+    // Let's rely on an explicit prop if passed
+    const isMerchandising = strategy ? merchandisingStrategies.includes(strategy) : merchandisingStrategies.includes(strategyName);
+
+    if (isMerchandising) {
+      return (
+        <section className="border-t border-[#bcc4cf] bg-[#f4f4f4] py-7 sm:py-10">
+          <div className="mx-auto max-w-[1260px] px-4 lg:px-6">
+            <h2 className="mb-5 text-[22px] font-semibold text-[#343943] sm:text-[28px]">
+              {title}
+            </h2>
+            <div className="flex items-center justify-center p-8 bg-white border border-[#e2e8f0] rounded-[14px] shadow-[0_2px_12px_rgba(15,23,42,0.05)] text-gray-500 italic">
+              Products will appear here soon.
+            </div>
+          </div>
+        </section>
+      );
+    }
+    return null;
+  }
 
   return (
     <section className="border-t border-[#bcc4cf] bg-[#f4f4f4] py-7 sm:py-10">
@@ -72,16 +93,25 @@ export function SectionCarousel({ title, products, onItemClick }) {
             style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
           >
             {products.map((item, idx) => {
-              // Gracefully handle item formats from backend
-              const isShop = !!item.merchantId;
+              // Check if the item is a merchant
+              const isMerchant = item.type === 'merchant' || !!item.storeName;
               const itemId = item.id || item._id;
               
               // Backend payload mappings to fit existing ProductCard design
-              const imageSrc = item.image || item.imageUrl || (item.images && item.images[0]) || "/images/placeholder.webp";
-              const itemTitle = item.title;
-              const subtitle = item.subtitle || item.description || item.category || "";
-              const badge = item.discountPercent ? `${item.discountPercent}% OFF` : (item.badge || null);
-              const buttonLabel = isShop ? "View Store" : "View Deal";
+              const imageSrc = isMerchant 
+                ? (item.shopPhoto || item.profilePhoto || "/images/placeholder.webp")
+                : (item.images?.[0] || item.imageUrl || item.image || "/images/placeholder.webp");
+                
+              const itemTitle = isMerchant 
+                ? (item.storeName || item.name || item.businessName || "Unknown Merchant")
+                : (item.title || "Unknown Item");
+                
+              const subtitle = isMerchant
+                ? (item.storeCategory || item.storeLocation || "")
+                : (item.category || item.description || item.subtitle || "");
+                
+              const badge = item.isPromoted ? "PROMOTED" : (item.discountPercent ? `${item.discountPercent}% OFF` : (item.badge || null));
+              const buttonLabel = isMerchant ? "View Store" : "View Deal";
 
               return (
                 <article
@@ -114,7 +144,7 @@ export function SectionCarousel({ title, products, onItemClick }) {
                       type="button"
                       onClick={() => onItemClick && onItemClick(item, idx)}
                       className={`mt-auto h-10 w-full rounded-[7px] text-[13px] font-semibold text-white transition ${
-                        isShop
+                        isMerchant
                           ? "bg-[#2f9d3c] hover:bg-[#278531]"
                           : "bg-[#ff9012] hover:bg-[#e57f0c]"
                       }`}

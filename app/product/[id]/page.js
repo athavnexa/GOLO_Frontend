@@ -735,6 +735,7 @@ export default function ProductDetails({ params }) {
 								>
 									<SectionCarousel 
 										title={section.title} 
+										strategy={section.strategy || section.key}
 										products={section.products} 
 										onItemClick={(item, idx) => handleRecommendationClick(item, section.key, section.strategy, idx, section.metadata?.requestId)} 
 									/>

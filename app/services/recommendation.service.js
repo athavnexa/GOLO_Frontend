@@ -15,7 +15,7 @@ class RecommendationService {
       if (params.lat) queryParams.append('lat', params.lat.toString());
       if (params.lng) queryParams.append('lng', params.lng.toString());
 
-      const response = await apiClient(`/recommendations/homepage?${queryParams.toString()}`);
+      const response = await apiClient(`/v1/recommendations/homepage?${queryParams.toString()}`);
       
       // The backend returns { data: [...] } or just the array directly based on API conventions.
       // We normalize it to always return an array.
@@ -41,7 +41,7 @@ class RecommendationService {
       const queryParams = new URLSearchParams();
       if (params.userId) queryParams.append('userId', params.userId);
 
-      const response = await apiClient(`/recommendations/products/${productId}?${queryParams.toString()}`);
+      const response = await apiClient(`/v1/recommendations/products/${productId}?${queryParams.toString()}`);
       
       if (response && response.success && Array.isArray(response.data)) {
         return response.data;
@@ -63,7 +63,7 @@ class RecommendationService {
     if (!events || events.length === 0) return;
     
     try {
-      await apiClient('/recommendations/analytics/events', {
+      await apiClient('/v1/analytics/events', {
         method: 'POST',
         body: JSON.stringify({ events })
       });

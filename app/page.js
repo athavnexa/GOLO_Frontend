@@ -146,7 +146,8 @@ function HomeContent() {
                    priority={isAboveTheFold}
                  >
                    <SectionCarousel 
-                     title={section.title} 
+                     title={section.title}
+                     strategy={section.strategy || section.key}
                      products={section.products} 
                      onItemClick={(item, idx) => handleItemClick(item, section.key, section.strategy, idx, section.metadata?.requestId)} 
                    />
