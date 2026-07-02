@@ -329,9 +329,9 @@ export default function CreateMerchantOfferPage() {
       const cloudinaryForm = new FormData();
       cloudinaryForm.append("file", file);
       cloudinaryForm.append("upload_preset", "choja_preset");
-      cloudinaryForm.append("cloud_name", "dcm1plq42");
+      cloudinaryForm.append("cloud_name", "dkiagrvnp");
 
-      const res = await fetch("https://api.cloudinary.com/v1_1/dcm1plq42/image/upload", {
+      const res = await fetch("https://api.cloudinary.com/v1_1/dkiagrvnp/image/upload", {
         method: "POST",
         body: cloudinaryForm,
       });
