@@ -11,6 +11,9 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@emnapi/core": "^1.11.1",
+    "@emnapi/runtime": "^1.11.1",
+    "@emnapi/wasi-threads": "^1.2.2",
     "cloudinary": "^2.9.0",
     "date-fns": "^4.1.0",
     "firebase": "^12.10.0",
