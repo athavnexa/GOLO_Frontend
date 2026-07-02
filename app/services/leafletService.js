@@ -186,8 +186,6 @@ export async function reverseGeocode(lng, lat) {
   } catch (error) {
     if (error.name === 'AbortError') {
       console.warn("⏱️ Reverse geocoding timeout");
-    } else {
-      console.error("❌ Error in reverse geocoding:", error?.message || error);
     }
     return null;
   }

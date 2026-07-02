@@ -649,7 +649,7 @@ export default function AnalyticsPage() {
     <>
       <Navbar />
 
-      <div className="bg-[#F8F6F2] min-h-screen py-14 px-6">
+      <div className="relative z-10 min-h-screen bg-transparent px-3 pt-20 pb-14 sm:px-6 sm:pt-24 sm:pb-16">
         <div className="max-w-7xl mx-auto grid lg:grid-cols-4 gap-10">
 
           {/* LEFT SIDEBAR */}

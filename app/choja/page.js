@@ -7,12 +7,12 @@ import Footer from "../components/Footer";
 
 export default function ChojaPage() {
   return (
-    <main className="bg-white min-h-screen">
+    <main className="relative z-10 min-h-screen bg-transparent">
       <Suspense fallback={<div className="h-16 bg-gray-50 animate-pulse" />}>
         <Navbar />
       </Suspense>
 
-      <div className="w-full">
+      <div className="relative z-10 w-full">
         <CategoryBar />
         <Suspense fallback={<div className="h-96 bg-gray-50 animate-pulse mx-8 rounded-3xl mt-10" />}>
           <RecentListings />

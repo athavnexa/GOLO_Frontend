@@ -16,14 +16,6 @@ export default function PostAdPage() {
   const { user } = useAuth();
   const { isLoading, isAuthorized } = useRoleProtection("user");
 
-  if (isLoading) {
-    return <LoadingScreen />;
-  }
-
-  if (!isAuthorized) {
-    return null;
-  }
-
   const templates = [
     {
       id: 1,
@@ -80,6 +72,14 @@ export default function PostAdPage() {
 
     return () => clearInterval(interval);
   }, []);
+
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
+
+  if (!isAuthorized) {
+    return null;
+  }
 
   return (
     <>

@@ -145,7 +145,25 @@ function CategoryPageContent() {
     const [sortOrder, setSortOrder] = useState("desc");
     const [showAuthPrompt, setShowAuthPrompt] = useState(false);
     const [authPromptDescription, setAuthPromptDescription] = useState("Please log in or register to continue.");
-    const [gpsLocation, setGpsLocation] = useState(null);
+    const [gpsLocation, setGpsLocation] = useState(() => {
+        if (typeof window !== "undefined") {
+            try {
+                const stored = localStorage.getItem("golo_current_location");
+                if (stored) {
+                    const parsed = JSON.parse(stored);
+                    if (parsed?.coordinates?.lat && parsed?.coordinates?.lng) {
+                        return {
+                            lat: parsed.coordinates.lat,
+                            lng: parsed.coordinates.lng,
+                        };
+                    }
+                }
+            } catch (e) {
+                console.error("Error reading stored location:", e);
+            }
+        }
+        return null;
+    });
     const [gpsReady, setGpsReady] = useState(false);
     const LIMIT = 12;
     const { isAuthenticated } = useAuth();
@@ -190,8 +208,8 @@ function CategoryPageContent() {
         setError("");
         try {
             const shouldApplySubFilter = Boolean(subFromUrl);
-            const resolvedLat = lat ? parseFloat(lat) : gpsLocation?.lat;
-            const resolvedLng = lng ? parseFloat(lng) : gpsLocation?.lng;
+            const resolvedLat = (lat || location) ? (lat ? parseFloat(lat) : null) : gpsLocation?.lat;
+            const resolvedLng = (lng || location) ? (lng ? parseFloat(lng) : null) : gpsLocation?.lng;
             let response;
 
             if (location || q) {
@@ -208,11 +226,15 @@ function CategoryPageContent() {
                     limit: shouldApplySubFilter ? 300 : LIMIT,
                 });
             } else if (resolvedLat && resolvedLng) {
-                // No explicit location — default to nearby based on GPS
-                response = await getNearbyAds({
+                // No explicit location — default to GPS location boundary search using searchAds
+                response = await searchAds({
+                    q,
+                    category: categoryName,
+                    location,
                     lat: resolvedLat,
                     lng: resolvedLng,
-                    category: categoryName,
+                    sortBy,
+                    sortOrder,
                     page: shouldApplySubFilter ? 1 : page,
                     limit: shouldApplySubFilter ? 300 : LIMIT,
                 });

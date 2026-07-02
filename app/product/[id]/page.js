@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Navbar from "./../../components/Navbar";
 import Footer from "./../../components/Footer";
-import { getAdById, toggleWishlist, getWishlistIds, getAdWishlistCount } from "../../lib/api";
+import { getAdById, toggleWishlist, getWishlistIds, getAdWishlistCount, getUserById } from "../../lib/api";
 import { useAuth } from "../../context/AuthContext";
 import {
 	Heart,
@@ -22,6 +22,36 @@ import ReportModal from "@/app/components/ReportModal";
 import UserReportModal from "@/app/components/UserReportModal";
 import AuthRequiredModal from "@/app/components/AuthRequiredModal";
 
+function getSellerId(ad) {
+	const rawId =
+		ad?.userId?._id ||
+		ad?.userId?.id ||
+		ad?.userId ||
+		ad?.user?._id ||
+		ad?.user?.id ||
+		ad?.sellerId?._id ||
+		ad?.sellerId?.id ||
+		ad?.sellerId ||
+		ad?.ownerId?._id ||
+		ad?.ownerId?.id ||
+		ad?.ownerId ||
+		ad?.createdBy?._id ||
+		ad?.createdBy?.id ||
+		ad?.createdBy;
+
+	return typeof rawId === "string" && rawId.trim() ? rawId.trim() : "";
+}
+
+function firstMeaningfulValue(...values) {
+	for (const value of values) {
+		const normalizedValue = typeof value === "string" ? value.trim() : "";
+		if (normalizedValue && normalizedValue.toLowerCase() !== "user") {
+			return normalizedValue;
+		}
+	}
+	return "";
+}
+
 export default function ProductDetails({ params }) {
 	const resolvedParams = use(params);
 	const adId = resolvedParams?.id;
@@ -35,11 +65,34 @@ export default function ProductDetails({ params }) {
 	const [isWishlisted, setIsWishlisted] = useState(false);
 	const [isTogglingWishlist, setIsTogglingWishlist] = useState(false);
 	const [wishlistCount, setWishlistCount] = useState(null);
+	const [sellerProfile, setSellerProfile] = useState(null);
 	const [showReportModal, setShowReportModal] = useState(false);
 	const [showUserReportModal, setShowUserReportModal] = useState(false);
 	const [showAuthPrompt, setShowAuthPrompt] = useState(false);
 	const [authPromptDescription, setAuthPromptDescription] = useState("Please log in or create an account to continue.");
 	const { isAuthenticated } = useAuth();
+	const sellerId = getSellerId(ad);
+	const sellerName =
+		firstMeaningfulValue(
+			sellerProfile?.name,
+			sellerProfile?.fullName,
+			ad?.user?.name,
+			ad?.userName,
+			ad?.ownerName,
+			ad?.sellerName,
+			ad?.contactInfo?.sellerName,
+			ad?.contactInfo?.name,
+		) || "Seller";
+	const sellerPhone =
+		firstMeaningfulValue(sellerProfile?.phone, ad?.contactInfo?.phone, ad?.primaryContact) ||
+		"Phone not provided";
+	const sellerEmail = firstMeaningfulValue(sellerProfile?.email, ad?.contactInfo?.email);
+	const sellerCity =
+		firstMeaningfulValue(
+			sellerProfile?.profile?.city,
+			sellerProfile?.city,
+			ad?.contactInfo?.city,
+		);
 
 	const getSafeImageSrc = (value) => {
 		if (!value || typeof value !== "string") return "/images/placeholder.webp";
@@ -122,6 +175,34 @@ export default function ProductDetails({ params }) {
 		}
 		fetchWishlistCount();
 	}, [ad?.adId, adId]);
+
+	useEffect(() => {
+		let cancelled = false;
+
+		async function fetchSellerProfile() {
+			if (!sellerId) {
+				setSellerProfile(null);
+				return;
+			}
+
+			try {
+				const response = await getUserById(sellerId);
+				if (!cancelled) {
+					setSellerProfile(response?.success && response?.data ? response.data : null);
+				}
+			} catch {
+				if (!cancelled) {
+					setSellerProfile(null);
+				}
+			}
+		}
+
+		fetchSellerProfile();
+
+		return () => {
+			cancelled = true;
+		};
+	}, [sellerId]);
 
 	useEffect(() => {
 		async function checkWishlist() {
@@ -357,7 +438,7 @@ export default function ProductDetails({ params }) {
 		<>
 			<Navbar />
 
-			<div className="bg-[#F8F6F2] min-h-screen">
+			<div className="relative z-10 min-h-screen bg-transparent -mt-10 pt-4">
 				<div className="max-w-7xl mx-auto px-6 py-10">
 					<p className="text-sm text-gray-500 mb-6">
 						<Link href="/" className="hover:text-[#157A4F] transition-colors">
@@ -566,7 +647,7 @@ export default function ProductDetails({ params }) {
 												setShowAuthPrompt(true);
 												return;
 											}
-											router.push(`/chats?adId=${ad?.adId || ad?._id || adId}&sellerId=${ad?.userId || ''}`);
+											router.push(`/chats?adId=${ad?.adId || ad?._id || adId}&sellerId=${sellerId}`);
 										}}
 										className="w-full mt-6 py-3 rounded-xl bg-[#157A4F] hover:bg-[#0f5c3a] text-white font-semibold flex items-center justify-center gap-2 transition"
 									>
@@ -581,7 +662,7 @@ export default function ProductDetails({ params }) {
 												setShowAuthPrompt(true);
 												return;
 											}
-											router.push(`/chats?adId=${ad?.adId || ad?._id || adId}&sellerId=${ad?.userId || ''}&autoCall=1`);
+											router.push(`/chats?adId=${ad?.adId || ad?._id || adId}&sellerId=${sellerId}&autoCall=1`);
 										}}
 										className="w-full mt-4 py-3 rounded-xl bg-[#F5B849] hover:bg-[#e0a837] text-white font-semibold flex items-center justify-center gap-2 transition"
 									>
@@ -594,30 +675,31 @@ export default function ProductDetails({ params }) {
 									<p className="text-sm font-semibold text-gray-800 mb-3">Ad Uploader Details</p>
 									<div className="flex items-start gap-3">
 										<div className="w-11 h-11 rounded-full bg-[#ecf8f1] text-[#157A4F] font-bold flex items-center justify-center shrink-0">
-											{(ad?.contactInfo?.name || ad?.contactInfo?.sellerName || ad?.sellerName || ad?.title || "U").charAt(0).toUpperCase()}
+											{(sellerName || ad?.title || "U").charAt(0).toUpperCase()}
 										</div>
 										<div className="min-w-0 flex-1">
 											<p className="text-sm font-semibold text-gray-800 truncate">
-												{ad?.contactInfo?.name || ad?.contactInfo?.sellerName || ad?.sellerName || "Seller"}
+												{sellerName}
 											</p>
 											<p className="text-xs text-gray-500 mt-0.5 break-all">
-												{ad?.contactInfo?.phone || ad?.primaryContact || "Phone not provided"}
+												{sellerPhone}
 											</p>
-											{ad?.contactInfo?.email && (
+											{sellerEmail && (
 												<p className="text-xs text-gray-500 mt-0.5 break-all">
-													{ad.contactInfo.email}
+													{sellerEmail}
 												</p>
 											)}
-											{ad?.contactInfo?.city && (
+											{sellerCity && (
 												<p className="text-xs text-gray-400 mt-1">
-													📍 {ad.contactInfo.city}
+													📍 {sellerCity}
 												</p>
 											)}
 										</div>
 									</div>
 
 									<button
-										onClick={() => router.push(`/profile/${ad?.userId}`)}
+										onClick={() => router.push(`/profile/${sellerId}`)}
+										disabled={!sellerId}
 										className="w-full mt-4 py-2 rounded-xl border-2 border-[#157A4F] text-[#157A4F] hover:bg-[#157A4F] hover:text-white hover:border-[#0f5c3a] font-semibold flex items-center justify-center gap-2 transition-all duration-200 transform hover:scale-[1.02] text-sm"
 									>
 										<span className="inline-flex items-center gap-1">
@@ -652,8 +734,8 @@ export default function ProductDetails({ params }) {
 			<UserReportModal
 				isOpen={showUserReportModal}
 				onClose={() => setShowUserReportModal(false)}
-				userId={ad?.userId}
-				userName={ad?.contactInfo?.name || ad?.contactInfo?.sellerName || ad?.sellerName || "Seller"}
+				userId={sellerId}
+				userName={sellerName}
 			/>
 
 			<AuthRequiredModal

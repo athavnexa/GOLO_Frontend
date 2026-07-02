@@ -88,7 +88,25 @@ function RecentListingsContent() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [sortValue, setSortValue] = useState("createdAt_desc");
-    const [userLocation, setUserLocation] = useState(null);
+    const [userLocation, setUserLocation] = useState(() => {
+        if (typeof window !== "undefined") {
+            try {
+                const stored = localStorage.getItem("golo_current_location");
+                if (stored) {
+                    const parsed = JSON.parse(stored);
+                    if (parsed?.coordinates?.lat && parsed?.coordinates?.lng) {
+                        return {
+                            lat: parsed.coordinates.lat,
+                            lng: parsed.coordinates.lng,
+                        };
+                    }
+                }
+            } catch (e) {
+                console.error("Error reading stored location:", e);
+            }
+        }
+        return null;
+    });
     const [showAuthPrompt, setShowAuthPrompt] = useState(false);
     const { isAuthenticated } = useAuth();
 
@@ -117,8 +135,8 @@ function RecentListingsContent() {
             try {
                 setLoading(true);
                 const [sortBy, sortOrder] = sortValue.split("_");
-                const resolvedLat = manualLatitude !== null ? manualLatitude : userLocation?.lat;
-                const resolvedLng = manualLongitude !== null ? manualLongitude : userLocation?.lng;
+                const resolvedLat = (manualLatitude !== null || location) ? manualLatitude : userLocation?.lat;
+                const resolvedLng = (manualLongitude !== null || location) ? manualLongitude : userLocation?.lng;
 
                 let response;
                 // Choja should show the full public feed by default.
@@ -131,15 +149,15 @@ function RecentListingsContent() {
                         page: 1,
                         limit: 50
                     });
-                } else if (q || location || category) {
+                } else if (q || location || category || resolvedLat || resolvedLng) {
                     response = await searchAds({
                         q,
                         category,
                         location,
                         sortBy,
                         sortOrder,
-                        lat: manualLatitude || undefined,
-                        lng: manualLongitude || undefined,
+                        lat: resolvedLat || undefined,
+                        lng: resolvedLng || undefined,
                         page: 1,
                         limit: 50,
                     });

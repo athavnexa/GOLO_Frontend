@@ -78,7 +78,7 @@ export default function NotificationsPage() {
     <>
       <Navbar />
 
-      <div className="bg-[#f7f6f2] min-h-screen">
+      <div className="relative z-10 min-h-screen bg-transparent -mt-10 pt-4">
         <div className="max-w-[1320px] mx-auto px-5 lg:px-8 py-8 lg:py-10">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
             <div>

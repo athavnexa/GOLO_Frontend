@@ -67,7 +67,7 @@ export default function MyAds() {
     <>
       <Navbar />
 
-      <div className="min-h-screen bg-[#F8F6F2] px-3 py-5 sm:px-6 sm:py-14">
+      <div className="relative z-10 min-h-screen bg-transparent px-3 pt-20 pb-5 sm:px-6 sm:pt-24 sm:pb-14">
         <div className="mx-auto grid max-w-7xl gap-5 lg:grid-cols-4 lg:gap-10">
 
           {/* LEFT SIDEBAR */}

@@ -9,14 +9,13 @@ import Footer from "../components/Footer";
 import ProfileSidebar from "../components/ProfileSidebar";
 import { getWishlistAds, toggleWishlist } from "../lib/api";
 import { useAuth } from "../context/AuthContext";
-import { useRoleProtection, LoadingScreen } from "../components/RoleBasedRedirect";
+import { LoadingScreen } from "../components/RoleBasedRedirect";
 import { Loader2, Heart, Trash2 } from "lucide-react";
 
 export default function WishlistPage() {
   const [ads, setAds] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { isAuthenticated, user } = useAuth();
-  const { isLoading, isAuthorized } = useRoleProtection("user");
+  const { isAuthenticated, user, loading: authLoading } = useAuth();
   const router = useRouter();
 
   const isChojaAd = (item) => {
@@ -24,20 +23,6 @@ export default function WishlistPage() {
     if (item.offerId || item.offerPublicId || item.offerRequestId || item.requestId) return false;
     return Boolean(item.adId || item._id || item.title);
   };
-
-  if (isLoading) {
-    return <LoadingScreen />;
-  }
-
-  if (!isAuthorized) {
-    return null;
-  }
-
-  useEffect(() => {
-    if (isAuthenticated === true) {
-      fetchWishlist();
-    }
-  }, [isAuthenticated]);
 
   const fetchWishlist = async () => {
     try {
@@ -63,6 +48,20 @@ export default function WishlistPage() {
     }
   };
 
+  useEffect(() => {
+    if (isAuthenticated === true) {
+      fetchWishlist();
+    }
+  }, [isAuthenticated]);
+
+  if (authLoading) {
+    return <LoadingScreen />;
+  }
+
+  if (!user || user.accountType !== "user") {
+    return null;
+  }
+
   const handleRemove = async (wishlistId) => {
     try {
       const res = await toggleWishlist(wishlistId);
@@ -87,7 +86,7 @@ export default function WishlistPage() {
     <>
       <Navbar />
 
-      <div className="min-h-screen bg-[#F8F6F2] px-3 py-5 sm:px-6 sm:py-14">
+      <div className="relative z-10 min-h-screen bg-transparent px-3 pt-20 pb-5 sm:px-6 sm:pt-24 sm:pb-14">
         <div className="mx-auto grid max-w-7xl gap-5 lg:grid-cols-4 lg:gap-10">
           
           {/* SIDEBAR */}

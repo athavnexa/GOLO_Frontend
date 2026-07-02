@@ -549,7 +549,8 @@ function NearbyDealsPageContent() {
           : resolvedLng;
       const hasCoordinateSearch =
         typeof fetchLat === "number" && typeof fetchLng === "number";
-      const locationForRequest = hasLocationQuery ? location : "";
+      const locationForRequest =
+        hasLocationQuery && !hasManualCoordinates ? location : "";
 
       try {
         const response = await getNearbyOffers({
@@ -579,9 +580,7 @@ function NearbyDealsPageContent() {
           : primaryRows;
         const strictRows = hasCoordinateSearch
           ? distanceResolvedRows.filter((row) =>
-              hasManualCoordinates && hasLocationQuery
-                ? isManualLocationMatch(row, location)
-                : isWithinRadius(row, distanceRadius),
+              isWithinRadius(row, distanceRadius),
             )
           : distanceResolvedRows;
 
@@ -744,7 +743,7 @@ function NearbyDealsPageContent() {
     }
 
     if (manualLatitude !== null && manualLongitude !== null) {
-      return sortedRows.filter((row) => isManualLocationMatch(row, location));
+      return sortedRows.filter((row) => isWithinRadius(row, distanceRadius));
     }
 
     // When user provided a location string, only include offers whose merchant
@@ -759,6 +758,7 @@ function NearbyDealsPageContent() {
     selectedTypeLabels,
     location,
     sortBy,
+    distanceRadius,
     manualLatitude,
     manualLongitude,
   ]);

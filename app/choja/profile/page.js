@@ -66,7 +66,7 @@ export default function ChojaProfilePage() {
     <>
       <Navbar />
 
-      <div className="min-h-screen bg-[#F8F6F2] py-12 px-6">
+      <div className="relative z-10 min-h-screen bg-transparent px-3 pt-20 pb-14 sm:px-6 sm:pt-24 sm:pb-16">
         <div className="max-w-7xl mx-auto grid lg:grid-cols-4 gap-8">
           <ProfileSidebar />
 

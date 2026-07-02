@@ -2,7 +2,37 @@
 
 import { useState, useRef, useEffect, useMemo } from "react";
 import { usePathname } from "next/navigation";
-import { ChevronDown, Grid } from "lucide-react";
+import {
+  ChevronDown,
+  Grid,
+  GraduationCap,
+  Car,
+  Home,
+  Briefcase,
+  Smartphone,
+  Tv,
+  Heart,
+  Store,
+  Sparkles,
+  Search,
+  Wrench,
+  User,
+  PawPrint,
+  Megaphone,
+  Plane,
+  Sofa,
+  Gift,
+  Package,
+  Utensils,
+  HeartPulse,
+  Building2,
+  ShoppingBag,
+  Building,
+  Ticket,
+  Hammer,
+  Dumbbell,
+  Zap,
+} from "lucide-react";
 import { createPortal } from "react-dom";
 import { normalizeAppPath, withFrontendBasePath } from "../lib/path";
 
@@ -12,14 +42,15 @@ const mainCategories = [
   { name: "Property", sub: ["Rent", "Buy"] },
   { name: "Employment" },
   { name: "Mobiles" },
-  { name: "Electronics & Home appliances" },
+  { name: "Electronics & Home Appliances" },
   { name: "Matrimonial" },
   { name: "Business" },
   { name: "Astrology" },
+  { name: "Health & Wellness" },
+  { name: "Lost & Found" },
 ];
 
 const extraCategories = [
-
   "Lost & Found",
   "Service",
   "Personal",
@@ -31,31 +62,61 @@ const extraCategories = [
   "Other",
 ];
 
+// ----- Icon maps (choja / "all" categories) -----
 const allIconMap = {
-  Education: "🎓", Vehicle: "🚗", Property: "🏠", Employment: "💼",
-  Mobiles: "📱", "Electronics & Home appliances": "🖥️", Matrimonial: "💍",
-  Business: "🏪", Astrology: "🔮", "Lost & Found": "🔍", Service: "🔧",
-  Personal: "👤", Pets: "🐾", "Public Notice": "📢", Travel: "✈️",
-  Furniture: "🛋️", "Greetings & Tributes": "🎁", Other: "📦",
+  Education: GraduationCap,
+  Vehicle: Car,
+  Property: Home,
+  Employment: Briefcase,
+  Mobiles: Smartphone,
+  "Electronics & Home Appliances": Tv,
+  Matrimonial: Heart,
+  Business: Store,
+  Astrology: Sparkles,
+  "Health & Wellness": HeartPulse,
+  "Lost & Found": Search,
+  Service: Wrench,
+  Personal: User,
+  Pets: PawPrint,
+  "Public Notice": Megaphone,
+  Travel: Plane,
+  Furniture: Sofa,
+  "Greetings & Tributes": Gift,
+  Other: Package,
 };
 
+// ----- Icon maps (golocal categories) -----
 const golocalIconMap = {
-  "Food & Restaurants": "🍽️",
-  "Home Services": "🧰",
-  "Beauty & Wellness": "💆",
-  "Healthcare & Medical": "🏥",
-  "Hotels & Accommodation": "🏨",
-  "Shopping & Retail": "🛍️",
-  "Education & Training": "🎓",
-  "Real Estate": "🏡",
-  "Events & Entertainment": "🎉",
-  "Professional Services": "💼",
-  "Automotive Services": "🚗",
-  "Home Improvement": "🔨",
-  "Fitness & Sports": "🏋️",
-  "Daily Needs & Utilities": "⚡",
-  "Local Businesses & Vendors": "🏪",
+  "Food & Restaurants": Utensils,
+  "Home Services": Wrench,
+  "Beauty & Wellness": Sparkles,
+  "Healthcare & Medical": HeartPulse,
+  "Hotels & Accommodation": Building2,
+  "Shopping & Retail": ShoppingBag,
+  "Education & Training": GraduationCap,
+  "Real Estate": Building,
+  "Events & Entertainment": Ticket,
+  "Professional Services": Briefcase,
+  "Automotive Services": Car,
+  "Home Improvement": Hammer,
+  "Fitness & Sports": Dumbbell,
+  "Daily Needs & Utilities": Zap,
+  "Local Businesses & Vendors": Store,
 };
+
+// Pastel circle background + matching darker shade for icon/text, cycled per item.
+const COLOR_PALETTE = [
+  { bg: "#fde8e8", dark: "#c2185b" }, // pink
+  { bg: "#eaf0fb", dark: "#1d4ed8" }, // blue
+  { bg: "#f3e8fd", dark: "#7c3aed" }, // purple
+  { bg: "#e6f7f1", dark: "#0f766e" }, // teal
+  { bg: "#eef0fb", dark: "#4338ca" }, // indigo
+  { bg: "#fef3c7", dark: "#b45309" }, // yellow/amber
+  { bg: "#fdeaf2", dark: "#be185d" }, // rose
+  { bg: "#eef3fa", dark: "#0369a1" }, // sky blue
+  { bg: "#e8f5e9", dark: "#15803d" }, // green
+  { bg: "#fde8d9", dark: "#c2410c" }, // orange
+];
 
 export default function CategoryBar({ variant = "choja", preferredCategories = [] }) {
   return <CategoryBarContent variant={variant} preferredCategories={preferredCategories} />;
@@ -106,41 +167,55 @@ function CategoryBarContent({ variant = "choja", preferredCategories = [] }) {
     { name: "Local Businesses & Vendors" },
   ];
 
-   // Map backend category names to frontend display names for matching
-   const BACKEND_TO_DISPLAY_MAP = {
-     "Food & Dining": "Food & Restaurants",
-     "Beauty": "Beauty & Wellness",
-     "Healthcare": "Healthcare & Medical",
-   };
+  // Map backend category names to frontend display names for matching
+  const BACKEND_TO_DISPLAY_MAP = {
+    "Food & Dining": "Food & Restaurants",
+    "Beauty": "Beauty & Wellness",
+    "Healthcare": "Healthcare & Medical",
+  };
 
-   const preferredDisplaySet = useMemo(() => {
-     const set = new Set();
-     if (Array.isArray(preferredCategories) && preferredCategories.length > 0) {
-       preferredCategories.forEach(cat => {
-         const displayName = BACKEND_TO_DISPLAY_MAP[cat] || cat;
-         if (golocalCategories.some(c => c.name === displayName)) {
-           set.add(displayName);
-         }
-       });
-     }
-     return set;
-   }, [preferredCategories]);
+  const preferredDisplaySet = useMemo(() => {
+    const set = new Set();
+    if (Array.isArray(preferredCategories) && preferredCategories.length > 0) {
+      preferredCategories.forEach(cat => {
+        const displayName = BACKEND_TO_DISPLAY_MAP[cat] || cat;
+        if (golocalCategories.some(c => c.name === displayName)) {
+          set.add(displayName);
+        }
+      });
+    }
+    return set;
+  }, [preferredCategories]);
 
-   const orderedGolocalCategories = useMemo(() => {
-     const preferred = [];
-     const others = [];
-     golocalCategories.forEach(cat => {
-       if (preferredDisplaySet.has(cat.name)) {
-         preferred.push(cat);
-       } else {
-         others.push(cat);
-       }
-     });
-     return [...preferred, ...others];
-   }, [preferredDisplaySet]);
+  const orderedGolocalCategories = useMemo(() => {
+    const preferred = [];
+    const others = [];
+    golocalCategories.forEach(cat => {
+      if (preferredDisplaySet.has(cat.name)) {
+        preferred.push(cat);
+      } else {
+        others.push(cat);
+      }
+    });
+    return [...preferred, ...others];
+  }, [preferredDisplaySet]);
 
-   const golocalVisibleCategories = orderedGolocalCategories.slice(0, 7);
-   const categoriesToRender = variant === "golocal" ? golocalVisibleCategories : mainCategories;
+  // Render the full list — the bar fills available width with equal spacing
+  // between chips, and falls back to horizontal scroll only once it overflows.
+  const categoriesToRender = variant === "golocal" ? orderedGolocalCategories.slice(0, 10) : mainCategories.slice(0, 10);
+  const iconMapForVariant = variant === "golocal" ? golocalIconMap : allIconMap;
+
+  // Stable color lookup keyed by category name, so colors don't shift when the
+  // visible/ordered slice changes (e.g. preferred categories reordering).
+  const allNamesForVariant = variant === "golocal"
+    ? golocalCategories.map(c => c.name)
+    : [...mainCategories.map(c => c.name), ...extraCategories];
+
+  const colorForCategory = (name) => {
+    const idx = allNamesForVariant.indexOf(name);
+    const safeIdx = idx === -1 ? 0 : idx;
+    return COLOR_PALETTE[safeIdx % COLOR_PALETTE.length];
+  };
 
   useEffect(() => {
     function handleClickOutside(e) {
@@ -226,116 +301,182 @@ function CategoryBarContent({ variant = "choja", preferredCategories = [] }) {
     setActiveDropdown(cat.name);
   };
 
+  const isCategoryActive = (catName) =>
+    variant === "golocal" ? activeGolocalCategory === catName : activeCat === catName;
+
+  // ---- Sizing tokens ----
+  // All sizing (padding, gap, icon size, glyph size, label min-height) is now
+  // fully shared between choja and golocal so the two variants render
+  // pixel-identical icon circles and text. Nothing below is keyed off `variant`.
+  const shellPaddingY = "9px";
+  const iconLabelGap = "5px";
+  const iconSize = "40px";
+  const iconGlyphSize = 18;
+  const labelMinHeight = "26px";
+
   return (
     <>
-      {/* MAIN BAR */}
-      <div ref={wrapperRef} style={{ width: "100%", background: variant === "golocal" ? "linear-gradient(180deg, #ffffff 0%, #fbfbfb 100%)" : "#fff", borderBottom: "1px solid #e5e7eb", position: "sticky", top: 0, zIndex: 100, boxShadow: "0 1px 4px rgba(0,0,0,0.05)" }}>
-        <div className="golo-category-shell" style={{ maxWidth: "1440px", margin: "0 auto", display: "flex", alignItems: "center", minHeight: variant === "golocal" ? "64px" : "56px", padding: variant === "golocal" ? "8px 24px" : "0 24px", gap: "10px" }}>
+      {/* MAIN BAR — icon-over-label card style.
+          Background is transparent on purpose: the actual gradient
+          (colors: #f8a812 -> #fad081 -> #f8f6f265, height 270) is rendered
+          once as a shared fixed layer by <Navbar />, positioned behind both
+          the header and this bar, so there is zero seam between them.
 
+          NOTE: this bar is intentionally NOT sticky/fixed. It scrolls with
+          the page like normal content, so as the user scrolls down it
+          disappears underneath the (sticky, higher z-index) Navbar header
+          instead of stacking on top of it. */}
+      <div
+        ref={wrapperRef}
+        className="border-0 shadow-none"
+        style={{
+          width: "100%",
+          background: "transparent",
+          position: "relative",
+          zIndex: 1,
+          border: "none",
+          borderBottom: "none",
+          boxShadow: "none",
+        }}
+      >
+        <div
+          className="golo-category-shell"
+          style={{
+            margin: "0 auto",
+            display: "flex",
+            alignItems: "flex-start",
+            padding: `${shellPaddingY} 24px`,
+            gap: "12px",
+          }}
+        >
+          {/* Categories — fills available width with equal spacing, scrolls if it overflows */}
           <div
-            className={variant === "golocal" ? "golo-category-row" : "choja-category-row"}
+            className={variant === "golocal" ? "golo-category-scroll golo-category-row" : "golo-category-scroll choja-category-row"}
             style={{
+              display: "flex",
+              alignItems: "flex-start",
+              justifyContent: categoriesToRender.length > 6 ? "space-between" : "flex-start",
+              gap: "8px",
+              overflowX: "hidden",
+              flexWrap: "nowrap",
               flex: 1,
-              display: variant === "golocal" ? "grid" : "flex",
-              gridTemplateColumns: variant === "golocal" ? "repeat(7, minmax(0, 1fr))" : undefined,
-              alignItems: "center",
-              justifyContent: "space-between",
               minWidth: 0,
-              gap: "6px",
-              overflowX: variant === "golocal" ? "hidden" : "auto",
             }}
           >
-            {categoriesToRender.map((cat) => (
-              <div
-                key={cat.name}
-                style={{
-                  flex: variant === "golocal" ? "unset" : 1,
-                  minWidth: variant === "golocal" ? 0 : "max-content",
-                  display: "flex",
-                  justifyContent: "center",
-                }}
-              >
+            {categoriesToRender.map((cat) => {
+              const active = isCategoryActive(cat.name);
+              const { bg, dark } = colorForCategory(cat.name);
+              const IconComponent = iconMapForVariant[cat.name] || Package;
+              return (
                 <button
-                  className={variant === "golocal" ? "golo-category-pill" : "choja-category-pill"}
+                  key={cat.name}
                   ref={(el) => (buttonRefs.current[cat.name] = el)}
+                  className="golo-category-pill"
                   onClick={() => handleCategoryClick(cat)}
                   style={{
-                    display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "6px",
-                    padding: variant === "golocal" ? "8px 10px" : "8px 12px", borderRadius: "999px", border: "none",
-                    width: variant === "golocal" ? "100%" : "auto",
-                    minHeight: variant === "golocal" ? "38px" : "auto",
-                    overflow: variant === "golocal" ? "hidden" : "visible",
-                    background: variant === "golocal"
-                      ? activeGolocalCategory === cat.name
-                        ? "#e6f4ee"
-                        : "#f8faf9"
-                      : activeCat === cat.name || activeDropdown === cat.name
-                        ? "#e6f4ee"
-                        : "transparent",
-                    color: variant === "golocal"
-                      ? activeGolocalCategory === cat.name
-                        ? "#157A4F"
-                        : "#374151"
-                      : activeCat === cat.name || activeDropdown === cat.name
-                        ? "#157A4F"
-                        : "#374151",
-                    fontWeight: variant === "golocal"
-                      ? activeGolocalCategory === cat.name
-                        ? 700
-                        : 600
-                      : activeCat === cat.name
-                        ? 700
-                        : 600,
-                    fontSize: variant === "golocal" ? "14px" : "14px", cursor: variant === "golocal" ? "pointer" : "pointer", lineHeight: 1,
-                    whiteSpace: "nowrap", transition: "all 0.15s",
-                    borderBottom: variant === "golocal" ? "none" : activeCat === cat.name ? "2px solid #157A4F" : "2px solid transparent",
-                    boxShadow: variant === "golocal" ? (activeGolocalCategory === cat.name ? "0 8px 20px rgba(21,122,79,0.12)" : "0 1px 3px rgba(0,0,0,0.04)") : "none",
-                    borderRadius: variant === "golocal" ? "999px" : activeCat === cat.name ? "12px 12px 0 0" : "999px",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "flex-start",
+                    gap: iconLabelGap,
+                    background: "transparent",
+                    border: "none",
+                    cursor: "pointer",
+                    width: "104px",
+                    flexShrink: 0,
+                    padding: "9px 14px",
                   }}
-                  onMouseEnter={e => { if (variant !== "golocal" && activeCat !== cat.name && activeDropdown !== cat.name) { e.currentTarget.style.background = "#f9fafb"; e.currentTarget.style.color = "#157A4F"; } }}
-                  onMouseLeave={e => { if (variant !== "golocal" && activeCat !== cat.name && activeDropdown !== cat.name) { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#374151"; } }}
                 >
                   <span
-                    style={
-                      variant === "golocal"
-                        ? {
-                            display: "block",
-                            width: "100%",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
-                            textAlign: "center",
-                          }
-                        : undefined
-                    }
-                    title={cat.name}
+                    style={{
+                      width: iconSize,
+                      height: iconSize,
+                      borderRadius: "50%",
+                      background: bg,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <IconComponent size={iconGlyphSize} color={dark} strokeWidth={2} />
+                  </span>
+                  <span
+                    style={{
+                      display: "-webkit-box",
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: "vertical",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      wordBreak: "break-word",
+                      fontSize: "12.5px",
+                      fontWeight: 700,
+                      color: active ? "#157A4F" : "#1f2933",
+                      textAlign: "center",
+                      lineHeight: 1.2,
+                      borderBottom: active ? "2px solid #157A4F" : "2px solid transparent",
+                      paddingBottom: "2px",
+                      width: "100%",
+                      minHeight: labelMinHeight,
+                    }}
                   >
                     {cat.name}
+                    {variant !== "golocal" && cat.sub && (
+                      <ChevronDown
+                        size={11}
+                        style={{
+                          display: "inline",
+                          verticalAlign: "middle",
+                          marginLeft: "2px",
+                          transition: "transform 0.2s",
+                          transform: activeDropdown === cat.name ? "rotate(180deg)" : "none",
+                        }}
+                      />
+                    )}
                   </span>
-                  {variant !== "golocal" && cat.sub && (
-                    <ChevronDown size={12} style={{ transition: "transform 0.25s", transform: activeDropdown === cat.name ? "rotate(180deg)" : "none" }} />
-                  )}
                 </button>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
-          <div style={{ flexShrink: 0 }}>
-            <button
-              onClick={() => setShowAllModal(true)}
-              style={{ display: "inline-flex", alignItems: "center", gap: "6px", padding: variant === "golocal" ? "8px 16px" : "6px 16px", borderRadius: "20px", border: "1.5px solid #e5e7eb", background: "#fff", color: "#374151", fontWeight: 600, fontSize: "13px", cursor: "pointer", whiteSpace: "nowrap", transition: "all 0.15s" }}
-              onMouseEnter={e => { e.currentTarget.style.background = "#f9fafb"; e.currentTarget.style.borderColor = "#157A4F"; e.currentTarget.style.color = "#157A4F"; }}
-              onMouseLeave={e => { e.currentTarget.style.background = "#fff"; e.currentTarget.style.borderColor = "#e5e7eb"; e.currentTarget.style.color = "#374151"; }}
+          {/* SEE ALL — static, always visible on the right */}
+          <button
+            onClick={() => setShowAllModal(true)}
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "flex-start",
+              gap: iconLabelGap,
+              background: "transparent",
+              border: "none",
+              cursor: "pointer",
+              minWidth: "72px",
+              flexShrink: 0,
+              padding: "2px 6px",
+            }}
+          >
+            <span
+              style={{
+                width: iconSize,
+                height: iconSize,
+                borderRadius: "12px",
+                background: "#f3f4f6",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#374151",
+              }}
             >
-              <Grid size={14} />
+              <Grid size={iconGlyphSize} />
+            </span>
+            <span style={{ fontSize: "12.5px", fontWeight: 700, color: "#1f2933" }}>
               See All
-            </button>
-          </div>
-
+            </span>
+          </button>
         </div>
       </div>
 
-      {/* DROPDOWN */}
+      {/* DROPDOWN (sub-categories, choja only) */}
       {activeDropdown && dropdownPosition && typeof window !== "undefined" &&
         createPortal(
           <div
@@ -355,7 +496,6 @@ function CategoryBarContent({ variant = "choja", preferredCategories = [] }) {
             }}
           >
             <style>{`@keyframes fadeDown { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }`}</style>
-            {/* Show parent category too */}
             <button
               onClick={() => navigateToCategory(activeDropdown)}
               style={{ width: "100%", textAlign: "left", padding: "10px 14px", borderRadius: "10px", border: "none", background: "transparent", fontWeight: 700, fontSize: "14px", color: "#157A4F", cursor: "pointer" }}
@@ -398,43 +538,95 @@ function CategoryBarContent({ variant = "choja", preferredCategories = [] }) {
                 </button>
               </div>
 
-              {/* Main categories */}
               <p style={{ fontSize: "12px", fontWeight: 700, color: "#9ca3af", letterSpacing: "0.08em", marginBottom: "12px", textTransform: "uppercase" }}>Categories</p>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))", gap: "10px", marginBottom: "24px" }}>
-               {(variant === "golocal" ? golocalCategories : mainCategories).map((cat) => (
-                  <button
-                    key={cat.name}
-                    onClick={() => navigateToCategory(cat.name)}
-                    style={{ padding: "14px 10px", borderRadius: "14px", border: "1.5px solid #e5e7eb", background: "#fff", cursor: "pointer", fontSize: "13px", fontWeight: 600, color: "#374151", textAlign: "center", transition: "all 0.15s" }}
-                    onMouseEnter={e => { e.currentTarget.style.borderColor = "#157A4F"; e.currentTarget.style.background = "#f0fdf4"; e.currentTarget.style.color = "#157A4F"; e.currentTarget.style.transform = "translateY(-2px)"; }}
-                    onMouseLeave={e => { e.currentTarget.style.borderColor = "#e5e7eb"; e.currentTarget.style.background = "#fff"; e.currentTarget.style.color = "#374151"; e.currentTarget.style.transform = "none"; }}
-                  >
-                    <div style={{ fontSize: "24px", marginBottom: "6px" }}>
-                      {variant === "golocal"
-                        ? golocalIconMap[cat.name] || "📂"
-                        : allIconMap[cat.name] || "📂"}
-                    </div>
-                    {cat.name}
-                  </button>
-                ))}
+                {(variant === "golocal" ? golocalCategories : mainCategories).map((cat) => {
+                  const { bg, dark } = colorForCategory(cat.name);
+                  const IconComponent = (variant === "golocal" ? golocalIconMap : allIconMap)[cat.name] || Package;
+                  const active = isCategoryActive(cat.name);
+                  return (
+                    <button
+                      key={cat.name}
+                      onClick={() => navigateToCategory(cat.name)}
+                      style={{
+                        padding: "14px 10px",
+                        borderRadius: "14px",
+                        border: active ? `1.5px solid ${dark}` : "1.5px solid transparent",
+                        background: bg,
+                        cursor: "pointer",
+                        fontSize: "13px",
+                        fontWeight: 700,
+                        color: dark,
+                        textAlign: "center",
+                        transition: "transform 0.15s",
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; }}
+                      onMouseLeave={e => { e.currentTarget.style.transform = "none"; }}
+                    >
+                      <span
+                        style={{
+                          width: "40px",
+                          height: "40px",
+                          borderRadius: "50%",
+                          background: "#ffffff",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          margin: "0 auto 8px",
+                        }}
+                      >
+                        <IconComponent size={20} color={dark} strokeWidth={2} />
+                      </span>
+                      {cat.name}
+                    </button>
+                  );
+                })}
               </div>
 
               {variant !== "golocal" && (
                 <>
                   <p style={{ fontSize: "12px", fontWeight: 700, color: "#9ca3af", letterSpacing: "0.08em", marginBottom: "12px", textTransform: "uppercase" }}>More Categories</p>
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))", gap: "10px" }}>
-                    {extraCategories.map((cat) => (
-                      <button
-                        key={cat}
-                        onClick={() => navigateToCategory(cat)}
-                        style={{ padding: "14px 10px", borderRadius: "14px", border: "1.5px solid #e5e7eb", background: "#fff", cursor: "pointer", fontSize: "13px", fontWeight: 600, color: "#374151", textAlign: "center", transition: "all 0.15s" }}
-                        onMouseEnter={e => { e.currentTarget.style.borderColor = "#157A4F"; e.currentTarget.style.background = "#f0fdf4"; e.currentTarget.style.color = "#157A4F"; e.currentTarget.style.transform = "translateY(-2px)"; }}
-                        onMouseLeave={e => { e.currentTarget.style.borderColor = "#e5e7eb"; e.currentTarget.style.background = "#fff"; e.currentTarget.style.color = "#374151"; e.currentTarget.style.transform = "none"; }}
-                      >
-                        <div style={{ fontSize: "24px", marginBottom: "6px" }}>{allIconMap[cat] || "📂"}</div>
-                        {cat}
-                      </button>
-                    ))}
+                    {extraCategories.map((cat) => {
+                      const { bg, dark } = colorForCategory(cat);
+                      const IconComponent = allIconMap[cat] || Package;
+                      return (
+                        <button
+                          key={cat}
+                          onClick={() => navigateToCategory(cat)}
+                          style={{
+                            padding: "14px 10px",
+                            borderRadius: "14px",
+                            border: "1.5px solid transparent",
+                            background: bg,
+                            cursor: "pointer",
+                            fontSize: "13px",
+                            fontWeight: 700,
+                            color: dark,
+                            textAlign: "center",
+                            transition: "transform 0.15s",
+                          }}
+                          onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; }}
+                          onMouseLeave={e => { e.currentTarget.style.transform = "none"; }}
+                        >
+                          <span
+                            style={{
+                              width: "40px",
+                              height: "40px",
+                              borderRadius: "50%",
+                              background: "#ffffff",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              margin: "0 auto 8px",
+                            }}
+                          >
+                            <IconComponent size={20} color={dark} strokeWidth={2} />
+                          </span>
+                          {cat}
+                        </button>
+                      );
+                    })}
                   </div>
                 </>
               )}

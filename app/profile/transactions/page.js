@@ -89,14 +89,16 @@ export default function TransactionHistory() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-white">
+    <>
       <Navbar />
-      <div className="flex w-full max-w-6xl mx-auto pt-5 pb-10 px-3 lg:flex-row lg:pt-8 lg:pb-16 lg:px-0">
-        <div className="hidden lg:block">
-          <ProfileSidebar />
-        </div>
-        <div className="min-w-0 flex-1 bg-white rounded-xl shadow-lg p-3 lg:p-8 lg:ml-8">
-          <div className="flex flex-col items-stretch justify-between mb-6 gap-3 sm:flex-row sm:items-center">
+
+      <div className="relative z-10 min-h-screen bg-transparent px-3 pt-20 pb-10 sm:px-6 sm:pt-24 sm:pb-16">
+        <div className="flex w-full max-w-6xl mx-auto lg:flex-row">
+          <div className="hidden lg:block">
+            <ProfileSidebar />
+          </div>
+          <div className="min-w-0 flex-1 bg-white rounded-xl shadow-lg p-3 lg:p-8 lg:ml-8">
+            <div className="flex flex-col items-stretch justify-between mb-6 gap-3 sm:flex-row sm:items-center">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#e0a12d] lg:hidden">Choja Payments</p>
               <h2 className="text-xl font-semibold text-[#157A4F] sm:text-2xl">Transaction History</h2>
@@ -207,7 +209,8 @@ export default function TransactionHistory() {
           </div>
         </div>
       </div>
+      </div>
       <Footer />
-    </div>
+    </>
   );
 }

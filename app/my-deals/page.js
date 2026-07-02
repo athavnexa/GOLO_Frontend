@@ -170,7 +170,7 @@ export default function MyDeals() {
     <>
       <Navbar />
 
-      <div className="bg-[#f7f6f2] min-h-screen">
+      <div className="relative z-10 min-h-screen bg-transparent -mt-10 pt-4">
         <div className="max-w-[1320px] mx-auto px-5 lg:px-8 py-8 lg:py-10">
           <div className="flex flex-col lg:flex-row lg:items-start gap-6 lg:gap-8">
             <main className="flex-1 min-w-0">

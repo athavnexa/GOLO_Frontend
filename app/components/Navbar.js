@@ -15,6 +15,9 @@ import {
   Trophy,
   Heart,
   Mic,
+  Briefcase,
+  LayoutGrid,
+  MessageSquare,
 } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
@@ -252,6 +255,7 @@ function NavbarContent({
     pathname.startsWith("/choja") ||
     /^\/profile\/[a-f0-9]{24}$/i.test(pathname) ||
     pathname.startsWith("/profile/transactions");
+  const isMerchantSurface = isAuthenticated && user?.accountType === "merchant";
   const useGolocalHomeNav = isGolocalSurface;
   const homeNavHref = "/choja";
   const primaryNavLabel = useGolocalHomeNav ? "My Deals" : "Post Your Ad";
@@ -956,16 +960,6 @@ function NavbarContent({
   };
 
   const handleProfileAvatarClick = () => {
-    if (isChojaSurface) {
-      setShowProfileMenu((prev) => !prev);
-      return;
-    }
-
-    if (isGolocalSurface) {
-      setShowProfileMenu((prev) => !prev);
-      return;
-    }
-
     setShowProfileMenu((prev) => !prev);
   };
 
@@ -982,39 +976,85 @@ function NavbarContent({
 
   return (
     <>
-      <header className="sticky top-0 z-[9999] h-auto min-h-16 bg-[#efb02e] border-b border-[#d7a02a] px-4 shadow-sm md:h-16 md:px-8">
-        <div className="w-full h-16 flex items-center justify-between">
-          {/* LOGO */}
-          <Link
-            href={logoHref}
-            className="flex min-w-0 items-center gap-2 cursor-pointer sm:gap-3 md:min-w-[180px]"
-          >
-            <div
-              className="w-9 h-9 bg-white rounded-xl flex items-center justify-center shadow font-bold"
-              style={{ color: "#157A4F" }}
-            >
-              G
+      {/* SHARED GRADIENT LAYER — matches reference exactly:
+          colors: ["#f8a812", "#fad081", "#f8f6f265"], vertical, height 270,
+          sits behind both the header and the category bar below it so the
+          gradient is continuous with zero seam. */}
+      <div
+        aria-hidden="true"
+        style={{
+          height: 170,
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 0,
+          background:
+            "linear-gradient(180deg, #f8a812 0%, #fad081 50%, #f8f6f265 100%)",
+          pointerEvents: "none",
+        }}
+      />
+      <header
+        className="sticky top-0 z-[9999] pt-4 pb-0 px-4 md:pt-4 md:pb-0 md:px-8 border-0"
+        style={{
+          background: "transparent",
+          border: "none",
+          boxShadow: "none",
+        }}
+      >
+        <div className="w-full h-[60px] flex items-center justify-between gap-3">
+          {/* LOGO TOGGLE PILLS */}
+          {!isMerchantSurface ? (
+            <div className="flex min-w-0 shrink-0 items-center gap-2">
+              <Link
+                href="/"
+                className="flex h-11 items-center gap-1.5 rounded-full bg-white px-4 shadow-sm transition hover:opacity-90"
+              >
+                <span
+                  className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[11px] font-extrabold leading-none text-white"
+                  style={{ background: "#157A4F" }}
+                >
+                  G
+                </span>
+                <span className="text-[15px] font-extrabold tracking-wide text-[#157A4F]">
+                  GOLO
+                </span>
+              </Link>
+              <Link
+                href="/choja"
+                className="hidden h-11 items-center gap-1.5 rounded-full bg-white px-4 shadow-sm transition hover:opacity-90 sm:flex"
+              >
+                <Briefcase size={16} className="text-[#1f2933]" strokeWidth={2.4} />
+                <span className="text-[15px] font-extrabold tracking-wide text-[#1f2933]">
+                  CHOJA
+                </span>
+              </Link>
             </div>
-            <span className="text-lg font-semibold tracking-wide text-white sm:text-xl">
-              GOLO
-            </span>
-          </Link>
+          ) : (
+            <Link href={logoHref} className="flex min-w-0 items-center gap-2">
+              <div
+                className="w-9 h-9 bg-white rounded-xl flex items-center justify-center shadow font-bold"
+                style={{ color: "#157A4F" }}
+              >
+                G
+              </div>
+              <span className="text-lg font-semibold tracking-wide text-white sm:text-xl">
+                GOLO
+              </span>
+            </Link>
+          )}
 
           {/* CENTER */}
           <div
-            className="hidden md:flex items-center gap-5 flex-1 mx-12 max-w-4xl"
+            className="hidden md:flex items-center gap-3 flex-1 mx-6 max-w-4xl h-11"
             onClick={(e) => e.stopPropagation()}
           >
             {/* SEARCH */}
             <div
-              className="flex-[2] flex items-center rounded-full px-5 h-11 shadow-sm nav-input"
+              className="flex-[1.4] flex items-center rounded-full bg-white px-5 h-11 shadow-sm"
               onClick={(e) => e.stopPropagation()}
             >
-              <Search
-                size={18}
-                className="mr-2"
-                style={{ color: "var(--color-text-muted)" }}
-              />
+              <Search size={18} className="mr-2 text-gray-400" />
 
               <input
                 type="text"
@@ -1041,8 +1081,7 @@ function NavbarContent({
               {searchQuery && (
                 <button
                   onClick={clearSearchAndShowLocationOffers}
-                  className="ml-2 transition opacity-70"
-                  style={{ color: "var(--color-text-muted)" }}
+                  className="ml-2 text-gray-400 transition opacity-70"
                   aria-label="Clear search"
                 >
                   <X size={16} />
@@ -1051,12 +1090,12 @@ function NavbarContent({
             </div>
 
             {/* LOCATION */}
-            <div className="relative flex-[1]" ref={dropdownRef}>
-              <div className="flex items-center rounded-full px-5 h-11 shadow-sm nav-input">
+            <div className="relative flex-[1] max-w-[260px]" ref={dropdownRef}>
+              <div className="flex items-center rounded-full bg-white px-4 h-11 shadow-sm">
                 <MapPin
-                  size={18}
-                  className="mr-2"
-                  style={{ color: "var(--color-text-muted)" }}
+                  size={17}
+                  strokeWidth={2.4}
+                  className="mr-2 shrink-0 text-[#ff7a1a]"
                 />
 
                 <input
@@ -1072,11 +1111,11 @@ function NavbarContent({
                     setShowSuggestions(true);
                   }}
                   placeholder="Location"
-                  className="w-full outline-none text-sm bg-transparent text-black placeholder-gray-500 focus:outline-none"
+                  className="w-full min-w-0 outline-none text-sm font-semibold bg-transparent text-[#1f2933] placeholder-gray-500 focus:outline-none"
                   readOnly={!isAuthenticated}
                 />
 
-                {location && (
+                {location ? (
                   <button
                     onClick={() => {
                       setLocation("");
@@ -1084,17 +1123,27 @@ function NavbarContent({
                       setShowSuggestions(false);
                       runSearch(searchQuery, "");
                     }}
-                    className="ml-2 transition opacity-70"
-                    style={{ color: "var(--color-text-muted)" }}
+                    className="ml-1 shrink-0 text-gray-400 transition opacity-70"
                   >
-                    <X size={16} />
+                    <X size={14} />
                   </button>
-                )}
+                ) : null}
+                <ChevronDown
+                  size={14}
+                  className="ml-1 shrink-0 text-gray-400"
+                  onClick={() => {
+                    if (!isAuthenticated) {
+                      setShowAuthPrompt(true);
+                      return;
+                    }
+                    setShowSuggestions((prev) => !prev);
+                  }}
+                />
               </div>
 
               {/* LOCATION DROPDOWN */}
               {showSuggestions && (
-                <div className="absolute top-14 left-0 w-full rounded-xl shadow-lg py-2 z-50 bg-white border border-gray-200">
+                <div className="absolute top-14 left-0 w-full min-w-[260px] rounded-xl shadow-lg py-2 z-50 bg-white border border-gray-200">
                   {locationLoading ? (
                     <div className="px-4 py-3 text-sm text-gray-500">
                       Searching cities...
@@ -1153,30 +1202,10 @@ function NavbarContent({
           </div>
 
           {/* RIGHT SIDE */}
-          <div className="flex min-w-0 items-center justify-end gap-3 md:min-w-[260px] md:gap-8">
-            <nav className="hidden md:flex gap-6 text-sm font-semibold text-white">
-              <Link href={homeNavHref} className="hover:opacity-80 transition">
-                Choja
-              </Link>
-              <Link
-                href={primaryNavHref}
-                onClick={requireAuth()}
-                className="hover:opacity-80 transition"
-              >
-                {primaryNavLabel}
-              </Link>
-              <Link
-                href={secondaryNavHref}
-                onClick={useGolocalHomeNav ? undefined : requireAuth()}
-                className="hover:opacity-80 transition"
-              >
-                {secondaryNavLabel}
-              </Link>
-            </nav>
-
+          <div className="flex shrink-0 items-center justify-end gap-3">
             {/* PROFILE / AUTH */}
             {isAuthenticated ? (
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
                 {/* NOTIFICATION BELL */}
                 <div className="relative" ref={notifRef}>
                   <button
@@ -1269,130 +1298,153 @@ function NavbarContent({
                     onClick={handleProfileAvatarClick}
                     className="flex items-center gap-2 cursor-pointer"
                   >
-                    <div
-                      className="w-9 h-9 rounded-full flex items-center justify-center shadow-md hover:scale-105 transition bg-white"
-                      style={{ color: "#157A4F" }}
-                    >
-                      {user?.name ? (
-                        <span className="text-sm font-bold">
-                          {user.name.charAt(0).toUpperCase()}
-                        </span>
-                      ) : (
-                        <User size={18} />
-                      )}
+                    <div className="relative w-9 h-9">
+                      <div
+                        className="w-9 h-9 rounded-full flex items-center justify-center shadow-md hover:scale-105 transition bg-white overflow-hidden"
+                        style={{ color: "#157A4F" }}
+                      >
+                        {user?.avatarUrl ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={user.avatarUrl}
+                            alt={user?.name || "Profile"}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : user?.name ? (
+                          <span className="text-sm font-bold">
+                            {user.name.charAt(0).toUpperCase()}
+                          </span>
+                        ) : (
+                          <User size={18} />
+                        )}
+                      </div>
                     </div>
                     <ChevronDown
                       size={14}
-                      className="hidden text-gray-500 sm:block"
+                      className="hidden text-white sm:block"
                     />
                   </div>
 
-                  {/* Profile Dropdown */}
-                  {showProfileMenu && !isGolocalSurface && (
-                    <div className="absolute top-12 right-0 w-[calc(100vw-2rem)] max-w-52 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-[9999]">
+                  {/* Profile Dropdown — surface-specific ordered links */}
+                  {showProfileMenu && (
+                    <div className="absolute top-12 right-0 w-[calc(100vw-2rem)] max-w-56 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-[9999]">
                       <div className="px-4 py-2 border-b border-gray-100">
                         <p className="text-sm font-semibold text-gray-800">
                           {user?.name}
                         </p>
                         <p className="text-xs text-gray-500">{user?.email}</p>
                       </div>
-                      <Link
-                        href="/choja/profile"
-                        onClick={() => setShowProfileMenu(false)}
-                        className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition"
-                      >
-                        <User size={16} /> My Profile
-                      </Link>
-                      <Link
-                        href={useGolocalHomeNav ? "/my-deals" : "/my-ads"}
-                        onClick={() => setShowProfileMenu(false)}
-                        className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition"
-                      >
-                        <FileText size={16} />{" "}
-                        {useGolocalHomeNav ? "My Deals" : "My Ads"}
-                      </Link>
-                      <Link
-                        href="/wishlist"
-                        onClick={() => setShowProfileMenu(false)}
-                        className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition"
-                      >
-                        <ShieldCheck size={16} className="text-red-500" />{" "}
-                        Wishlist
-                      </Link>
-                      <Link
-                        href="/profile/transactions"
-                        onClick={() => setShowProfileMenu(false)}
-                        className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition md:hidden"
-                      >
-                        <FileText size={16} /> Transactions
-                      </Link>
 
-                      {user?.role === "admin" && (
-                        <Link
-                          href="/admin"
-                          onClick={() => setShowProfileMenu(false)}
-                          className="flex items-center gap-2 px-4 py-2.5 text-sm font-bold text-[#157A4F] hover:bg-green-50 transition border-t border-gray-100 mt-1"
-                        >
-                          <Shield size={16} /> Admin Dashboard
-                        </Link>
+                      {isGolocalSurface ? (
+                        <>
+                          <Link
+                            href="/profile"
+                            onClick={() => setShowProfileMenu(false)}
+                            className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition"
+                          >
+                            <User size={16} /> My Profile
+                          </Link>
+                          <Link
+                            href="/profile/favorites"
+                            onClick={() => setShowProfileMenu(false)}
+                            className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition"
+                          >
+                            <Heart size={16} className="text-red-500" /> Wishlist
+                          </Link>
+                          <Link
+                            href="/my-deals"
+                            onClick={() => setShowProfileMenu(false)}
+                            className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition"
+                          >
+                            <FileText size={16} /> Claimed Deals
+                          </Link>
+                          <Link
+                            href="/nearby-deals"
+                            onClick={() => setShowProfileMenu(false)}
+                            className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition"
+                          >
+                            <MapPin size={16} /> Nearby Deals
+                          </Link>
+                          <Link
+                            href="/profile/notifications"
+                            onClick={() => setShowProfileMenu(false)}
+                            className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition"
+                          >
+                            <Bell size={16} /> Notifications
+                          </Link>
+                          <div className="border-t border-gray-100 mt-1">
+                            <button
+                              onClick={handleLogout}
+                              className="flex items-center gap-2 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 w-full transition"
+                            >
+                              <LogOut size={16} /> Logout
+                            </button>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <Link
+                            href="/choja/profile"
+                            onClick={() => setShowProfileMenu(false)}
+                            className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition"
+                          >
+                            <User size={16} /> My Profile
+                          </Link>
+                          <Link
+                            href="/post-ad"
+                            onClick={requireAuth(() => setShowProfileMenu(false))}
+                            className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition"
+                          >
+                            <FileText size={16} /> Post Your Ads
+                          </Link>
+                          <Link
+                            href="/wishlist"
+                            onClick={() => setShowProfileMenu(false)}
+                            className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition"
+                          >
+                            <Heart size={16} className="text-red-500" /> Wishlist
+                          </Link>
+                          <Link
+                            href="/chats"
+                            onClick={requireAuth(() => setShowProfileMenu(false))}
+                            className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition"
+                          >
+                            <MessageSquare size={16} /> Chats
+                          </Link>
+                          <Link
+                            href="/my-ads"
+                            onClick={() => setShowProfileMenu(false)}
+                            className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition"
+                          >
+                            <LayoutGrid size={16} /> My Ads
+                          </Link>
+                          <Link
+                            href="/profile/transactions"
+                            onClick={() => setShowProfileMenu(false)}
+                            className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition md:hidden"
+                          >
+                            <FileText size={16} /> Transactions
+                          </Link>
+
+                          {user?.role === "admin" && (
+                            <Link
+                              href="/admin"
+                              onClick={() => setShowProfileMenu(false)}
+                              className="flex items-center gap-2 px-4 py-2.5 text-sm font-bold text-[#157A4F] hover:bg-green-50 transition border-t border-gray-100 mt-1"
+                            >
+                              <Shield size={16} /> Admin Dashboard
+                            </Link>
+                          )}
+                          <div className="border-t border-gray-100 mt-1">
+                            <button
+                              onClick={handleLogout}
+                              className="flex items-center gap-2 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 w-full transition"
+                            >
+                              <LogOut size={16} /> Logout
+                            </button>
+                          </div>
+                        </>
                       )}
-                      <div className="border-t border-gray-100 mt-1">
-                        <button
-                          onClick={handleLogout}
-                          className="flex items-center gap-2 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 w-full transition"
-                        >
-                          <LogOut size={16} /> Logout
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {isGolocalSurface && showProfileMenu && (
-                    <div className="absolute top-12 right-0 w-[calc(100vw-2rem)] max-w-56 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-[9999]">
-                      <div className="border-b border-gray-100 px-4 py-3">
-                        <p className="text-sm font-semibold text-gray-800">
-                          {user?.name || "Account"}
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          {user?.email || "Signed in"}
-                        </p>
-                      </div>
-                      <Link
-                        href="/profile"
-                        onClick={() => setShowProfileMenu(false)}
-                        className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition"
-                      >
-                        <User size={16} /> Profile
-                      </Link>
-                      {/* <Link
-                    href="/profile/rewards"
-                    onClick={() => setShowProfileMenu(false)}
-                    className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition"
-                  >
-                    <Trophy size={16} /> Points & Rewards
-                  </Link> */}
-                      <Link
-                        href="/profile/favorites"
-                        onClick={() => setShowProfileMenu(false)}
-                        className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition"
-                      >
-                        <Heart size={16} /> Wishlist
-                      </Link>
-                      <Link
-                        href="/profile/notifications"
-                        onClick={() => setShowProfileMenu(false)}
-                        className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition"
-                      >
-                        <Bell size={16} /> Notifications
-                      </Link>
-                      <div className="border-t border-gray-100 mt-1">
-                        <button
-                          onClick={handleLogout}
-                          className="flex items-center gap-2 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 w-full transition"
-                        >
-                          <LogOut size={16} /> Logout
-                        </button>
-                      </div>
                     </div>
                   )}
                 </div>
@@ -1408,17 +1460,14 @@ function NavbarContent({
                 className="w-9 h-9 rounded-full flex items-center justify-center shadow-md hover:scale-105 transition cursor-pointer bg-white"
                 style={{ color: "#157A4F" }}
               >
-                <div
-                  className="w-9 h-9 rounded-full flex items-center justify-center shadow-md hover:scale-105 transition cursor-pointer bg-white"
-                  style={{ color: "#157A4F" }}
-                >
-                  <User size={18} />
-                </div>
+                <User size={18} />
               </button>
             )}
           </div>
         </div>
-        <div className="-mx-4 px-4 pb-2.5 pt-1 md:hidden">
+
+        {/* MOBILE SEARCH + LOCATION ROW */}
+        <div className="-mx-4 px-4 py-2 md:hidden">
           <div className="mx-auto flex h-[46px] w-full max-w-[358px] items-center rounded-full bg-white px-4 shadow-[0_12px_30px_rgba(15,23,42,0.12)]">
             <div className="flex min-w-0 flex-1 items-center">
               <Search
@@ -1509,28 +1558,30 @@ function NavbarContent({
             </div>
           </div>
         </div>
-        <nav className="-mx-4 flex gap-2 overflow-x-auto border-t border-[#d7a02a]/40 px-4 pb-2 text-[12px] font-semibold text-white md:hidden">
-          <Link
-            href={homeNavHref}
-            className="shrink-0 rounded-full bg-white/15 px-3 py-1.5"
-          >
-            Home
-          </Link>
-          <Link
-            href={primaryNavHref}
-            onClick={requireAuth()}
-            className="shrink-0 rounded-full bg-white/15 px-3 py-1.5"
-          >
-            {primaryNavLabel}
-          </Link>
-          <Link
-            href={secondaryNavHref}
-            onClick={useGolocalHomeNav ? undefined : requireAuth()}
-            className="shrink-0 rounded-full bg-white/15 px-3 py-1.5"
-          >
-            {secondaryNavLabel}
-          </Link>
-        </nav>
+        {/* Mobile surface-switch row replaces the old text-link nav row.
+            Border removed to keep the header-to-category-bar gradient seamless. */}
+        {!isMerchantSurface && (
+          <div className="-mx-4 flex gap-2 px-4 pb-2 pt-2 text-[12px] font-semibold md:hidden">
+            <Link
+              href="/"
+              className="flex flex-1 items-center justify-center gap-1 rounded-full bg-white py-1.5 text-[#157A4F]"
+            >
+              <span
+                className="flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full text-[9px] font-extrabold leading-none text-white"
+                style={{ background: "#157A4F" }}
+              >
+                G
+              </span>{" "}
+              GOLO
+            </Link>
+            <Link
+              href="/choja"
+              className="flex flex-1 items-center justify-center gap-1 rounded-full bg-white py-1.5 text-[#1f2933]"
+            >
+              <Briefcase size={13} strokeWidth={2.4} /> CHOJA
+            </Link>
+          </div>
+        )}
       </header>
 
       {voiceModalOpen && (
