@@ -127,6 +127,18 @@ function CategoryBarContent({ variant = "choja", preferredCategories = [] }) {
   const [showAllModal, setShowAllModal] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState(null);
   const [golocalActiveCategory, setGolocalActiveCategory] = useState(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const handleResize = () => {
+        setIsMobile(window.innerWidth < 768);
+      };
+      handleResize();
+      window.addEventListener("resize", handleResize);
+      return () => window.removeEventListener("resize", handleResize);
+    }
+  }, []);
 
   const buttonRefs = useRef({});
   const wrapperRef = useRef(null);
@@ -304,15 +316,13 @@ function CategoryBarContent({ variant = "choja", preferredCategories = [] }) {
   const isCategoryActive = (catName) =>
     variant === "golocal" ? activeGolocalCategory === catName : activeCat === catName;
 
-  // ---- Sizing tokens ----
-  // All sizing (padding, gap, icon size, glyph size, label min-height) is now
-  // fully shared between choja and golocal so the two variants render
-  // pixel-identical icon circles and text. Nothing below is keyed off `variant`.
-  const shellPaddingY = "9px";
-  const iconLabelGap = "5px";
-  const iconSize = "40px";
-  const iconGlyphSize = 18;
-  const labelMinHeight = "26px";
+  const shellPaddingY = isMobile ? "4px" : "9px";
+  const iconLabelGap = isMobile ? "3px" : "5px";
+  const iconSize = isMobile ? "32px" : "40px";
+  const iconGlyphSize = isMobile ? 15 : 18;
+  const labelMinHeight = isMobile ? "20px" : "26px";
+  const pillPadding = isMobile ? "6px 8px" : "9px 14px";
+  const pillWidth = isMobile ? "80px" : "104px";
 
   return (
     <>
@@ -334,9 +344,13 @@ function CategoryBarContent({ variant = "choja", preferredCategories = [] }) {
           background: "transparent",
           position: "relative",
           zIndex: 1,
-          border: "none",
-          borderBottom: "none",
+          border: "0 solid transparent",
+          borderBottom: "0 solid transparent",
           boxShadow: "none",
+          outline: "none",
+          marginTop: -2,
+          paddingTop: 0,
+          overflow: "hidden",
         }}
       >
         <div
@@ -382,9 +396,9 @@ function CategoryBarContent({ variant = "choja", preferredCategories = [] }) {
                     background: "transparent",
                     border: "none",
                     cursor: "pointer",
-                    width: "104px",
+                    width: pillWidth,
                     flexShrink: 0,
-                    padding: "9px 14px",
+                    padding: pillPadding,
                   }}
                 >
                   <span
@@ -408,7 +422,7 @@ function CategoryBarContent({ variant = "choja", preferredCategories = [] }) {
                       overflow: "hidden",
                       textOverflow: "ellipsis",
                       wordBreak: "break-word",
-                      fontSize: "12.5px",
+                      fontSize: isMobile ? "11px" : "12.5px",
                       fontWeight: 700,
                       color: active ? "#157A4F" : "#1f2933",
                       textAlign: "center",
@@ -450,9 +464,9 @@ function CategoryBarContent({ variant = "choja", preferredCategories = [] }) {
               background: "transparent",
               border: "none",
               cursor: "pointer",
-              minWidth: "72px",
+              minWidth: isMobile ? "54px" : "72px",
               flexShrink: 0,
-              padding: "2px 6px",
+              padding: isMobile ? "2px 4px" : "2px 6px",
             }}
           >
             <span
@@ -469,7 +483,7 @@ function CategoryBarContent({ variant = "choja", preferredCategories = [] }) {
             >
               <Grid size={iconGlyphSize} />
             </span>
-            <span style={{ fontSize: "12.5px", fontWeight: 700, color: "#1f2933" }}>
+            <span style={{ fontSize: isMobile ? "11px" : "12.5px", fontWeight: 700, color: "#1f2933" }}>
               See All
             </span>
           </button>

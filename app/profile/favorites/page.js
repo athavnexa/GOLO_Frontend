@@ -83,10 +83,10 @@ export default function GolocalFavoritesPage() {
     <>
       <Navbar />
 
-      <div className="relative z-10 min-h-screen bg-transparent -mt-10 pt-4">
+      <div className="relative z-10 min-h-screen bg-transparent pt-10 md:pt-14">
         <div className="max-w-[1320px] mx-auto px-5 lg:px-8 py-8 lg:py-10">
           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6">
-            <div>
+            <div className="md:mt-8">
               <h1 className="text-[34px] leading-none font-semibold text-[#1f1f1f]">Your Favorites</h1>
               <p className="mt-2 text-[13px] text-[#6f6f6f]">
                 {loading ? "Loading..." : `${filteredAds.length} item${filteredAds.length !== 1 ? 's' : ''} saved`}

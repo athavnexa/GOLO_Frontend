@@ -101,6 +101,15 @@ function NavbarContent({
   const hasManualLocationRef = useRef(false);
   const hasCurrentLocationAccessRef = useRef(false);
   const urlLocation = searchParams.get("location") || "";
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 0);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   // Sync with external prop if it changes
   useEffect(() => {
@@ -983,7 +992,7 @@ function NavbarContent({
       <div
         aria-hidden="true"
         style={{
-          height: 170,
+          height: 220,
           position: "fixed",
           top: 0,
           left: 0,
@@ -995,11 +1004,16 @@ function NavbarContent({
         }}
       />
       <header
-        className="sticky top-0 z-[9999] pt-4 pb-0 px-4 md:pt-4 md:pb-0 md:px-8 border-0"
+        className="sticky top-0 z-[9999] py-4 px-4 md:py-4 md:px-8 border-0"
         style={{
-          background: "transparent",
+          background: scrolled
+            ? "linear-gradient(180deg, #f8a812 0%, #fad081 100%)"
+            : "transparent",
           border: "none",
-          boxShadow: "none",
+          borderBottom: "none",
+          boxShadow: scrolled ? "0 4px 6px -1px rgba(0, 0, 0, 0.05)" : "none",
+          transition: "background 0.2s ease, box-shadow 0.2s ease",
+          marginBottom: -2,
         }}
       >
         <div className="w-full h-[60px] flex items-center justify-between gap-3">
@@ -1561,13 +1575,13 @@ function NavbarContent({
         {/* Mobile surface-switch row replaces the old text-link nav row.
             Border removed to keep the header-to-category-bar gradient seamless. */}
         {!isMerchantSurface && (
-          <div className="-mx-4 flex gap-2 px-4 pb-2 pt-2 text-[12px] font-semibold md:hidden">
+          <div className="-mx-4 flex gap-2 px-4 pb-2 pt-2 text-[14px] font-extrabold md:hidden">
             <Link
               href="/"
-              className="flex flex-1 items-center justify-center gap-1 rounded-full bg-white py-1.5 text-[#157A4F]"
+              className="flex h-11 flex-1 items-center justify-center gap-1.5 rounded-full bg-white text-[#157A4F] shadow-sm transition hover:opacity-90"
             >
               <span
-                className="flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full text-[9px] font-extrabold leading-none text-white"
+                className="flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-full text-[11px] font-extrabold leading-none text-white"
                 style={{ background: "#157A4F" }}
               >
                 G
@@ -1576,9 +1590,9 @@ function NavbarContent({
             </Link>
             <Link
               href="/choja"
-              className="flex flex-1 items-center justify-center gap-1 rounded-full bg-white py-1.5 text-[#1f2933]"
+              className="flex h-11 flex-1 items-center justify-center gap-1.5 rounded-full bg-white text-[#1f2933] shadow-sm transition hover:opacity-90"
             >
-              <Briefcase size={13} strokeWidth={2.4} /> CHOJA
+              <Briefcase size={15} strokeWidth={2.4} /> CHOJA
             </Link>
           </div>
         )}

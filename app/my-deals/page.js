@@ -170,7 +170,7 @@ export default function MyDeals() {
     <>
       <Navbar />
 
-      <div className="relative z-10 min-h-screen bg-transparent -mt-10 pt-4">
+      <div className="relative z-10 min-h-screen bg-transparent pt-10 md:pt-14">
         <div className="max-w-[1320px] mx-auto px-5 lg:px-8 py-8 lg:py-10">
           <div className="flex flex-col lg:flex-row lg:items-start gap-6 lg:gap-8">
             <main className="flex-1 min-w-0">
@@ -405,25 +405,7 @@ export default function MyDeals() {
                 </Link>
               </section>
 
-              <section className="rounded-[12px] border border-[#ececec] bg-white px-4 py-4 shadow-sm">
-                <h2 className="text-[14px] font-semibold text-[#222]">
-                  Need help?
-                </h2>
-                <p className="mt-2 text-[12px] text-[#6f6f6f]">
-                  Having trouble redeeming a deal or finding your receipt?
-                </p>
-                <div className="mt-4 space-y-2">
-                  {helpLinks.map((item) => (
-                    <button
-                      key={item}
-                      className="w-full h-9 rounded-md border border-[#e6e6e6] bg-white text-[12px] text-[#3f3f3f] flex items-center gap-2 px-3 hover:border-[#cfcfcf]"
-                    >
-                      <CircleHelp size={14} className="text-[#666]" />
-                      {item}
-                    </button>
-                  ))}
-                </div>
-              </section>
+
 
               <section className="rounded-[12px] border border-[#e8e8e8] bg-white shadow-sm overflow-hidden">
                 <div className="relative h-[205px]">

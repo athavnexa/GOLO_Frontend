@@ -28,9 +28,9 @@ export default function NearbyStorePage() {
 
 function StoreLoadingSkeleton() {
   return (
-    <main className="min-h-screen bg-[#f5f5f5]">
+    <main className="relative z-10 min-h-screen bg-transparent">
       <Navbar />
-      <div className="mx-auto max-w-[1260px] px-4 lg:px-6 py-4 lg:py-6">
+      <div className="relative z-10 mx-auto max-w-[1260px] px-4 lg:px-6 pt-10 md:pt-14 pb-4 lg:pb-6">
         <div className="mb-4 h-3 w-56 animate-pulse rounded bg-[#dfe4ea]" />
         <section className="mb-8 overflow-hidden rounded-2xl bg-white shadow-sm">
           <div className="grid gap-6 p-4 lg:grid-cols-[1.5fr_1fr] lg:p-6">
@@ -332,10 +332,10 @@ function NearbyStoreContent() {
     "/images/place2.avif";
 
   return (
-    <main className="min-h-screen bg-[#f3f3f3]">
+    <main className="relative z-10 min-h-screen bg-transparent">
       <Navbar />
 
-      <div className="mx-auto max-w-[1260px] px-4 lg:px-6 pb-14 pt-5">
+      <div className="relative z-10 mx-auto max-w-[1260px] px-4 lg:px-6 pb-14 pt-10 md:pt-14">
         {/* Store Header */}
         <h1 className="mt-3 text-3xl lg:text-5xl font-bold leading-tight lg:leading-none text-[#1f2329]">
           {merchant?.name || "Store"}

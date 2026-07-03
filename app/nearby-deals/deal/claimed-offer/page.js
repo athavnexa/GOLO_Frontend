@@ -53,9 +53,9 @@ function pickLiveImageFromProducts(products = []) {
 }
 
 function formatExpiryLabel(voucher) {
-  const validityHours = Number(voucher?.validityHours || 6);
+  const validityHours = 6;
   const claimedAt = voucher?.claimedAt ? new Date(voucher.claimedAt).getTime() : Date.now();
-  const expiresAt = voucher?.expiresAt ? new Date(voucher.expiresAt).getTime() : claimedAt + validityHours * 60 * 60 * 1000;
+  const expiresAt = claimedAt + validityHours * 60 * 60 * 1000;
   const local = new Date(expiresAt);
   if (Number.isNaN(local.getTime())) return "Today, 8:45 PM";
 
@@ -130,6 +130,13 @@ function ClaimedOfferContent() {
   const [reviewMessage, setReviewMessage] = useState("");
   const [merchantProfile, setMerchantProfile] = useState(null);
   const [offerDetails, setOfferDetails] = useState(null);
+  const [expiryLabel, setExpiryLabel] = useState("");
+
+  useEffect(() => {
+    if (selectedVoucher) {
+      setExpiryLabel(formatExpiryLabel(selectedVoucher));
+    }
+  }, [selectedVoucher]);
 
   const voucherId = searchParams.get("voucherId");
 
@@ -559,7 +566,7 @@ function ClaimedOfferContent() {
     <main className="min-h-screen bg-[#f3f3f3]">
       <Navbar />
 
-      <div className="mx-auto max-w-[1260px] px-6 pt-5">
+      <div className="mx-auto max-w-[1260px] px-6 pt-24 relative z-20">
         <p className="text-[11px] text-[#7a7a7a]">Deals <span className="mx-1">›</span> <span className="font-medium">Claimed Offer</span></p>
         <h1 className="mt-3 text-[44px] font-bold leading-none text-[#1e2228] tracking-[-0.02em]">{resolvedOfferTitle}</h1>
 
@@ -600,8 +607,8 @@ function ClaimedOfferContent() {
               <p className="mt-1 text-[16px] font-medium text-[#1e2228]">Scan this QR at the store to redeem the offer</p>
 
               <div className="mx-auto mt-4 w-fit min-w-[290px] rounded-[10px] bg-[#f0f2f5] px-4 py-3 border border-[#e2e6eb]">
-                <p className="text-[11px] text-[#7a828d]">This QR is valid for {selectedVoucher?.validityHours || 6} hours from claim time</p>
-                <p className="mt-1 text-[13px] font-bold text-[#1e232b]">Expires: {formatExpiryLabel(selectedVoucher)}</p>
+                <p className="text-[11px] text-[#7a828d]">This QR is valid for 6 hours from claim time</p>
+                <p className="mt-1 text-[13px] font-bold text-[#1e232b]">Expires: {expiryLabel || "Loading..."}</p>
               </div>
 
               {/* MANUAL VERIFICATION CODE */}

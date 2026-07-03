@@ -61,9 +61,9 @@ export default function ProductDetailPage() {
 
 function ProductDetailSkeleton() {
   return (
-    <main className="min-h-screen bg-[#f5f5f5]">
+    <main className="relative z-10 min-h-screen bg-transparent">
       <Navbar />
-      <div className="mx-auto max-w-[1260px] px-4 lg:px-6 py-4 lg:py-6">
+      <div className="relative z-10 mx-auto max-w-[1260px] px-4 lg:px-6 pt-10 md:pt-14 pb-4 lg:pb-6">
         <div className="mb-4 h-5 w-36 animate-pulse rounded bg-[#dfe4ea]" />
         <div className="mb-4 h-3 w-64 animate-pulse rounded bg-[#e8edf2]" />
         <section className="mb-8 overflow-hidden rounded-2xl bg-white shadow-sm">
@@ -570,7 +570,7 @@ function ProductDetailContent() {
   }
 
   return (
-    <main className="min-h-screen bg-[#f5f5f5]">
+    <main className="relative z-10 min-h-screen bg-transparent">
       <Navbar />
       {offerPopup && (
         <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/35 px-4">
@@ -591,7 +591,7 @@ function ProductDetailContent() {
         </div>
       )}
 
-      <div className="mx-auto max-w-[1260px] px-4 lg:px-6 py-4 lg:py-6">
+      <div className="relative z-10 mx-auto max-w-[1260px] px-4 lg:px-6 pt-10 md:pt-14 pb-4 lg:pb-6">
         <button onClick={handleBack} className="flex items-center gap-2 text-sm text-[#666] hover:text-[#333] mb-4 transition">
           <ArrowLeft size={16} />
           Back to Previous Page

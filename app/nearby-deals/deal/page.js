@@ -140,9 +140,9 @@ function computeStartingPrice(products = [], fallback = 0) {
 
 function OfferDetailSkeleton() {
   return (
-    <main className="min-h-screen bg-[#f5f5f5]">
+    <main className="relative z-10 min-h-screen bg-transparent">
       <Navbar />
-      <div className="mx-auto max-w-[1260px] px-4 lg:px-6 py-4 lg:py-6">
+      <div className="relative z-10 mx-auto max-w-[1260px] px-4 lg:px-6 pt-10 md:pt-14 pb-4 lg:pb-6">
         <div className="mb-4 h-3 w-56 animate-pulse rounded bg-[#dfe4ea]" />
         <section className="mb-8 overflow-hidden rounded-2xl bg-white shadow-sm">
           <div className="grid gap-6 p-4 lg:grid-cols-[1.5fr_1fr] lg:p-6">
@@ -656,10 +656,10 @@ function NearbyDealDetailsContent() {
   }
 
   return (
-    <main className="min-h-screen bg-[#f5f5f5]">
+    <main className="relative z-10 min-h-screen bg-transparent">
       <Navbar />
 
-      <div className="mx-auto max-w-[1260px] px-4 lg:px-6 py-4 lg:py-6">
+      <div className="relative z-10 mx-auto max-w-[1260px] px-4 lg:px-6 pt-10 md:pt-14 pb-4 lg:pb-6">
         {/* Hero Section */}
         <section className="bg-white rounded-2xl overflow-hidden shadow-sm mb-8">
           <div className="grid lg:grid-cols-[1.5fr_1fr] gap-6 p-4 lg:p-6">

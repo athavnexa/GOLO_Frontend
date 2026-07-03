@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -92,12 +92,15 @@ export default function TransactionHistory() {
     <>
       <Navbar />
 
-      <div className="relative z-10 min-h-screen bg-transparent px-3 pt-20 pb-10 sm:px-6 sm:pt-24 sm:pb-16">
-        <div className="flex w-full max-w-6xl mx-auto lg:flex-row">
-          <div className="hidden lg:block">
-            <ProfileSidebar />
-          </div>
-          <div className="min-w-0 flex-1 bg-white rounded-xl shadow-lg p-3 lg:p-8 lg:ml-8">
+      <div className="relative z-10 min-h-screen bg-transparent px-3 pt-20 pb-5 sm:px-6 sm:pt-24 sm:pb-14">
+        <div className="mx-auto grid max-w-7xl gap-5 lg:grid-cols-4 lg:gap-10">
+          
+          {/* SIDEBAR */}
+          <ProfileSidebar />
+
+          {/* CONTENT */}
+          <div className="lg:col-span-3">
+            <div className="min-h-[420px] rounded-2xl bg-white p-4 shadow-sm sm:min-h-[500px] sm:rounded-3xl sm:p-10">
             <div className="flex flex-col items-stretch justify-between mb-6 gap-3 sm:flex-row sm:items-center">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#e0a12d] lg:hidden">Choja Payments</p>
@@ -207,8 +210,9 @@ export default function TransactionHistory() {
               </tbody>
             </table>
           </div>
+            </div>
+          </div>
         </div>
-      </div>
       </div>
       <Footer />
     </>

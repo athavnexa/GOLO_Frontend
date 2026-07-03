@@ -80,7 +80,13 @@ export default function MerchantNavbar({ activeKey = "dashboard" }) {
   };
 
   return (
-    <header className="sticky top-0 z-[9999] min-h-16 bg-[#efb02e] border-b border-[#d7a02a] px-4 py-2 lg:h-16 lg:px-10 lg:py-0 flex items-center justify-between gap-3 shadow-sm overflow-visible">
+    <header
+      className="sticky top-0 z-[9999] min-h-16 border-b border-[#d7a02a] px-4 py-2 lg:h-16 lg:px-10 lg:py-0 flex items-center justify-between gap-3 overflow-visible"
+      style={{
+        background: "linear-gradient(180deg, #efb02e 0%, #f3c76d 100%)",
+        boxShadow: "0 8px 24px rgba(15, 23, 42, 0.08)",
+      }}
+    >
       <div className="flex min-w-0 items-center gap-2 lg:min-w-[180px] lg:gap-3">
         <button type="button" onClick={() => router.push("/merchant/dashboard")} className="flex items-center gap-3 cursor-pointer">
           <div className="w-9 h-9 bg-white rounded-xl flex items-center justify-center shadow font-bold" style={{ color: "#157a4f" }}>

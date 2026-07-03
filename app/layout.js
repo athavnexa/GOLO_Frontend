@@ -11,10 +11,10 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="relative isolate">
+      <body className="relative isolate bg-[#f3f3f3]">
         <AuthProvider>
           <VoucherProvider>
-            <main className="relative z-10">{children}</main>
+            <main className="relative z-10 min-h-screen bg-[#f3f3f3]">{children}</main>
           </VoucherProvider>
         </AuthProvider>
       </body>

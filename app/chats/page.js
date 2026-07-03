@@ -1465,7 +1465,7 @@ function ChatsPageContent() {
       <Navbar />
 
       {/* CHAT SECTION */}
-      <div className="flex flex-1 min-h-0 overflow-hidden">
+      <div className="relative z-10 flex flex-1 min-h-0 overflow-hidden">
 
         {/* SIDEBAR */}
         <aside className={`${selectedConversationId ? "hidden md:flex" : "flex"} w-full bg-white border-r border-gray-200 flex-col h-full min-h-0 overflow-hidden md:w-[360px]`}>
