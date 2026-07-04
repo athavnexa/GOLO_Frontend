@@ -31,6 +31,112 @@ const latestReviews = [
   },
 ];
 
+const PlanBanner = ({ plan }) => {
+  if (!plan) return null;
+
+  if (plan.planType === "TRIAL") {
+    // Determine progress if possible, else 100%
+    return (
+      <div className="rounded-[12px] border border-[#a2d9b5] bg-[#eef8f1] p-5 mb-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="h-3 w-3 rounded-full bg-[#157a4f]"></span>
+              <h3 className="text-[18px] font-bold text-[#157a4f]">Free Trial</h3>
+            </div>
+            <p className="text-[14px] text-[#2c5840] font-medium">✓ Unlimited access during trial</p>
+          </div>
+          <div className="text-left sm:text-right">
+            <p className="text-[20px] font-bold text-[#157a4f]">{plan.trialRemainingDays} days remaining</p>
+            {plan.expiresAt && <p className="text-[12px] text-[#3d7054] mt-1">Ends on: {new Date(plan.expiresAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</p>}
+          </div>
+        </div>
+        <div className="mt-4 h-1.5 w-full bg-[#c2ebd1] rounded-full overflow-hidden">
+          <div className="h-full bg-[#157a4f] rounded-full" style={{ width: '100%' }}></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (plan.planType === "FREE") {
+    const productsUsage = plan.usage?.products || 0;
+    const maxProducts = plan.planFeatures?.maxProducts || 10;
+    const productsPercent = Math.min(100, (productsUsage / maxProducts) * 100);
+
+    const offersUsage = plan.usage?.monthlyOffers || 0;
+    const maxOffers = plan.planFeatures?.maxMonthlyOffers || 2;
+    const offersPercent = Math.min(100, (offersUsage / maxOffers) * 100);
+
+    return (
+      <div className="rounded-[12px] border border-[#b2cce6] bg-[#f0f6fc] p-5 mb-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 border-b border-[#d0e0ef] pb-4">
+          <div className="flex items-center gap-2">
+            <span className="h-3 w-3 rounded-full bg-[#206bc4]"></span>
+            <h3 className="text-[18px] font-bold text-[#206bc4]">Free Tier</h3>
+          </div>
+          <button className="px-4 py-2 rounded-lg bg-[#206bc4] text-white text-[13px] font-bold shadow-sm hover:bg-[#1b5cb0]" onClick={() => alert("Premium plans coming soon.")}>
+            Upgrade Plan
+          </button>
+        </div>
+
+        <div>
+          <h4 className="text-[13px] font-semibold text-[#456b92] uppercase tracking-wide mb-3">Current Limits</h4>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <div>
+              <div className="flex justify-between text-[13px] mb-1">
+                <span className="font-semibold text-[#1f3f62]">Products</span>
+                <span className="text-[#3b638a] font-medium">{productsUsage} / {maxProducts}</span>
+              </div>
+              <div className="h-1.5 w-full bg-[#d0e0ef] rounded-full overflow-hidden">
+                <div className="h-full bg-[#206bc4] rounded-full" style={{ width: `${productsPercent}%` }}></div>
+              </div>
+            </div>
+            
+            <div>
+              <div className="flex justify-between text-[13px] mb-1">
+                <span className="font-semibold text-[#1f3f62]">Monthly Offers</span>
+                <span className="text-[#3b638a] font-medium">{offersUsage} / {maxOffers}</span>
+              </div>
+              <div className="h-1.5 w-full bg-[#d0e0ef] rounded-full overflow-hidden">
+                <div className="h-full bg-[#206bc4] rounded-full" style={{ width: `${offersPercent}%` }}></div>
+              </div>
+            </div>
+
+            <div>
+              <div className="flex justify-between text-[13px] mb-1">
+                <span className="font-semibold text-[#1f3f62]">Offer Duration</span>
+                <span className="text-[#3b638a] font-medium">{plan.planFeatures?.maxOfferDurationDays} Days Max</span>
+              </div>
+              <div className="h-1.5 w-full bg-[#d0e0ef] rounded-full overflow-hidden">
+                <div className="h-full bg-[#206bc4] rounded-full" style={{ width: '100%' }}></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (plan.planType === "PREMIUM") {
+    return (
+      <div className="rounded-[12px] border border-[#f3d994] bg-[#fffcf3] p-5 mb-5 flex flex-col sm:flex-row items-start sm:items-center justify-between">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="h-3 w-3 rounded-full bg-[#d18c00]"></span>
+            <h3 className="text-[18px] font-bold text-[#d18c00]">Premium</h3>
+          </div>
+          <p className="text-[14px] text-[#8f6409] font-medium">✓ Unlimited Products • ✓ Unlimited Offers</p>
+        </div>
+        <div className="mt-2 sm:mt-0">
+          <p className="text-[14px] font-bold text-[#b07804]">Thank you for being a Premium Merchant.</p>
+        </div>
+      </div>
+    );
+  }
+
+  return null;
+};
+
 export default function MerchantDashboardPage() {
   const router = useRouter();
   const { user, loading, logout, getUserAccountType } = useAuth();
@@ -158,6 +264,8 @@ export default function MerchantDashboardPage() {
               </div>
             </div>
           </section>
+
+          <PlanBanner plan={merchantProfile?.plan} />
 
           <section className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_300px] gap-5">
             <div className="rounded-[12px] border border-[#d8d8d8] bg-white p-4 lg:p-5">

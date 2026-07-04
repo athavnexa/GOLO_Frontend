@@ -363,6 +363,11 @@ export default function CreateMerchantOfferPage() {
       return false;
     }
 
+    if (!formData.category) {
+      setError("Promotion Type is required.");
+      return false;
+    }
+
     if (!formData.startDate) {
       setError("Start date is required.");
       return false;
