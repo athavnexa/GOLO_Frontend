@@ -18,6 +18,7 @@ import {
   Briefcase,
   LayoutGrid,
   MessageSquare,
+  MoreVertical
 } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
@@ -1464,18 +1465,60 @@ function NavbarContent({
                 </div>
               </div>
             ) : (
-              <button
-                type="button"
-                onClick={() =>
-                  router.push(
-                    `/login?redirect=${encodeURIComponent(pathname || "/")}`,
-                  )
-                }
-                className="w-9 h-9 rounded-full flex items-center justify-center shadow-md hover:scale-105 transition cursor-pointer bg-white"
-                style={{ color: "#157A4F" }}
-              >
-                <User size={18} />
-              </button>
+              <>
+                {/* Desktop Buttons */}
+                <div className="hidden md:flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => router.push("/merchant")}
+                    className="flex h-9 px-5 rounded-full items-center justify-center bg-orange-500 text-white font-bold text-sm shadow-sm hover:bg-orange-600 hover:-translate-y-0.5 transition-transform whitespace-nowrap"
+                  >
+                    Become a Merchant
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      router.push(
+                        `/login?redirect=${encodeURIComponent(pathname || "/")}`,
+                      )
+                    }
+                    className="h-9 px-6 rounded-full flex items-center justify-center border-2 border-orange-500 text-orange-500 font-bold text-sm bg-white hover:bg-orange-50 transition-colors whitespace-nowrap"
+                  >
+                    Sign In
+                  </button>
+                </div>
+                {/* Mobile Menu */}
+                <div className="md:hidden relative" ref={profileRef}>
+                  <button
+                    onClick={() => setShowProfileMenu((prev) => !prev)}
+                    className="w-10 h-10 rounded-full flex items-center justify-center bg-gray-50 shadow-sm hover:bg-gray-100 transition-colors"
+                  >
+                    <MoreVertical size={20} className="text-gray-600" />
+                  </button>
+                  {showProfileMenu && (
+                    <div className="absolute right-0 top-12 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-3 z-50 flex flex-col gap-2 px-3">
+                      <button
+                        onClick={() => {
+                          setShowProfileMenu(false);
+                          router.push("/merchant");
+                        }}
+                        className="w-full h-10 rounded-full bg-orange-500 text-white font-bold text-sm shadow-sm hover:bg-orange-600 transition-colors"
+                      >
+                        Become a Merchant
+                      </button>
+                      <button
+                        onClick={() => {
+                          setShowProfileMenu(false);
+                          router.push(`/login?redirect=${encodeURIComponent(pathname || "/")}`);
+                        }}
+                        className="w-full h-10 rounded-full border-2 border-orange-500 text-orange-500 font-bold text-sm bg-white hover:bg-orange-50 transition-colors"
+                      >
+                        Sign In
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </>
             )}
           </div>
         </div>

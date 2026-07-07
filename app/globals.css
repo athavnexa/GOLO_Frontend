@@ -1053,14 +1053,14 @@ body {
   position: relative;
   z-index: 5;
   background: white;
-  padding: 50px;
-  border-radius: 30px;
-  width: 520px;
+  padding: 30px;
+  border-radius: 20px;
+  width: 500px;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
 }
 
-.login-card h2 { font-size: 28px; font-weight: 700; margin-bottom: 8px; color: #111827; }
-.subtitle { color: #6B7280; font-size: 15px; margin-bottom: 30px; }
+.login-card h2 { font-size: 24px; font-weight: 700; margin-bottom: 6px; color: #111827; }
+.subtitle { color: #6B7280; font-size: 14px; margin-bottom: 20px; }
 
 .social-buttons { display: flex; gap: 12px; }
 .social-btn {
@@ -1068,9 +1068,9 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  padding: 12px;
-  border-radius: 12px;
+  gap: 8px;
+  padding: 10px;
+  border-radius: 10px;
   color: white;
   font-weight: 600;
   border: none;
@@ -1081,7 +1081,7 @@ body {
 .apple { background: #1A1A1A; }
 
 .divider {
-  margin: 30px 0;
+  margin: 20px 0;
   border-top: 1px solid #E5E7EB;
   position: relative;
   text-align: center;
@@ -1092,26 +1092,26 @@ body {
   left: 50%;
   transform: translateX(-50%);
   background: white;
-  padding: 0 15px;
+  padding: 0 12px;
   color: #94A3B8;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .input-group label {
   display: block;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   color: #4B5563;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
-.input-wrapper { position: relative; margin-bottom: 20px; }
+.input-wrapper { position: relative; margin-bottom: 15px; }
 .input-wrapper input,
 .input-wrapper select {
   width: 100%;
-  padding: 14px 45px;
+  padding: 12px 40px;
   background: #F3F4F6;
   border: none;
-  border-radius: 14px;
+  border-radius: 12px;
 }
 .input-wrapper select {
   appearance: none;
@@ -1122,20 +1122,20 @@ body {
   cursor: not-allowed;
   color: #9CA3AF;
 }
-.input-icon { position: absolute; left: 15px; top: 14px; color: #9CA3AF; }
-.input-icon-right { position: absolute; right: 15px; top: 14px; color: #9CA3AF; cursor: pointer; }
+.input-icon { position: absolute; left: 15px; top: 12px; color: #9CA3AF; }
+.input-icon-right { position: absolute; right: 15px; top: 12px; color: #9CA3AF; cursor: pointer; }
 
-.forgot-link { text-align: right; font-size: 13px; color: #111827; margin-bottom: 20px; cursor: pointer; }
+.forgot-link { text-align: right; font-size: 12px; color: #111827; margin-bottom: 15px; cursor: pointer; }
 
-.terms-checkbox { display: flex; gap: 10px; font-size: 13px; color: #4B5563; margin-bottom: 30px; align-items: center; }
+.terms-checkbox { display: flex; gap: 8px; font-size: 12px; color: #4B5563; margin-bottom: 20px; align-items: center; }
 .terms-checkbox .link { color: #F59E0B; font-weight: 600; }
 
 .continue-btn {
   width: 100%;
   background: #FFFBEB;
   color: #F59E0B;
-  padding: 16px;
-  border-radius: 14px;
+  padding: 12px;
+  border-radius: 12px;
   font-weight: 700;
   border: none;
   cursor: pointer;
@@ -1143,7 +1143,7 @@ body {
 }
 .continue-btn:hover { background: #FEF3C7; }
 
-.register-footer { text-align: center; margin-top: 25px; font-size: 14px; color: #111827; }
+.register-footer { text-align: center; margin-top: 15px; font-size: 13px; color: #111827; }
 .register-footer span { font-weight: 800; cursor: pointer; }
 
 /* --- DECORATIONS --- */

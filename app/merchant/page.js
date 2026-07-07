@@ -5,44 +5,24 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import { 
-  BarChart3, Globe, QrCode, Sparkles, Users, Ticket, 
-  Bell, Box, MessageSquare, Check, ArrowRight, Star, 
-  MapPin, Store, ChevronRight, Mail, Phone, ExternalLink 
+  BarChart3, Globe, QrCode, Sparkles, Star, 
+  Smartphone, ChevronRight, Check, MapPin, 
+  ChevronDown, Box, Ticket, UserCheck, MoreVertical,
+  X, Mail, CheckCircle, Loader2
 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
-function ScrollReveal({ children, className = "" }) {
-  const ref = useRef(null);
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          observer.unobserve(entry.target);
-        }
-      },
-      { threshold: 0.08 }
-    );
-
-    if (ref.current) {
-      observer.observe(ref.current);
-    }
-
-    return () => {
-      if (ref.current) observer.disconnect();
-    };
-  }, []);
-
+function FadeInScroll({ children, delay = 0, className = "" }) {
   return (
-    <div
-      ref={ref}
-      className={`transition-all duration-1000 ease-out transform ${
-        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-      } ${className}`}
+    <motion.div
+      initial={{ opacity: 0, y: 40 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: false, margin: "-50px" }}
+      transition={{ duration: 0.7, delay, ease: "easeOut" }}
+      className={className}
     >
       {children}
-    </div>
+    </motion.div>
   );
 }
 
@@ -50,94 +30,70 @@ export default function MerchantLandingPage() {
   const router = useRouter();
   const [emailInput, setEmailInput] = useState("");
   const [subscribed, setSubscribed] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
 
-  const stats = [
-    { value: "5,000+", label: "Active Merchants", desc: "Local shops trust GOLO" },
-    { value: "1.2M+", label: "Monthly Users", desc: "Active local shoppers" },
-    { value: "25+", label: "Store Categories", desc: "Diverse listing options" },
-    { value: "4.9/5", label: "Merchant Rating", desc: "Highly rated platform" }
-  ];
+  // --- Invite Popup State ---
+  const [showInviteModal, setShowInviteModal] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteLoading, setInviteLoading] = useState(false);
+  const [inviteError, setInviteError] = useState("");
+  const [inviteSuccess, setInviteSuccess] = useState(false);
+  const modalRef = useRef(null);
 
-  const features = [
-    {
-      icon: BarChart3,
-      title: "Advanced business analytics",
-      desc: "Get real-time insights on your sales performance, visitor counts, and category benchmarks to optimize operations.",
-      tags: ["Revenue & Sales", "Sales by category", "Visitor insights"]
-    },
-    {
-      icon: Globe,
-      title: "Mini business website",
-      desc: "Instantly create a professional, mobile-friendly online storefront to showcase products, services, and locations.",
-      tags: ["Online Store", "Mobile Optimized", "Custom Link"]
-    },
-    {
-      icon: QrCode,
-      title: "QR code redemption",
-      desc: "Redeem user offers instantly at your store counter with a simple QR code scan for a frictionless check-out flow.",
-      tags: ["Instant Scan", "Secure verification", "Paperless"]
-    },
-    {
-      icon: Sparkles,
-      title: "Smart Promotion Engine",
-      desc: "Create limited-time deals, flash sales, or flat discounts that automatically push to nearby shoppers on GOLO.",
-      tags: ["Targeted ads", "Smart scheduler", "High ROI"]
-    },
-    {
-      icon: Users,
-      title: "Customer CRM",
-      desc: "Track local customer preferences, transaction history, and ratings to keep your buyers returning.",
-      tags: ["User Insights", "Loyalty metrics", "Feedback manager"]
-    },
-    {
-      icon: Ticket,
-      title: "Offers and Deals Management",
-      desc: "Easily publish, edit, pause, or extend your vouchers and campaigns dynamically from your dashboard.",
-      tags: ["Flexible control", "Stock limits", "Expiry tracking"]
-    },
-    {
-      icon: Bell,
-      title: "Instant Notifications",
-      desc: "Alert nearby buyers automatically when you post a new deal or update stock levels at your location.",
-      tags: ["Push notifications", "Real-time updates", "Geo-targeted"]
-    },
-    {
-      icon: Box,
-      title: "Inventory Manager",
-      desc: "Monitor claimed offer volumes and stock thresholds in real-time to avoid over-redeeming vouchers.",
-      tags: ["Stock tracking", "Usage alert", "Auto-pause"]
-    },
-    {
-      icon: MessageSquare,
-      title: "Direct Chat Support",
-      desc: "Chat directly with local buyers inquiring about your deals, storefront timings, or custom services.",
-      tags: ["Live chat", "Lead generation", "Direct response"]
+  // Close modal on Escape
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === "Escape") closeInviteModal(); };
+    if (showInviteModal) document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [showInviteModal]);
+
+  // Prevent body scroll when modal open
+  useEffect(() => {
+    document.body.style.overflow = showInviteModal ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [showInviteModal]);
+
+  const openInviteModal = () => {
+    setInviteEmail("");
+    setInviteError("");
+    setInviteSuccess(false);
+    setShowInviteModal(true);
+    setShowMenu(false);
+  };
+
+  const closeInviteModal = () => {
+    if (inviteLoading) return;
+    setShowInviteModal(false);
+    setInviteSuccess(false);
+    setInviteError("");
+    setInviteEmail("");
+  };
+
+  const handleInviteSubmit = async (e) => {
+    e.preventDefault();
+    const email = inviteEmail.trim().toLowerCase();
+    if (!email) { setInviteError("Please enter your email address."); return; }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) { setInviteError("Please enter a valid email address."); return; }
+
+    setInviteLoading(true);
+    setInviteError("");
+    try {
+      const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
+      const res = await fetch(`${apiBase}/merchant/send-registration-invite`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data?.message || "Failed to send email.");
+      setInviteSuccess(true);
+    } catch (err) {
+      setInviteError(err.message || "Something went wrong. Please try again.");
+    } finally {
+      setInviteLoading(false);
     }
-  ];
-
-  const testimonials = [
-    {
-      stars: 5,
-      quote: "GOLO helped me double my spice shop sales in just 30 days! Setting up my store profile took less than 5 minutes, and local customers started arriving with QR codes the next morning.",
-      author: "Sachin Patil",
-      role: "Owner, Patil Spices, Kolhapur",
-      avatar: "SP"
-    },
-    {
-      stars: 5,
-      quote: "The analytics tools are fantastic. I can see exactly how many people viewed my dry fruit offers and which discounts converted the most visitors. GOLO is a must-have for local shops.",
-      author: "Abhishek Chougule",
-      role: "Founder, Sangli Dry Fruits",
-      avatar: "AC"
-    },
-    {
-      stars: 5,
-      quote: "We love the QR code checkout flow. It makes redeeming discount vouchers super simple for my staff and secure for customers. Highly recommend GOLO for local growth.",
-      author: "Pooja Sharma",
-      role: "Manager, Royal Bakery, Kolhapur",
-      avatar: "PS"
-    }
-  ];
+  };
 
   const handleSubscribe = (e) => {
     e.preventDefault();
@@ -150,467 +106,842 @@ export default function MerchantLandingPage() {
 
   return (
     <div className="min-h-screen bg-white text-[#1e2228] font-sans antialiased">
+
+      {/* ===== MERCHANT INVITE POPUP MODAL ===== */}
+      <AnimatePresence>
+        {showInviteModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-[99999] flex items-center justify-center p-4"
+            style={{ background: "rgba(0,0,0,0.55)", backdropFilter: "blur(4px)" }}
+            onClick={(e) => { if (e.target === e.currentTarget) closeInviteModal(); }}
+          >
+            <motion.div
+              ref={modalRef}
+              initial={{ opacity: 0, scale: 0.92, y: 24 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.92, y: 24 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+              className="relative w-full max-w-[440px] bg-white rounded-[24px] shadow-2xl overflow-hidden"
+            >
+              {/* Close button */}
+              <button
+                onClick={closeInviteModal}
+                className="absolute top-4 right-4 z-10 w-9 h-9 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-colors cursor-pointer"
+                aria-label="Close"
+              >
+                <X size={18} className="text-gray-600" />
+              </button>
+
+              {/* Green top bar */}
+              <div className="bg-gradient-to-r from-[#157a4f] to-[#1aaa6b] px-8 pt-8 pb-7 text-center">
+                <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-[#f3b12a] shadow-lg mb-4">
+                  <span className="text-white text-2xl font-black">G</span>
+                </div>
+                <h2 className="text-white text-xl font-extrabold leading-tight mb-1">
+                  Join GOLO as a Merchant
+                </h2>
+                <p className="text-green-100 text-[13px]">
+                  Get your registration link instantly — it's free!
+                </p>
+              </div>
+
+              {/* Body */}
+              <div className="px-8 py-8">
+                {inviteSuccess ? (
+                  /* Success State */
+                  <div className="text-center py-4">
+                    <div className="w-16 h-16 mx-auto bg-[#e8f5ed] rounded-full flex items-center justify-center mb-5">
+                      <CheckCircle size={32} className="text-[#157a4f]" />
+                    </div>
+                    <h3 className="text-[#111827] font-extrabold text-lg mb-2">
+                      Check Your Inbox!
+                    </h3>
+                    <p className="text-gray-500 text-[13px] leading-relaxed mb-6">
+                      We've sent a welcome email to <strong className="text-[#157a4f]">{inviteEmail}</strong> with your registration link. Please check your inbox (and spam folder).
+                    </p>
+                    <div className="bg-[#f0faf5] border border-[#c3e6d4] rounded-xl px-4 py-3 text-[12px] text-[#0f5c3d] font-semibold mb-6">
+                      📧 Don't see it? Check your spam / promotions folder.
+                    </div>
+                    <button
+                      onClick={closeInviteModal}
+                      className="w-full bg-[#157a4f] hover:bg-[#0f5c3d] text-white font-bold py-3 rounded-xl transition-colors text-[14px] cursor-pointer"
+                    >
+                      Done
+                    </button>
+                  </div>
+                ) : (
+                  /* Email Form */
+                  <form onSubmit={handleInviteSubmit}>
+                    <p className="text-gray-600 text-[13px] leading-relaxed mb-6 text-center">
+                      Enter your business email and we'll send you a welcome email with your merchant registration link.
+                    </p>
+
+                    {inviteError && (
+                      <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-red-600 text-[12px] font-semibold mb-4 text-center">
+                        {inviteError}
+                      </div>
+                    )}
+
+                    <div className="mb-5">
+                      <label className="block text-[12px] font-bold text-gray-700 mb-2">Business Email</label>
+                      <div className="relative">
+                        <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                        <input
+                          type="email"
+                          autoFocus
+                          placeholder="yourstore@example.com"
+                          className="w-full pl-10 pr-4 py-3 bg-[#FAFAFA] border border-gray-200 rounded-xl text-[13px] focus:outline-none focus:border-[#157a4f] focus:ring-2 focus:ring-[#157a4f]/20 transition-all text-gray-800"
+                          value={inviteEmail}
+                          onChange={(e) => { setInviteEmail(e.target.value); setInviteError(""); }}
+                          disabled={inviteLoading}
+                        />
+                      </div>
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={inviteLoading}
+                      className="w-full bg-[#f3b12a] hover:bg-[#e0a022] disabled:opacity-60 text-white font-bold py-3 rounded-xl transition-all text-[14px] shadow-md hover:shadow-lg hover:-translate-y-0.5 flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      {inviteLoading ? (
+                        <><Loader2 size={16} className="animate-spin" /> Sending...</>
+                      ) : (
+                        "Send Registration Link"
+                      )}
+                    </button>
+
+                    <p className="text-center text-[11px] text-gray-400 mt-3">
+                      Already registered?{" "}
+                      <button type="button" onClick={() => { closeInviteModal(); router.push("/merchant-login"); }} className="text-[#f3b12a] font-bold hover:underline bg-transparent border-none cursor-pointer p-0">
+                        Sign In
+                      </button>
+                    </p>
+                  </form>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       
       {/* NAVBAR */}
-      <header className="sticky top-0 z-[9999] bg-white/95 backdrop-blur-md border-b border-gray-100 px-6 py-4 flex items-center justify-between transition-shadow duration-300 hover:shadow-sm">
+      <header className="sticky top-0 z-[9999] bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-3">
           <Link href="/merchant" className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#157a4f] text-[20px] font-bold text-white shadow-sm">
-              G
+            <div className="flex h-10 px-5 items-center justify-center rounded-xl bg-[#f3b12a] text-white font-extrabold text-lg shadow-sm">
+              GOLO
             </div>
-            <span className="text-xl font-extrabold tracking-wide text-[#157a4f] flex items-center gap-1.5">
-              GOLO <span className="text-[#f3b12a]">Merchant</span>
-            </span>
           </Link>
         </div>
 
-        <div className="flex items-center gap-6">
-          <Link href="/login" className="text-sm font-semibold text-[#666] hover:text-[#157a4f] transition-colors">
-            Login
-          </Link>
-          <Link href="/register">
-            <button className="h-10 px-5 rounded-full bg-[#f3b12a] hover:bg-[#e0a022] text-[#1e2228] font-bold text-sm shadow-sm transition-all duration-200 hover:-translate-y-0.5">
-              Register
+        <div className="flex items-center gap-4 sm:gap-6">
+          {/* Desktop */}
+          <div className="hidden md:flex items-center gap-6">
+            <Link href="/merchant-login" className="text-sm font-bold text-[#f3b12a] hover:text-[#e0a022] transition-colors">
+              Sign In
+            </Link>
+            <button
+              onClick={openInviteModal}
+              className="h-10 px-6 rounded-full bg-[#157a4f] hover:bg-[#0f5c3d] text-white font-bold text-sm shadow-sm transition-all duration-200 cursor-pointer"
+            >
+              Become a Merchant
             </button>
-          </Link>
+          </div>
+          
+          {/* Mobile Menu */}
+          <div className="md:hidden relative">
+            <button
+              onClick={() => setShowMenu((prev) => !prev)}
+              className="w-10 h-10 rounded-full flex items-center justify-center bg-gray-50 shadow-sm hover:bg-gray-100 transition-colors"
+            >
+              <MoreVertical size={20} className="text-gray-600" />
+            </button>
+            {showMenu && (
+              <div className="absolute right-0 top-12 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-3 z-50 flex flex-col gap-2 px-3">
+                <button
+                  onClick={openInviteModal}
+                  className="w-full h-10 rounded-full bg-[#157a4f] text-white font-bold text-sm shadow-sm hover:bg-[#0f5c3d] transition-colors cursor-pointer"
+                >
+                  Become a Merchant
+                </button>
+                <Link href="/merchant-login" onClick={() => setShowMenu(false)}>
+                  <button className="w-full h-10 rounded-full border-2 border-[#f3b12a] text-[#f3b12a] font-bold text-sm bg-white hover:bg-[#fff4de] transition-colors">
+                    Sign In
+                  </button>
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
       </header>
 
       {/* HERO SECTION */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-[#fdfcf9] to-white px-6 py-16 lg:py-28 lg:px-20 max-w-[1400px] mx-auto">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
-          
+      <section className="relative px-4 sm:px-6 py-12 lg:py-24 max-w-[1400px] mx-auto bg-white overflow-hidden">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Left Text */}
-          <div className="space-y-7 lg:max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-50 border border-gray-100 text-xs font-semibold text-gray-500 shadow-sm">
-              <span className="flex h-2 w-2 rounded-full bg-[#157a4f] animate-pulse" />
-              Trusted by 5,000+ local businesses
+          <FadeInScroll delay={0.1} className="space-y-6 lg:max-w-xl">
+            <h1 className="text-5xl sm:text-[64px] font-extrabold text-[#1e2228] leading-[1.1] tracking-tight">
+              Grow Your Local <br />
+              <span className="text-[#157a4f]">Business with</span> <br />
+              <span className="text-[#157a4f]">GOLO</span>
+            </h1>
+            <p className="text-gray-500 text-base md:text-lg leading-relaxed max-w-md">
+              Connect with local shoppers, digitize your store, and manage your offers—all from one platform designed for local growth.
+            </p>
+            <div className="pt-2">
+              <button
+                onClick={openInviteModal}
+                className="h-12 px-8 rounded-xl bg-[#f3b12a] hover:bg-[#e0a022] text-[#1e2228] font-bold text-base shadow-sm transition-transform hover:-translate-y-0.5 cursor-pointer"
+              >
+                Become a Merchant
+              </button>
+            </div>
+          </FadeInScroll>
+          {/* Right Image */}
+          <FadeInScroll delay={0.2} className="relative w-full aspect-[4/3]">
+            <div className="absolute inset-0 rounded-[32px] overflow-hidden shadow-2xl bg-gray-100 group">
+              <img 
+                src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80" 
+                alt="Merchant working on laptop" 
+                className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-700"
+              />
+            </div>
+            {/* Floating Analytics Card */}
+            <div className="absolute -bottom-2 -left-2 sm:-bottom-4 sm:-left-4 md:-bottom-8 md:-left-8 bg-white rounded-2xl p-4 md:p-5 shadow-2xl border border-gray-100 flex flex-col gap-2 z-10 w-44 md:w-48 animate-[bounce_3s_infinite] scale-[0.65] sm:scale-100 origin-bottom-left">
+              <div className="flex items-center justify-between">
+                <div className="w-10 h-10 rounded-full bg-[#e8f5ed] flex items-center justify-center text-[#157a4f]">
+                  <BarChart3 size={20} />
+                </div>
+                <span className="text-[#157a4f] text-xs font-bold bg-[#e8f5ed] px-2 py-1 rounded-full">+48%</span>
+              </div>
+              <div>
+                <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider mt-1">Weekly Views</p>
+                <p className="text-xl font-extrabold text-gray-900">24,592</p>
+              </div>
+              <div className="w-full h-1.5 bg-gray-100 rounded-full mt-1 overflow-hidden">
+                <div className="w-[75%] h-full bg-[#157a4f] rounded-full"></div>
+              </div>
             </div>
             
-            <h1 className="text-5xl sm:text-6xl lg:text-[68px] font-extrabold text-[#1f2329] leading-[1.05] tracking-tight">
-              Digitize Your <br />
-              Local Shop. <br />
-              <span className="text-[#f3b12a]">Maximize Your <br />Reach.</span>
-            </h1>
-
-            <p className="text-base sm:text-lg text-gray-600 leading-relaxed">
-              GOLO Merchant lets you build a digital storefront, connect with local buyers, and grow your local business community in Sangli & Kolhapur.
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-4 pt-2">
-              <Link href="/register">
-                <button className="w-full sm:w-auto h-12 px-8 rounded-xl bg-[#f3b12a] hover:bg-[#e0a022] text-[#1e2228] font-bold text-base shadow-[0_4px_12px_rgba(243,177,42,0.25)] transition-all duration-200 hover:-translate-y-0.5">
-                  Start 50-Day Free Trial
-                </button>
-              </Link>
-              <a href="#tools">
-                <button className="w-full sm:w-auto h-12 px-8 rounded-xl border border-gray-200 hover:border-gray-300 bg-white hover:bg-gray-50 text-[#1e2228] font-semibold text-base transition-all duration-200 hover:-translate-y-0.5">
-                  Explore Platforms
-                </button>
-              </a>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-6 pt-4 text-sm text-gray-500">
-              <span className="flex items-center gap-2">
-                <div className="flex h-5 w-5 items-center justify-center rounded-full bg-green-50 text-green-600">
-                  <Check size={14} />
+            {/* Second Floating Analytics Card */}
+            <div className="absolute -top-4 -right-4 md:-top-8 md:-right-8 bg-white rounded-2xl p-4 md:p-5 shadow-2xl border border-gray-100 flex flex-col gap-2 z-10 w-44 md:w-48 animate-[bounce_4s_infinite] scale-[0.65] sm:scale-100 origin-top-right">
+              <div className="flex items-center justify-between">
+                <div className="w-10 h-10 rounded-full bg-[#fff4de] flex items-center justify-center text-[#f3b12a]">
+                  <UserCheck size={20} />
                 </div>
-                No credit card required
-              </span>
-              <span className="flex items-center gap-2">
-                <div className="flex h-5 w-5 items-center justify-center rounded-full bg-green-50 text-green-600">
-                  <Check size={14} />
-                </div>
-                Setup in 5 minutes
-              </span>
-            </div>
-          </div>
-
-          {/* Right Image with overlays */}
-          <div className="relative lg:ml-6 flex items-center justify-center w-full">
-            <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-gray-100 max-w-[580px] w-full aspect-[4/3]">
-              <Image 
-                src="/images/merchant_shop_storefront.png" 
-                alt="Vibrant local shop storefront" 
-                fill 
-                className="object-cover"
-                priority
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
-            </div>
-
-            {/* Floating Card 1 */}
-            <div className="absolute -top-6 -left-4 sm:-left-6 bg-white rounded-2xl shadow-xl border border-gray-50 p-3.5 flex items-center gap-3 animate-bounce" style={{ animationDuration: '4s' }}>
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 text-[#f3b12a]">
-                <Store size={20} />
+                <span className="text-[#f3b12a] text-xs font-bold bg-[#fff4de] px-2 py-1 rounded-full">+12 Today</span>
               </div>
               <div>
-                <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Store Growth</p>
-                <p className="text-sm font-extrabold text-[#1f2329]">50+ orders generated today</p>
+                <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider mt-1">New Customers</p>
+                <p className="text-xl font-extrabold text-gray-900">143</p>
+              </div>
+              <div className="w-full h-1.5 bg-gray-100 rounded-full mt-1 overflow-hidden">
+                <div className="w-[85%] h-full bg-[#f3b12a] rounded-full"></div>
               </div>
             </div>
-
-            {/* Floating Card 2 */}
-            <div className="absolute -bottom-6 -right-4 sm:-right-6 bg-white rounded-2xl shadow-xl border border-gray-50 p-3.5 flex items-center gap-3 animate-bounce" style={{ animationDuration: '5s' }}>
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-50 text-green-600">
-                <Sparkles size={20} />
-              </div>
-              <div>
-                <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Earning Status</p>
-                <p className="text-sm font-extrabold text-green-700">Earned Rs. 1,200+ today</p>
-              </div>
-            </div>
-          </div>
-
+          </FadeInScroll>
         </div>
       </section>
 
-      {/* STATS SECTION */}
-      <ScrollReveal>
-        <section className="bg-gray-50/50 border-y border-gray-100 py-10 px-6">
-          <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat, i) => (
-              <div key={i} className="text-center space-y-1">
-                <p className="text-3xl sm:text-4xl font-extrabold text-[#1f2329]">{stat.value}</p>
-                <p className="text-sm font-bold text-[#1f2329]">{stat.label}</p>
-                <p className="text-xs text-gray-500">{stat.desc}</p>
-              </div>
-            ))}
+      {/* HOW GOLO WORKS */}
+      <section className="py-16 md:py-20 px-4 sm:px-6 bg-[#fef9f5]">
+        <FadeInScroll delay={0.1} className="max-w-[1500px] mx-auto space-y-10 md:space-y-12">
+          <div className="text-center space-y-4">
+            <h2 className="text-4xl md:text-6xl font-extrabold text-gray-900 tracking-tight leading-tight">How GOLO Works</h2>
+            <p className="text-base md:text-lg text-gray-500 max-w-2xl mx-auto">Simple steps to get your local business online and thriving.</p>
           </div>
-        </section>
-      </ScrollReveal>
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="bg-white rounded-3xl p-8 text-center space-y-4 shadow-md border-2 border-gray-100">
+              <div className="w-16 h-16 mx-auto bg-[#fdf2d0] rounded-full flex items-center justify-center text-[#f3b12a]">
+                <UserCheck size={28} />
+              </div>
+              <h3 className="font-extrabold text-gray-900 text-lg">Register Your Business</h3>
+              <p className="text-xs text-gray-500 leading-relaxed">
+                Sign up in minutes with your store details, location, and operating hours.
+              </p>
+            </div>
+            <div className="bg-white rounded-3xl p-8 text-center space-y-4 shadow-md border-2 border-gray-100">
+              <div className="w-16 h-16 mx-auto bg-[#fdf2d0] rounded-full flex items-center justify-center text-[#f3b12a]">
+                <Ticket size={28} />
+              </div>
+              <h3 className="font-extrabold text-gray-900 text-lg">Create an Offer</h3>
+              <p className="text-xs text-gray-500 leading-relaxed">
+                Set up discounts and promotional deals to attract nearby shoppers.
+              </p>
+            </div>
+            <div className="bg-white rounded-3xl p-8 text-center space-y-4 shadow-md border-2 border-gray-100">
+              <div className="w-16 h-16 mx-auto bg-[#fdf2d0] rounded-full flex items-center justify-center text-[#f3b12a]">
+                <BarChart3 size={28} />
+              </div>
+              <h3 className="font-extrabold text-gray-900 text-lg">Get Customers & Grow</h3>
+              <p className="text-xs text-gray-500 leading-relaxed">
+                Watch shoppers claim your offers, visit your store, and boost your revenue.
+              </p>
+            </div>
+          </div>
+        </FadeInScroll>
+      </section>
 
-      {/* TOOLS SECTION */}
-      <ScrollReveal>
-        <section id="tools" className="py-20 px-6 max-w-7xl mx-auto space-y-16">
-          <div className="text-center space-y-4 max-w-2xl mx-auto">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">
-              Powerful Tools for Local Growth
+      {/* EVERYTHING YOUR BUSINESS NEEDS TO GROW */}
+      <section className="py-16 md:py-24 px-4 sm:px-6 max-w-[1500px] mx-auto space-y-10 md:space-y-12">
+        <FadeInScroll delay={0.1} className="text-center space-y-4">
+          <h2 className="text-4xl md:text-6xl font-extrabold text-gray-900 tracking-tight leading-tight">
+            Everything Your Business <br /> Needs to Grow
+          </h2>
+          <p className="text-base md:text-lg text-gray-500 max-w-2xl mx-auto">
+            Powerful tools designed specifically for local merchants.
+          </p>
+        </FadeInScroll>
+
+        <div className="space-y-6">
+          {/* Top Two Large Cards */}
+          <div className="grid md:grid-cols-[1.5fr_1fr] gap-8">
+            {/* Promo Card */}
+            <FadeInScroll delay={0.2} className="bg-gradient-to-br from-[#e8f5ed] to-[#d0ebd9] rounded-[32px] p-10 flex flex-col justify-between space-y-8 relative overflow-hidden shadow-xl shadow-[#157a4f]/10 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
+              <div className="absolute -right-10 -bottom-10 opacity-10 pointer-events-none">
+                <QrCode size={250} />
+              </div>
+              <div className="space-y-4 relative z-10">
+                <span className="bg-white/60 text-[#157a4f] text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest">
+                  SPECIAL OFFER
+                </span>
+                <h3 className="text-3xl font-extrabold text-[#0f5c3d] leading-tight max-w-sm">
+                  Enjoy all premium features completely free for the first 50 days
+                </h3>
+                <ul className="space-y-2 mt-4">
+                  <li className="flex items-center gap-2 text-xs font-bold text-[#157a4f]">
+                    <Check size={14} /> Full Analytics Access
+                  </li>
+                  <li className="flex items-center gap-2 text-xs font-bold text-[#157a4f]">
+                    <Check size={14} /> Unlimited Offers
+                  </li>
+                </ul>
+              </div>
+              <button
+                onClick={openInviteModal}
+                className="bg-white text-[#157a4f] hover:bg-gray-50 w-fit h-11 px-6 rounded-full font-bold text-sm flex items-center gap-2 shadow-sm transition-transform hover:-translate-y-0.5 relative z-10 cursor-pointer"
+              >
+                Claim Offer Now <ChevronRight size={14} />
+              </button>
+            </FadeInScroll>
+
+            {/* Analytics Preview Card */}
+            <FadeInScroll delay={0.3} className="bg-white rounded-[32px] border border-gray-100 p-8 shadow-xl shadow-gray-200/50 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between relative overflow-hidden">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-[#157a4f]">
+                  <BarChart3 size={16} />
+                  <span className="text-[10px] font-bold uppercase tracking-wider">Analytics</span>
+                </div>
+                <h4 className="text-xl font-extrabold text-gray-900">Advanced Business Analytics</h4>
+                <p className="text-xs text-gray-500">Track your daily views, customer visits, and offer claims in real-time.</p>
+              </div>
+              <div className="mt-8 flex items-end gap-3 h-24">
+                <div className="w-full bg-[#157a4f] rounded-t-md h-[40%]" />
+                <div className="w-full bg-[#157a4f] rounded-t-md h-[70%]" />
+                <div className="w-full bg-[#157a4f] rounded-t-md h-[50%]" />
+                <div className="w-full bg-[#157a4f] rounded-t-md h-[90%]" />
+                <div className="w-full bg-[#157a4f] rounded-t-md h-[100%]" />
+                <div className="w-full bg-[#f3b12a] rounded-t-md h-[60%]" />
+                <div className="w-full bg-gray-100 rounded-t-md h-[30%]" />
+              </div>
+            </FadeInScroll>
+          </div>
+
+          {/* Grid of features (8 Cards) */}
+          <FadeInScroll delay={0.4} className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
+            
+            {/* Card 1: Flexible Subscription Plans */}
+            <div className="bg-white rounded-3xl border-2 border-gray-100 hover:border-[#157a4f]/40 p-7 min-h-[230px] space-y-4 shadow-xl shadow-gray-200/40 hover:shadow-2xl hover:shadow-[#157a4f]/10 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between">
+              <div className="space-y-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e8f5ed] text-[#157a4f]">
+                  <span className="font-bold text-sm">$</span>
+                </div>
+                <h4 className="text-sm font-bold text-gray-900">Flexible Subscription Plans</h4>
+                <p className="text-xs text-gray-500 leading-relaxed">
+                  Choose a plan that fits your growth stage after the initial trial.
+                </p>
+              </div>
+              <Link href="/merchant/upgrade" className="text-xs font-bold text-[#157a4f] hover:underline flex items-center gap-1 w-fit">
+                View Plans <ChevronRight size={12} />
+              </Link>
+            </div>
+
+            {/* Card 2: Digital Business Visibility */}
+            <div className="bg-white rounded-3xl border-2 border-gray-100 hover:border-[#157a4f]/40 p-7 min-h-[230px] space-y-4 shadow-xl shadow-gray-200/40 hover:shadow-2xl hover:shadow-[#157a4f]/10 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e8f5ed] text-[#157a4f]">
+                <Globe size={20} />
+              </div>
+              <h4 className="text-sm font-bold text-gray-900">Digital Business Visibility</h4>
+              <p className="text-xs text-gray-500 leading-relaxed">
+                Reach more customers across the city through our localized search engine.
+              </p>
+            </div>
+
+            {/* Card 3: Inventory Management */}
+            <div className="bg-white rounded-3xl border-2 border-gray-100 hover:border-[#157a4f]/40 p-7 min-h-[230px] space-y-4 shadow-xl shadow-gray-200/40 hover:shadow-2xl hover:shadow-[#157a4f]/10 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e8f5ed] text-[#157a4f]">
+                <Box size={20} />
+              </div>
+              <h4 className="text-sm font-bold text-gray-900">Inventory Management</h4>
+              <p className="text-xs text-gray-500 leading-relaxed">
+                Manage all your products, variations, and stocks from a simplified merchant dashboard.
+              </p>
+            </div>
+
+            {/* Card 4: City-Wide Customer Reach */}
+            <div className="bg-white rounded-3xl border-2 border-gray-100 hover:border-[#157a4f]/40 p-7 min-h-[230px] space-y-4 shadow-xl shadow-gray-200/40 hover:shadow-2xl hover:shadow-[#157a4f]/10 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e8f5ed] text-[#157a4f]">
+                <MapPin size={20} />
+              </div>
+              <h4 className="text-sm font-bold text-gray-900">City-Wide Customer Reach</h4>
+              <p className="text-xs text-gray-500 leading-relaxed">
+                Break local barriers and let people from all corners of the city find your store.
+              </p>
+            </div>
+
+            {/* Card 5: Product Offers & Deals */}
+            <div className="bg-white rounded-3xl border-2 border-gray-100 hover:border-[#157a4f]/40 p-7 min-h-[230px] space-y-4 shadow-xl shadow-gray-200/40 hover:shadow-2xl hover:shadow-[#157a4f]/10 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e8f5ed] text-[#157a4f]">
+                <Ticket size={20} />
+              </div>
+              <h4 className="text-sm font-bold text-gray-900">Product Offers & Deals</h4>
+              <p className="text-xs text-gray-500 leading-relaxed">
+                Create exclusive verified deals to drive footfall to your physical shop.
+              </p>
+            </div>
+
+            {/* Card 6: Banner Promotions */}
+            <div className="bg-white rounded-3xl border-2 border-gray-100 hover:border-[#157a4f]/40 p-7 min-h-[230px] space-y-4 shadow-xl shadow-gray-200/40 hover:shadow-2xl hover:shadow-[#157a4f]/10 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e8f5ed] text-[#157a4f]">
+                <Sparkles size={20} />
+              </div>
+              <h4 className="text-sm font-bold text-gray-900">Banner Promotions</h4>
+              <p className="text-xs text-gray-500 leading-relaxed">
+                Spotlight your business on the homepage with high-impact display banners.
+              </p>
+            </div>
+
+            {/* Card 7: Customer Reviews & Ratings */}
+            <div className="bg-white rounded-3xl border-2 border-gray-100 hover:border-[#157a4f]/40 p-7 min-h-[230px] space-y-4 shadow-xl shadow-gray-200/40 hover:shadow-2xl hover:shadow-[#157a4f]/10 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e8f5ed] text-[#157a4f]">
+                <Star size={20} />
+              </div>
+              <h4 className="text-sm font-bold text-gray-900">Customer Reviews & Ratings</h4>
+              <p className="text-xs text-gray-500 leading-relaxed">
+                Build organic trust with genuine verified buyer feedback and ratings.
+              </p>
+            </div>
+
+            {/* Card 8: Mini Business Website */}
+            <div className="bg-white rounded-3xl border-2 border-gray-100 hover:border-[#157a4f]/40 p-7 min-h-[230px] space-y-4 shadow-xl shadow-gray-200/40 hover:shadow-2xl hover:shadow-[#157a4f]/10 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e8f5ed] text-[#157a4f]">
+                    <Globe size={20} />
+                  </div>
+                  <span className="text-[9px] font-bold text-[#f3b12a] bg-[#fdf2d0] px-2.5 py-1 rounded-full uppercase tracking-wider">
+                    COMING SOON
+                  </span>
+                </div>
+                <h4 className="text-sm font-bold text-gray-900">Mini Business Website</h4>
+                <p className="text-xs text-gray-500 leading-relaxed">
+                  A dedicated, SEO-optimized page specifically for your shop.
+                </p>
+              </div>
+              <div className="flex justify-end mt-2">
+                <span className="text-xs font-bold text-[#157a4f] hover:underline cursor-pointer flex items-center gap-1">
+                  See All <ChevronRight size={12} />
+                </span>
+              </div>
+            </div>
+
+          </FadeInScroll>
+        </div>
+      </section>
+
+      {/* YOUR BUSINESS, ITS OWN WEBSITE */}
+      <section className="py-16 md:py-24 px-4 sm:px-6 bg-[#fef9f5]">
+        <FadeInScroll delay={0.1} className="max-w-[1500px] mx-auto space-y-10 md:space-y-12">
+          <div className="text-center space-y-4">
+            <h2 className="text-4xl md:text-6xl font-extrabold text-gray-900 tracking-tight leading-tight">
+              Your Business, <br />
+              <span className="text-[#f3b12a]">Its Own Website.</span>
             </h2>
-            <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-[#f3b12a]">
-              Everything you need to manage, market, and grow your local shop and classified ads in a single easy-to-use platform.
+            <p className="text-base md:text-lg text-gray-500 max-w-2xl mx-auto">
+              Choose a template, customize it, and get a professional website for your store.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((feature, i) => {
-              const Icon = feature.icon;
-              return (
-                <div key={i} className="bg-white rounded-2xl border border-gray-100 p-6 space-y-4 shadow-sm hover:shadow-md transition-shadow duration-200">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-50 text-[#157a4f]">
-                    <Icon size={24} />
-                  </div>
-                  <div className="space-y-2">
-                    <h3 className="text-lg font-bold text-gray-900">{feature.title}</h3>
-                    <p className="text-sm text-gray-500 leading-relaxed">{feature.desc}</p>
-                  </div>
-                  <div className="flex flex-wrap gap-1.5 pt-2">
-                    {feature.tags.map((tag, j) => (
-                      <span key={j} className="text-[10px] font-semibold text-gray-500 bg-gray-50 px-2 py-0.5 rounded-full">
-                        {tag}
-                      </span>
-                    ))}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            
+            {/* Template 1 */}
+            <div className="bg-white rounded-[24px] border border-gray-100 overflow-hidden shadow-xl shadow-gray-200/50 flex flex-col hover:-translate-y-1.5 transition-all duration-300 group cursor-pointer">
+              <div className="relative aspect-[4/5] w-full bg-white flex flex-col border-b border-gray-100 overflow-hidden">
+                {/* Browser Top Bar */}
+                <div className="h-5 bg-gray-100 border-b border-gray-200 flex items-center px-3 gap-1.5 w-full shrink-0">
+                  <div className="w-2 h-2 rounded-full bg-red-400"></div>
+                  <div className="w-2 h-2 rounded-full bg-amber-400"></div>
+                  <div className="w-2 h-2 rounded-full bg-green-400"></div>
+                </div>
+                {/* Navbar Mockup */}
+                <div className="h-8 flex items-center justify-between px-4 border-b border-gray-50 shrink-0">
+                  <div className="w-10 h-2.5 bg-gray-200 rounded-sm"></div>
+                  <div className="flex gap-2.5">
+                    <div className="w-5 h-1.5 bg-gray-200 rounded-sm"></div>
+                    <div className="w-5 h-1.5 bg-gray-200 rounded-sm"></div>
+                    <div className="w-5 h-1.5 bg-gray-200 rounded-sm"></div>
                   </div>
                 </div>
-              );
-            })}
-          </div>
-        </section>
-      </ScrollReveal>
-
-      {/* ANALYTICS FEATURE SECTION */}
-      <ScrollReveal>
-        <section className="bg-gray-50/50 border-y border-gray-100 py-20 px-6">
-          <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
-            
-            {/* Analytics Chart Mockup */}
-            <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-md space-y-4 max-w-[540px] w-full mx-auto">
-              <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+                {/* Hero Banner with Specific Image */}
+                <div className="h-[55%] relative overflow-hidden flex flex-col justify-center items-center p-4 text-center shrink-0">
+                  <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=600&q=80" alt="Food & Dining" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                  <div className="absolute inset-0 bg-black/40"></div>
+                  <div className="relative z-10 space-y-2">
+                    <div className="w-20 h-3.5 bg-white rounded-sm mx-auto shadow-sm"></div>
+                    <div className="w-32 h-2 bg-white/80 rounded-sm mx-auto shadow-sm"></div>
+                    <div className="w-12 h-3.5 bg-[#f3b12a] rounded-sm mx-auto mt-3 shadow-sm"></div>
+                  </div>
+                </div>
+                {/* Below the Fold: Services / Features Skeleton */}
+                <div className="flex-1 bg-gray-50 p-4 flex flex-col justify-center gap-3">
+                  <div className="w-24 h-2 bg-gray-300 rounded-sm mx-auto mb-1"></div>
+                  <div className="flex gap-3">
+                    <div className="flex-1 space-y-2">
+                      <div className="w-full aspect-video bg-gray-200 rounded-sm"></div>
+                      <div className="w-3/4 h-1.5 bg-gray-300 rounded mx-auto"></div>
+                    </div>
+                    <div className="flex-1 space-y-2">
+                      <div className="w-full aspect-video bg-gray-200 rounded-sm"></div>
+                      <div className="w-3/4 h-1.5 bg-gray-300 rounded mx-auto"></div>
+                    </div>
+                    <div className="flex-1 space-y-2">
+                      <div className="w-full aspect-video bg-gray-200 rounded-sm"></div>
+                      <div className="w-3/4 h-1.5 bg-gray-300 rounded mx-auto"></div>
+                    </div>
+                  </div>
+                </div>
+                <div className="absolute top-3 right-3 z-20 bg-[#f3b12a] text-white text-[9px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider shadow-md">
+                  NEW TEMPLATE
+                </div>
+              </div>
+              <div className="p-6 flex-1 flex flex-col justify-between space-y-4 bg-white relative z-30">
                 <div>
-                  <h4 className="text-sm font-bold text-gray-900">Analytics Performance</h4>
-                  <p className="text-[11px] text-gray-400">Monthly sales & visitor activity</p>
+                  <h4 className="font-extrabold text-base text-gray-900">Food & Dining</h4>
+                  <p className="text-xs text-gray-400 mt-1">Classic & Clean</p>
                 </div>
-                <span className="text-[10px] font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">Live</span>
-              </div>
-              
-              {/* SVG Chart */}
-              <div className="h-48 w-full relative">
-                <svg className="w-full h-full" viewBox="0 0 100 40" preserveAspectRatio="none">
-                  {/* Grid Lines */}
-                  <line x1="0" y1="10" x2="100" y2="10" stroke="#f3f4f6" strokeWidth="0.2" />
-                  <line x1="0" y1="20" x2="100" y2="20" stroke="#f3f4f6" strokeWidth="0.2" />
-                  <line x1="0" y1="30" x2="100" y2="30" stroke="#f3f4f6" strokeWidth="0.2" />
-                  
-                  {/* Week 1 Bars */}
-                  <rect x="12" y="15" width="3.5" height="20" rx="1.5" fill="#157a4f" />
-                  <rect x="16.5" y="10" width="3.5" height="25" rx="1.5" fill="#f3b12a" />
-
-                  {/* Week 2 Bars */}
-                  <rect x="37" y="7" width="3.5" height="28" rx="1.5" fill="#157a4f" />
-                  <rect x="41.5" y="17" width="3.5" height="18" rx="1.5" fill="#f3b12a" />
-
-                  {/* Week 3 Bars */}
-                  <rect x="62" y="20" width="3.5" height="15" rx="1.5" fill="#157a4f" />
-                  <rect x="66.5" y="13" width="3.5" height="22" rx="1.5" fill="#f3b12a" />
-
-                  {/* Week 4 Bars */}
-                  <rect x="87" y="5" width="3.5" height="30" rx="1.5" fill="#157a4f" />
-                  <rect x="91.5" y="10" width="3.5" height="25" rx="1.5" fill="#f3b12a" />
-                  
-                  {/* Baseline */}
-                  <line x1="0" y1="35" x2="100" y2="35" stroke="#e5e7eb" strokeWidth="0.4" />
-                </svg>
-              </div>
-
-              <div className="flex items-center justify-between text-[10px] text-gray-400 font-semibold px-2">
-                <span>Week 1</span>
-                <span>Week 2</span>
-                <span>Week 3</span>
-                <span>Week 4</span>
+                <span className="text-xs font-bold text-[#157a4f] group-hover:underline flex items-center gap-1">
+                  Preview Template <ChevronRight size={14} />
+                </span>
               </div>
             </div>
 
-            {/* Right Text */}
-            <div className="space-y-6">
-              <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">
-                Data That Drives Decisions
-              </h2>
-              <p className="text-base text-gray-600 leading-relaxed">
-                Get real-time insights on how your storefront is performing, who your customers are, and which deals generate the most sales.
-              </p>
-
-              <div className="space-y-4 pt-2">
-                <div className="flex items-start gap-3 border-b border-gray-100 pb-3">
-                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-green-50 text-green-600 mt-0.5">
-                    <Check size={14} />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-bold text-gray-900">Track Store Visitors</h4>
-                    <p className="text-xs text-gray-500 mt-0.5">Monitor daily unique views and visitor locations in real time.</p>
+            {/* Template 2 */}
+            <div className="bg-white rounded-[24px] border border-gray-100 overflow-hidden shadow-xl shadow-gray-200/50 flex flex-col hover:-translate-y-1.5 transition-all duration-300 group cursor-pointer">
+              <div className="relative aspect-[4/5] w-full bg-white flex flex-col border-b border-gray-100 overflow-hidden">
+                {/* Browser Top Bar */}
+                <div className="h-5 bg-gray-100 border-b border-gray-200 flex items-center px-3 gap-1.5 w-full shrink-0">
+                  <div className="w-2 h-2 rounded-full bg-red-400"></div>
+                  <div className="w-2 h-2 rounded-full bg-amber-400"></div>
+                  <div className="w-2 h-2 rounded-full bg-green-400"></div>
+                </div>
+                {/* Navbar Mockup */}
+                <div className="h-8 flex items-center justify-between px-4 border-b border-gray-50 shrink-0">
+                  <div className="w-10 h-2.5 bg-gray-200 rounded-sm"></div>
+                  <div className="flex gap-2.5">
+                    <div className="w-5 h-1.5 bg-gray-200 rounded-sm"></div>
+                    <div className="w-5 h-1.5 bg-gray-200 rounded-sm"></div>
+                    <div className="w-5 h-1.5 bg-gray-200 rounded-sm"></div>
                   </div>
                 </div>
-                <div className="flex items-start gap-3 border-b border-gray-100 pb-3">
-                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-green-50 text-green-600 mt-0.5">
-                    <Check size={14} />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-bold text-gray-900">Monitor Offer Conversions</h4>
-                    <p className="text-xs text-gray-500 mt-0.5">See which promotions convert impressions into actual QR scans.</p>
+                {/* Hero Banner with Specific Image */}
+                <div className="h-[55%] relative overflow-hidden flex flex-col justify-center items-center p-4 text-center shrink-0">
+                  <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=600&q=80" alt="Retail & Clothing" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                  <div className="absolute inset-0 bg-black/30"></div>
+                  <div className="relative z-10 space-y-2">
+                    <div className="w-24 h-3.5 bg-white rounded-sm mx-auto shadow-sm"></div>
+                    <div className="w-16 h-2 bg-white/80 rounded-sm mx-auto shadow-sm"></div>
+                    <div className="w-12 h-3.5 bg-[#157a4f] rounded-sm mx-auto mt-3 shadow-sm"></div>
                   </div>
                 </div>
-              </div>
-
-              <button onClick={() => router.push("/register")} className="inline-flex items-center gap-2 text-sm font-bold text-[#157a4f] hover:text-[#0f5c3d] transition-colors pt-2">
-                View Analytics Feature
-                <ArrowRight size={16} />
-              </button>
-            </div>
-
-          </div>
-        </section>
-      </ScrollReveal>
-
-      {/* PROMOTION GRADIENT CARD SECTION */}
-      <ScrollReveal>
-        <section className="py-20 px-6 max-w-7xl mx-auto">
-          <div className="relative overflow-hidden rounded-[32px] bg-gradient-to-b from-[#f9b233] via-[#f9b233] to-[#faf8f5] border border-[#f9b233]/20 p-8 sm:p-12 lg:p-16 shadow-xl flex flex-col lg:flex-row gap-8 lg:items-center lg:justify-between">
-            <div className="space-y-6 lg:max-w-2xl">
-              <div className="inline-flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-widest bg-black/5 border border-black/10 text-[#1e2228] px-3 py-1 rounded-full w-fit">
-                <svg className="w-3 h-3 text-[#1e2228]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 11.25v8.25a1.5 1.5 0 01-1.5 1.5H5.25a1.5 1.5 0 01-1.5-1.5v-8.25M12 4.875A2.625 2.625 0 109.375 7.5H12m0-2.625V7.5m0-2.625A2.625 2.625 0 1114.625 7.5H12m0 0V21m-8.625-9.75h17.25c.621 0 1.125-.504 1.125-1.125V9.75c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
-                </svg>
-                LIMITED TIME OFFER
-              </div>
-              <h2 className="text-4xl sm:text-5xl font-extrabold leading-tight text-[#1e2228]">
-                Get Your First 50 Days of <br /><span className="text-[#f97316]">GOLO Premium</span> for Free.
-              </h2>
-              <p className="text-gray-700 text-sm sm:text-base leading-relaxed max-w-xl">
-                Experience every single feature, including the Analytics Suite and Smart Promotion Engine, with zero risk. No hidden fees, no credit card, just pure business growth.
-              </p>
-              <div className="grid sm:grid-cols-2 gap-3 text-sm text-gray-800 pt-2 font-semibold">
-                <span className="flex items-center gap-2">
-                  <div className="flex h-5 w-5 items-center justify-center rounded-full border border-orange-400/50 text-[#f97316]">
-                    <Check size={12} strokeWidth={3} />
-                  </div>
-                  Zero Setup Fees
-                </span>
-                <span className="flex items-center gap-2">
-                  <div className="flex h-5 w-5 items-center justify-center rounded-full border border-orange-400/50 text-[#f97316]">
-                    <Check size={12} strokeWidth={3} />
-                  </div>
-                  Dedicated Support Manager
-                </span>
-                <span className="flex items-center gap-2">
-                  <div className="flex h-5 w-5 items-center justify-center rounded-full border border-orange-400/50 text-[#f97316]">
-                    <Check size={12} strokeWidth={3} />
-                  </div>
-                  Unlimited Inventory Lists
-                </span>
-                <span className="flex items-center gap-2">
-                  <div className="flex h-5 w-5 items-center justify-center rounded-full border border-orange-400/50 text-[#f97316]">
-                    <Check size={12} strokeWidth={3} />
-                  </div>
-                  Featured Store Placement
-                </span>
-              </div>
-            </div>
-
-            <div className="bg-[#fcf7ee]/80 border border-[#f9b233]/40 rounded-[24px] p-8 lg:w-[350px] text-center space-y-4 shadow-sm shrink-0 flex flex-col justify-center">
-              <div>
-                <p className="text-5xl font-extrabold tracking-tight text-[#1e2228]">$0</p>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-[#1e2228] mt-1">for first 50 days</p>
-              </div>
-              <hr className="border-[#f9b233]/25" />
-              <p className="text-xs text-gray-600 italic leading-relaxed py-2">
-                "The best decision we made for our boutique this year."
-              </p>
-              <button onClick={() => router.push("/register")} className="w-full h-12 rounded-xl bg-[#e6a71e] hover:bg-[#d99712] text-[#1e2228] font-bold text-sm shadow-sm transition-transform hover:-translate-y-0.5">
-                Claim My 50 Days
-              </button>
-            </div>
-          </div>
-        </section>
-      </ScrollReveal>
-
-      {/* TESTIMONIALS SECTION */}
-      <ScrollReveal>
-        <section className="bg-gray-50/50 border-t border-gray-100 py-20 px-6">
-          <div className="max-w-7xl mx-auto space-y-16">
-            <div className="text-center space-y-3">
-              <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">
-                Success Stories From Local Heroes
-              </h2>
-              <p className="text-sm text-gray-500">
-                See how local shops and merchants are growing their sales using GOLO.
-              </p>
-            </div>
-
-            <div className="grid md:grid-cols-3 gap-8">
-              {testimonials.map((item, i) => (
-                <div key={i} className="bg-white rounded-2xl border border-gray-100 p-6 space-y-6 shadow-sm flex flex-col justify-between">
-                  <div className="space-y-4">
-                    <div className="flex gap-1 text-[#f3b12a]">
-                      {Array.from({ length: item.stars }).map((_, j) => (
-                        <Star key={j} size={16} fill="currentColor" />
-                      ))}
+                {/* Below the Fold: Services / Features Skeleton */}
+                <div className="flex-1 bg-gray-50 p-4 flex flex-col justify-center gap-3">
+                  <div className="w-24 h-2 bg-gray-300 rounded-sm mx-auto mb-1"></div>
+                  <div className="flex gap-3">
+                    <div className="flex-1 space-y-2">
+                      <div className="w-full aspect-video bg-gray-200 rounded-sm"></div>
+                      <div className="w-3/4 h-1.5 bg-gray-300 rounded mx-auto"></div>
                     </div>
-                    <p className="text-sm text-gray-600 leading-relaxed italic">
-                      "{item.quote}"
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-3 border-t border-gray-50 pt-4">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#157a4f]/10 text-[#157a4f] text-sm font-bold">
-                      {item.avatar}
+                    <div className="flex-1 space-y-2">
+                      <div className="w-full aspect-video bg-gray-200 rounded-sm"></div>
+                      <div className="w-3/4 h-1.5 bg-gray-300 rounded mx-auto"></div>
                     </div>
-                    <div>
-                      <p className="text-sm font-bold text-gray-900">{item.author}</p>
-                      <p className="text-xs text-gray-400">{item.role}</p>
+                    <div className="flex-1 space-y-2">
+                      <div className="w-full aspect-video bg-gray-200 rounded-sm"></div>
+                      <div className="w-3/4 h-1.5 bg-gray-300 rounded mx-auto"></div>
                     </div>
                   </div>
                 </div>
-              ))}
+                <div className="absolute top-3 right-3 z-20 bg-[#157a4f] text-white text-[9px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider shadow-md">
+                  MOST POPULAR
+                </div>
+              </div>
+              <div className="p-6 flex-1 flex flex-col justify-between space-y-4 bg-white relative z-30">
+                <div>
+                  <h4 className="font-extrabold text-base text-gray-900">Retail & Clothing</h4>
+                  <p className="text-xs text-gray-400 mt-1">Modern & Elegance</p>
+                </div>
+                <span className="text-xs font-bold text-[#157a4f] group-hover:underline flex items-center gap-1">
+                  Preview Template <ChevronRight size={14} />
+                </span>
+              </div>
+            </div>
+
+            {/* Template 3 */}
+            <div className="bg-white rounded-[24px] border border-gray-100 overflow-hidden shadow-xl shadow-gray-200/50 flex flex-col hover:-translate-y-1.5 transition-all duration-300 group cursor-pointer">
+              <div className="relative aspect-[4/5] w-full bg-white flex flex-col border-b border-gray-100 overflow-hidden">
+                {/* Browser Top Bar */}
+                <div className="h-5 bg-gray-100 border-b border-gray-200 flex items-center px-3 gap-1.5 w-full shrink-0">
+                  <div className="w-2 h-2 rounded-full bg-red-400"></div>
+                  <div className="w-2 h-2 rounded-full bg-amber-400"></div>
+                  <div className="w-2 h-2 rounded-full bg-green-400"></div>
+                </div>
+                {/* Navbar Mockup */}
+                <div className="h-8 flex items-center justify-between px-4 border-b border-gray-50 shrink-0">
+                  <div className="w-10 h-2.5 bg-gray-200 rounded-sm"></div>
+                  <div className="flex gap-2.5">
+                    <div className="w-5 h-1.5 bg-gray-200 rounded-sm"></div>
+                    <div className="w-5 h-1.5 bg-gray-200 rounded-sm"></div>
+                    <div className="w-5 h-1.5 bg-gray-200 rounded-sm"></div>
+                  </div>
+                </div>
+                {/* Hero Banner with Specific Image */}
+                <div className="h-[55%] relative overflow-hidden flex flex-col justify-center items-center p-4 text-center shrink-0">
+                  <img src="https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=600&q=80" alt="Spa & Wellness" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                  <div className="absolute inset-0 bg-black/20"></div>
+                  <div className="relative z-10 space-y-2">
+                    <div className="w-16 h-3.5 bg-white rounded-sm mx-auto shadow-sm"></div>
+                    <div className="w-20 h-2 bg-white/80 rounded-sm mx-auto shadow-sm"></div>
+                    <div className="w-12 h-3.5 bg-gray-800 rounded-sm mx-auto mt-3 shadow-sm"></div>
+                  </div>
+                </div>
+                {/* Below the Fold: Services / Features Skeleton */}
+                <div className="flex-1 bg-gray-50 p-4 flex flex-col justify-center gap-3">
+                  <div className="w-24 h-2 bg-gray-300 rounded-sm mx-auto mb-1"></div>
+                  <div className="flex gap-3">
+                    <div className="flex-1 space-y-2">
+                      <div className="w-full aspect-video bg-gray-200 rounded-sm"></div>
+                      <div className="w-3/4 h-1.5 bg-gray-300 rounded mx-auto"></div>
+                    </div>
+                    <div className="flex-1 space-y-2">
+                      <div className="w-full aspect-video bg-gray-200 rounded-sm"></div>
+                      <div className="w-3/4 h-1.5 bg-gray-300 rounded mx-auto"></div>
+                    </div>
+                    <div className="flex-1 space-y-2">
+                      <div className="w-full aspect-video bg-gray-200 rounded-sm"></div>
+                      <div className="w-3/4 h-1.5 bg-gray-300 rounded mx-auto"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="p-6 flex-1 flex flex-col justify-between space-y-4 bg-white relative z-30">
+                <div>
+                  <h4 className="font-extrabold text-base text-gray-900">Spa & Wellness</h4>
+                  <p className="text-xs text-gray-400 mt-1">Minimal & Calm</p>
+                </div>
+                <span className="text-xs font-bold text-[#157a4f] group-hover:underline flex items-center gap-1">
+                  Preview Template <ChevronRight size={14} />
+                </span>
+              </div>
+            </div>
+
+            {/* Template 4 */}
+            <div className="bg-white rounded-[24px] border border-gray-100 overflow-hidden shadow-xl shadow-gray-200/50 flex flex-col hover:-translate-y-1.5 transition-all duration-300 group cursor-pointer">
+              <div className="relative aspect-[4/5] w-full bg-white flex flex-col border-b border-gray-100 overflow-hidden">
+                {/* Browser Top Bar */}
+                <div className="h-5 bg-gray-100 border-b border-gray-200 flex items-center px-3 gap-1.5 w-full shrink-0">
+                  <div className="w-2 h-2 rounded-full bg-red-400"></div>
+                  <div className="w-2 h-2 rounded-full bg-amber-400"></div>
+                  <div className="w-2 h-2 rounded-full bg-green-400"></div>
+                </div>
+                {/* Navbar Mockup */}
+                <div className="h-8 flex items-center justify-between px-4 border-b border-gray-50 shrink-0">
+                  <div className="w-10 h-2.5 bg-gray-200 rounded-sm"></div>
+                  <div className="flex gap-2.5">
+                    <div className="w-5 h-1.5 bg-gray-200 rounded-sm"></div>
+                    <div className="w-5 h-1.5 bg-gray-200 rounded-sm"></div>
+                    <div className="w-5 h-1.5 bg-gray-200 rounded-sm"></div>
+                  </div>
+                </div>
+                {/* Hero Banner with Specific Image */}
+                <div className="h-[55%] relative overflow-hidden flex flex-col justify-center items-center p-4 text-center shrink-0">
+                  <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80" alt="Fitness & Gym" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                  <div className="absolute inset-0 bg-black/40"></div>
+                  <div className="relative z-10 space-y-2">
+                    <div className="w-24 h-3.5 bg-white rounded-sm mx-auto shadow-sm"></div>
+                    <div className="w-28 h-2 bg-white/80 rounded-sm mx-auto shadow-sm"></div>
+                    <div className="w-12 h-3.5 bg-[#f3b12a] rounded-sm mx-auto mt-3 shadow-sm"></div>
+                  </div>
+                </div>
+                {/* Below the Fold: Services / Features Skeleton */}
+                <div className="flex-1 bg-gray-50 p-4 flex flex-col justify-center gap-3">
+                  <div className="w-24 h-2 bg-gray-300 rounded-sm mx-auto mb-1"></div>
+                  <div className="flex gap-3">
+                    <div className="flex-1 space-y-2">
+                      <div className="w-full aspect-video bg-gray-200 rounded-sm"></div>
+                      <div className="w-3/4 h-1.5 bg-gray-300 rounded mx-auto"></div>
+                    </div>
+                    <div className="flex-1 space-y-2">
+                      <div className="w-full aspect-video bg-gray-200 rounded-sm"></div>
+                      <div className="w-3/4 h-1.5 bg-gray-300 rounded mx-auto"></div>
+                    </div>
+                    <div className="flex-1 space-y-2">
+                      <div className="w-full aspect-video bg-gray-200 rounded-sm"></div>
+                      <div className="w-3/4 h-1.5 bg-gray-300 rounded mx-auto"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="p-6 flex-1 flex flex-col justify-between space-y-4 bg-white relative z-30">
+                <div>
+                  <h4 className="font-extrabold text-base text-gray-900">Fitness & Gym</h4>
+                  <p className="text-xs text-gray-400 mt-1">Bold & Dynamic</p>
+                </div>
+                <span className="text-xs font-bold text-[#157a4f] group-hover:underline flex items-center gap-1">
+                  Preview Template <ChevronRight size={14} />
+                </span>
+              </div>
             </div>
           </div>
-        </section>
-      </ScrollReveal>
+        </FadeInScroll>
+      </section>
 
-      {/* CTA FOOTER BANNER */}
-      <ScrollReveal>
-        <section className="py-20 px-6 max-w-7xl mx-auto">
-          <div className="relative overflow-hidden rounded-[24px] bg-gradient-to-br from-[#fcf4e3] to-[#fbf7f0] border border-[#f3b12a]/30 p-8 sm:p-12 text-center space-y-6">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900">
-              Ready to reach more customers?
-            </h2>
-            <p className="text-sm sm:text-base text-gray-600 max-w-2xl mx-auto">
-              Join thousands of business owners who are already growing their local stores and classified ads footprint with GOLO.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-2">
-              <button onClick={() => router.push("/register")} className="w-full sm:w-auto h-12 px-8 rounded-xl bg-[#f3b12a] hover:bg-[#e0a022] text-[#1e2228] font-bold text-base shadow-sm transition-transform hover:-translate-y-0.5">
-                Register My Business
-              </button>
-              <button onClick={() => router.push("/merchant/help")} className="w-full sm:w-auto h-12 px-8 rounded-xl border border-gray-300 hover:border-gray-400 bg-white text-gray-700 font-semibold text-base transition-transform hover:-translate-y-0.5">
-                Schedule a Demo
-              </button>
-            </div>
-            
-            <p className="text-xs text-gray-400">
-              Start your 50-day free trial. No credit card required.
-            </p>
-          </div>
-        </section>
-      </ScrollReveal>
-
-      {/* BRAND FOOTER */}
-      <footer className="bg-[#f3b12a] text-[#1e2228] py-16 px-6 border-t border-[#cf8b0e]/30">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+      {/* READY TO GROW YOUR BUSINESS? */}
+      <section className="py-12 md:py-20 px-4 sm:px-6 max-w-[1200px] mx-auto">
+        <FadeInScroll delay={0.2} className="bg-[#0f5c3d] rounded-[32px] md:rounded-[40px] overflow-hidden flex flex-col md:flex-row shadow-2xl relative">
+          {/* Decorative Background Elements */}
+          <div className="absolute top-0 right-0 w-[400px] md:w-[600px] h-[400px] md:h-[600px] bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none"></div>
+          <div className="absolute bottom-0 left-0 w-[300px] md:w-[400px] h-[300px] md:h-[400px] bg-[#157a4f]/50 rounded-full blur-3xl translate-y-1/3 -translate-x-1/4 pointer-events-none"></div>
           
-          {/* Logo & About */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#157a4f] text-[20px] font-bold text-white shadow-sm">
-                G
-              </div>
-              <span className="text-xl font-bold tracking-wide text-[#157a4f]">GOLO <span className="text-[#1e2228]/80 text-sm font-medium ml-1">Merchant</span></span>
+          <div className="p-8 md:p-16 flex-1 flex flex-col justify-center space-y-6 text-white relative z-10">
+            <div>
+              <span className="bg-white/20 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest mb-3 inline-block">
+                SPECIAL OFFER
+              </span>
+              <h2 className="text-4xl md:text-5xl font-extrabold leading-tight tracking-tight mt-1">
+                Ready to Grow <br /> Your Business?
+              </h2>
             </div>
-            <p className="text-xs text-[#1e2228]/85 leading-relaxed max-w-[260px]">
-              GOLO Merchant is a smart digital storefront builder helping local retailers and services digitize and grow their sales.
+            <p className="text-base text-green-50 max-w-lg leading-relaxed">
+              Join thousands of local merchants utilizing GOLO. Sign up today and get a <strong className="text-white">50-day free trial</strong> with full access to all premium features—no credit card required!
             </p>
-          </div>
-
-          {/* Platform */}
-          <div className="space-y-3">
-            <h4 className="text-sm font-bold uppercase tracking-wider text-[#157a4f]">Platform</h4>
-            <ul className="space-y-2 text-xs font-semibold text-[#1e2228]/85">
-              <li><Link href="#tools" className="hover:underline">Features</Link></li>
-              <li><Link href="/merchant/pricing" className="hover:underline">Pricing Plans</Link></li>
-              <li><Link href="/merchant/help" className="hover:underline">Success Stories</Link></li>
-              <li><Link href="/merchant/help" className="hover:underline">Contact Sales</Link></li>
-            </ul>
-          </div>
-
-          {/* Support */}
-          <div className="space-y-3">
-            <h4 className="text-sm font-bold uppercase tracking-wider text-[#157a4f]">Support</h4>
-            <ul className="space-y-2 text-xs font-semibold text-[#1e2228]/85">
-              <li><Link href="/merchant/help" className="hover:underline">Help Center</Link></li>
-              <li><Link href="/merchant/settings" className="hover:underline">Dashboard Settings</Link></li>
-              <li><Link href="/merchant/help" className="hover:underline">Terms of Service</Link></li>
-              <li><Link href="/merchant/help" className="hover:underline">Privacy Policy</Link></li>
-            </ul>
-          </div>
-
-          {/* Newsletter */}
-          <div className="space-y-3">
-            <h4 className="text-sm font-bold uppercase tracking-wider text-[#157a4f]">Newsletter</h4>
-            <p className="text-xs text-[#1e2228]/85 leading-relaxed">
-              Get the latest marketing insights and tools sent directly to your inbox.
-            </p>
-            <form onSubmit={handleSubscribe} className="flex gap-2 pt-1 max-w-[280px]">
-              <input 
-                type="email" 
-                value={emailInput}
-                onChange={(e) => setEmailInput(e.target.value)}
-                placeholder="Business Email" 
-                className="flex-1 h-9 px-3 rounded-lg border border-transparent bg-white text-xs text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-[#157a4f]"
-                required
-              />
-              <button type="submit" className="h-9 px-4 rounded-lg bg-[#157a4f] hover:bg-[#0f5c3d] text-white text-xs font-bold transition-colors">
-                Join
+            <div className="pt-3 flex items-center gap-4">
+              <button
+                onClick={openInviteModal}
+                className="bg-[#f3b12a] hover:bg-[#e0a022] text-[#1e2228] h-12 px-8 rounded-full font-extrabold text-sm shadow-lg transition-transform hover:-translate-y-1 cursor-pointer"
+              >
+                Start 50-Day Free Trial
               </button>
-            </form>
-            {subscribed && (
-              <p className="text-[10px] text-green-700 font-bold">✓ Subscribed successfully!</p>
-            )}
+            </div>
+          </div>
+          <div className="md:w-[45%] relative min-h-[350px] md:min-h-[auto]">
+            <img 
+              src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=1000&q=80" 
+              alt="Merchant handing shopping bag to customer" 
+              className="absolute inset-0 w-full h-full object-cover object-center"
+            />
+          </div>
+        </FadeInScroll>
+      </section>
+
+      {/* GET MERCHANT GROWTH TIPS */}
+      <section className="py-16 px-6 max-w-3xl mx-auto text-center space-y-6">
+        <FadeInScroll delay={0.2} className="space-y-6">
+          <div className="w-16 h-16 mx-auto bg-[#fef9f5] rounded-2xl flex items-center justify-center text-[#f3b12a] shadow-sm border border-[#f3b12a]/10">
+          <Box size={28} />
+        </div>
+        <div className="space-y-2">
+          <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight">Get Merchant Growth Tips</h2>
+          <p className="text-sm text-gray-500 max-w-md mx-auto leading-relaxed">
+            Subscribe to our newsletter for exclusive tips, marketing strategies, and GOLO platform updates directly to your inbox.
+          </p>
+        </div>
+        <form onSubmit={handleSubscribe} className="flex max-w-md mx-auto relative mt-4 shadow-sm rounded-full">
+          <input 
+            type="email" 
+            value={emailInput}
+            onChange={(e) => setEmailInput(e.target.value)}
+            placeholder="Enter your email address" 
+            className="w-full h-12 pl-6 pr-32 rounded-full border border-gray-200 text-sm focus:outline-none focus:border-[#157a4f] transition-all bg-white"
+            required
+          />
+          <button 
+            type="submit" 
+            className="absolute right-1 top-1 bottom-1 bg-[#157a4f] hover:bg-[#0f5c3d] text-white px-6 rounded-full font-bold text-sm shadow-sm transition-colors"
+          >
+            {subscribed ? "Subscribed!" : "Subscribe"}
+          </button>
+        </form>
+        </FadeInScroll>
+      </section>
+
+      {/* FOOTER */}
+      <footer className="bg-white border-t border-gray-100 py-16 px-6">
+        <div className="max-w-[1200px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
+          <div className="space-y-4 md:col-span-1">
+            <Link href="/" className="flex items-center gap-2">
+              <div className="flex h-8 px-3 items-center justify-center rounded-lg bg-[#f3b12a] text-white font-extrabold text-sm shadow-sm">
+                GOLO
+              </div>
+            </Link>
+            <p className="text-xs text-gray-400 leading-relaxed max-w-xs">
+              The ultimate local discovery platform. Empowering merchants and delighting shoppers everywhere.
+            </p>
+          </div>
+          
+          <div className="space-y-4">
+            <h4 className="font-bold text-xs uppercase tracking-wider text-gray-900">Platform</h4>
+            <ul className="space-y-3 text-xs text-gray-500">
+              <li><Link href="/" className="hover:text-[#157a4f] transition-colors">Home</Link></li>
+              <li><Link href="/login" className="hover:text-[#157a4f] transition-colors">Shopper Login</Link></li>
+              <li><Link href="/merchant" className="hover:text-[#157a4f] transition-colors">Merchant Portal</Link></li>
+              <li><Link href="/register" className="hover:text-[#157a4f] transition-colors">Sign Up</Link></li>
+            </ul>
+          </div>
+          
+          <div className="space-y-4">
+            <h4 className="font-bold text-xs uppercase tracking-wider text-gray-900">Support & Legal</h4>
+            <ul className="space-y-3 text-xs text-gray-500">
+              <li><Link href="/help" className="hover:text-[#157a4f] transition-colors">Help Center</Link></li>
+              <li><Link href="/contact" className="hover:text-[#157a4f] transition-colors">Contact Us</Link></li>
+              <li><Link href="/terms" className="hover:text-[#157a4f] transition-colors">Terms of Service</Link></li>
+              <li><Link href="/privacy" className="hover:text-[#157a4f] transition-colors">Privacy Policy</Link></li>
+            </ul>
+          </div>
+          
+          <div className="space-y-4">
+            <h4 className="font-bold text-xs uppercase tracking-wider text-gray-900">Get the GOLO App</h4>
+            <div className="space-y-3">
+              <button className="w-full max-w-[140px] h-10 bg-gray-900 text-white rounded-lg flex items-center justify-center gap-2 hover:bg-black transition-colors">
+                <span className="text-xs font-bold">App Store</span>
+              </button>
+              <button className="w-full max-w-[140px] h-10 bg-gray-900 text-white rounded-lg flex items-center justify-center gap-2 hover:bg-black transition-colors">
+                <span className="text-xs font-bold">Google Play</span>
+              </button>
+            </div>
           </div>
         </div>
-
-        <div className="max-w-7xl mx-auto border-t border-[#cf8b0e]/30 mt-12 pt-6 flex flex-col sm:flex-row items-center justify-between text-[11px] text-[#1e2228]/75">
-          <p>© 2026 GOLO Merchant Website. All rights reserved.</p>
-          <div className="flex gap-4 font-semibold">
-            <Link href="#" className="hover:underline">Facebook</Link>
-            <Link href="#" className="hover:underline">Instagram</Link>
-            <Link href="#" className="hover:underline">LinkedIn</Link>
+        
+        <div className="max-w-[1200px] mx-auto mt-16 pt-8 border-t border-gray-100 flex flex-col md:flex-row items-center justify-between gap-4">
+          <p className="text-xs text-gray-400">© 2026 GOLO Inc. All rights reserved.</p>
+          <div className="flex gap-4">
+            {/* Social Icons Placeholder */}
+            <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:text-[#157a4f] cursor-pointer"><Globe size={14} /></div>
+            <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:text-[#157a4f] cursor-pointer"><Star size={14} /></div>
+            <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:text-[#157a4f] cursor-pointer"><Box size={14} /></div>
           </div>
         </div>
       </footer>

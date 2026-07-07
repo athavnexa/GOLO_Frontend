@@ -183,238 +183,177 @@ export default function LoginPage() {
         </div>
       )}
     <AuthLayout>
-      <div className="login-page-wrapper" style={{ height: "100vh", overflow: "hidden", display: "flex", flexDirection: "column" }}>
-        {/* Logo Section */}
-        <div className="logo-container">
-          <div className="logo-icon-wrapper">
-            <div className="logo-dot green"></div>
-            <div className="logo-dot red"></div>
-            <div className="logo-dot yellow"></div>
+      <div className="flex h-screen w-full overflow-hidden bg-white font-sans text-gray-900">
+        
+        {/* LEFT SIDE - Cream Background */}
+        <div className="hidden lg:flex w-1/2 flex-col items-center justify-center bg-[#FCFAEB] relative">
+          <div className="flex flex-col items-center justify-center text-center max-w-sm px-4">
+            {/* Double Quote icon */}
+            <div className="mb-6 text-[#F8E1BA] text-7xl leading-none font-serif font-black">&rdquo;</div>
+            
+            {/* Logo Square */}
+            <div className="w-20 h-20 bg-[#F59E0B] rounded-2xl flex items-center justify-center mb-10 shadow-sm">
+              <span className="text-white text-5xl font-bold">G</span>
+            </div>
+            
+            {/* Text */}
+            <h1 className="text-[22px] font-bold text-[#763645] mb-12 leading-relaxed">
+              The simplest way to<br/>manage global ad<br/>campaigns in one place.
+            </h1>
+            
+            {/* Pagination */}
+            <div className="flex items-center gap-4">
+              <button className="w-8 h-8 rounded-full border border-[#D1D5DB] flex items-center justify-center text-[#9CA3AF] hover:text-gray-600 bg-transparent cursor-pointer hover:bg-gray-50 transition-colors">
+                <span className="text-sm font-semibold">‹</span>
+              </button>
+              <div className="flex gap-2.5">
+                <span className="w-2 h-2 rounded-full bg-[#F59E0B]"></span>
+                <span className="w-2 h-2 rounded-full bg-[#FDE68A]"></span>
+                <span className="w-2 h-2 rounded-full bg-[#FDE68A]"></span>
+              </div>
+              <button className="w-8 h-8 rounded-full border border-[#D1D5DB] flex items-center justify-center text-[#9CA3AF] hover:text-gray-600 bg-transparent cursor-pointer hover:bg-gray-50 transition-colors">
+                <span className="text-sm font-semibold">›</span>
+              </button>
+            </div>
           </div>
-          <span className="logo-text">GOLO</span>
         </div>
 
-        <div className="login-content-grid" style={{ height: "calc(100vh - 120px)", overflow: "hidden" }}>
-          {/* LEFT SIDE */}
-          <div className="login-left">
-            <div className="testimonial-section">
-              <div className="quote-mark">&ldquo;</div>
-              <div className="yellow-square-icon">G</div>
+        {/* RIGHT SIDE - White Background */}
+        <div className="w-full lg:w-1/2 flex items-center justify-center bg-white p-4 relative">
+          
+          {/* The Card */}
+          <div className="w-full max-w-[460px] bg-white rounded-[24px] p-8 lg:p-10 border border-gray-200 shadow-[0_12px_40px_rgb(0,0,0,0.06)] relative z-10">
+            <h2 className="text-2xl lg:text-[26px] font-extrabold text-center text-gray-900 mb-2">
+              Welcome to GOLO Network Group
+            </h2>
+            <p className="text-center text-gray-500 text-[13px] mb-8">
+              Grow Smarter With Every Ad. Join Free
+            </p>
+            
+            {/* Social Buttons */}
+            <div className="flex gap-4 mb-7">
+              <button className="flex-1 flex items-center justify-center gap-2.5 py-2.5 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors bg-white">
+                <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" className="w-[18px] h-[18px]" />
+                <span className="text-[13px] font-semibold text-gray-700">Google</span>
+              </button>
+              <button className="flex-1 flex items-center justify-center gap-2.5 py-2.5 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors bg-white">
+                <img src="https://www.svgrepo.com/show/448224/facebook.svg" alt="Facebook" className="w-[18px] h-[18px]" />
+                <span className="text-[13px] font-semibold text-gray-700">Facebook</span>
+              </button>
+            </div>
 
-              <div className="quote-container">
-                <p className="quote-text">
-                  The simplest way to manage global ad campaigns in one place.
+            {/* Divider */}
+            <div className="relative mb-7">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-200"></div>
+              </div>
+              <div className="relative flex justify-center text-[10px] font-bold uppercase tracking-widest">
+                <span className="bg-white px-3 text-gray-400">
+                  OR SIGN IN WITH
+                </span>
+              </div>
+            </div>
+
+            <form onSubmit={handleLogin}>
+              {/* Session Expired Banner */}
+              {sessionExpired && (
+                <p className="text-[#92400E] bg-[#FEF3C7] border border-[#F59E0B] rounded-lg p-2.5 text-xs mb-4 text-center">
+                  ⚠️ Your session expired. Please log in again to continue.
                 </p>
+              )}
+              
+              {/* Login Error */}
+              {loginError && (
+                <p className="text-red-500 text-xs mb-4 text-center">
+                  {loginError}
+                </p>
+              )}
+
+              {/* Email Input */}
+              <div className="mb-4">
+                <label className="block text-[13px] font-bold text-gray-700 mb-1.5">Email</label>
+                <div className="relative">
+                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                  <input
+                    type="email"
+                    placeholder="Enter your email"
+                    className="w-full pl-10 pr-4 py-3 bg-[#FAFAFA] border border-gray-200 rounded-xl text-[13px] focus:outline-none focus:border-gray-300 transition-colors text-gray-800"
+                    value={email}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      setEmailError("");
+                      setLoginError("");
+                    }}
+                  />
+                </div>
+                {emailError && <p className="text-red-500 text-xs mt-1.5">{emailError}</p>}
               </div>
 
-              <div className="pagination-dots">
-                <span className="chevron">‹</span>
-                <span className="dot active"></span>
-                <span className="chevron">›</span>
-              </div>
-            </div>
-          </div>
-
-          {/* RIGHT SIDE */}
-          <div className="login-right" style={{ height: "100%", overflow: "hidden" }}>
-            <div className="card-bg-decoration top"></div>
-            <div className="card-bg-decoration bottom"></div>
-
-            <div className="login-card" style={{ maxHeight: "100%", overflowY: "auto" }}>
-              <h2>
-                Welcome to GOLO Network Group
-              </h2>
-
-              <p className="subtitle">
-                Grow Smarter With Every Ad. Join Free
-              </p>
-
-              {/* TOGGLE */}
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  marginBottom: "25px"
-                }}
-              >
-                <div
-                  style={{
-                    position: "relative",
-                    display: "flex",
-                    background: "#F3F4F6",
-                    borderRadius: "999px",
-                    padding: "4px",
-                    width: "100%",
-                    maxWidth: "300px"
-                  }}
-                >
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: "4px",
-                      left: accountType === "user" ? "4px" : "50%",
-                      width: "calc(50% - 4px)",
-                      height: "calc(100% - 8px)",
-                      background: "#F59E0B",
-                      borderRadius: "999px",
-                      transition: "all 0.3s ease"
+              {/* Password Input */}
+              <div className="mb-3">
+                <label className="block text-[13px] font-bold text-gray-700 mb-1.5">Password</label>
+                <div className="relative">
+                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Enter your password"
+                    className="w-full pl-10 pr-10 py-3 bg-[#FAFAFA] border border-gray-200 rounded-xl text-[13px] focus:outline-none focus:border-gray-300 transition-colors text-gray-800"
+                    value={password}
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      setLoginError("");
                     }}
-                  ></div>
-
-                   <div
-                    onClick={() => handleAccountTypeChange("user")}
-                    style={{
-                      flex: 1,
-                      textAlign: "center",
-                      padding: "8px 0",
-                      cursor: "pointer",
-                      fontWeight: "600",
-                      fontSize: "14px",
-                      zIndex: 1,
-                      color:
-                        accountType === "user" ? "#fff" : "#6B7280"
-                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none bg-transparent border-none"
                   >
-                    User
-                  </div>
-
-                  <div
-                    onClick={() => handleAccountTypeChange("merchant")}
-                    style={{
-                      flex: 1,
-                      textAlign: "center",
-                      padding: "8px 0",
-                      cursor: "pointer",
-                      fontWeight: "600",
-                      fontSize: "14px",
-                      zIndex: 1,
-                      color:
-                        accountType === "merchant" ? "#fff" : "#6B7280"
-                    }}
-                  >
-                    Merchant
-                  </div>
+                    {showPassword ? <Eye size={16} /> : <EyeOff size={16} />}
+                  </button>
                 </div>
               </div>
 
-              {/* Social Buttons */}
-              <SocialButtons redirectPath="/" />
-
-              <div className="divider">
-                <span>or sign in with</span>
-              </div>
-
-              <form onSubmit={handleLogin}>
-                {/* Session Expired Banner */}
-                {sessionExpired && (
-                  <p style={{
-                    color: "#92400E", background: "#FEF3C7", border: "1px solid #F59E0B",
-                    borderRadius: "8px", padding: "10px 14px", fontSize: "13px",
-                    marginBottom: "15px", textAlign: "center"
-                  }}>
-                    ⚠️ Your session expired. Please log in again to continue.
-                  </p>
-                )}
-                {/* Login Error */}
-                {loginError && (
-                  <p style={{ color: "red", fontSize: "13px", marginBottom: "15px", textAlign: "center" }}>
-                    {loginError}
-                  </p>
-                )}
-
-                {/* Email */}
-                <div className="input-group">
-                  <label>Email</label>
-                  <div className="input-wrapper">
-                    <Mail className="input-icon" size={18} />
-                    <input
-                      type="email"
-                      placeholder={
-                        accountType === "user"
-                          ? "Enter your email"
-                          : "Enter store email"
-                      }
-                      value={email}
-                      onChange={(e) => {
-                        setEmail(e.target.value);
-                        setEmailError("");
-                        setLoginError("");
-                      }}
-                    />
-                  </div>
-
-                  {emailError && (
-                    <p style={{ color: "red", fontSize: "13px", marginTop: "5px" }}>
-                      {emailError}
-                    </p>
-                  )}
-                </div>
-
-                {/* Password */}
-                <div className="input-group">
-                  <label>Password</label>
-                  <div className="input-wrapper">
-                    <Lock className="input-icon" size={18} />
-                    <input
-                      type={showPassword ? "text" : "password"}
-                      placeholder="Enter your Password"
-                      value={password}
-                      onChange={(e) => {
-                        setPassword(e.target.value);
-                        setLoginError("");
-                      }}
-                    />
-                    <div
-                      onClick={() => setShowPassword(!showPassword)}
-                      style={{ cursor: "pointer" }}
-                    >
-                      {showPassword ? (
-                        <Eye className="input-icon-right" size={18} />
-                      ) : (
-                        <EyeOff className="input-icon-right" size={18} />
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                <div
-                  className="forgot-link"
-                  onClick={handleForgotPassword}
-                  style={{ cursor: "pointer" }}
+              {/* Forgot Password */}
+              <div className="flex justify-end mb-4">
+                <button 
+                  type="button" 
+                  onClick={handleForgotPassword} 
+                  className="text-[#F59E0B] text-[11px] font-bold hover:underline bg-transparent border-none p-0 cursor-pointer"
                 >
-                  Forgot Password ?
-                </div>
-
-                <div className="terms-checkbox">
-                  <input type="checkbox" id="terms" />
-                  <label htmlFor="terms">
-                    By clicking on &quot;Continue&quot;, I agree{" "}
-                    <span className="link">Terms</span> and{" "}
-                    <span className="link">Privacy Policy</span>
-                  </label>
-                </div>
-
-                <button
-                  type="submit"
-                  className="continue-btn"
-                  disabled={isLoading}
-                  style={{ opacity: isLoading ? 0.7 : 1, cursor: isLoading ? "not-allowed" : "pointer" }}
-                >
-                  {isLoading ? "Signing in..." : "Continue"}
+                  Forgot Password?
                 </button>
-              </form>
-
-              <div className="register-footer">
-                New to Ad Network Group?{" "}
-                <Link href={`/register?type=${accountType}`}>
-                  <span>Register Now</span>
-                </Link>
               </div>
+
+              {/* Terms Checkbox */}
+              <div className="flex items-center gap-2 mb-6 text-gray-500 text-[11px]">
+                <input type="checkbox" id="terms" className="w-3.5 h-3.5 border-gray-300 rounded text-[#F59E0B] focus:ring-[#F59E0B]" />
+                <label htmlFor="terms">
+                  By clicking on &quot;Continue&quot;, I agree <span className="text-[#F59E0B] font-bold cursor-pointer hover:underline">Terms</span> and <span className="text-[#F59E0B] font-bold cursor-pointer hover:underline">Privacy Policy</span>
+                </label>
+              </div>
+
+              {/* Submit Button */}
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full bg-[#F59E0B] hover:bg-[#E69309] text-white font-bold py-3 rounded-xl transition-colors text-sm shadow-sm"
+                style={{ opacity: isLoading ? 0.7 : 1, cursor: isLoading ? "not-allowed" : "pointer" }}
+              >
+                {isLoading ? "Signing in..." : "Continue"}
+              </button>
+            </form>
+
+            {/* Footer */}
+            <div className="mt-5 text-center text-[12px] text-gray-500">
+              New to Ad Network Group?{" "}
+              <Link href="/register" className="text-[#F59E0B] font-bold hover:underline">
+                Register Now
+              </Link>
             </div>
           </div>
         </div>
-
-        <div className="dot-pattern"></div>
+        
       </div>
     </AuthLayout>
     </>
