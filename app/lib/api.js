@@ -811,6 +811,11 @@ async function fetchAbsoluteJson(url) {
         'Content-Type': 'application/json',
     };
 
+    const storedAccessToken = getStoredAccessToken();
+    if (storedAccessToken) {
+        headers['Authorization'] = `Bearer ${storedAccessToken}`;
+    }
+
     let response;
     try {
         response = await fetch(url, {
@@ -908,6 +913,10 @@ export async function getNearbyOffers({
             return emptyNearbyOffersResponse(safePage, safeLimit);
         }
     }
+}
+
+export async function getRecentlyViewedOffers() {
+    return apiClient('/offers/user/recently-viewed');
 }
 
 export async function getNearbyOfferDetails(offerId) {

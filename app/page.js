@@ -9,7 +9,7 @@ import Navbar from "./components/Navbar";
 import CategoryBar from "./components/CategoryBar";
 import Hero from "./components/Hero";
 import Footer from "./components/Footer";
-import { getHomeSectionConfig, getNearbyOffers } from "./lib/api";
+import { getHomeSectionConfig, getNearbyOffers, getRecentlyViewedOffers } from "./lib/api";
 import RecommendationService from "./services/recommendation.service";
 import { useRecommendationTracking } from "./hooks/useRecommendationTracking";
 import { SectionCarousel } from "./components/SectionCarousel";
@@ -20,6 +20,7 @@ function HomeContent() {
   const [searchQuery, setSearchQuery] = useState("");
   const [homepageSections, setHomepageSections] = useState([]);
   const [isLoadingRows, setIsLoadingRows] = useState(true);
+  const [userLocation, setUserLocation] = useState(null);
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, loading, getUserAccountType } = useAuth();
@@ -51,6 +52,36 @@ function HomeContent() {
   }, [user, loading, router, getUserAccountType]);
 
   useEffect(() => {
+    if (typeof window === "undefined" || !navigator.geolocation) return;
+
+    const latParam = searchParams.get("lat");
+    const lngParam = searchParams.get("lng");
+
+    if (latParam && lngParam) {
+      const parsedLat = Number(latParam);
+      const parsedLng = Number(lngParam);
+
+      if (!Number.isNaN(parsedLat) && !Number.isNaN(parsedLng)) {
+        setUserLocation({ lat: parsedLat, lng: parsedLng });
+        return;
+      }
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setUserLocation({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        });
+      },
+      () => {
+        setUserLocation(null);
+      },
+      { enableHighAccuracy: true, timeout: 5000, maximumAge: 60000 }
+    );
+  }, [searchParams]);
+
+  useEffect(() => {
     let cancelled = false;
 
     async function loadHomepageRows() {
@@ -59,13 +90,16 @@ function HomeContent() {
         const params = {
           q: selectedQuery || undefined,
           location: selectedLocation || undefined,
-          userId: user?.id || undefined
+          userId: user?.id || undefined,
+          lat: userLocation?.lat,
+          lng: userLocation?.lng,
         };
         
         const sectionsData = await RecommendationService.getHomepage(params);
+        let finalSections = Array.isArray(sectionsData) ? JSON.parse(JSON.stringify(sectionsData)) : [];
 
         if (!cancelled) {
-          setHomepageSections(Array.isArray(sectionsData) ? sectionsData : []);
+          setHomepageSections(finalSections);
         }
       } catch (err) {
         console.error("Failed to load homepage recommendations", err);
@@ -84,7 +118,7 @@ function HomeContent() {
     return () => {
       cancelled = true;
     };
-  }, [selectedLocation, selectedQuery, user]);
+  }, [selectedLocation, selectedQuery, user, userLocation]);
 
   const handleItemClick = (item, sectionKey, strategy, position, requestId) => {
     const targetId = item.offerId || item.merchantId || item.id || item._id;
@@ -97,9 +131,14 @@ function HomeContent() {
       requestId
     });
 
+    // Check structural hints if type is missing (e.g. cached backend responses)
+    const isProductOrAd = item.type === "product" || item.type === "ad" || (!item.type && !item.offerId && !item.merchantId);
+
     // Navigate using existing frontend logic
-    if (item.type === "merchant" || item.merchantId) {
+    if (item.type === "merchant" || (item.merchantId && !item.offerId && !isProductOrAd)) {
       router.push(`/nearby-deals/store?merchantId=${encodeURIComponent(targetId)}`);
+    } else if (isProductOrAd) {
+      router.push(`/product/${encodeURIComponent(targetId)}`);
     } else {
       router.push(`/nearby-deals/deal?offerId=${encodeURIComponent(targetId)}`);
     }

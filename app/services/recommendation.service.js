@@ -12,8 +12,10 @@ class RecommendationService {
     try {
       const queryParams = new URLSearchParams();
       if (params.userId) queryParams.append('userId', params.userId);
-      if (params.lat) queryParams.append('lat', params.lat.toString());
-      if (params.lng) queryParams.append('lng', params.lng.toString());
+      if (params.latitude !== undefined) queryParams.append('latitude', params.latitude.toString());
+      if (params.longitude !== undefined) queryParams.append('longitude', params.longitude.toString());
+      if (params.lat !== undefined) queryParams.append('lat', params.lat.toString());
+      if (params.lng !== undefined) queryParams.append('lng', params.lng.toString());
 
       const response = await apiClient(`/v1/recommendations/homepage?${queryParams.toString()}`);
       

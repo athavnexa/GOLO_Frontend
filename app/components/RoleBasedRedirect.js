@@ -16,7 +16,10 @@ export function useRoleProtection(requiredRole) {
       return;
     }
 
-    if (requiredRole && user.accountType !== requiredRole) {
+    const userRole = user.role || user.accountType || "user";
+    const isAuthorized = !requiredRole || userRole === requiredRole || userRole === "admin" || user.accountType === requiredRole;
+
+    if (!isAuthorized) {
       if (requiredRole === "merchant") {
         router.replace("/login");
       } else if (requiredRole === "user") {
@@ -27,7 +30,10 @@ export function useRoleProtection(requiredRole) {
     }
   }, [loading, user, requiredRole, router]);
 
-  return { isLoading: loading, isAuthorized: !loading && user && (!requiredRole || user.accountType === requiredRole) };
+  const userRole = user?.role || user?.accountType || "user";
+  const isAuthorized = !loading && user && (!requiredRole || userRole === requiredRole || userRole === "admin" || user.accountType === requiredRole);
+
+  return { isLoading: loading, isAuthorized };
 }
 
 export function LoadingScreen() {

@@ -97,10 +97,14 @@ export default function ProductDetails({ params }) {
 			requestId
 		});
 
-		if (item.type === "merchant" || item.merchantId) {
+		const isProductOrAd = item.type === "product" || item.type === "ad" || (!item.type && !item.offerId && !item.merchantId);
+
+		if (item.type === "merchant" || (item.merchantId && !item.offerId && !isProductOrAd)) {
 			router.push(`/nearby-deals/store?merchantId=${encodeURIComponent(targetId)}`);
-		} else {
+		} else if (isProductOrAd) {
 			router.push(`/product/${encodeURIComponent(targetId)}`);
+		} else {
+			router.push(`/nearby-deals/deal?offerId=${encodeURIComponent(targetId)}`);
 		}
 	};
 
