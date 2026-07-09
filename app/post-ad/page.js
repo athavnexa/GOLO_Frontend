@@ -86,7 +86,7 @@ export default function PostAdPage() {
       <Navbar />
 
       <div className="bg-[#F8F6F2] min-h-screen">
-        <div className="max-w-7xl mx-auto px-6 py-16">
+        <div className="relative z-10 max-w-7xl mx-auto px-6 py-16">
 
           <div className="text-center">
             <h1 className="text-4xl font-bold text-[#157A4F]">

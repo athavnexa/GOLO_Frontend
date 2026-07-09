@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
 import { createAd } from "../lib/api";
+import InappropriateImageModal from "./InappropriateImageModal";
 
 export default function FormSidebar({
   adTitleState,
@@ -27,6 +28,7 @@ export default function FormSidebar({
   const [submitError, setSubmitError] = useState("");
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [isFeatured, setIsFeatured] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const router = useRouter();
   const { user, isAuthenticated, logout } = useAuth();
 
@@ -216,7 +218,13 @@ export default function FormSidebar({
         adData[categoryKey] = categoryDetails;
       }
 
-      await createAd(adData);
+      const response = await createAd(adData);
+      
+      // If the backend returned a 2xx status but success is false (e.g. image moderation failure)
+      if (response && response.success === false) {
+        throw new Error(response.error || response.message || "Failed to post ad.");
+      }
+
       setSubmitSuccess(true);
       setTimeout(() => {
         router.push('/my-ads');
@@ -230,7 +238,9 @@ export default function FormSidebar({
         return;
       }
       const errorMsg = error.data?.message || error.message;
-      if (Array.isArray(errorMsg)) {
+      if (typeof errorMsg === 'string' && errorMsg.includes("inappropriate content")) {
+        setIsModalOpen(true);
+      } else if (Array.isArray(errorMsg)) {
         setSubmitError(errorMsg.join(", "));
       } else {
         setSubmitError(errorMsg || "Failed to post ad. Please try again.");
@@ -393,6 +403,11 @@ export default function FormSidebar({
         <button className="w-full border border-gray-300 py-3 rounded-xl hover:bg-gray-50 transition font-medium">
           Save Draft
         </button>
+
+        <InappropriateImageModal 
+          isOpen={isModalOpen} 
+          onClose={() => setIsModalOpen(false)} 
+        />
       </div>
     </div>
   );

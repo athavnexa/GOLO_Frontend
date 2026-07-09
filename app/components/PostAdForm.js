@@ -914,8 +914,8 @@ export default function PostAdForm({
         break;
     }
 
-    // Only set categoryDetails to an object if it's complete, else false
-    onCategoryDetailsChange && onCategoryDetailsChange(isComplete ? (categoryData || {}) : false);
+    console.log("DEBUG PostAdForm:", { selectedCategoryName: selectedCategory.name, selectedSub, isComplete, categoryData });
+    onCategoryDetailsChange && onCategoryDetailsChange(isComplete, categoryData);
   };
 
   // Helper functions
