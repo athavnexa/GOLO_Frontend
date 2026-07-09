@@ -7,6 +7,7 @@ import { CalendarDays, ChevronLeft, Upload, User } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
 import { submitBannerPromotionRequest } from "../../../lib/api";
 import MerchantNavbar from "../../MerchantNavbar";
+import InappropriateImageModal from "../../../components/InappropriateImageModal";
 
 const bannerCategories = [
   "Fashion",
@@ -70,18 +71,20 @@ export default function PromoteBannerPage() {
   const [bannerCategory, setBannerCategory] = useState("Fashion");
   const [selectedDates, setSelectedDates] = useState([]);
   const [bannerPreview, setBannerPreview] = useState("");
+  const [bannerFile, setBannerFile] = useState(null);
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
   const [submitting, setSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState("");
   const [submitError, setSubmitError] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const selectedDays = useMemo(() => selectedDates.length, [selectedDates]);
   const subtotal = selectedDays * DAILY_BANNER_RATE;
   const platformFee = selectedDays > 0 ? 49 : 0;
   const totalPrice = subtotal + platformFee;
 
-  const handleSubmitForApproval = async () => {
+  const handleSubmitBanner = async () => {
     setSubmitMessage("");
     setSubmitError("");
 
@@ -90,7 +93,7 @@ export default function PromoteBannerPage() {
       return;
     }
 
-    if (!bannerPreview) {
+    if (!bannerPreview && !bannerFile) {
       setSubmitError("Please upload a banner image before submitting.");
       return;
     }
@@ -102,10 +105,26 @@ export default function PromoteBannerPage() {
 
     setSubmitting(true);
     try {
-      await submitBannerPromotionRequest({
+      let finalImageUrl = bannerPreview;
+      
+      // Upload to Cloudinary first
+      if (bannerFile) {
+        setSubmitMessage("Uploading banner securely...");
+        const { uploadToCloudinary } = await import('../../../services/cloudinaryConfig');
+        try {
+          const uploadedData = await uploadToCloudinary(bannerFile);
+          finalImageUrl = uploadedData.url;
+        } catch (uploadError) {
+          throw new Error("Failed to upload image securely to the cloud. Please try again.");
+        }
+      }
+
+      setSubmitMessage("Analyzing banner for safety compliance...");
+
+      const response = await submitBannerPromotionRequest({
         bannerTitle: bannerTitle.trim(),
         bannerCategory,
-        imageUrl: bannerPreview,
+        imageUrl: finalImageUrl,
         selectedDates,
         totalPrice,
         dailyRate: DAILY_BANNER_RATE,
@@ -113,12 +132,25 @@ export default function PromoteBannerPage() {
         recommendedSize: "1920 x 520 px",
       });
 
-      setSubmitMessage("Banner request submitted for admin review.");
+      if (response && response.success === false) {
+        throw new Error(response.error || response.message || "Failed to submit banner.");
+      }
+
+      setSubmitMessage("Banner approved! Redirecting to payments...");
       setBannerTitle("");
       setSelectedDates([]);
       setBannerPreview("");
+      
+      setTimeout(() => {
+        router.push("/merchant/banners");
+      }, 1500);
     } catch (error) {
-      setSubmitError(error?.data?.message || "Failed to submit banner request.");
+      const errorMsg = error?.data?.message || error.message || "";
+      if (typeof errorMsg === 'string' && errorMsg.includes("inappropriate content")) {
+        setIsModalOpen(true);
+      } else {
+        setSubmitError(errorMsg || "Failed to submit banner request.");
+      }
     } finally {
       setSubmitting(false);
     }
@@ -197,15 +229,21 @@ export default function PromoteBannerPage() {
                         accept="image/*"
                         className="hidden"
                         onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (!file) return;
-                          const reader = new FileReader();
-                          reader.onload = () => {
-                            if (typeof reader.result === "string") {
-                              setBannerPreview(reader.result);
+                          const file = e.target.files[0];
+                          if (file) {
+                            if (file.size > 5 * 1024 * 1024) {
+                              setSubmitError("File size exceeds 5MB limit.");
+                              return;
                             }
-                          };
-                          reader.readAsDataURL(file);
+                            setBannerFile(file);
+                            const reader = new FileReader();
+                            reader.onload = () => {
+                              if (typeof reader.result === "string") {
+                                setBannerPreview(reader.result);
+                              }
+                            };
+                            reader.readAsDataURL(file);
+                          }
                         }}
                       />
                       <div className="h-10 w-10 rounded-full bg-[#ecf8f0] text-[#2f9e58] flex items-center justify-center">
@@ -411,23 +449,28 @@ export default function PromoteBannerPage() {
               </div>
 
               <button
-                onClick={handleSubmitForApproval}
+                onClick={handleSubmitBanner}
                 disabled={submitting}
                 className="mt-6 h-10 w-full rounded-[8px] bg-[#2f9e58] disabled:bg-[#9fcfad] text-white text-[13px] font-semibold inline-flex items-center justify-center"
               >
-                {submitting ? "Submitting..." : "Submit For Approval"}
+                {submitting ? "Submitting..." : "Submit Banner"}
               </button>
 
               {submitError ? <p className="mt-3 text-[11px] text-[#dc2626]">{submitError}</p> : null}
               {submitMessage ? <p className="mt-3 text-[11px] text-[#157a4f]">{submitMessage}</p> : null}
 
               <p className="mt-3 text-[11px] text-[#7a7a7a] leading-[1.45]">
-                Request status will be shown in Banner Promotions list as Under Review, Rejected, or Approved. Pay option appears after approval.
+                Your banner will be instantly verified by AI. Once approved, you can proceed to payment immediately.
               </p>
             </aside>
           </section>
         </div>
       </main>
+      
+      <InappropriateImageModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+      />
 
       <footer className="bg-[#e8ad2f] border-t border-[#d49b22] text-[#1b1b1b] px-4 py-4 lg:bg-[#f0b330] lg:px-8 lg:py-7 mt-4 lg:mt-6">
         <div className="max-w-[1500px] mx-auto flex flex-col lg:flex-row gap-8 lg:gap-12 items-start justify-between">
