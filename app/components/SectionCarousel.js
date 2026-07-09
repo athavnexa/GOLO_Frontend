@@ -146,7 +146,7 @@ export function SectionCarousel({ title, strategy, products, onItemClick }) {
                       className={`mt-auto h-10 w-full rounded-[7px] text-[13px] font-semibold text-white transition ${
                         isMerchant
                           ? "bg-[#2f9d3c] hover:bg-[#278531]"
-                          : "bg-[#ff9012] hover:bg-[#e57f0c]"
+                          : "bg-[#2f9d3c] hover:bg-[#278531]"
                       }`}
                     >
                       {buttonLabel}

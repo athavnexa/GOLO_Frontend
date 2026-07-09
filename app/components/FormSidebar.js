@@ -19,6 +19,8 @@ export default function FormSidebar({
   templateId,
   selectedDates,
   categoryDetails,
+  detectedLatitude,
+  detectedLongitude,
 }) {
   const [carouselIndex, setCarouselIndex] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -158,6 +160,8 @@ export default function FormSidebar({
         location: cities?.[0] || "India",
         city: cities?.[0] || "",
         cities: cities || [],
+        latitude: typeof detectedLatitude === 'number' ? detectedLatitude : undefined,
+        longitude: typeof detectedLongitude === 'number' ? detectedLongitude : undefined,
         primaryContact: normalizedPhone || "",
         userType: "Customer",
         contactInfo: {

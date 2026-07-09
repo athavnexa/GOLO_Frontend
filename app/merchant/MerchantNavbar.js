@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { User, Bell, X, CheckCheck } from "lucide-react";
+import { User, Bell, X, CheckCheck, Crown, HelpCircle, LogOut, Settings } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
+import { useAuth } from "../context/AuthContext";
 import { getNotifications, markNotificationRead, markAllNotificationsRead } from "../lib/api";
 
 const navItems = [
@@ -14,16 +15,18 @@ const navItems = [
   { key: "redeem", label: "Redeem QR", href: "/merchant/redeem" },
   { key: "banners", label: "Banners", href: "/merchant/banners" },
   { key: "analytics", label: "Analytics", href: "/merchant/analytics" },
-  { key: "settings", label: "Settings", href: "/merchant/settings" },
 ];
 
 export default function MerchantNavbar({ activeKey = "dashboard" }) {
   const router = useRouter();
+  const { user, logout } = useAuth();
   const [unreadCount, setUnreadCount] = useState(0);
-  const [showDropdown, setShowDropdown] = useState(false);
+  const [showNotifDropdown, setShowNotifDropdown] = useState(false);
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [loadingNotif, setLoadingNotif] = useState(false);
-  const dropdownRef = useRef(null);
+  const notifDropdownRef = useRef(null);
+  const profileDropdownRef = useRef(null);
 
   const fetchNotifications = async () => {
     try {
@@ -43,11 +46,13 @@ export default function MerchantNavbar({ activeKey = "dashboard" }) {
     return () => clearInterval(interval);
   }, []);
 
-  // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setShowDropdown(false);
+      if (notifDropdownRef.current && !notifDropdownRef.current.contains(event.target)) {
+        setShowNotifDropdown(false);
+      }
+      if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target)) {
+        setShowProfileDropdown(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -58,14 +63,14 @@ export default function MerchantNavbar({ activeKey = "dashboard" }) {
     try {
       await markNotificationRead(id);
       fetchNotifications();
-    } catch (err) { }
+    } catch (err) {}
   };
 
   const handleMarkAllRead = async () => {
     try {
       await markAllNotificationsRead();
       fetchNotifications();
-    } catch (err) { }
+    } catch (err) {}
   };
 
   const formatTime = (dateValue) => {
@@ -75,7 +80,13 @@ export default function MerchantNavbar({ activeKey = "dashboard" }) {
   };
 
   return (
-    <header className="sticky top-0 z-[9999] min-h-16 bg-[#efb02e] border-b border-[#d7a02a] px-4 py-2 lg:h-16 lg:px-10 lg:py-0 flex items-center justify-between gap-3 shadow-sm overflow-hidden lg:overflow-visible">
+    <header
+      className="sticky top-0 z-[9999] min-h-16 border-b border-[#d7a02a] px-4 py-2 lg:h-16 lg:px-10 lg:py-0 flex items-center justify-between gap-3 overflow-visible"
+      style={{
+        background: "linear-gradient(180deg, #efb02e 0%, #f3c76d 100%)",
+        boxShadow: "0 8px 24px rgba(15, 23, 42, 0.08)",
+      }}
+    >
       <div className="flex min-w-0 items-center gap-2 lg:min-w-[180px] lg:gap-3">
         <button type="button" onClick={() => router.push("/merchant/dashboard")} className="flex items-center gap-3 cursor-pointer">
           <div className="w-9 h-9 bg-white rounded-xl flex items-center justify-center shadow font-bold" style={{ color: "#157a4f" }}>
@@ -89,7 +100,6 @@ export default function MerchantNavbar({ activeKey = "dashboard" }) {
         <nav className="flex max-w-[50vw] items-center gap-2 overflow-x-auto overflow-y-hidden whitespace-nowrap py-1 [-ms-overflow-style:none] [scrollbar-width:none] lg:max-w-none lg:gap-8 lg:overflow-visible lg:py-0 [&::-webkit-scrollbar]:hidden">
           {navItems.map((item) => {
             const isActive = item.key === activeKey;
-            const isRedeem = item.key === "redeem";
 
             return (
               <button
@@ -98,9 +108,7 @@ export default function MerchantNavbar({ activeKey = "dashboard" }) {
                 className={
                   isActive
                     ? "relative h-9 px-2 text-[#157a4f] lg:h-16 lg:px-0"
-                    : isRedeem
-                      ? "relative h-9 px-2 hover:text-[#157a4f] lg:h-16 lg:px-0"
-                      : "h-9 px-2 hover:text-[#157a4f] lg:h-16 lg:px-0"
+                    : "h-9 px-2 hover:text-[#157a4f] lg:h-16 lg:px-0"
                 }
               >
                 {item.label}
@@ -108,13 +116,21 @@ export default function MerchantNavbar({ activeKey = "dashboard" }) {
               </button>
             );
           })}
+          <button
+            onClick={() => router.push("/merchant/upgrade")}
+            className={`relative h-9 px-2 lg:h-16 lg:px-0 ${activeKey === "upgrade" ? "text-[#157a4f]" : "text-[#5a4514] hover:text-[#157a4f]"}`}
+          >
+            Upgrade
+          </button>
         </nav>
 
-        {/* Notification Bell with Dropdown */}
-        <div className="relative" ref={dropdownRef}>
+        <div className="relative" ref={notifDropdownRef}>
           <button
             type="button"
-            onClick={() => setShowDropdown(!showDropdown)}
+            onClick={() => {
+              setShowNotifDropdown(!showNotifDropdown);
+              setShowProfileDropdown(false);
+            }}
             className="relative h-10 w-10 min-w-[2.5rem] shrink-0 rounded-full bg-white shadow-md hover:scale-105 transition flex items-center justify-center"
             aria-label="Notifications"
           >
@@ -126,8 +142,7 @@ export default function MerchantNavbar({ activeKey = "dashboard" }) {
             )}
           </button>
 
-          {/* Dropdown Panel */}
-          {showDropdown && (
+          {showNotifDropdown && (
             <div className="absolute right-0 top-14 w-[calc(100vw-2rem)] max-w-80 max-h-[420px] bg-white rounded-[12px] shadow-2xl border border-[#e5e5e5] overflow-hidden z-[10000]">
               <div className="px-4 py-3 border-b border-[#f0f0f0] flex items-center justify-between">
                 <h3 className="text-[14px] font-bold text-[#1e1e1e]">Notifications</h3>
@@ -139,9 +154,7 @@ export default function MerchantNavbar({ activeKey = "dashboard" }) {
               </div>
 
               <div className="overflow-y-auto max-h-[340px]">
-                {loadingNotif ? (
-                  <div className="px-4 py-6 text-center text-[12px] text-[#999]">Loading...</div>
-                ) : notifications.length === 0 ? (
+                {notifications.length === 0 ? (
                   <div className="px-4 py-6 text-center text-[12px] text-[#999]">No notifications yet</div>
                 ) : (
                   notifications.map((n) => (
@@ -160,9 +173,91 @@ export default function MerchantNavbar({ activeKey = "dashboard" }) {
           )}
         </div>
 
-        <button type="button" onClick={() => router.push("/merchant/profile")} className="h-10 w-10 min-w-[2.5rem] shrink-0 rounded-full bg-white shadow-md hover:scale-105 transition flex items-center justify-center" aria-label="Profile">
-          <User size={18} style={{ color: "#157a4f" }} />
-        </button>
+        <div className="relative" ref={profileDropdownRef}>
+          <button
+            type="button"
+            onClick={() => {
+              setShowProfileDropdown(!showProfileDropdown);
+              setShowNotifDropdown(false);
+            }}
+            className="h-10 w-10 min-w-[2.5rem] shrink-0 rounded-full bg-white shadow-md hover:scale-105 transition flex items-center justify-center"
+            aria-label="Profile menu"
+          >
+            <User size={18} style={{ color: "#157a4f" }} />
+          </button>
+
+          {showProfileDropdown && (
+            <div className="absolute right-0 top-14 w-72 overflow-hidden rounded-[14px] border border-[#e5e5e5] bg-white py-2 text-[12px] font-semibold shadow-xl z-[10000]">
+              <div className="px-4 py-3 border-b border-[#f0f0f0]">
+                <p className="text-[13px] font-bold text-[#1e1e1e] truncate">{user?.shopName || user?.name || "My Store"}</p>
+                <p className="text-[11px] text-[#666] truncate">{user?.email || "No email"}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  router.push("/merchant/profile");
+                  setShowProfileDropdown(false);
+                }}
+                className="flex w-full items-center gap-3 px-4 py-2.5 text-left transition hover:bg-[#f8f8f8] text-[#111]"
+              >
+                <User size={15} /> Profile Settings
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  router.push("/merchant/profile?tab=loyalty");
+                  setShowProfileDropdown(false);
+                }}
+                className="flex w-full items-center gap-3 px-4 py-2.5 text-left transition hover:bg-[#f8f8f8] text-[#111]"
+              >
+                <Crown size={15} /> Loyalty Rewards
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  router.push("/merchant/help");
+                  setShowProfileDropdown(false);
+                }}
+                className="flex w-full items-center gap-3 px-4 py-2.5 text-left transition hover:bg-[#f8f8f8] text-[#111]"
+              >
+                <HelpCircle size={15} /> Help
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  router.push("/merchant/settings");
+                  setShowProfileDropdown(false);
+                }}
+                className="flex w-full items-center gap-3 px-4 py-2.5 text-left transition hover:bg-[#f8f8f8] text-[#111]"
+              >
+                <Settings size={15} /> Settings
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  router.push("/merchant/upgrade");
+                  setShowProfileDropdown(false);
+                }}
+                className="flex w-full items-center gap-3 px-4 py-2.5 text-left transition hover:bg-[#f4fbf7] text-[#157a4f]"
+              >
+                <Crown size={15} /> Upgrade
+              </button>
+              <div className="border-t border-[#f0f0f0] mt-1 pt-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowProfileDropdown(false);
+                    logout();
+                    router.push("/login");
+                  }}
+                  className="flex w-full items-center gap-3 px-4 py-2.5 text-left transition hover:bg-[#fef2f2] text-[#ef4444]"
+                >
+                  <LogOut size={15} /> Logout
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </header>
   );

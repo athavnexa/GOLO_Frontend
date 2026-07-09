@@ -88,13 +88,35 @@ function RecentListingsContent() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [sortValue, setSortValue] = useState("createdAt_desc");
-    const [userLocation, setUserLocation] = useState(null);
+    const [userLocation, setUserLocation] = useState(() => {
+        if (typeof window !== "undefined") {
+            try {
+                const stored = localStorage.getItem("golo_current_location");
+                if (stored) {
+                    const parsed = JSON.parse(stored);
+                    if (parsed?.coordinates?.lat && parsed?.coordinates?.lng) {
+                        return {
+                            lat: parsed.coordinates.lat,
+                            lng: parsed.coordinates.lng,
+                        };
+                    }
+                }
+            } catch (e) {
+                console.error("Error reading stored location:", e);
+            }
+        }
+        return null;
+    });
     const [showAuthPrompt, setShowAuthPrompt] = useState(false);
     const { isAuthenticated } = useAuth();
 
     const q = searchParams.get("q") || "";
     const category = searchParams.get("category") || "";
     const location = searchParams.get("location") || "";
+    const latFromUrl = searchParams.get("lat");
+    const lngFromUrl = searchParams.get("lng");
+    const manualLatitude = latFromUrl ? parseFloat(latFromUrl) : null;
+    const manualLongitude = lngFromUrl ? parseFloat(lngFromUrl) : null;
 
     // Get user location for proximity sorting
     useEffect(() => {
@@ -113,25 +135,29 @@ function RecentListingsContent() {
             try {
                 setLoading(true);
                 const [sortBy, sortOrder] = sortValue.split("_");
+                const resolvedLat = (manualLatitude !== null || location) ? manualLatitude : userLocation?.lat;
+                const resolvedLng = (manualLongitude !== null || location) ? manualLongitude : userLocation?.lng;
 
                 let response;
                 // Choja should show the full public feed by default.
                 // Use nearby ads only when the user explicitly selects Nearby.
-                if (sortValue === "distance_asc" && userLocation?.lat && userLocation?.lng) {
+                if (sortValue === "distance_asc" && resolvedLat && resolvedLng) {
                     response = await getNearbyAds({
-                        lat: userLocation?.lat,
-                        lng: userLocation?.lng,
+                        lat: resolvedLat,
+                        lng: resolvedLng,
                         category,
                         page: 1,
                         limit: 50
                     });
-                } else if (q || location || category) {
+                } else if (q || location || category || resolvedLat || resolvedLng) {
                     response = await searchAds({
                         q,
                         category,
                         location,
                         sortBy,
                         sortOrder,
+                        lat: resolvedLat || undefined,
+                        lng: resolvedLng || undefined,
                         page: 1,
                         limit: 50,
                     });
@@ -160,7 +186,7 @@ function RecentListingsContent() {
             }
         }
         fetchAds();
-    }, [q, category, location, sortValue, userLocation]);
+    }, [q, category, location, sortValue, userLocation, manualLatitude, manualLongitude]);
 
     const layoutAds = assignBentoLayout(ads);
 

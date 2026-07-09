@@ -43,7 +43,6 @@ export function AuthProvider({ children }) {
                         ...(currentUser || {}),
                         ...profileUser,
                         accountType: profileUser?.accountType || currentUser?.accountType || "user",
-                        role: profileUser?.role || currentUser?.role || profileUser?.accountType || currentUser?.accountType || "user",
                     };
                     localStorage.setItem("user", JSON.stringify(mergedProfileUser));
                     setUser(mergedProfileUser);
@@ -84,8 +83,7 @@ export function AuthProvider({ children }) {
         // Ensure accountType is preserved from response or fallback to login parameter
         const userDataWithType = {
             ...userData,
-            accountType: userData?.accountType || accountType || 'user',
-            role: userData?.role || userData?.accountType || accountType || 'user'
+            accountType: userData?.accountType || accountType || 'user'
         };
 
         localStorage.setItem("user", JSON.stringify(userDataWithType));
@@ -172,10 +170,6 @@ export function AuthProvider({ children }) {
         return user?.accountType || 'user';
     }, [user]);
 
-    const getUserRole = useCallback(() => {
-        return user?.role || user?.accountType || 'user';
-    }, [user]);
-
     const value = {
         user,
         loading,
@@ -185,7 +179,6 @@ export function AuthProvider({ children }) {
         logout,
         refreshProfile,
         getUserAccountType,  // Safe way to get account type
-        getUserRole,
     };
 
     return (

@@ -15,12 +15,13 @@ export default function StepProgress({
   ];
 
   return (
-    <div className="flex justify-between items-center bg-white p-6 rounded-2xl shadow-md border border-gray-100">
+    <div className="w-full max-w-full overflow-x-auto rounded-2xl pb-1 sm:overflow-visible sm:pb-0">
+      <div className="flex w-max min-w-full items-center gap-2 rounded-2xl border border-gray-100 bg-white p-2.5 shadow-md sm:w-auto sm:min-w-0 sm:justify-between sm:gap-0 sm:p-6">
       {steps.map((step, i) => (
-        <div key={i} className="flex items-center gap-3 flex-1">
+        <div key={i} className="flex min-w-[136px] items-center gap-2 sm:min-w-0 sm:flex-1 sm:gap-3">
           {/* Step Number or Checkmark */}
           <div
-            className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
+            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold transition-all sm:h-10 sm:w-10 sm:text-sm ${
               step.isComplete
                 ? "bg-green-500 text-white shadow-lg"
                 : i + 1 === currentStep
@@ -29,16 +30,16 @@ export default function StepProgress({
             }`}
           >
             {step.isComplete ? (
-              <Check size={20} strokeWidth={3} />
+              <Check size={16} strokeWidth={3} className="sm:h-5 sm:w-5" />
             ) : (
               i + 1
             )}
           </div>
 
           {/* Step Label */}
-          <div className="flex flex-col">
+          <div className="flex min-w-[74px] flex-col sm:min-w-0">
             <p
-              className={`text-sm font-semibold transition ${
+              className={`text-xs font-semibold leading-tight transition sm:text-sm ${
                 step.isComplete
                   ? "text-green-600"
                   : i + 1 === currentStep
@@ -49,20 +50,21 @@ export default function StepProgress({
               {step.label}
             </p>
             {step.isComplete && (
-              <p className="text-xs text-green-500 font-medium">Completed</p>
+              <p className="text-[10px] font-medium text-green-500 sm:text-xs">Completed</p>
             )}
           </div>
 
           {/* Connector Line */}
           {i !== steps.length - 1 && (
             <div
-              className={`flex-1 h-1 mx-4 rounded-full transition ${
+              className={`h-1 w-5 shrink-0 rounded-full transition sm:mx-4 sm:flex-1 ${
                 step.isComplete ? "bg-green-500" : "bg-gray-300"
               }`}
             />
           )}
         </div>
       ))}
+      </div>
     </div>
   );
 }

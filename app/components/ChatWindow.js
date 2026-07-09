@@ -1,7 +1,9 @@
 "use client";
 
+import { createPortal } from "react-dom";
 import { ArrowLeft, Check, CheckCheck, Paperclip, Phone, PhoneIncoming, PhoneMissed, PhoneOutgoing, Send, X, MoreVertical } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import UserReportModal from "../components/UserReportModal";
 
 const formatTime = (value) => {
@@ -121,9 +123,12 @@ export default function ChatWindow({
             className="h-10 w-10 shrink-0 rounded-full object-cover md:h-[45px] md:w-[45px]"
           />
           <div className="min-w-0">
-            <h3 className="truncate font-semibold text-base text-gray-800 md:text-lg">
+            <Link
+              href={`/profile/${conversation?.otherUser?.id || conversation?.otherUser?._id || ''}`}
+              className="truncate font-semibold text-base text-gray-800 md:text-lg hover:text-[#157A4F] transition-colors block"
+            >
               {conversation?.otherUser?.name || "User"}
-            </h3>
+            </Link>
             <p className="truncate text-xs text-gray-500 -mt-0.5">
               {isOtherUserTyping ? "Typing..." : formatLastSeen(presence)}
             </p>
@@ -170,12 +175,17 @@ export default function ChatWindow({
             </div>
           )}
         </div>
-            <UserReportModal
-              isOpen={showReportModal}
-              onClose={() => setShowReportModal(false)}
-              userId={conversation?.otherUser?.id || conversation?.otherUser?._id || ""}
-              userName={conversation?.otherUser?.name}
-            />
+          {showReportModal &&
+            typeof window !== "undefined" &&
+            createPortal(
+              <UserReportModal
+                isOpen={showReportModal}
+                onClose={() => setShowReportModal(false)}
+                userId={conversation?.otherUser?.id || conversation?.otherUser?._id || ""}
+                userName={conversation?.otherUser?.name}
+              />,
+              document.body,
+            )}
       </div>
 
       {/* SCROLLABLE MESSAGES AREA */}

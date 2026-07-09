@@ -69,68 +69,63 @@ export default function ReportModal({ isOpen, onClose, adId, adTitle }) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-x-0 top-20 bottom-0 bg-black/45 backdrop-blur-[2px] flex items-start justify-center z-40 p-4 sm:p-6 overflow-y-auto">
+    <div className="fixed inset-0 bg-black/45 backdrop-blur-[2px] flex items-center justify-center z-[10000] p-3 sm:p-6">
       <div
-        className="modal-scroll-hidden bg-white rounded-[32px] max-w-md w-full max-h-[80vh] overflow-y-auto shadow-2xl mt-2 border border-gray-200"
+        className="modal-scroll-hidden bg-white rounded-[28px] sm:rounded-[32px] max-w-md w-full max-h-[75vh] sm:max-h-[80vh] overflow-y-auto shadow-2xl border border-gray-200"
         style={{
           scrollbarWidth: 'none',
           msOverflowStyle: 'none',
         }}
       >
         <style>{`.modal-scroll-hidden::-webkit-scrollbar { display: none; }`}</style>
-        {/* Header */}
-        <div className="flex items-start justify-between px-5 py-4 border-b border-gray-200">
-          <div className="flex items-start gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-red-50 text-red-500 flex items-center justify-center shrink-0 mt-0.5">
-              <AlertTriangle size={16} />
+        <div className="flex items-start justify-between px-4 py-3 sm:px-5 sm:py-4 border-b border-gray-200">
+          <div className="flex items-start gap-2">
+            <div className="w-7 h-7 rounded-lg bg-red-50 text-red-500 flex items-center justify-center shrink-0 mt-0.5">
+              <AlertTriangle size={14} />
             </div>
             <div>
-            <h2 className="text-lg font-bold text-gray-800 leading-tight">Report This Ad</h2>
-            <p className="text-xs text-gray-500 mt-1">Help us review suspicious or inappropriate listings.</p>
+              <h2 className="text-base font-bold text-gray-800 leading-tight sm:text-lg">Report This Ad</h2>
+              <p className="text-[11px] text-gray-500 mt-0.5 sm:text-xs">Help us review suspicious or inappropriate listings.</p>
             </div>
           </div>
           <button
             onClick={handleClose}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors shrink-0"
+            className="p-1.5 hover:bg-gray-100 rounded-full transition-colors shrink-0 sm:p-2"
             disabled={isSubmitting}
             aria-label="Close report modal"
           >
-            <X size={20} className="text-gray-500" />
+            <X size={18} className="text-gray-500 sm:hidden" />
+            <X size={20} className="text-gray-500 hidden sm:block" />
           </button>
         </div>
 
         {/* Body */}
-        <div className="px-5 py-4 sm:py-5">
+        <div className="px-3 py-3 sm:px-4 sm:py-4">
           {submitted ? (
-            // Success Message
-            <div className="text-center py-6">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="text-center py-4 sm:py-6">
+              <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                <svg className="w-7 h-7 text-green-500 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">Report Submitted!</h3>
-              <p className="text-gray-600">
-                Thank you for helping keep GOLO safe. Our team will review this ad shortly.
-              </p>
+              <h3 className="text-base font-semibold text-gray-800 mb-1.5 sm:text-lg sm:mb-2">Report Submitted!</h3>
+              <p className="text-xs text-gray-600 sm:text-sm">Thank you for helping keep GOLO safe. Our team will review this ad shortly.</p>
             </div>
           ) : (
-            // Report Form
             <>
               {adTitle && (
-                <div className="mb-5 px-3.5 py-3 bg-gray-50 rounded-xl border border-gray-200">
-                  <p className="text-xs text-gray-500 mb-1.5 uppercase tracking-wide">Reporting ad</p>
-                  <p className="text-sm font-semibold text-gray-800 truncate leading-snug">{adTitle}</p>
+                <div className="mb-3 px-3 py-2 bg-gray-50 rounded-lg border border-gray-200 sm:mb-4 sm:px-3.5 sm:py-3">
+                  <p className="text-[10px] text-gray-500 mb-0.5 uppercase tracking-wide sm:text-xs sm:mb-1.5">Reporting ad</p>
+                  <p className="text-xs font-semibold text-gray-800 truncate leading-snug sm:text-sm">{adTitle}</p>
                 </div>
               )}
 
               <form onSubmit={handleSubmit}>
-                {/* Reason Selection */}
-                <div className="mb-5">
-                  <label className="block text-sm font-semibold text-gray-700 mb-2.5">
+                <div className="mb-3 sm:mb-5">
+                  <label className="block text-xs font-semibold text-gray-700 mb-1.5 sm:text-sm sm:mb-2.5">
                     Why are you reporting this ad? *
                   </label>
-                  <div className="space-y-2.5">
+                  <div className="space-y-1.5 sm:space-y-2.5">
                     {REPORT_REASONS.map((reason) => (
                       (() => {
                         const Icon = reason.icon;
@@ -139,21 +134,21 @@ export default function ReportModal({ isOpen, onClose, adId, adTitle }) {
                         key={reason.value}
                         type="button"
                         onClick={() => setSelectedReason(reason.value)}
-                        className={`w-full text-left px-3.5 py-3 rounded-2xl border transition-all duration-150 ${
+                        className={`w-full text-left px-3 py-2.5 rounded-xl border transition-all duration-150 sm:px-3.5 sm:py-3 sm:rounded-2xl ${
                           selectedReason === reason.value
                             ? 'border-red-500 bg-red-50 shadow-[0_0_0_1px_rgba(239,68,68,0.08)]'
                             : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                         }`}
                       >
-                        <div className="flex items-center justify-between gap-3">
-                          <div className="flex items-center gap-2.5 min-w-0">
-                            <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${selectedReason === reason.value ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-500'}`}>
-                              <Icon size={15} />
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 sm:w-8 sm:h-8 sm:rounded-xl ${selectedReason === reason.value ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-500'}`}>
+                              <Icon size={13} />
                             </div>
-                            <span className="font-medium text-gray-800 text-sm leading-snug truncate">{reason.label}</span>
+                            <span className="font-medium text-gray-800 text-xs leading-snug truncate sm:text-sm">{reason.label}</span>
                           </div>
                           <span
-                            className={`w-4 h-4 rounded-full border-2 shrink-0 transition-colors ${
+                            className={`w-3.5 h-3.5 rounded-full border-2 shrink-0 transition-colors sm:w-4 sm:h-4 ${
                               selectedReason === reason.value ? 'border-red-500 bg-red-500' : 'border-gray-300 bg-white'
                             }`}
                           />
@@ -165,9 +160,8 @@ export default function ReportModal({ isOpen, onClose, adId, adTitle }) {
                   </div>
                 </div>
 
-                {/* Description (Optional) */}
-                <div className="mb-5">
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <div className="mb-3 sm:mb-5">
+                  <label className="block text-xs font-semibold text-gray-700 mb-1.5 sm:text-sm sm:mb-2">
                     Additional Details (Optional)
                   </label>
                   <textarea
@@ -175,28 +169,26 @@ export default function ReportModal({ isOpen, onClose, adId, adTitle }) {
                     onChange={(e) => setDescription(e.target.value)}
                     placeholder="Please provide more details about why you're reporting this ad..."
                     maxLength={500}
-                    rows={3}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-red-500/30 focus:border-red-400 outline-none resize-none text-sm"
+                    rows={2}
+                    className="w-full px-3 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500/30 focus:border-red-400 outline-none resize-none text-xs sm:px-4 sm:py-3 sm:rounded-2xl sm:text-sm"
                     disabled={isSubmitting}
                   />
-                  <p className="text-xs text-gray-500 mt-1 text-right">
+                  <p className="text-[10px] text-gray-500 mt-0.5 text-right sm:text-xs sm:mt-1">
                     {description.length}/500 characters
                   </p>
                 </div>
 
-                {/* Error Message */}
                 {error && (
-                  <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-2xl">
-                    <p className="text-sm text-red-700">{error}</p>
+                  <div className="mb-3 p-2.5 bg-red-50 border border-red-200 rounded-xl sm:mb-4 sm:p-3">
+                    <p className="text-xs text-red-700 sm:text-sm">{error}</p>
                   </div>
                 )}
 
-                {/* Submit Button */}
-                <div className="grid grid-cols-2 gap-3 pt-1">
+                <div className="grid grid-cols-2 gap-2 pt-1 sm:gap-3">
                   <button
                     type="button"
                     onClick={handleClose}
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-2xl font-semibold text-gray-700 hover:bg-gray-50 transition-colors text-sm"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-xl font-semibold text-gray-700 hover:bg-gray-50 transition-colors text-xs sm:px-4 sm:py-2.5 sm:rounded-2xl sm:text-sm"
                     disabled={isSubmitting}
                   >
                     Cancel
@@ -204,7 +196,7 @@ export default function ReportModal({ isOpen, onClose, adId, adTitle }) {
                   <button
                     type="submit"
                     disabled={isSubmitting || !selectedReason}
-                    className={`w-full px-4 py-2.5 rounded-2xl font-semibold text-white transition-colors flex items-center justify-center gap-2 text-sm ${
+                    className={`w-full px-3 py-2 rounded-xl font-semibold text-white transition-colors flex items-center justify-center gap-1.5 text-xs sm:px-4 sm:py-2.5 sm:rounded-2xl sm:gap-2 sm:text-sm ${
                       isSubmitting || !selectedReason
                         ? 'bg-gray-400 cursor-not-allowed'
                         : 'bg-red-500 hover:bg-red-600'
@@ -212,11 +204,11 @@ export default function ReportModal({ isOpen, onClose, adId, adTitle }) {
                   >
                     {isSubmitting ? (
                       <>
-                        <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                        <svg className="animate-spin h-4 w-4 sm:h-5 sm:w-5" viewBox="0 0 24 24">
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                         </svg>
-                        Submitting...
+                        <span>Submitting...</span>
                       </>
                     ) : (
                       'Submit Report'

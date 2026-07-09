@@ -735,38 +735,8 @@ export async function getActiveHomepageBanners(limit = 5) {
 }
 
 export async function getHomeSectionConfig() {
-    return apiClient('/homepage-config', {
+    return apiClient('/home-sections/config', {
         cache: 'no-store',
-    });
-}
-
-export async function fetchHomepageRecommendations(contextParams = {}) {
-    const params = new URLSearchParams(contextParams);
-    return apiClient(`/v1/recommendations/homepage?${params}`);
-}
-
-export async function reportRecommendationEvents(events) {
-    if (!events || events.length === 0) return;
-    try {
-        return await apiClient('/v1/analytics/events', {
-            method: 'POST',
-            body: JSON.stringify({ events })
-        });
-    } catch (e) {
-        console.error("Failed to report recommendation events", e);
-    }
-}
-
-export async function resetHomeSectionConfig() {
-    return apiClient('/homepage-config/reset', {
-        method: 'POST',
-    });
-}
-
-export async function updateHomeSectionConfig(config) {
-    return apiClient('/homepage-config', {
-        method: 'PUT',
-        body: JSON.stringify(config),
     });
 }
 
@@ -810,11 +780,6 @@ async function fetchAbsoluteJson(url) {
     const headers = {
         'Content-Type': 'application/json',
     };
-
-    const storedAccessToken = getStoredAccessToken();
-    if (storedAccessToken) {
-        headers['Authorization'] = `Bearer ${storedAccessToken}`;
-    }
 
     let response;
     try {
@@ -915,10 +880,6 @@ export async function getNearbyOffers({
     }
 }
 
-export async function getRecentlyViewedOffers() {
-    return apiClient('/offers/user/recently-viewed');
-}
-
 export async function getNearbyOfferDetails(offerId) {
     const endpoint = `/offers/${offerId}`;
 
@@ -947,7 +908,11 @@ export async function getPublicMerchantProfile(merchantId) {
 }
 
 export async function getPublicMerchantStoreLocation(merchantId) {
-    return apiClient(`/merchant/public/${merchantId}/store-location`);
+  return apiClient(`/merchants/public/${encodeURIComponent(merchantId)}/location`);
+}
+
+export async function getPublicMerchantReviewStats(merchantId) {
+  return apiClient(`/reviews/merchant/${encodeURIComponent(merchantId)}/public-stats`);
 }
 
 export async function getPublicMerchantProducts(merchantId, { page = 1, limit = 10, search = '' } = {}) {

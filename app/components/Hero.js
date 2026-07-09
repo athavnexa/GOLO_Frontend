@@ -45,16 +45,33 @@ function normalizeImageUrl(rawUrl) {
 }
 
 function extractMerchantId(item) {
-  return String(
-    item?.merchantId ||
-      item?.merchant?.merchantId ||
-      item?.merchant?.userId ||
-      item?.merchant?._id ||
-      item?.merchant?.id ||
-      item?.merchantStoreId ||
-      item?.userId ||
-      ""
-  ).trim();
+  const raw = String(item?.merchantId || "").trim();
+  if (raw && !raw.startsWith("shop-")) {
+    return raw;
+  }
+  return "";
+}
+
+function parseDateValue(value) {
+  if (!value) return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function getBannerDisplayStatus(item) {
+  const rawStatus = String(item?.status || "").trim().toLowerCase();
+  if (rawStatus === "rejected") return "rejected";
+  if (rawStatus === "under_review" || rawStatus === "pending") return "under_review";
+
+  const startDate = parseDateValue(item?.startDate || item?.start || item?.start_date);
+  const endDate = parseDateValue(item?.endDate || item?.end || item?.end_date);
+  const now = new Date();
+
+  if (startDate && now < startDate) return "upcoming";
+  if (endDate && now > endDate) return "expired";
+  if (rawStatus === "active" || rawStatus === "approved") return "active";
+  if (!startDate && !endDate) return rawStatus || "active";
+  return "active";
 }
 
 export default function Hero() {
@@ -95,10 +112,7 @@ export default function Hero() {
         }
 
         const dynamicSlides = rows
-          .filter((item) => {
-            const status = String(item?.status || "").toLowerCase();
-            return status === "approved" || status === "active" || !status;
-          })
+          .filter((item) => getBannerDisplayStatus(item) === "active")
           .map((item) => {
             const imageUrl = normalizeImageUrl(extractBannerImageUrl(item));
             if (!imageUrl) return null;
@@ -178,12 +192,12 @@ export default function Hero() {
   };
 
   const imageClassName =
-    "absolute inset-0 h-full w-full object-contain object-center sm:object-cover";
+    "absolute inset-0 h-full w-full object-cover object-center";
 
   if (loading) {
     return (
       <section className="relative w-full overflow-hidden bg-[#F8F6F2]">
-        <div className="relative aspect-[3/1] w-full bg-[#ece9e1] sm:h-[340px] sm:aspect-auto md:h-[520px]" />
+        <div className="relative h-[150px] w-full bg-[#ece9e1] sm:h-[340px] sm:aspect-auto md:h-[520px]" />
       </section>
     );
   }
@@ -206,7 +220,7 @@ export default function Hero() {
     <section className="relative w-full overflow-hidden bg-[#F8F6F2]">
 
       {/* Carousel Wrapper */}
-      <div className="relative aspect-[3/1] w-full overflow-hidden sm:h-[340px] sm:aspect-auto md:h-[520px]">
+      <div className="relative h-[150px] w-full overflow-hidden sm:h-[340px] sm:aspect-auto md:h-[520px]">
 
         {slides.map((slide, index) => (
           <div
@@ -238,7 +252,7 @@ export default function Hero() {
                     fill
                     priority={index === 0}
                     sizes="100vw"
-                    className="object-contain object-center sm:object-cover"
+                    className="object-cover object-center"
                     onError={() => handleImageError(slide.url)}
                   />
                 )}
@@ -259,7 +273,7 @@ export default function Hero() {
                 fill
                 priority={index === 0}
                 sizes="100vw"
-                className="object-contain object-center sm:object-cover"
+                className="object-cover object-center"
                 onError={() => handleImageError(slide.url)}
               />
             )}

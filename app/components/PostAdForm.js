@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
+import { searchLocations } from "../services/leafletService";
 
 export default function PostAdForm({
   adTitleState,
@@ -53,6 +54,9 @@ export default function PostAdForm({
   // All hooks at top level
   const scrollRef = useRef(null);
   const [input, setInput] = useState("");
+  const [locationSuggestions, setLocationSuggestions] = useState([]);
+  const [showLocationSuggestions, setShowLocationSuggestions] = useState(false);
+  const [locationLoading, setLocationLoading] = useState(false);
   // error states
   const [titleError, setTitleError] = useState(false);
   const [descError, setDescError] = useState(false);
@@ -321,7 +325,6 @@ export default function PostAdForm({
     };
   };
 
-  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (!initialAd) return;
 
@@ -522,13 +525,32 @@ export default function PostAdForm({
     setOtherDescription(categoryData.description || "");
     setOtherPrice(categoryData.price != null ? String(categoryData.price) : "");
   }, [initialAd]);
-  /* eslint-enable react-hooks/set-state-in-effect */
 
   useEffect(() => {
     if (!initialAd && selectedCategory === null && categories.length > 0) {
       setSelectedCategory(categories[0]);
     }
   }, [initialAd, selectedCategory]);
+
+  useEffect(() => {
+    if (!input.trim()) return;
+
+    const delay = setTimeout(async () => {
+      setLocationLoading(true);
+      try {
+        const results = await searchLocations(input.trim(), { limit: 6, country: "in" });
+        setLocationSuggestions(results || []);
+        setShowLocationSuggestions(true);
+      } catch (error) {
+        setLocationSuggestions([]);
+        setShowLocationSuggestions(false);
+      } finally {
+        setLocationLoading(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(delay);
+  }, [input]);
 
   const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   const currentYear = new Date().getFullYear();
@@ -905,16 +927,23 @@ export default function PostAdForm({
     });
   };
 
-  const addCity = () => {
-    if (input.trim() && !cities.includes(input.trim())) {
-      setCities([...cities, input.trim()]);
-      setInput("");
-      setLocationError(false);
-    }
+  const addCity = (value = input.trim()) => {
+    const normalizedValue = value.trim();
+    if (!normalizedValue) return;
+
+    setCities((prev) => {
+      if (prev.includes(normalizedValue)) {
+        return prev;
+      }
+      return [...prev, normalizedValue];
+    });
+    setInput("");
+    setLocationError(false);
+    setShowLocationSuggestions(false);
   };
 
   const removeCity = (cityToRemove) => {
-    setCities(cities.filter((city) => city !== cityToRemove));
+    setCities((prev) => prev.filter((city) => city !== cityToRemove));
   };
 
   const handleKeyDown = (e) => {
@@ -1172,20 +1201,20 @@ export default function PostAdForm({
   }, [templateId]);
 
   return (
-    <div className="space-y-12 bg-[#F8F6F2] p-6 rounded-3xl">
+    <div className="post-ad-mobile-form space-y-5 rounded-2xl bg-[#F8F6F2] p-3 sm:space-y-12 sm:rounded-3xl sm:p-6">
 
       {/* Choose Category */}
       {!isEditMode && (
-        <div className="bg-white p-10 rounded-3xl shadow-md border border-gray-100 relative min-h-[320px]">
+        <div className="relative min-h-[210px] rounded-2xl border border-gray-100 bg-white p-4 shadow-md sm:min-h-[320px] sm:rounded-3xl sm:p-10">
 
-          <h3 className="font-semibold text-2xl mb-8 text-gray-800 text-center">
+          <h3 className="mb-4 text-center text-lg font-semibold text-gray-800 sm:mb-8 sm:text-2xl">
             Choose Category
           </h3>
 
           {/* Left Scroll Button */}
           <button
             onClick={() => scroll("left")}
-            className="absolute left-2 top-1/2 -translate-y-1/2 bg-white border border-gray-200 shadow-md rounded-full p-2 hover:bg-[#FFF3D6] transition z-10"
+            className="absolute left-1 top-1/2 z-10 -translate-y-1/2 rounded-full border border-gray-200 bg-white p-1.5 shadow-md transition hover:bg-[#FFF3D6] sm:left-2 sm:p-2"
           >
             <ChevronLeft size={18} />
           </button>
@@ -1193,7 +1222,7 @@ export default function PostAdForm({
           {/* Right Scroll Button */}
           <button
             onClick={() => scroll("right")}
-            className="absolute right-2 top-1/2 -translate-y-1/2 bg-white border border-gray-200 shadow-md rounded-full p-2 hover:bg-[#FFF3D6] transition z-10"
+            className="absolute right-1 top-1/2 z-10 -translate-y-1/2 rounded-full border border-gray-200 bg-white p-1.5 shadow-md transition hover:bg-[#FFF3D6] sm:right-2 sm:p-2"
           >
             <ChevronRight size={18} />
           </button>
@@ -1201,7 +1230,7 @@ export default function PostAdForm({
           {/* Categories Scroll Row */}
           <div
             ref={scrollRef}
-            className="flex items-center gap-8 overflow-x-auto scroll-smooth px-14 snap-x snap-mandatory py-6"
+            className="flex snap-x snap-mandatory items-center gap-3 overflow-x-auto scroll-smooth px-8 py-3 sm:gap-8 sm:px-14 sm:py-6"
           >
             {categories.map((cat, index) => {
               const Icon = cat.icon;
@@ -1214,14 +1243,14 @@ export default function PostAdForm({
                     setSelectedCategory(cat);
                     setSelectedSub(null);
                   }}
-                  className={`snap-start flex-shrink-0 w-[130px] h-[160px] flex flex-col items-center justify-center rounded-2xl cursor-pointer transition-all duration-300 border
+                  className={`flex h-[104px] w-[92px] flex-shrink-0 snap-start cursor-pointer flex-col items-center justify-center rounded-xl border transition-all duration-300 sm:h-[160px] sm:w-[130px] sm:rounded-2xl
                   ${isActive
                       ? "bg-[#157A4F] text-white border-[#157A4F] shadow-xl scale-105"
                       : "bg-white text-gray-700 border-gray-200 hover:border-[#157A4F] hover:-translate-y-2 hover:shadow-lg"
                     }`}
                 >
-                  <Icon size={34} className="mb-3" />
-                  <span className="text-sm font-medium text-center px-2">
+                  <Icon size={24} className="mb-2 sm:mb-3 sm:h-[34px] sm:w-[34px]" />
+                  <span className="px-1 text-center text-[11px] font-medium leading-tight sm:px-2 sm:text-sm">
                     {cat.name}
                   </span>
                 </div>
@@ -1231,12 +1260,12 @@ export default function PostAdForm({
 
           {/* Subcategories */}
           {selectedCategory?.sub && (
-            <div className="flex gap-4 mt-10 justify-center flex-wrap">
+            <div className="mt-5 flex flex-wrap justify-center gap-2 sm:mt-10 sm:gap-4">
               {selectedCategory.sub.map((option, i) => (
                 <button
                   key={i}
                   onClick={() => setSelectedSub(option)}
-                  className={`px-6 py-2 rounded-full text-sm font-medium transition
+                  className={`rounded-full px-3 py-1.5 text-xs font-medium transition sm:px-6 sm:py-2 sm:text-sm
                   ${selectedSub === option
                       ? "bg-[#157A4F] text-white shadow-md"
                       : "bg-[#FFF3D6] text-gray-700 hover:bg-[#F5B849] hover:text-white"
@@ -1252,11 +1281,11 @@ export default function PostAdForm({
       )}
 
       {/* Basic Information */}
-      <div className="bg-white p-8 rounded-2xl border border-gray-200 space-y-8">
+      <div className="space-y-5 rounded-2xl border border-gray-200 bg-white p-4 sm:space-y-8 sm:p-8">
 
         {/* Heading */}
         <div>
-          <h2 className="text-2xl font-semibold text-gray-900">
+          <h2 className="text-xl font-semibold text-gray-900 sm:text-2xl">
             Basic Information
           </h2>
           <p className="text-sm text-gray-500 mt-2">
@@ -1265,7 +1294,7 @@ export default function PostAdForm({
         </div>
 
         {/* Language + Primary Contact (2 Columns) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6">
 
           {/* Language */}
           <div className="space-y-2">
@@ -1356,41 +1385,72 @@ export default function PostAdForm({
             Locations
           </label>
 
-          <div className={`w-full min-h-[56px] px-3 py-2 rounded-lg border bg-white flex flex-wrap items-center gap-2 focus-within:ring-2 focus-within:ring-gray-300 ${locationError ? "border-red-500" : "border-gray-300"
-            }`}>
-            {/* City Chips */}
-            {cities.map((city, index) => (
-              <span
-                key={index}
-                className="flex items-center gap-1 px-3 py-1 text-sm bg-gray-100 rounded-full border border-gray-200"
-              >
-                {city}
-                <button
-                  type="button"
-                  onClick={() => removeCity(city)}
-                  className="text-gray-500 hover:text-gray-700"
+          <div className={`w-full rounded-lg border bg-white focus-within:ring-2 focus-within:ring-gray-300 ${locationError ? "border-red-500" : "border-gray-300"}`}> 
+            <div className="flex min-h-[50px] flex-wrap items-center gap-2 px-3 py-2 sm:min-h-[56px]">
+              {/* City Chips */}
+              {cities.map((city, index) => (
+                <span
+                  key={index}
+                  className="flex items-center gap-1 px-3 py-1 text-sm bg-gray-100 rounded-full border border-gray-200"
                 >
-                  ×
-                </button>
-              </span>
-            ))}
+                  {city}
+                  <button
+                    type="button"
+                    onClick={() => removeCity(city)}
+                    className="text-gray-500 hover:text-gray-700"
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
 
-            {/* Inline Input */}
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Add city"
-              className="flex-1 min-w-[120px] outline-none text-sm"
-            />
+              {/* Inline Input */}
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                onFocus={() => input.trim() && setShowLocationSuggestions(true)}
+                onBlur={() => setTimeout(() => setShowLocationSuggestions(false), 150)}
+                placeholder="Search city or area"
+                className="flex-1 min-w-[120px] outline-none text-sm"
+              />
+            </div>
+
+            {showLocationSuggestions && (
+              <div className="border-t border-gray-200 max-h-56 overflow-y-auto">
+                {locationLoading ? (
+                  <div className="px-3 py-2 text-sm text-gray-500">Searching cities...</div>
+                ) : locationSuggestions.length > 0 ? (
+                  locationSuggestions.map((suggestion, index) => {
+                    const suggestionLabel = suggestion.displayName || suggestion.name || suggestion.address || "Unknown location";
+                    const suggestionValue = suggestion.name || suggestion.displayName || suggestion.address || suggestionLabel;
+                    return (
+                      <button
+                        key={suggestion.id || `${suggestionValue}-${index}`}
+                        type="button"
+                        className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50"
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => addCity(suggestionValue)}
+                      >
+                        <div className="font-medium text-gray-800">{suggestionValue}</div>
+                        <div className="text-xs text-gray-500">{suggestionLabel !== suggestionValue ? suggestionLabel : "City suggestion"}</div>
+                      </button>
+                    );
+                  })
+                ) : (
+                  <div className="px-3 py-2 text-sm text-gray-500">No suggestions found</div>
+                )}
+              </div>
+            )}
           </div>
         </div>
+      </div>
 
         {/* Dynamic Details */}
         {selectedCategory && (
-          <div className="bg-white p-8 rounded-3xl shadow-md border border-gray-100 space-y-6">
-            <h3 className="font-semibold text-2xl text-gray-800">
+          <div className="post-ad-category-details space-y-5 rounded-2xl border border-gray-200 bg-white p-4 shadow-md sm:space-y-6 sm:rounded-3xl sm:p-8">
+            <h3 className="text-lg font-semibold text-gray-800 sm:text-2xl">
               {selectedCategory.sub && selectedSub ? `${selectedCategory.name} ${selectedSub} Details` : `${selectedCategory.name} Details`}
             </h3>
 
@@ -1753,16 +1813,16 @@ export default function PostAdForm({
 
         {/* Media Upload */}
         {(!templateId || templateId === 1 || templateId === 2) && (
-          <div className="bg-white p-8 rounded-3xl shadow-md border border-gray-100">
-            <h3 className="font-semibold text-2xl mb-6 text-gray-800">
+          <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-md sm:rounded-3xl sm:p-8">
+            <h3 className="mb-4 text-lg font-semibold text-gray-800 sm:mb-6 sm:text-2xl">
               Media & Photos
             </h3>
 
-            <div className="grid grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-6">
               {uploadedImages.map((image, index) => (
                 <div
                   key={index}
-                  className="h-32 border border-gray-200 rounded-2xl relative overflow-hidden shadow-sm"
+                  className="relative h-28 overflow-hidden rounded-xl border border-gray-200 shadow-sm sm:h-32 sm:rounded-2xl"
                 >
                   <img
                     src={image.url}
@@ -1780,7 +1840,7 @@ export default function PostAdForm({
               ))}
 
               <label
-                className="h-32 flex items-center justify-center border-2 border-dashed rounded-2xl cursor-pointer text-gray-400 hover:border-[#157A4F] hover:text-[#157A4F] transition bg-[#FFF3D6]"
+                className="flex h-28 cursor-pointer items-center justify-center rounded-xl border-2 border-dashed bg-[#FFF3D6] text-sm text-gray-400 transition hover:border-[#157A4F] hover:text-[#157A4F] sm:h-32 sm:rounded-2xl sm:text-base"
                 onClick={(e) => {
                   // prevent opening dialog if already at limit for single-media templates
                   if (templateId === 2 && uploadedImages.length >= 1) {
@@ -1807,21 +1867,21 @@ export default function PostAdForm({
 
         {/* Scheduling */}
         {!isEditMode && (
-          <div className="bg-white p-8 rounded-3xl shadow-md border border-gray-100">
+          <div className="post-ad-scheduling-card rounded-2xl border border-gray-100 bg-white p-3 shadow-md sm:rounded-3xl sm:p-8">
 
-            <h3 className="font-semibold text-2xl text-gray-800 mb-8 text-center">
+            <h3 className="mb-5 text-center text-lg font-semibold text-gray-800 sm:mb-8 sm:text-2xl">
               Ad Scheduling
             </h3>
 
-            <div className="grid md:grid-cols-2 gap-8 items-start">
+            <div className="grid gap-4 md:grid-cols-2 md:gap-8 items-start">
 
               {/* LEFT COLUMN — CALENDAR */}
-              <div className="space-y-6">
+              <div className="min-w-0 space-y-4 sm:space-y-6">
 
                 {/* Month & Year Selectors */}
-                <div className="flex gap-4 justify-center">
+                <div className="flex min-w-0 justify-center gap-2 sm:gap-4">
                   <select
-                    className="border border-gray-300 rounded-xl px-4 py-2 focus:ring-2 focus:ring-[#157A4F] focus:outline-none transition"
+                    className="rounded-xl border border-gray-300 px-3 py-2 text-sm transition focus:outline-none focus:ring-2 focus:ring-[#157A4F] sm:px-4"
                     value={currentMonth.getMonth()}
                     onChange={(e) =>
                       setCurrentMonth(
@@ -1835,7 +1895,7 @@ export default function PostAdForm({
                   </select>
 
                   <select
-                    className="border border-gray-300 rounded-xl px-4 py-2 focus:ring-2 focus:ring-[#157A4F] focus:outline-none transition"
+                    className="rounded-xl border border-gray-300 px-3 py-2 text-sm transition focus:outline-none focus:ring-2 focus:ring-[#157A4F] sm:px-4"
                     value={currentMonth.getFullYear()}
                     onChange={(e) =>
                       setCurrentMonth(
@@ -1850,7 +1910,7 @@ export default function PostAdForm({
                 </div>
 
                 {/* Calendar Card */}
-                <div className="bg-[#FFF3D6] p-6 rounded-2xl border border-gray-200 shadow-sm flex justify-center">
+                <div className="post-ad-calendar-box flex min-w-0 justify-center overflow-hidden rounded-2xl border border-gray-200 bg-[#FFF3D6] p-1.5 shadow-sm sm:p-6">
                   <DayPicker
                     mode="multiple"
                     selected={selectedDates}
@@ -1859,18 +1919,18 @@ export default function PostAdForm({
                     disabled={{ before: new Date() }}
                     month={currentMonth}
                     onMonthChange={setCurrentMonth}
-                    className="text-sm"
+                    className="text-xs sm:text-sm"
                   />
                 </div>
 
               </div>
 
               {/* RIGHT COLUMN — SELECTED DATES */}
-              <div className="bg-gray-50 rounded-2xl border border-gray-200 shadow-inner flex flex-col h-[420px]">
+              <div className="flex h-[178px] min-w-0 flex-col rounded-2xl border border-gray-200 bg-gray-50 shadow-inner sm:h-[420px]">
 
                 {/* Header */}
-                <div className="p-6 border-b border-gray-200 flex justify-between items-center">
-                  <h4 className="text-lg font-semibold text-gray-700">
+                <div className="flex items-center justify-between gap-2 border-b border-gray-200 p-3 sm:p-6">
+                  <h4 className="text-base font-semibold text-gray-700 sm:text-lg">
                     Selected Dates
                   </h4>
 
@@ -1882,14 +1942,14 @@ export default function PostAdForm({
                 </div>
 
                 {/* Scrollable Content */}
-                <div className="flex-1 overflow-y-auto p-6 scrollbar-thin scrollbar-thumb-[#157A4F]/60 scrollbar-track-transparent">
+                <div className="scrollbar-thin scrollbar-thumb-[#157A4F]/60 scrollbar-track-transparent flex-1 overflow-y-auto p-3 sm:p-6">
 
                   {selectedDates.length > 0 ? (
-                    <div className="flex flex-wrap gap-3">
+                    <div className="flex flex-wrap gap-2 sm:gap-3">
                       {[...selectedDates].sort((a, b) => new Date(a) - new Date(b)).map((date, index) => (
                         <span
                           key={index}
-                          className="bg-[#157A4F] text-white px-4 py-2 rounded-full text-sm shadow-md hover:scale-105 transition"
+                          className="rounded-full bg-[#157A4F] px-3 py-1.5 text-xs text-white shadow-md transition hover:scale-105 sm:px-4 sm:py-2 sm:text-sm"
                         >
                           {formatDate(date)}
                         </span>
@@ -1910,7 +1970,62 @@ export default function PostAdForm({
           </div>
         )}
 
-      </div>
+      <style jsx global>{`
+        @media (max-width: 767px) {
+          .post-ad-category-details .grid {
+            grid-template-columns: minmax(0, 1fr) !important;
+            gap: 1rem !important;
+          }
+
+          .post-ad-category-details .col-span-2 {
+            grid-column: auto !important;
+          }
+
+          .post-ad-category-details select,
+          .post-ad-category-details input,
+          .post-ad-category-details textarea {
+            width: 100%;
+            min-width: 0;
+          }
+
+          .post-ad-category-details .flex {
+            flex-wrap: wrap;
+          }
+
+          .post-ad-scheduling-card {
+            overflow: hidden;
+          }
+
+          .post-ad-calendar-box {
+            width: 100%;
+          }
+
+          .post-ad-mobile-form .rdp {
+            max-width: 100%;
+            margin: 0 auto;
+            font-size: 0.64rem;
+          }
+
+          .post-ad-mobile-form .rdp-months,
+          .post-ad-mobile-form .rdp-month {
+            max-width: 100%;
+          }
+
+          .post-ad-mobile-form .rdp-table {
+            max-width: 100%;
+          }
+
+          .post-ad-mobile-form .rdp-cell,
+          .post-ad-mobile-form .rdp-head_cell {
+            padding: 0;
+          }
+
+          .post-ad-mobile-form .rdp-button {
+            width: 1.64rem;
+            height: 1.64rem;
+          }
+        }
+      `}</style>
     </div>
   );
 }
