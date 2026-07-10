@@ -52,6 +52,20 @@ function pickLiveImageFromProducts(products = []) {
   return "";
 }
 
+function formatExpiryLabel(voucher) {
+  const validityHours = 6;
+  const claimedAt = voucher?.claimedAt ? new Date(voucher.claimedAt).getTime() : Date.now();
+  const expiresAt = claimedAt + validityHours * 60 * 60 * 1000;
+  const local = new Date(expiresAt);
+  if (Number.isNaN(local.getTime())) return "Today, 8:45 PM";
+
+  const now = new Date();
+  const isToday = local.toDateString() === now.toDateString();
+  const label = isToday ? "Today" : local.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+  const time = local.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
+  return `${label}, ${time}`;
+}
+
 function QrPattern() {
   return (
     <svg viewBox="0 0 220 220" className="h-[164px] w-[164px]" role="img" aria-label="Offer QR Code">
@@ -116,6 +130,13 @@ function ClaimedOfferContent() {
   const [reviewMessage, setReviewMessage] = useState("");
   const [merchantProfile, setMerchantProfile] = useState(null);
   const [offerDetails, setOfferDetails] = useState(null);
+  const [expiryLabel, setExpiryLabel] = useState("");
+
+  useEffect(() => {
+    if (selectedVoucher) {
+      setExpiryLabel(formatExpiryLabel(selectedVoucher));
+    }
+  }, [selectedVoucher]);
 
   const voucherId = searchParams.get("voucherId");
 
@@ -499,10 +520,18 @@ function ClaimedOfferContent() {
     selectedVoucher?.description ||
     "";
   const resolvedOfferPrice = Number(
-    offerDetails?.displayPrice ?? offerDetails?.totalPrice ?? selectedVoucher?.price ?? 0,
+    offerDetails?.displayPrice ??
+      offerDetails?.totalPrice ??
+      selectedVoucher?.displayPrice ??
+      selectedVoucher?.totalPrice ??
+      selectedVoucher?.price ??
+      0,
   );
   const resolvedOriginalPrice = Number(
-    offerDetails?.totalPrice ?? selectedVoucher?.originalPrice ?? 0,
+    offerDetails?.totalPrice ??
+      selectedVoucher?.totalPrice ??
+      selectedVoucher?.originalPrice ??
+      0,
   );
   const resolvedMerchantRating = Number(merchantProfile?.averageRating ?? 0);
   const resolvedMerchantReviews = Number(merchantProfile?.totalReviews ?? 0);
@@ -537,7 +566,7 @@ function ClaimedOfferContent() {
     <main className="min-h-screen bg-[#f3f3f3]">
       <Navbar />
 
-      <div className="mx-auto max-w-[1260px] px-6 pt-5">
+      <div className="mx-auto max-w-[1260px] px-6 pt-24 relative z-20">
         <p className="text-[11px] text-[#7a7a7a]">Deals <span className="mx-1">›</span> <span className="font-medium">Claimed Offer</span></p>
         <h1 className="mt-3 text-[44px] font-bold leading-none text-[#1e2228] tracking-[-0.02em]">{resolvedOfferTitle}</h1>
 
@@ -565,7 +594,6 @@ function ClaimedOfferContent() {
             <div className="px-6 pb-7 pt-6 text-center">
               <div className="mx-auto flex h-[232px] w-[232px] items-center justify-center rounded-[18px] border border-[#d8dce3] bg-white p-4 shadow-[0_6px_18px_rgba(16,24,40,0.05)]">
                 {selectedVoucher?.qrImage ? (
-                  // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={selectedVoucher.qrImage}
                     alt={`QR code for ${resolvedOfferTitle}`}
@@ -579,8 +607,8 @@ function ClaimedOfferContent() {
               <p className="mt-1 text-[16px] font-medium text-[#1e2228]">Scan this QR at the store to redeem the offer</p>
 
               <div className="mx-auto mt-4 w-fit min-w-[290px] rounded-[10px] bg-[#f0f2f5] px-4 py-3 border border-[#e2e6eb]">
-                <p className="text-[11px] text-[#7a828d]">This QR is valid for {selectedVoucher?.validityHours || 6} hours from claim time</p>
-                <p className="mt-1 text-[13px] font-bold text-[#1e232b]">Expires: {selectedVoucher?.expiresAt || "Today, 8:45 PM"}</p>
+                <p className="text-[11px] text-[#7a828d]">This QR is valid for 6 hours from claim time</p>
+                <p className="mt-1 text-[13px] font-bold text-[#1e232b]">Expires: {expiryLabel || "Loading..."}</p>
               </div>
 
               {/* MANUAL VERIFICATION CODE */}

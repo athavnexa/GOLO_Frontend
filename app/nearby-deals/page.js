@@ -98,9 +98,17 @@ function computeStartingPrice(products = [], fallback = 0) {
 }
 
 function normalizeNearbyOffer(row) {
-  const selectedProducts = Array.isArray(row?.selectedProducts) ? row.selectedProducts : [];
-  const displayPrice = computeStartingPrice(selectedProducts, row?.displayPrice || row?.totalPrice);
-  const discountPercent = computeBestDiscountPercent(selectedProducts, row?.discountPercent);
+  const selectedProducts = Array.isArray(row?.selectedProducts)
+    ? row.selectedProducts
+    : [];
+  const displayPrice = computeStartingPrice(
+    selectedProducts,
+    row?.displayPrice || row?.totalPrice,
+  );
+  const discountPercent = computeBestDiscountPercent(
+    selectedProducts,
+    row?.discountPercent,
+  );
 
   return {
     ...row,
@@ -111,7 +119,8 @@ function normalizeNearbyOffer(row) {
 }
 
 function formatDistance(distanceKm) {
-  if (typeof distanceKm !== "number" || Number.isNaN(distanceKm)) return "Nearby";
+  if (typeof distanceKm !== "number" || Number.isNaN(distanceKm))
+    return "Nearby";
   return `${distanceKm.toFixed(1)} km`;
 }
 
@@ -137,13 +146,21 @@ function withResolvedDistance(row, latitude, longitude) {
 
   const merchantLatitude = Number(row?.merchant?.latitude);
   const merchantLongitude = Number(row?.merchant?.longitude);
-  if (!Number.isFinite(merchantLatitude) || !Number.isFinite(merchantLongitude)) {
+  if (
+    !Number.isFinite(merchantLatitude) ||
+    !Number.isFinite(merchantLongitude)
+  ) {
     return { ...row, distanceKm: null };
   }
 
   return {
     ...row,
-    distanceKm: calculateDistanceKm(latitude, longitude, merchantLatitude, merchantLongitude),
+    distanceKm: calculateDistanceKm(
+      latitude,
+      longitude,
+      merchantLatitude,
+      merchantLongitude,
+    ),
   };
 }
 
@@ -161,7 +178,13 @@ function normalizeLocationText(value) {
 }
 
 const LOCATION_ALIASES = {
-  kolhapur: ["kolhapur", "karvir", "karveer", "karveer taluka", "karvir taluka"],
+  kolhapur: [
+    "kolhapur",
+    "karvir",
+    "karveer",
+    "karveer taluka",
+    "karvir taluka",
+  ],
   sangli: ["sangli"],
   mumbai: ["mumbai", "bombay", "navi mumbai"],
   pune: ["pune", "poona"],
@@ -172,13 +195,17 @@ function getLocationCity(location) {
   if (!fullLocation) return "";
 
   for (const [city, aliases] of Object.entries(LOCATION_ALIASES)) {
-    const candidates = [city, ...aliases].map(normalizeLocationText).filter(Boolean);
+    const candidates = [city, ...aliases]
+      .map(normalizeLocationText)
+      .filter(Boolean);
     if (candidates.some((candidate) => fullLocation.includes(candidate))) {
       return city;
     }
   }
 
-  return normalizeLocationText(String(location || "").split(",")[0] || location);
+  return normalizeLocationText(
+    String(location || "").split(",")[0] || location,
+  );
 }
 
 function offerMatchesLocation(row, location) {
@@ -191,7 +218,9 @@ function offerMatchesLocation(row, location) {
       row?.merchant?.name,
       row?.merchant?.category,
       row?.merchant?.subCategory,
-    ].filter(Boolean).join(" "),
+    ]
+      .filter(Boolean)
+      .join(" "),
   );
   if (!addressNorm) return false;
 
@@ -206,7 +235,10 @@ function offerMatchesLocation(row, location) {
 
 function isManualLocationMatch(row, location) {
   const manualCityRadiusKm = 25;
-  return offerMatchesLocation(row, location) || isWithinRadius(row, manualCityRadiusKm);
+  return (
+    offerMatchesLocation(row, location) ||
+    isWithinRadius(row, manualCityRadiusKm)
+  );
 }
 
 function formatDate(dateValue) {
@@ -229,7 +261,7 @@ function getOfferBadgeLabel(row) {
   const products = row?.selectedProducts || [];
   const productCount = Array.isArray(products) ? products.length : 0;
   if (productCount > 0) {
-    return `${productCount} Product${productCount > 1 ? 's' : ''}`;
+    return `${productCount} Product${productCount > 1 ? "s" : ""}`;
   }
 
   const category = String(row?.category || "").trim();
@@ -240,7 +272,9 @@ function matchOfferType(row, typeLabel) {
   const title = String(row?.title || "").toLowerCase();
   const category = String(row?.category || "").toLowerCase();
   const combined = `${title} ${category}`;
-  const normalizedType = String(typeLabel || "").trim().toLowerCase();
+  const normalizedType = String(typeLabel || "")
+    .trim()
+    .toLowerCase();
 
   // Exact category match first for the new offer category model.
   if (normalizedType && category === normalizedType) {
@@ -248,7 +282,11 @@ function matchOfferType(row, typeLabel) {
   }
 
   if (normalizedType === "flat discount") {
-    return row?.discountPercent > 0 || combined.includes("discount") || combined.includes("flat");
+    return (
+      row?.discountPercent > 0 ||
+      combined.includes("discount") ||
+      combined.includes("flat")
+    );
   }
 
   if (normalizedType === "buy one get one (bogo)") {
@@ -264,7 +302,11 @@ function matchOfferType(row, typeLabel) {
   }
 
   if (normalizedType === "percentage off") {
-    return combined.includes("%") || combined.includes("percent") || combined.includes("percentage");
+    return (
+      combined.includes("%") ||
+      combined.includes("percent") ||
+      combined.includes("percentage")
+    );
   }
 
   return combined.includes(normalizedType);
@@ -273,9 +315,11 @@ function matchOfferType(row, typeLabel) {
 function NearbyDealsPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-   const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, loading } = useAuth();
+  const isMerchantPreview = searchParams.get("view") === "merchant-preview";
 
   const [activeView, setActiveView] = useState("grid");
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const [distanceRadius, setDistanceRadius] = useState(50);
   const [priceRange, setPriceRange] = useState(5000);
   const [userCoordinates, setUserCoordinates] = useState(null);
@@ -307,35 +351,72 @@ function NearbyDealsPageContent() {
     "Free Gift Offer": false,
   });
   const [rawOffers, setRawOffers] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loadingOffers, setLoadingOffers] = useState(false);
   const [error, setError] = useState("");
   const [showAuthPrompt, setShowAuthPrompt] = useState(false);
   const [authRedirectTo, setAuthRedirectTo] = useState("/nearby-deals");
   const [showMobileFilters, setShowMobileFilters] = useState(false);
+  const [locationSuggestions, setLocationSuggestions] = useState([]);
+  const [locationLoading, setLocationLoading] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [showVoiceModal, setShowVoiceModal] = useState(false);
+  const [voiceTranscript, setVoiceTranscript] = useState("");
+  const [voiceError, setVoiceError] = useState("");
+  const [isListening, setIsListening] = useState(false);
+  const [authPromptVisible, setAuthPromptVisible] = useState(false);
+  const [voiceModalVisible, setVoiceModalVisible] = useState(false);
+  const dropdownRef = useRef(null);
+  const profileRef = useRef(null);
+  const notifRef = useRef(null);
+  const recognitionRef = useRef(null);
+  const voiceTranscriptRef = useRef("");
+  const voiceSearchTimerRef = useRef(null);
+  const voiceFinalizingRef = useRef(false);
+  const voiceRestartCountRef = useRef(0);
+  const voiceSessionRef = useRef(0);
+  const micPermissionCheckedRef = useRef(false);
+  const micPermissionGrantedRef = useRef(false);
   const lastLocationUpdateRef = useRef(0);
   const nearbyFetchSeqRef = useRef(0);
 
   const selectedTypeLabels = useMemo(
-    () => Object.keys(selectedOfferTypes).filter((key) => selectedOfferTypes[key]),
+    () =>
+      Object.keys(selectedOfferTypes).filter((key) => selectedOfferTypes[key]),
     [selectedOfferTypes],
   );
 
-  const location = useMemo(() => searchParams.get("location") || "", [searchParams]);
+  const location = useMemo(
+    () => searchParams.get("location") || "",
+    [searchParams],
+  );
   const manualLatitude = useMemo(() => {
     const value = Number(searchParams.get("lat"));
-    // Treat zero or near-zero coordinates as not provided (avoid lat=0 sentinel)
     return Number.isFinite(value) && Math.abs(value) > 0.000001 ? value : null;
   }, [searchParams]);
   const manualLongitude = useMemo(() => {
     const value = Number(searchParams.get("lng"));
-    // Treat zero or near-zero coordinates as not provided (avoid lng=0 sentinel)
     return Number.isFinite(value) && Math.abs(value) > 0.000001 ? value : null;
   }, [searchParams]);
   const query = useMemo(() => searchParams.get("q") || "", [searchParams]);
-  const selectedCategory = useMemo(() => searchParams.get("category") || "", [searchParams]);
+  const selectedCategory = useMemo(
+    () => searchParams.get("category") || "",
+    [searchParams],
+  );
 
-  // When user types a location search (e.g. "Mumbai"), avoid showing stale "nearby" results
-  // from the previous GPS-based fetch while the new request is loading/processing.
+  useEffect(() => {
+    if (
+      !loading &&
+      user &&
+      user.accountType === "merchant" &&
+      !isMerchantPreview
+    ) {
+      router.replace("/merchant/dashboard");
+    }
+  }, [user, loading, router, isMerchantPreview]);
+
   useEffect(() => {
     if (String(location || "").trim()) {
       setRawOffers([]);
@@ -350,7 +431,6 @@ function NearbyDealsPageContent() {
     }
 
     let ignoreResult = false;
-    let watchId = null;
     setLocationStatus("detecting");
     setLocationError("");
 
@@ -367,11 +447,11 @@ function NearbyDealsPageContent() {
           return { lat: nextLat, lng: nextLng };
         }
 
-        // Avoid noisy re-fetches for tiny GPS drifts and rapid watch updates.
         const latDiff = Math.abs(prev.lat - nextLat);
         const lngDiff = Math.abs(prev.lng - nextLng);
-        const movedTooLittle = latDiff < 0.0015 && lngDiff < 0.0015; // ~150m threshold
-        const updatedTooSoon = Date.now() - lastLocationUpdateRef.current < 15000;
+        const movedTooLittle = latDiff < 0.0015 && lngDiff < 0.0015;
+        const updatedTooSoon =
+          Date.now() - lastLocationUpdateRef.current < 15000;
         if (movedTooLittle || updatedTooSoon) {
           return prev;
         }
@@ -389,7 +469,9 @@ function NearbyDealsPageContent() {
 
       if (geoError?.code === geoError.PERMISSION_DENIED) {
         setLocationStatus("denied");
-        setLocationError("Location permission denied. Enable it to use exact distance filters.");
+        setLocationError(
+          "Location permission denied. Enable it to use exact distance filters.",
+        );
         return;
       }
 
@@ -422,49 +504,53 @@ function NearbyDealsPageContent() {
       },
     );
 
-    watchId = navigator.geolocation.watchPosition(
-      handlePositionSuccess,
-      handlePositionError,
-      {
-        enableHighAccuracy: false,
-        timeout: 15000,
-        maximumAge: 30000,
-      },
-    );
-
     return () => {
       ignoreResult = true;
-      if (watchId !== null) {
-        navigator.geolocation.clearWatch(watchId);
-      }
     };
   }, []);
 
   useEffect(() => {
     const loadNearbyOffers = async () => {
       const fetchSeq = ++nearbyFetchSeqRef.current;
-      setLoading(true);
+      setLoadingOffers(true);
       setError("");
 
       const resolvedLat =
-        typeof userCoordinates?.lat === "number" && !Number.isNaN(userCoordinates.lat)
+        typeof userCoordinates?.lat === "number" &&
+        !Number.isNaN(userCoordinates.lat)
           ? userCoordinates.lat
           : undefined;
       const resolvedLng =
-        typeof userCoordinates?.lng === "number" && !Number.isNaN(userCoordinates.lng)
+        typeof userCoordinates?.lng === "number" &&
+        !Number.isNaN(userCoordinates.lng)
           ? userCoordinates.lng
           : undefined;
 
       // If user explicitly provided a location (navbar/manual), prefer that
       // and do not constrain results by current GPS coordinates.
-      const hasManualCoordinates = manualLatitude !== null && manualLongitude !== null;
+      const hasManualCoordinates =
+        manualLatitude !== null && manualLongitude !== null;
       const hasLocationQuery = Boolean(String(location || "").trim());
       // When a location string is provided (e.g. "Pune"), do not use live GPS coords,
       // otherwise results get mixed with the current device location.
-      const fetchLat = hasLocationQuery ? (hasManualCoordinates ? manualLatitude : undefined) : (hasManualCoordinates ? manualLatitude : resolvedLat);
-      const fetchLng = hasLocationQuery ? (hasManualCoordinates ? manualLongitude : undefined) : (hasManualCoordinates ? manualLongitude : resolvedLng);
-      const hasCoordinateSearch = typeof fetchLat === "number" && typeof fetchLng === "number";
-      const locationForRequest = hasLocationQuery ? location : "";
+      const fetchLat = hasLocationQuery
+        ? hasManualCoordinates
+          ? manualLatitude
+          : undefined
+        : hasManualCoordinates
+          ? manualLatitude
+          : resolvedLat;
+      const fetchLng = hasLocationQuery
+        ? hasManualCoordinates
+          ? manualLongitude
+          : undefined
+        : hasManualCoordinates
+          ? manualLongitude
+          : resolvedLng;
+      const hasCoordinateSearch =
+        typeof fetchLat === "number" && typeof fetchLng === "number";
+      const locationForRequest =
+        hasLocationQuery && !hasManualCoordinates ? location : "";
 
       try {
         const response = await getNearbyOffers({
@@ -477,7 +563,7 @@ function NearbyDealsPageContent() {
           sort: sortBy,
           maxPrice: priceRange < 5000 ? priceRange : undefined,
           applyPriceFilter: priceRange < 5000,
-          offerTypes: selectedTypeLabels.join(','),
+          offerTypes: selectedTypeLabels.join(","),
           topDiscountOnly: topDiscountOnly,
           activeNowOnly: activeNowOnly,
           page: 1,
@@ -488,24 +574,28 @@ function NearbyDealsPageContent() {
           ? response.data.map(normalizeNearbyOffer)
           : [];
         const distanceResolvedRows = hasCoordinateSearch
-          ? primaryRows.map((row) => withResolvedDistance(row, fetchLat, fetchLng))
+          ? primaryRows.map((row) =>
+              withResolvedDistance(row, fetchLat, fetchLng),
+            )
           : primaryRows;
         const strictRows = hasCoordinateSearch
-          ? distanceResolvedRows.filter((row) => (
-              hasManualCoordinates && hasLocationQuery
-                ? isManualLocationMatch(row, location)
-                : isWithinRadius(row, distanceRadius)
-            ))
+          ? distanceResolvedRows.filter((row) =>
+              isWithinRadius(row, distanceRadius),
+            )
           : distanceResolvedRows;
 
         // If the user explicitly provided a location string and the backend
         // returned no results for that location, do NOT fall back to other
         // nearby offers — show an empty state instead. This prevents showing
         // unrelated deals (e.g., Kolhapur) for a typed location like "Mumbai".
-        if (hasLocationQuery && !hasCoordinateSearch && strictRows.length === 0) {
+        if (
+          hasLocationQuery &&
+          !hasCoordinateSearch &&
+          strictRows.length === 0
+        ) {
           if (fetchSeq !== nearbyFetchSeqRef.current) return;
           setRawOffers([]);
-          setLoading(false);
+          setLoadingOffers(false);
           return;
         }
 
@@ -528,7 +618,7 @@ function NearbyDealsPageContent() {
             sort: sortBy,
             maxPrice: priceRange < 5000 ? priceRange : undefined,
             applyPriceFilter: priceRange < 5000,
-            offerTypes: selectedTypeLabels.join(','),
+            offerTypes: selectedTypeLabels.join(","),
             topDiscountOnly: topDiscountOnly,
             activeNowOnly: activeNowOnly,
             page: 1,
@@ -553,12 +643,26 @@ function NearbyDealsPageContent() {
         }
       } finally {
         if (fetchSeq !== nearbyFetchSeqRef.current) return;
-        setLoading(false);
+        setLoadingOffers(false);
       }
     };
 
     loadNearbyOffers();
-  }, [distanceRadius, priceRange, location, query, selectedCategory, sortBy, userCoordinates?.lat, userCoordinates?.lng, manualLatitude, manualLongitude, selectedTypeLabels, topDiscountOnly, activeNowOnly]);
+  }, [
+    distanceRadius,
+    priceRange,
+    location,
+    query,
+    selectedCategory,
+    sortBy,
+    userCoordinates?.lat,
+    userCoordinates?.lng,
+    manualLatitude,
+    manualLongitude,
+    selectedTypeLabels,
+    topDiscountOnly,
+    activeNowOnly,
+  ]);
 
   const filteredDeals = useMemo(() => {
     const rows = rawOffers.filter((row) => {
@@ -572,7 +676,9 @@ function NearbyDealsPageContent() {
       }
 
       if (selectedTypeLabels.length > 0) {
-        const typeMatched = selectedTypeLabels.some((typeLabel) => matchOfferType(row, typeLabel));
+        const typeMatched = selectedTypeLabels.some((typeLabel) =>
+          matchOfferType(row, typeLabel),
+        );
         if (!typeMatched) {
           return false;
         }
@@ -581,7 +687,12 @@ function NearbyDealsPageContent() {
       // Exclude expired offers from nearby/category listings. Expired deals
       // should only appear in the user's `My Deals` view when they have
       // previously claimed or redeemed them.
-      const expiryCandidates = row?.endsAt || row?.expiresAt || row?.expiry || row?.expires_at || row?.endDate;
+      const expiryCandidates =
+        row?.endsAt ||
+        row?.expiresAt ||
+        row?.expiry ||
+        row?.expires_at ||
+        row?.endDate;
       if (expiryCandidates) {
         const ts = new Date(expiryCandidates).getTime();
         if (!Number.isNaN(ts) && ts <= Date.now()) {
@@ -595,19 +706,34 @@ function NearbyDealsPageContent() {
     const sortedRows = [...rows];
 
     if (sortBy === "price_asc") {
-      sortedRows.sort((a, b) => toNumber(a?.displayPrice, 0) - toNumber(b?.displayPrice, 0));
+      sortedRows.sort(
+        (a, b) => toNumber(a?.displayPrice, 0) - toNumber(b?.displayPrice, 0),
+      );
     } else if (sortBy === "price_desc") {
-      sortedRows.sort((a, b) => toNumber(b?.displayPrice, 0) - toNumber(a?.displayPrice, 0));
+      sortedRows.sort(
+        (a, b) => toNumber(b?.displayPrice, 0) - toNumber(a?.displayPrice, 0),
+      );
     } else if (sortBy === "newest") {
       sortedRows.sort(
-        (a, b) => new Date(b?.createdAt || 0).getTime() - new Date(a?.createdAt || 0).getTime(),
+        (a, b) =>
+          new Date(b?.createdAt || 0).getTime() -
+          new Date(a?.createdAt || 0).getTime(),
       );
     } else if (sortBy === "discount_desc") {
-      sortedRows.sort((a, b) => toNumber(b?.discountPercent, 0) - toNumber(a?.discountPercent, 0));
+      sortedRows.sort(
+        (a, b) =>
+          toNumber(b?.discountPercent, 0) - toNumber(a?.discountPercent, 0),
+      );
     } else {
       sortedRows.sort((a, b) => {
-        const distanceA = typeof a?.distanceKm === "number" ? a.distanceKm : Number.MAX_SAFE_INTEGER;
-        const distanceB = typeof b?.distanceKm === "number" ? b.distanceKm : Number.MAX_SAFE_INTEGER;
+        const distanceA =
+          typeof a?.distanceKm === "number"
+            ? a.distanceKm
+            : Number.MAX_SAFE_INTEGER;
+        const distanceB =
+          typeof b?.distanceKm === "number"
+            ? b.distanceKm
+            : Number.MAX_SAFE_INTEGER;
         return distanceA - distanceB;
       });
     }
@@ -617,7 +743,7 @@ function NearbyDealsPageContent() {
     }
 
     if (manualLatitude !== null && manualLongitude !== null) {
-      return sortedRows.filter((row) => isManualLocationMatch(row, location));
+      return sortedRows.filter((row) => isWithinRadius(row, distanceRadius));
     }
 
     // When user provided a location string, only include offers whose merchant
@@ -625,7 +751,17 @@ function NearbyDealsPageContent() {
     // insensitive match so queries like "Kolhapur, Maharashtra, India" match
     // stored addresses such as "Kolhapur District, Maharashtra, India".
     return sortedRows.filter((row) => offerMatchesLocation(row, location));
-  }, [rawOffers, activeNowOnly, topDiscountOnly, selectedTypeLabels, location, sortBy, manualLatitude, manualLongitude]);
+  }, [
+    rawOffers,
+    activeNowOnly,
+    topDiscountOnly,
+    selectedTypeLabels,
+    location,
+    sortBy,
+    distanceRadius,
+    manualLatitude,
+    manualLongitude,
+  ]);
 
   const summary = useMemo(() => {
     const total = filteredDeals.length;
@@ -633,12 +769,22 @@ function NearbyDealsPageContent() {
     const avgPrice =
       total > 0
         ? Math.round(
-            filteredDeals.reduce((sum, row) => sum + toNumber(row?.displayPrice, 0), 0) / total,
+            filteredDeals.reduce(
+              (sum, row) => sum + toNumber(row?.displayPrice, 0),
+              0,
+            ) / total,
           )
         : 0;
 
     return { total, active, avgPrice };
   }, [filteredDeals]);
+
+  // IMPORTANT: All hooks must run on every render, in the same order, every
+  // time. The early returns below (for the auth-loading state and the
+  // merchant-redirect state) must come AFTER every hook call above this
+  // point. Previously these returns sat in the middle of the hook list,
+  // which meant some renders called fewer hooks than others -> React's
+  // "Rendered more hooks than during the previous render" error.
 
   const clearAllFilters = () => {
     setDistanceRadius(50);
@@ -685,17 +831,27 @@ function NearbyDealsPageContent() {
           `golo_nearby_offer_${deal.offerId}`,
           JSON.stringify(deal),
         );
-      } catch {
-      }
+      } catch {}
     }
 
     router.push(targetUrl);
   };
 
+  if (loading) {
+    return <main className="min-h-screen bg-[#F3F3F3]" />;
+  }
+
+  if (user && user.accountType === "merchant" && !isMerchantPreview) {
+    return null;
+  }
+
   return (
     <main className="min-h-screen bg-[#F3F3F3]">
       <Navbar />
-       <CategoryBar variant="golocal" preferredCategories={user?.preferredCategories || []} />
+      <CategoryBar
+        variant="golocal"
+        preferredCategories={user?.preferredCategories || []}
+      />
 
       <section className="mx-auto max-w-[1400px] px-4 py-4 sm:px-6 sm:py-6">
         <button
@@ -707,18 +863,25 @@ function NearbyDealsPageContent() {
           {showMobileFilters ? "Hide Filters" : "Show Filters"}
         </button>
         <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[260px_1fr]">
-          <aside className={`${showMobileFilters ? "block" : "hidden"} max-h-[68vh] overflow-y-auto rounded-xl border border-gray-200 bg-white p-3 shadow-sm lg:sticky lg:top-28 lg:block lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto lg:p-4`}>
+          <aside
+            className={`${showMobileFilters ? "block" : "hidden"} max-h-[68vh] overflow-y-auto rounded-xl border border-gray-200 bg-white p-3 shadow-sm lg:sticky lg:top-28 lg:block lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto lg:p-4`}
+          >
             <div className="mb-4 flex items-center justify-between lg:mb-5">
               <button className="inline-flex items-center gap-2 text-sm font-semibold text-gray-700">
                 <SlidersHorizontal size={14} /> Filters
               </button>
-              <button className="text-xs font-semibold text-[#157A4F]" onClick={clearAllFilters}>
+              <button
+                className="text-xs font-semibold text-[#157A4F]"
+                onClick={clearAllFilters}
+              >
                 Clear All
               </button>
             </div>
 
             <div className="mb-4 lg:mb-6">
-              <p className="mb-3 text-[11px] font-bold tracking-wide text-gray-400">DISTANCE RADIUS</p>
+              <p className="mb-3 text-[11px] font-bold tracking-wide text-gray-400">
+                DISTANCE RADIUS
+              </p>
               <input
                 type="range"
                 min="1"
@@ -728,13 +891,19 @@ function NearbyDealsPageContent() {
                 className="w-full accent-[#157A4F]"
               />
               <div className="mt-2 flex justify-between text-[10px] text-gray-500">
-                <span>1 km</span><span>25 km</span><span>50 km</span>
+                <span>1 km</span>
+                <span>25 km</span>
+                <span>50 km</span>
               </div>
-              <p className="mt-2 text-[11px] font-semibold text-[#157A4F]">Selected: {distanceRadius} km</p>
+              <p className="mt-2 text-[11px] font-semibold text-[#157A4F]">
+                Selected: {distanceRadius} km
+              </p>
             </div>
 
             <div className="mb-4 lg:mb-6">
-              <p className="mb-3 text-[11px] font-bold tracking-wide text-gray-400">OFFER TYPE</p>
+              <p className="mb-3 text-[11px] font-bold tracking-wide text-gray-400">
+                OFFER TYPE
+              </p>
               <div className="grid max-h-[136px] grid-cols-2 gap-2 overflow-y-auto pr-1 text-xs text-gray-700 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent lg:grid-cols-1 lg:max-h-[150px] lg:pr-2">
                 {OFFER_TYPES.map((item) => (
                   <label key={item} className="flex min-h-6 items-center gap-2">
@@ -749,14 +918,18 @@ function NearbyDealsPageContent() {
                         }))
                       }
                     />
-                    <span className="min-w-0 truncate" title={item}>{item}</span>
+                    <span className="min-w-0 truncate" title={item}>
+                      {item}
+                    </span>
                   </label>
                 ))}
               </div>
             </div>
 
             <div className="mb-4 lg:mb-6">
-              <p className="mb-3 text-[11px] font-bold tracking-wide text-gray-400">PRICE RANGE</p>
+              <p className="mb-3 text-[11px] font-bold tracking-wide text-gray-400">
+                PRICE RANGE
+              </p>
               <input
                 type="range"
                 min="100"
@@ -767,7 +940,9 @@ function NearbyDealsPageContent() {
                 className="w-full accent-[#157A4F]"
               />
               <div className="mt-2 flex justify-between text-[10px] text-gray-500">
-                <span>₹100</span><span>₹1.5k</span><span>₹5k</span>
+                <span>₹100</span>
+                <span>₹1.5k</span>
+                <span>₹5k</span>
               </div>
               <p className="mt-2 text-[11px] font-semibold text-[#157A4F]">
                 {priceRange < 5000
@@ -777,7 +952,9 @@ function NearbyDealsPageContent() {
             </div>
 
             <div>
-              <p className="mb-3 text-[11px] font-bold tracking-wide text-gray-400">OTHER TOGGLES</p>
+              <p className="mb-3 text-[11px] font-bold tracking-wide text-gray-400">
+                OTHER TOGGLES
+              </p>
               <div className="space-y-3 text-xs text-gray-700">
                 <div className="flex items-center justify-between">
                   <span>Top Discount (30%+)</span>
@@ -785,7 +962,9 @@ function NearbyDealsPageContent() {
                     onClick={() => setTopDiscountOnly((v) => !v)}
                     className={`h-4 w-8 rounded-full p-[2px] ${topDiscountOnly ? "bg-[#1B9B5A]" : "bg-gray-300"}`}
                   >
-                    <span className={`block h-3 w-3 rounded-full bg-white transition ${topDiscountOnly ? "translate-x-4" : ""}`} />
+                    <span
+                      className={`block h-3 w-3 rounded-full bg-white transition ${topDiscountOnly ? "translate-x-4" : ""}`}
+                    />
                   </button>
                 </div>
                 <div className="flex items-center justify-between">
@@ -794,7 +973,9 @@ function NearbyDealsPageContent() {
                     onClick={() => setActiveNowOnly((v) => !v)}
                     className={`h-4 w-8 rounded-full p-[2px] ${activeNowOnly ? "bg-[#1B9B5A]" : "bg-gray-300"}`}
                   >
-                    <span className={`block h-3 w-3 rounded-full bg-white transition ${activeNowOnly ? "translate-x-4" : ""}`} />
+                    <span
+                      className={`block h-3 w-3 rounded-full bg-white transition ${activeNowOnly ? "translate-x-4" : ""}`}
+                    />
                   </button>
                 </div>
               </div>
@@ -804,7 +985,9 @@ function NearbyDealsPageContent() {
           <div>
             <div className="mb-4 flex flex-col items-stretch justify-between gap-4 sm:flex-row sm:items-start">
               <div>
-                <h1 className="text-[26px] font-extrabold leading-tight text-gray-900 sm:text-[34px]">{selectedCategory || "Deals near you"}</h1>
+                <h1 className="text-[26px] font-extrabold leading-tight text-gray-900 sm:text-[34px]">
+                  {selectedCategory || "Deals near you"}
+                </h1>
                 <p className="mt-1 text-xs text-gray-500">
                   Showing {summary.total} offers
                   {selectedCategory ? ` in ${selectedCategory}` : ""}
@@ -818,7 +1001,11 @@ function NearbyDealsPageContent() {
                       ? "Detecting your location for accurate nearby results..."
                       : "Enable location permission to make distance filters fully accurate."}
                 </p>
-                {locationError ? <p className="mt-1 text-[11px] text-amber-600">{locationError}</p> : null}
+                {locationError ? (
+                  <p className="mt-1 text-[11px] text-amber-600">
+                    {locationError}
+                  </p>
+                ) : null}
               </div>
 
               <div className="flex flex-wrap items-center gap-2 pt-2">
@@ -854,23 +1041,43 @@ function NearbyDealsPageContent() {
 
             <div className="mb-4 flex w-full gap-2 sm:gap-3">
               <div className="min-w-0 flex-1 rounded-lg border border-gray-200 bg-white px-2 py-2 sm:px-3">
-                <p className="text-[9px] leading-tight text-gray-500 sm:text-[11px]">Total Deals</p>
-                <p className="text-[18px] font-semibold text-gray-900 sm:text-[20px]">{summary.total}</p>
+                <p className="text-[9px] leading-tight text-gray-500 sm:text-[11px]">
+                  Total Deals
+                </p>
+                <p className="text-[18px] font-semibold text-gray-900 sm:text-[20px]">
+                  {summary.total}
+                </p>
               </div>
               <div className="min-w-0 flex-1 rounded-lg border border-gray-200 bg-white px-2 py-2 sm:px-3">
-                <p className="text-[9px] leading-tight text-gray-500 sm:text-[11px]">Active Now</p>
-                <p className="text-[18px] font-semibold text-gray-900 sm:text-[20px]">{summary.active}</p>
+                <p className="text-[9px] leading-tight text-gray-500 sm:text-[11px]">
+                  Active Now
+                </p>
+                <p className="text-[18px] font-semibold text-gray-900 sm:text-[20px]">
+                  {summary.active}
+                </p>
               </div>
               <div className="min-w-0 flex-1 rounded-lg border border-gray-200 bg-white px-2 py-2 sm:px-3">
-                <p className="text-[9px] leading-tight text-gray-500 sm:text-[11px]">Avg Price</p>
-                <p className="text-[16px] font-semibold text-gray-900 sm:text-[20px]">₹{summary.avgPrice.toLocaleString("en-IN")}</p>
+                <p className="text-[9px] leading-tight text-gray-500 sm:text-[11px]">
+                  Avg Price
+                </p>
+                <p className="text-[16px] font-semibold text-gray-900 sm:text-[20px]">
+                  ₹{summary.avgPrice.toLocaleString("en-IN")}
+                </p>
               </div>
             </div>
 
-            {error ? <p className="mb-3 text-[12px] text-red-600">{error}</p> : null}
+            {error ? (
+              <p className="mb-3 text-[12px] text-red-600">{error}</p>
+            ) : null}
 
-            <div className={activeView === "list" ? "space-y-4" : "grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4"}>
-              {loading ? (
+            <div
+              className={
+                activeView === "list"
+                  ? "space-y-4"
+                  : "grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4"
+              }
+            >
+              {loadingOffers ? (
                 <NearbyDealsSkeleton view={activeView} />
               ) : filteredDeals.length === 0 ? (
                 <div className="col-span-full rounded-xl border border-gray-200 bg-white p-6 text-center text-sm text-gray-500">
@@ -883,10 +1090,10 @@ function NearbyDealsPageContent() {
               ) : (
                 filteredDeals.map((deal) => (
                   <article
-                      key={deal.offerId}
-                      className="group flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-[#157A4F] hover:shadow-lg"
-                    >
-                      <div className="relative h-44 w-full overflow-hidden bg-gray-100 sm:h-36">
+                    key={deal.offerId}
+                    className="group flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-[#157A4F] hover:shadow-lg"
+                  >
+                    <div className="relative h-44 w-full overflow-hidden bg-gray-100 sm:h-36">
                       <img
                         src={deal.imageUrl || "/images/deal2.avif"}
                         alt={deal.title}
@@ -898,25 +1105,48 @@ function NearbyDealsPageContent() {
                       <span className="absolute left-2 top-8 rounded-md bg-white/95 px-2 py-0.5 text-[9px] font-semibold text-gray-700 shadow-sm">
                         {formatDistance(deal.distanceKm)}
                       </span>
-                      <span className={`absolute right-2 top-2 rounded-full px-2 py-0.5 text-[10px] font-bold shadow-sm ${getDaysRemainingText(deal.endsAt) === "Expired" ? "bg-red-500 text-white" : "bg-white/95 text-[#157A4F]"}`}>
+                      <span
+                        className={`absolute right-2 top-2 rounded-full px-2 py-0.5 text-[10px] font-bold shadow-sm ${getDaysRemainingText(deal.endsAt) === "Expired" ? "bg-red-500 text-white" : "bg-white/95 text-[#157A4F]"}`}
+                      >
                         {getDaysRemainingText(deal.endsAt) || "N/A"}
                       </span>
                     </div>
                     <div className="p-3 flex flex-col flex-1">
-                      <h3 className="line-clamp-1 text-sm font-bold text-gray-900">{deal.title}</h3>
-                      <p className="mt-1 text-[11px] text-gray-500">{deal.merchant?.name || "Merchant"}</p>
+                      <h3 className="line-clamp-1 text-sm font-bold text-gray-900">
+                        {deal.title}
+                      </h3>
+                      <p className="mt-1 text-[11px] text-gray-500">
+                        {deal.merchant?.name || "Merchant"}
+                      </p>
                       <p className="mt-2 text-[11px] text-gray-500 line-clamp-1 flex items-center gap-1">
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <svg
+                          className="w-3 h-3"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                          />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                          />
                         </svg>
                         {deal.merchant?.address || "Location not specified"}
                       </p>
                       <p className="mt-1 text-[10px] text-gray-400">
-                        Valid: {formatDate(deal.startsAt)} - {formatDate(deal.endsAt)}
+                        Valid: {formatDate(deal.startsAt)} -{" "}
+                        {formatDate(deal.endsAt)}
                       </p>
                       <p className="mt-2 text-xl font-extrabold text-gray-900">
-                        ₹{toNumber(deal.displayPrice, 0).toLocaleString("en-IN")}
+                        ₹
+                        {toNumber(deal.displayPrice, 0).toLocaleString("en-IN")}
                       </p>
                       <button
                         onClick={() => openDealDetails(deal)}
@@ -975,24 +1205,6 @@ function NearbyDealsSkeleton({ view = "grid" }) {
 }
 
 export default function NearbyDealsPage() {
-  const router = useRouter();
-  const { user, loading } = useAuth();
-
-  // Redirect merchants away from user pages
-  useEffect(() => {
-    if (!loading && user && user.accountType === "merchant") {
-      router.replace("/merchant/dashboard");
-    }
-  }, [user, loading, router]);
-
-  if (loading) {
-    return <main className="min-h-screen bg-[#F3F3F3]" />;
-  }
-
-  if (user && user.accountType === "merchant") {
-    return null;
-  }
-
   return (
     <Suspense fallback={<main className="min-h-screen bg-[#F3F3F3]" />}>
       <NearbyDealsPageContent />

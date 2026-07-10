@@ -17,34 +17,61 @@ export default function MerchantAnalyticsPage() {
   const [deviceData, setDeviceData] = useState({ Mobile: 0, Desktop: 0, Tablet: 0 });
   const [regions, setRegions] = useState([]);
   const [topProducts, setTopProducts] = useState([]);
-  const [eventStats, setEventStats] = useState({ totalActive: 0, newSignups: 0, retention: 0 });
+  const [eventStats, setEventStats] = useState({ totalActive: 0, redeemed: 0, retention: 0 });
   const [trendLabels, setTrendLabels] = useState(["1 Jan", "5 Jan", "10 Jan", "15 Jan", "20 Jan", "25 Jan", "31 Jan"]);
   const [monthlyTrend, setMonthlyTrend] = useState([0, 0, 0, 0, 0, 0, 0]);
   const [loadError, setLoadError] = useState("");
   const [likedOffers, setLikedOffers] = useState([]);
   const [likedProducts, setLikedProducts] = useState([]);
   const [merchantProfile, setMerchantProfile] = useState(null);
+  const [lastUpdated, setLastUpdated] = useState(new Date());
+  const [dataVersion, setDataVersion] = useState(0);
   const [ageRows, setAgeRows] = useState([
-    { label: "18-24", male: 0, female: 0, total: "0%" },
-    { label: "25-34", male: 0, female: 0, total: "0%" },
-    { label: "35-44", male: 0, female: 0, total: "0%" },
-    { label: "45-64", male: 0, female: 0, total: "0%" },
-    { label: "65+", male: 0, female: 0, total: "0%" },
+    { label: "18-24", male: 0, female: 0, maleCount: 0, femaleCount: 0, count: 0, total: "0%" },
+    { label: "25-34", male: 0, female: 0, maleCount: 0, femaleCount: 0, count: 0, total: "0%" },
+    { label: "35-44", male: 0, female: 0, maleCount: 0, femaleCount: 0, count: 0, total: "0%" },
+    { label: "45-64", male: 0, female: 0, maleCount: 0, femaleCount: 0, count: 0, total: "0%" },
+    { label: "65+", male: 0, female: 0, maleCount: 0, femaleCount: 0, count: 0, total: "0%" },
   ]);
 
   const deviceSegments = useMemo(() => {
     const circumference = 264;
-    const mobile = Math.max(0, Math.min(100, Number(deviceData.Mobile || 0)));
-    const desktop = Math.max(0, Math.min(100, Number(deviceData.Desktop || 0)));
-    const tablet = Math.max(0, Math.min(100, Number(deviceData.Tablet || 0)));
+    const raw = {
+      Mobile: Number(deviceData.Mobile || 0),
+      Desktop: Number(deviceData.Desktop || 0),
+      Tablet: Number(deviceData.Tablet || 0),
+    };
+    const total = raw.Mobile + raw.Desktop + raw.Tablet || 1;
+    const mobile = Math.round((raw.Mobile / total) * 100);
+    const desktop = Math.round((raw.Desktop / total) * 100);
+    const tablet = Math.round((raw.Tablet / total) * 100);
+    const adjustedTotal = mobile + desktop + tablet;
+
+    if (adjustedTotal === 0) {
+      return {
+        circumference,
+        mobileDash: `0 ${circumference}`,
+        desktopDash: `0 ${circumference}`,
+        tabletDash: `0 ${circumference}`,
+        desktopOffset: 0,
+        tabletOffset: 0,
+        mobile: 0,
+        desktop: 0,
+        tablet: 0,
+      };
+    }
+
+    const factor = 100 / adjustedTotal;
     return {
       circumference,
-      mobileDash: `${(mobile / 100) * circumference} ${circumference}`,
-      desktopDash: `${(desktop / 100) * circumference} ${circumference}`,
-      tabletDash: `${(tablet / 100) * circumference} ${circumference}`,
-      desktopOffset: -((mobile / 100) * circumference),
-      tabletOffset: -(((mobile + desktop) / 100) * circumference),
-      total: Math.round(mobile + desktop + tablet),
+      mobileDash: `${Math.round(mobile * factor / 100 * circumference)} ${circumference}`,
+      desktopDash: `${Math.round(desktop * factor / 100 * circumference)} ${circumference}`,
+      tabletDash: `${Math.round(tablet * factor / 100 * circumference)} ${circumference}`,
+      desktopOffset: -((mobile * factor / 100) * circumference),
+      tabletOffset: -(((mobile + desktop) * factor / 100) * circumference),
+      mobile: Math.round(mobile * factor),
+      desktop: Math.round(desktop * factor),
+      tablet: Math.round(tablet * factor),
     };
   }, [deviceData]);
 
@@ -89,7 +116,7 @@ export default function MerchantAnalyticsPage() {
         if (payload.events) {
           setEventStats({
             totalActive: Number(payload.events.totalActive || 0),
-            newSignups: Number(payload.events.newSignups || 0),
+            redeemed: Number(payload.events.redeemed || 0),
             retention: Number(payload.events.retention || 0),
           });
         }
@@ -107,16 +134,22 @@ export default function MerchantAnalyticsPage() {
             label: row.label,
             male: Number(row.male || 0),
             female: Number(row.female || 0),
+            maleCount: Number(row.maleCount || 0),
+            femaleCount: Number(row.femaleCount || 0),
+            count: Number(row.count || 0),
             total: row.total || "0%",
           })));
         }
+
+        setLastUpdated(new Date());
+        setDataVersion((v) => v + 1);
       } catch (err) {
         setLoadError("Failed to load realtime analytics data.");
       }
     };
 
     loadAnalytics();
-    intervalId = setInterval(loadAnalytics, 20000);
+    intervalId = setInterval(loadAnalytics, 5000);
 
     return () => {
       if (intervalId) {
@@ -214,7 +247,7 @@ export default function MerchantAnalyticsPage() {
 
       <main className="w-full px-8 lg:px-10 py-6">
         <div className="mx-auto w-full max-w-[1400px] space-y-4">
-          <section className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_360px] gap-4">
+          <section className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_360px] gap-4 items-stretch">
             {loadError ? (
               <div className="lg:col-span-2 rounded-[10px] border border-amber-200 bg-amber-50 px-4 py-3 text-[12px] text-amber-900">
                 {loadError}
@@ -224,28 +257,29 @@ export default function MerchantAnalyticsPage() {
             <div className="rounded-[12px] border border-[#dddddd] bg-white p-4">
               <div className="flex items-start justify-between">
                 <div>
-                  <span className="inline-flex rounded-full bg-[#f0f7f2] px-2 py-0.5 text-[9px] font-semibold text-[#157a4f]">Live Data</span>
-                  <h1 className="mt-3 text-[26px] font-semibold leading-none">Monthly customer</h1>
-                  <p className="text-[12px] text-[#6f6f6f] mt-1">Growth analysis for the current month</p>
+                  <div className="flex items-center gap-2">
+                    <span className="relative flex h-2.5 w-2.5">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#157a4f] opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#157a4f]"></span>
+                    </span>
+                    <span className="inline-flex rounded-full bg-[#f0f7f2] px-2 py-0.5 text-[10px] font-semibold text-[#157a4f]">Live Data</span>
+                  </div>
+                  <p className="mt-1.5 text-[22px] font-bold leading-none text-[#1b1b1b]">{analyticsStoreName}</p>
+                  <h2 className="text-[16px] font-semibold text-[#6f6f6f] mt-0.5">Monthly customer</h2>
+                  <p className="text-[12px] text-[#6f6f6f]">Growth analysis for the current month</p>
                 </div>
-
                 <div className="text-right">
-                    <div className="inline-flex items-center gap-2">
-                      <div className="h-8 w-8 rounded-full overflow-hidden border border-[#ddd]">
-                        <Image src={analyticsStoreAvatar} alt={analyticsStoreName} width={32} height={32} className="h-full w-full object-cover" />
-                      </div>
-                      <p className="text-[24px] font-semibold">{analyticsStoreName}</p>
-                    </div>
-                  <p className="mt-2 text-[11px] text-[#2f8f55] inline-flex rounded-full bg-[#edf8f0] px-2 py-0.5">↗ +1,208 more than usual</p>
+                  <p className="text-[10px] text-[#999]">Updated</p>
+                  <p className="text-[11px] font-medium text-[#555]">{lastUpdated.toLocaleTimeString()}</p>
                 </div>
               </div>
 
-              <div className="mt-3 rounded-[10px] border border-[#ececec] bg-[#fbfbfb] p-3">
-                <svg viewBox="0 0 760 300" className="w-full h-[250px]">
+              <div className="mt-4 rounded-[12px] border border-[#ececec] bg-[#fbfbfb] p-4">
+                <svg key={dataVersion} viewBox="0 0 760 180" className="w-full h-[130px]">
                   {[30, 20, 10, 0].map((y) => (
                     <g key={y}>
-                      <line x1="36" y1={40 + (30 - y) * 7.2} x2="740" y2={40 + (30 - y) * 7.2} stroke="#d8d8d8" strokeDasharray="4 4" />
-                      <text x="2" y={44 + (30 - y) * 7.2} fontSize="10" fill="#888">{y}</text>
+                      <line x1="36" y1={20 + (22 - y) * 4.5} x2="740" y2={20 + (22 - y) * 4.5} stroke="#d8d8d8" strokeDasharray="4 4" />
+                      <text x="2" y={24 + (22 - y) * 4.5} fontSize="10" fill="#888">{y}</text>
                     </g>
                   ))}
 
@@ -256,31 +290,31 @@ export default function MerchantAnalyticsPage() {
                     points={monthlyTrend
                       .map((value, index) => {
                         const x = 36 + index * 110;
-                        const normalized = Math.max(0, Math.min(30, Number(value)));
-                        const y = 256 - normalized * 7.2;
+                        const normalized = Math.max(0, Math.min(22, Number(value)));
+                        const y = 164 - normalized * 4.5;
                         return `${x},${y}`;
                       })
                       .join(" ")}
                   />
 
                   {trendLabels.map((d, idx) => (
-                    <text key={d} x={36 + idx * 110} y="280" fontSize="10" fill="#8a8a8a">{d}</text>
+                    <text key={d} x={36 + idx * 110} y="180" fontSize="10" fill="#8a8a8a">{d}</text>
                   ))}
                 </svg>
               </div>
 
-              <div className="mt-4 grid grid-cols-3 gap-3 border-t border-[#ececec] pt-3">
+              <div className="mt-4 grid grid-cols-3 gap-3 border-t border-[#ececec] pt-4">
                 <div>
-                  <p className="text-[10px] uppercase tracking-[0.1em] text-[#7b7b7b]">Total Active</p>
-                  <p className="text-[34px] leading-none font-semibold mt-1">{eventStats.totalActive || 0}</p>
+                  <p className="text-[11px] uppercase tracking-[0.1em] text-[#7b7b7b]">Total Active</p>
+                  <p className="text-[26px] leading-none font-semibold mt-1">{eventStats.totalActive || 0}</p>
                 </div>
                 <div>
-                  <p className="text-[10px] uppercase tracking-[0.1em] text-[#7b7b7b]">New Signups</p>
-                  <p className="text-[34px] leading-none font-semibold mt-1 text-[#2f8f55]">{eventStats.newSignups || 0}</p>
+                  <p className="text-[11px] uppercase tracking-[0.1em] text-[#7b7b7b]">Total Redeemed</p>
+                  <p className="text-[26px] leading-none font-semibold mt-1 text-[#2f8f55]">{eventStats.redeemed || 0}</p>
                 </div>
                 <div>
-                  <p className="text-[10px] uppercase tracking-[0.1em] text-[#7b7b7b]">Retention</p>
-                  <p className="text-[34px] leading-none font-semibold mt-1">{eventStats.retention || 0}%</p>
+                  <p className="text-[11px] uppercase tracking-[0.1em] text-[#7b7b7b]">Retention</p>
+                  <p className="text-[26px] leading-none font-semibold mt-1">{eventStats.retention || 0}%</p>
                 </div>
               </div>
             </div>
@@ -327,7 +361,47 @@ export default function MerchantAnalyticsPage() {
                 )}
                 {/* Removed 'View All Liked Offers' per request; content scrolls */}
               </section>
+            </aside>
+          </section>
 
+          <section className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_360px] gap-4 items-stretch">
+            <div className="rounded-[12px] border border-[#d9d9d9] bg-white p-4">
+              <div className="flex items-start justify-between">
+                <div>
+                  <h3 className="text-[24px] font-semibold leading-none">Age and gender</h3>
+                  <p className="text-[11px] text-[#6f6f6f] mt-1">Demographic breakdown statistics</p>
+                </div>
+                <div className="text-[10px] text-[#777] inline-flex items-center gap-3">
+                  <span className="inline-flex items-center gap-1"><span className="text-[#2f8f55]">♂</span> MALE</span>
+                  <span className="inline-flex items-center gap-1"><span className="text-[#e3a11f]">♀</span> FEMALE</span>
+                </div>
+              </div>
+
+              <div className="mt-5 space-y-5">
+                {ageRows.map((row) => (
+                  <div key={row.label} className="space-y-1">
+                    <div className="grid grid-cols-[50px_1fr_100px] items-center gap-4 text-[13px]">
+                      <span className="text-[#333] font-medium">{row.label}</span>
+                      <div className="h-4 rounded-full bg-[#ececec] overflow-hidden flex">
+                        <div className="bg-[#2f8f55]" style={{ width: `${row.male}%` }} />
+                        <div className="bg-[#e3a11f]" style={{ width: `${row.female}%` }} />
+                      </div>
+                      <span className="text-right font-semibold text-[13px]">{row.count !== undefined ? `${row.count} users` : row.total}</span>
+                    </div>
+                    <div className="grid grid-cols-[50px_1fr_100px] items-center gap-4 text-[11px] text-[#666]">
+                      <span></span>
+                      <span></span>
+                      <span className="text-right inline-flex items-center justify-end gap-2">
+                        <span className="text-[#2f8f55] font-medium">♂ {row.maleCount || 0}</span>
+                        <span className="text-[#e3a11f] font-medium">♀ {row.femaleCount || 0}</span>
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <aside className="space-y-4">
               <section className="rounded-[12px] border border-[#d9d9d9] bg-white p-4">
                 <div className="flex items-start justify-between">
                   <div>
@@ -372,8 +446,7 @@ export default function MerchantAnalyticsPage() {
             </aside>
           </section>
 
-          {user?.merchantProfile?.plan?.planFeatures?.canViewAdvancedAnalytics !== false && (
-            <section className="grid grid-cols-1 lg:grid-cols-[320px_minmax(0,1fr)] gap-4">
+          <section className="grid grid-cols-1 lg:grid-cols-[320px_minmax(0,1fr)] gap-4 items-stretch">
             <div className="rounded-[12px] border border-[#d9d9d9] bg-white p-4">
               <h3 className="text-[24px] font-semibold leading-none">Device type</h3>
               <p className="text-[11px] text-[#6f6f6f] mt-1">Primary platforms used by customers</p>
@@ -387,64 +460,32 @@ export default function MerchantAnalyticsPage() {
                     <circle cx="60" cy="60" r="42" stroke="#4b5563" strokeWidth="9" strokeDasharray={deviceSegments.tabletDash} strokeDashoffset={deviceSegments.tabletOffset} fill="none" />
                   </svg>
                   <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                    <p className="text-[36px] font-semibold leading-none">{deviceSegments.total}%</p>
+                    <p className="text-[36px] font-semibold leading-none">{deviceSegments.mobile + deviceSegments.desktop + deviceSegments.tablet}%</p>
                     <p className="text-[10px] uppercase tracking-[0.1em] text-[#7d7d7d]">Coverage</p>
                   </div>
                 </div>
               </div>
 
               <div className="mt-4 grid grid-cols-3 gap-2 text-[10px]">
-                <div className="rounded-[8px] border border-[#efefef] bg-[#fafafa] p-2 text-center"><p className="text-[#2f8f55]">● Mobile</p><p className="font-semibold mt-1">{deviceData.Mobile}%</p></div>
-                <div className="rounded-[8px] border border-[#efefef] bg-[#fafafa] p-2 text-center"><p className="text-[#e3a11f]">● Computer</p><p className="font-semibold mt-1">{deviceData.Desktop}%</p></div>
-                <div className="rounded-[8px] border border-[#efefef] bg-[#fafafa] p-2 text-center"><p className="text-[#4b5563]">● Tablet</p><p className="font-semibold mt-1">{deviceData.Tablet}%</p></div>
+                <div className="rounded-[8px] border border-[#efefef] bg-[#fafafa] p-2 text-center"><p className="text-[#2f8f55]">● Mobile</p><p className="font-semibold mt-1">{deviceSegments.mobile}%</p></div>
+                <div className="rounded-[8px] border border-[#efefef] bg-[#fafafa] p-2 text-center"><p className="text-[#e3a11f]">● Computer</p><p className="font-semibold mt-1">{deviceSegments.desktop}%</p></div>
+                <div className="rounded-[8px] border border-[#efefef] bg-[#fafafa] p-2 text-center"><p className="text-[#4b5563]">● Tablet</p><p className="font-semibold mt-1">{deviceSegments.tablet}%</p></div>
               </div>
             </div>
 
-            <div className="rounded-[12px] border border-[#d9d9d9] bg-white p-4">
-              <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="text-[24px] font-semibold leading-none">Age and gender</h3>
-                  <p className="text-[11px] text-[#6f6f6f] mt-1">Demographic breakdown statistics</p>
+             <section className="rounded-[12px] border border-[#d9d9d9] bg-white p-4">
+               <h3 className="text-[24px] font-semibold leading-none">Location breakdown</h3>
+               <p className="text-[11px] text-[#6f6f6f] mt-1">Customer density by regional clusters</p>
+
+               <div className="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-4 text-[11px]">
+                <div className="space-y-3">
+                  {(regions.slice(0, 3)).map((region) => <LocationRow key={region.region} name={region.region} value={region.percent} />)}
                 </div>
-                <div className="text-[10px] text-[#777] inline-flex items-center gap-2"><span className="text-[#2f8f55]">● MALE</span><span className="text-[#e3a11f]">● FEMALE</span></div>
+                <div className="space-y-3">
+                  {(regions.slice(3, 5)).map((region) => <LocationRow key={region.region} name={region.region} value={region.percent} />)}
+                </div>
               </div>
-
-              <div className="mt-4 space-y-4">
-                {ageRows.map((row) => (
-                  <div key={row.label} className="grid grid-cols-[42px_1fr_44px] items-center gap-3 text-[11px]">
-                    <span className="text-[#5a5a5a]">{row.label}</span>
-                    <div className="h-2 rounded-full bg-[#ececec] overflow-hidden flex">
-                      <div className="bg-[#2f8f55]" style={{ width: `${row.male}%` }} />
-                      <div className="bg-[#e3a11f]" style={{ width: `${row.female}%` }} />
-                    </div>
-                    <span className="text-right font-semibold">{row.total}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
-          )}
-
-          <section className="rounded-[12px] border border-[#d9d9d9] bg-white p-4">
-            <div className="flex items-start justify-between">
-              <div>
-                <h3 className="text-[24px] font-semibold leading-none">Location breakdown</h3>
-                <p className="text-[11px] text-[#6f6f6f] mt-1">Customer density by regional clusters</p>
-              </div>
-              <div className="inline-flex rounded-[8px] border border-[#e2e2e2] overflow-hidden text-[10px]">
-                <button className="h-7 px-3 bg-[#f8f8f8] font-semibold">City</button>
-                <button className="h-7 px-3 bg-white text-[#666]">State</button>
-              </div>
-            </div>
-
-            <div className="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-4 text-[11px]">
-              <div className="space-y-3">
-                {(regions.slice(0, 3)).map((region) => <LocationRow key={region.region} name={region.region} value={region.percent} />)}
-              </div>
-              <div className="space-y-3">
-                {(regions.slice(3, 5)).map((region) => <LocationRow key={region.region} name={region.region} value={region.percent} />)}
-              </div>
-            </div>
+            </section>
           </section>
         </div>
       </main>

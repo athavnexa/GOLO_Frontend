@@ -229,6 +229,16 @@ export default function RegisterPage() {
     return () => clearInterval(interval);
   }, [quotes.length]);
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const typeParam = params.get("type");
+      if (typeParam === "merchant" || typeParam === "user") {
+        setAccountType(typeParam);
+      }
+    }
+  }, []);
+
   const handleAccountTypeChange = (nextAccountType) => {
     setAccountType(nextAccountType);
     setError("");
@@ -236,6 +246,11 @@ export default function RegisterPage() {
     setIsCategoryOpen(false);
     setIsSubCategoryOpen(false);
     setIsGenderOpen(false);
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      url.searchParams.set("type", nextAccountType);
+      window.history.replaceState(null, "", url.pathname + url.search);
+    }
   };
 
   const handleAccountToggleClick = (event) => {
@@ -339,586 +354,221 @@ export default function RegisterPage() {
       setIsLoading(false);
     }
   };
-
-  const handleMerchantLocationSelect = (location) => {
-    const { latitude, longitude, address } = normalizeLocationPayload(location);
-    const hasValidCoordinates = isValidStoreCoordinates({ latitude, longitude });
-
-    if (!hasValidCoordinates) {
-      setError("Could not capture valid coordinates. Please try again.");
-      return;
-    }
-
-    setStoreLocation(address || `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`);
-    setStoreCoordinates({ latitude, longitude });
-    setError("");
-  };
-
   return (
     <AuthLayout>
-      <div className="login-page-wrapper">
-        {/* Logo Section */}
-        <div className="logo-container">
-          <div className="logo-icon-wrapper">
-            <div className="logo-dot green"></div>
-            <div className="logo-dot red"></div>
-            <div className="logo-dot yellow"></div>
-          </div>
-          <span className="logo-text">GOLO</span>
-        </div>
-
-        <div className="login-content-grid">
-          {/* LEFT SIDE */}
-          <div className="login-left">
-            <div className="testimonial-section">
-              <div className="quote-mark">&ldquo;</div>
-              <div className="yellow-square-icon">G</div>
-
-              <div className="quote-container">
-                <p className="quote-text" key={currentIndex}>
-                  {quotes[currentIndex]}
-                </p>
-              </div>
-
-              <div className="pagination-dots">
-                <span
-                  className="chevron"
-                  onClick={() =>
-                    setCurrentIndex(
-                      (currentIndex - 1 + quotes.length) % quotes.length
-                    )
-                  }
-                >
-                  ‹
-                </span>
-                {quotes.map((_, index) => (
-                  <span
-                    key={index}
-                    className={`dot ${currentIndex === index ? "active" : ""
-                      }`}
-                    onClick={() => setCurrentIndex(index)}
-                  ></span>
-                ))}
-                <span
-                  className="chevron"
-                  onClick={() =>
-                    setCurrentIndex((currentIndex + 1) % quotes.length)
-                  }
-                >
-                  ›
-                </span>
-              </div>
+      <div className="flex h-screen w-full overflow-hidden bg-white font-sans text-gray-900">
+        
+        {/* LEFT SIDE - Cream Background */}
+        <div className="hidden lg:flex w-1/2 flex-col items-center justify-center bg-[#FCFAEB] relative">
+          <div className="flex flex-col items-center justify-center text-center max-w-sm px-4">
+            {/* Double Quote icon */}
+            <div className="mb-6 text-[#F8E1BA] text-7xl leading-none font-serif font-black">&rdquo;</div>
+            
+            {/* Logo Square */}
+            <div className="w-20 h-20 bg-[#F59E0B] rounded-2xl flex items-center justify-center mb-10 shadow-sm">
+              <span className="text-white text-5xl font-bold">G</span>
             </div>
-          </div>
-
-          {/* RIGHT SIDE */}
-          <div className="login-right">
-            <div className="card-bg-decoration top"></div>
-            <div className="card-bg-decoration bottom"></div>
-
-            <div className={`login-card register-card ${accountType === "merchant" ? "merchant-register-card" : ""}`}>
-              <h2>
-                {accountType === "user"
-                  ? "Join GOLO Network Group"
-                  : "Register Your Store"}
-              </h2>
-
-              <p className="subtitle">
-                {accountType === "user"
-                  ? "Grow Smarter With Every Ad. Join Free"
-                  : "Expand Your Business With GOLO"}
-              </p>
-
-              {/* TOGGLE */}
-              <div className="register-toggle-wrap">
-                <div
-                  className="register-toggle"
-                  role="tablist"
-                  aria-label="Choose account type"
-                  onClick={handleAccountToggleClick}
-                  onKeyDown={handleAccountToggleKeyDown}
-                >
-                  <div className={`register-toggle-indicator ${accountType === "merchant" ? "merchant" : "user"}`}></div>
-
-                  <div
-                    role="tab"
-                    tabIndex={0}
-                    data-account-type="user"
-                    className={`register-toggle-option ${accountType === "user" ? "active" : ""}`}
-                    aria-selected={accountType === "user"}
-                  >
-                    User
-                  </div>
-
-                  <div
-                    role="tab"
-                    tabIndex={0}
-                    data-account-type="merchant"
-                    className={`register-toggle-option ${accountType === "merchant" ? "active" : ""}`}
-                    aria-selected={accountType === "merchant"}
-                  >
-                    Merchant
-                  </div>
-                </div>
+            
+            {/* Text */}
+            <h1 className="text-[22px] font-bold text-[#763645] mb-12 leading-relaxed">
+              The simplest way to<br/>manage global ad<br/>campaigns in one place.
+            </h1>
+            
+            {/* Pagination */}
+            <div className="flex items-center gap-4">
+              <button type="button" className="w-8 h-8 rounded-full border border-[#D1D5DB] flex items-center justify-center text-[#9CA3AF] hover:text-gray-600 bg-transparent cursor-pointer hover:bg-gray-50 transition-colors">
+                <span className="text-sm font-semibold">‹</span>
+              </button>
+              <div className="flex gap-2.5">
+                <span className="w-2 h-2 rounded-full bg-[#F59E0B]"></span>
+                <span className="w-2 h-2 rounded-full bg-[#FDE68A]"></span>
+                <span className="w-2 h-2 rounded-full bg-[#FDE68A]"></span>
               </div>
-
-              {/* Social Buttons */}
-              <SocialButtons redirectPath="/" />
-              <div className="divider">
-                <span>
-                  {accountType === "user"
-                    ? "or sign up with"
-                    : "Store Information"}
-                </span>
-              </div>
-
-              <form onSubmit={handleRegister} className="register-form">
-                {/* Error / Success Messages */}
-                {error && (
-                  <p style={{ color: "red", fontSize: "13px", marginBottom: "15px", textAlign: "center" }}>
-                    {error}
-                  </p>
-                )}
-                {success && (
-                  <p style={{ color: "#157A4F", fontSize: "13px", marginBottom: "15px", textAlign: "center" }}>
-                    {success}
-                  </p>
-                )}
-
-                {/* FORM SWITCH */}
-                {accountType === "user" ? (
-                  <div key="user-registration-fields" role="tabpanel" aria-label="User registration fields">
-                    <div className="input-group">
-                      <label>Name</label>
-                      <div className="input-wrapper">
-                        <User className="input-icon" size={18} />
-                        <input
-                          type="text"
-                          placeholder="Enter your full name"
-                          value={name}
-                          onChange={(e) => { setName(e.target.value); setError(""); }}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="input-group">
-                      <label>Email</label>
-                      <div className="input-wrapper">
-                        <Mail className="input-icon" size={18} />
-                        <input
-                          type="email"
-                          placeholder="Enter your email"
-                          value={email}
-                          onChange={(e) => { setEmail(e.target.value); setError(""); }}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="input-group">
-                      <label>Number</label>
-                      <div className="input-wrapper">
-                        <Phone className="input-icon" size={18} />
-                        <input
-                          type="tel"
-                          placeholder="Enter your phone number"
-                          value={phone}
-                          onChange={(e) => setPhone(e.target.value)}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="input-group">
-                      <label>Date of Birth</label>
-                      <div
-                        className="input-wrapper"
-                        onClick={() => {
-                          dateOfBirthInputRef.current?.showPicker?.();
-                          dateOfBirthInputRef.current?.focus();
-                        }}
-                      >
-                        <CalendarDays className="input-icon" size={18} />
-                        <input
-                          ref={dateOfBirthInputRef}
-                          type="date"
-                          value={dateOfBirth}
-                          onChange={(e) => { setDateOfBirth(e.target.value); setError(""); }}
-                          max={new Date().toISOString().slice(0, 10)}
-                          style={{
-                            color: dateOfBirth ? "#111827" : "#9CA3AF",
-                            cursor: "pointer",
-                            colorScheme: "light",
-                          }}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="input-group">
-                      <label>Gender</label>
-                      <div className="input-wrapper dropdown-shell" ref={genderDropdownRef}>
-                        <button
-                          type="button"
-                          className={`dropdown-trigger ${gender ? "has-value" : "is-placeholder"}`}
-                          onClick={() => {
-                            setIsGenderOpen((open) => !open);
-                            setIsCategoryOpen(false);
-                            setIsSubCategoryOpen(false);
-                          }}
-                          aria-expanded={isGenderOpen}
-                          aria-haspopup="listbox"
-                        >
-                          <User className="input-icon" size={18} />
-                          <span className="dropdown-trigger-text">{genderLabel}</span>
-                          <ChevronDown size={16} className={`dropdown-trigger-icon ${isGenderOpen ? "open" : ""}`} />
-                        </button>
-                        {isGenderOpen && (
-                          <div
-                            className="dropdown-panel"
-                            role="listbox"
-                            style={{
-                              left: 0,
-                              right: 0,
-                              width: "100%",
-                              padding: "8px",
-                              borderRadius: "16px",
-                              background: "#FFFFFF",
-                              border: "1px solid #E5E7EB",
-                              boxShadow: "0 18px 45px rgba(15, 23, 42, 0.16)",
-                              display: "grid",
-                              gap: "6px",
-                              maxHeight: "240px",
-                              overflowY: "auto",
-                              zIndex: 60,
-                            }}
-                          >
-                            {GENDER_OPTIONS.map((option) => {
-                              const active = gender === option.value;
-                              return (
-                                <button
-                                  key={option.value}
-                                  type="button"
-                                  className={`dropdown-option ${active ? "active" : ""}`}
-                                  style={{
-                                    width: "100%",
-                                    minHeight: "44px",
-                                    borderRadius: "12px",
-                                    padding: "0 12px",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "space-between",
-                                    gap: "12px",
-                                    fontSize: "14px",
-                                    fontWeight: active ? 700 : 600,
-                                    color: active ? "#157A4F" : "#374151",
-                                    background: active ? "#ECFDF3" : "transparent",
-                                    border: active ? "1px solid #BBF7D0" : "1px solid transparent",
-                                    textAlign: "left",
-                                    lineHeight: 1,
-                                  }}
-                                  onClick={() => {
-                                    setGender(option.value);
-                                    setError("");
-                                    setIsGenderOpen(false);
-                                  }}
-                                  role="option"
-                                  aria-selected={active}
-                                >
-                                  <span style={{ flex: 1 }}>{option.label}</span>
-                                  <span
-                                    style={{
-                                      width: "20px",
-                                      height: "20px",
-                                      borderRadius: "999px",
-                                      display: "inline-flex",
-                                      alignItems: "center",
-                                      justifyContent: "center",
-                                      background: active ? "#157A4F" : "#F3F4F6",
-                                      color: active ? "#FFFFFF" : "transparent",
-                                      flexShrink: 0,
-                                    }}
-                                  >
-                                    <Check size={12} />
-                                  </span>
-                                </button>
-                              );
-                            })}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="input-group">
-                      <label>Create Password</label>
-                      <div className="input-wrapper">
-                        <Lock className="input-icon" size={18} />
-                        <input
-                          type={showPassword ? "text" : "password"}
-                          placeholder="Create a strong password"
-                          value={password}
-                          onChange={(e) => { setPassword(e.target.value); setError(""); }}
-                        />
-                        <div onClick={() => setShowPassword(!showPassword)} style={{ cursor: "pointer" }}>
-                          {showPassword ? <Eye className="input-icon-right" size={18} /> : <EyeOff className="input-icon-right" size={18} />}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div key="merchant-registration-fields" role="tabpanel" aria-label="Merchant registration fields">
-                    <div className="input-group">
-                      <label>Store Name</label>
-                      <div className="input-wrapper">
-                        <User className="input-icon" size={18} />
-                        <input
-                          type="text"
-                          placeholder="Enter store name"
-                          value={storeName}
-                          onChange={(e) => { setStoreName(e.target.value); setError(""); }}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="input-group">
-                      <label>Email</label>
-                      <div className="input-wrapper">
-                        <Mail className="input-icon" size={18} />
-                        <input
-                          type="email"
-                          placeholder="Enter store email"
-                          value={storeEmail}
-                          onChange={(e) => { setStoreEmail(e.target.value); setError(""); }}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="input-group">
-                      <label>Category</label>
-                      <div className="input-wrapper dropdown-shell" ref={categoryDropdownRef}>
-                        <button
-                          type="button"
-                          className={`dropdown-trigger ${storeCategory ? "has-value" : "is-placeholder"}`}
-                          onClick={() => {
-                            setIsCategoryOpen((open) => !open);
-                            setIsSubCategoryOpen(false);
-                          }}
-                          aria-expanded={isCategoryOpen}
-                          aria-haspopup="listbox"
-                        >
-                          <User className="input-icon" size={18} />
-                          <span className="dropdown-trigger-text">{categoryLabel}</span>
-                          <ChevronDown size={16} className={`dropdown-trigger-icon ${isCategoryOpen ? "open" : ""}`} />
-                        </button>
-                        {isCategoryOpen && (
-                          <div className="dropdown-panel dropdown-panel-category" role="listbox">
-                            {MERCHANT_CATEGORIES.map((category) => {
-                              const active = storeCategory === category.name;
-                              return (
-                                <button
-                                  key={category.name}
-                                  type="button"
-                                  className={`dropdown-option dropdown-option-card ${active ? "active" : ""}`}
-                                  onClick={() => {
-                                    setStoreCategory(category.name);
-                                    setStoreSubCategory("");
-                                    setError("");
-                                    setIsCategoryOpen(false);
-                                    setIsSubCategoryOpen(false);
-                                  }}
-                                  role="option"
-                                  aria-selected={active}
-                                >
-                                  <div className="dropdown-option-copy">
-                                    <div className="dropdown-option-title-row">
-                                      <span className="dropdown-option-title">{category.name}</span>
-                                      {active && <Check size={14} className="dropdown-option-check" />}
-                                    </div>
-                                    <span className="dropdown-option-description">{category.description}</span>
-                                  </div>
-                                </button>
-                              );
-                            })}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="input-group">
-                      <label>Sub Category</label>
-                      <div className="input-wrapper dropdown-shell" ref={subCategoryDropdownRef}>
-                        <button
-                          type="button"
-                          className={`dropdown-trigger ${storeSubCategory ? "has-value" : "is-placeholder"}`}
-                          onClick={() => {
-                            if (!storeCategory) return;
-                            setIsSubCategoryOpen((open) => !open);
-                            setIsCategoryOpen(false);
-                          }}
-                          aria-expanded={isSubCategoryOpen}
-                          aria-haspopup="listbox"
-                          disabled={!storeCategory}
-                        >
-                          <User className="input-icon" size={18} />
-                          <span className="dropdown-trigger-text">{subCategoryLabel}</span>
-                          <ChevronDown size={16} className={`dropdown-trigger-icon ${isSubCategoryOpen ? "open" : ""}`} />
-                        </button>
-                        {isSubCategoryOpen && storeCategory && (
-                          <div className="dropdown-panel dropdown-panel-category" role="listbox">
-                            {availableSubcategories.map((subCategory) => {
-                              const active = storeSubCategory === subCategory;
-                              return (
-                                <button
-                                  key={subCategory}
-                                  type="button"
-                                  className={`dropdown-option dropdown-option-card ${active ? "active" : ""}`}
-                                  onClick={() => {
-                                    setStoreSubCategory(subCategory);
-                                    setError("");
-                                    setIsSubCategoryOpen(false);
-                                  }}
-                                  role="option"
-                                  aria-selected={active}
-                                >
-                                  <div className="dropdown-option-copy">
-                                    <div className="dropdown-option-title-row">
-                                      <span className="dropdown-option-title">{subCategory}</span>
-                                      {active && <Check size={14} className="dropdown-option-check" />}
-                                    </div>
-                                    <span className="dropdown-option-description">
-                                      Available under {storeCategory}
-                                    </span>
-                                  </div>
-                                </button>
-                              );
-                            })}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="input-group">
-                      <label>Number</label>
-                      <div className="input-wrapper">
-                        <Phone className="input-icon" size={18} />
-                        <input
-                          type="tel"
-                          placeholder="Enter contact number"
-                          value={contactNumber}
-                          onChange={(e) => setContactNumber(e.target.value)}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="input-group">
-                      <label>Location</label>
-                      <div className="input-wrapper">
-                        <MapPin className="input-icon" size={18} />
-                        <input
-                          type="text"
-                          placeholder="Select store location from map"
-                          value={storeLocation}
-                          readOnly
-                        >
-                        </input>
-                      </div>
-                      <div style={{ marginTop: "10px", display: "flex", justifyContent: "flex-end" }}>
-                        <button
-                          type="button"
-                          onClick={() => setShowLocationPicker(true)}
-                          style={{
-                            border: "1px solid #157A4F",
-                            background: "#157A4F",
-                            color: "#fff",
-                            fontSize: "12px",
-                            fontWeight: 600,
-                            borderRadius: "6px",
-                            padding: "7px 10px",
-                            whiteSpace: "nowrap",
-                          }}
-                        >
-                          Pick on Map
-                        </button>
-                      </div>
-                      <div style={{ marginTop: "10px" }}>
-                        <StoreLocationMap
-                          location={
-                            isValidStoreCoordinates(storeCoordinates)
-                              ? {
-                                  latitude: storeCoordinates.latitude,
-                                  longitude: storeCoordinates.longitude,
-                                  address: storeLocation,
-                                }
-                              : null
-                          }
-                          onMapClick={() => setShowLocationPicker(true)}
-                          isLoading={false}
-                        />
-                      </div>
-                      <p style={{ marginTop: "8px", fontSize: "11px", color: "#6B7280" }}>
-                        {isValidStoreCoordinates(storeCoordinates)
-                          ? `Selected coordinates: ${storeCoordinates.latitude.toFixed(6)}, ${storeCoordinates.longitude.toFixed(6)}`
-                          : "This location will be used to show your offers in nearby deals."}
-                      </p>
-                    </div>
-
-                    <div className="input-group">
-                      <label>Create Password</label>
-                      <div className="input-wrapper">
-                        <Lock className="input-icon" size={18} />
-                        <input
-                          type={showPassword ? "text" : "password"}
-                          placeholder="Create a strong password"
-                          value={storePassword}
-                          onChange={(e) => { setStorePassword(e.target.value); setError(""); }}
-                        />
-                        <div onClick={() => setShowPassword(!showPassword)} style={{ cursor: "pointer" }}>
-                          {showPassword ? <Eye className="input-icon-right" size={18} /> : <EyeOff className="input-icon-right" size={18} />}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                <div className="terms-checkbox">
-                  <input type="checkbox" id="terms" />
-                  <label htmlFor="terms">
-                    By clicking on &quot;Continue&quot;, I agree{" "}
-                    <span className="link">Terms</span> and{" "}
-                    <span className="link">Privacy Policy</span>
-                  </label>
-                </div>
-
-                <button
-                  type="submit"
-                  className="continue-btn"
-                  disabled={isLoading}
-                  style={{ opacity: isLoading ? 0.7 : 1, cursor: isLoading ? "not-allowed" : "pointer" }}
-                >
-                  {isLoading ? "Creating account..." : "Continue"}
-                </button>
-              </form>
-
-              <div className="register-footer">
-                Already have an account?{" "}
-                <Link href="/login">
-                  <span style={{ cursor: "pointer" }}>Sign In</span>
-                </Link>
-              </div>
+              <button type="button" className="w-8 h-8 rounded-full border border-[#D1D5DB] flex items-center justify-center text-[#9CA3AF] hover:text-gray-600 bg-transparent cursor-pointer hover:bg-gray-50 transition-colors">
+                <span className="text-sm font-semibold">›</span>
+              </button>
             </div>
           </div>
         </div>
 
-        <div className="dot-pattern"></div>
+        {/* RIGHT SIDE - White Background */}
+        <div className="w-full lg:w-1/2 flex items-center justify-center bg-white p-6 relative">
+          
+          {/* The Card */}
+          <div className="w-full max-w-[580px] bg-white rounded-[24px] p-8 lg:p-10 border border-gray-200 shadow-[0_12px_40px_rgb(0,0,0,0.06)] relative z-10 overflow-y-auto max-h-full">
+            <h2 className="text-3xl font-extrabold text-center text-gray-900 mb-2">
+              Join GOLO Network Group
+            </h2>
+            <p className="text-center text-gray-500 text-[14px] mb-8">
+              Grow Smarter With Every Ad. Join Free.
+            </p>
+            
+            {/* Social Buttons */}
+            <div className="flex gap-4 mb-7">
+              <button type="button" className="flex-1 flex items-center justify-center gap-2.5 py-3 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors bg-white cursor-pointer">
+                <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="" className="w-[18px] h-[18px]" />
+                <span className="text-[13px] font-semibold text-gray-700">Google</span>
+              </button>
+              <button type="button" className="flex-1 flex items-center justify-center gap-2.5 py-3 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors bg-white cursor-pointer">
+                <img src="https://www.svgrepo.com/show/448224/facebook.svg" alt="" className="w-[18px] h-[18px]" />
+                <span className="text-[13px] font-semibold text-gray-700">Facebook</span>
+              </button>
+            </div>
+
+            {/* Divider */}
+            <div className="relative mb-7">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-100"></div>
+              </div>
+              <div className="relative flex justify-center text-[10px] font-bold uppercase tracking-widest">
+                <span className="bg-white px-3 text-gray-400">
+                  OR SIGN UP WITH
+                </span>
+              </div>
+            </div>
+
+            <form onSubmit={handleRegister}>
+              {/* Error / Success Messages */}
+              {error && <p className="text-red-500 text-xs mb-4 text-center">{error}</p>}
+              {success && <p className="text-[#157A4F] text-xs mb-4 text-center">{success}</p>}
+
+              <div className="grid grid-cols-2 gap-x-4 gap-y-4 mb-6">
+                {/* Name Input */}
+                <div>
+                  <label className="block text-[12px] font-bold text-gray-700 mb-1.5">Name</label>
+                  <div className="relative">
+                    <User className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                    <input
+                      type="text"
+                      placeholder="Enter your full name"
+                      className="w-full pl-10 pr-4 py-2.5 bg-[#FAFAFA] border border-gray-200 rounded-xl text-[13px] focus:outline-none focus:border-gray-300 transition-colors text-gray-800"
+                      value={name}
+                      onChange={(e) => { setName(e.target.value); setError(""); }}
+                    />
+                  </div>
+                </div>
+
+                {/* Email Input */}
+                <div>
+                  <label className="block text-[12px] font-bold text-gray-700 mb-1.5">Email</label>
+                  <div className="relative">
+                    <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                    <input
+                      type="email"
+                      placeholder="Enter your email"
+                      className="w-full pl-10 pr-4 py-2.5 bg-[#FAFAFA] border border-gray-200 rounded-xl text-[13px] focus:outline-none focus:border-gray-300 transition-colors text-gray-800"
+                      value={email}
+                      onChange={(e) => { setEmail(e.target.value); setError(""); }}
+                    />
+                  </div>
+                </div>
+
+                {/* Number Input */}
+                <div>
+                  <label className="block text-[12px] font-bold text-gray-700 mb-1.5">Number</label>
+                  <div className="relative">
+                    <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                    <input
+                      type="tel"
+                      placeholder="Enter your phone number"
+                      className="w-full pl-10 pr-4 py-2.5 bg-[#FAFAFA] border border-gray-200 rounded-xl text-[13px] focus:outline-none focus:border-gray-300 transition-colors text-gray-800"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                {/* Date of Birth */}
+                <div>
+                  <label className="block text-[12px] font-bold text-gray-700 mb-1.5">Date of Birth</label>
+                  <div className="relative" onClick={() => { dateOfBirthInputRef.current?.showPicker?.(); dateOfBirthInputRef.current?.focus(); }}>
+                    <CalendarDays className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={16} />
+                    <input
+                      ref={dateOfBirthInputRef}
+                      type="date"
+                      className="w-full pl-10 pr-4 py-2.5 bg-[#FAFAFA] border border-gray-200 rounded-xl text-[13px] focus:outline-none focus:border-gray-300 transition-colors cursor-pointer"
+                      style={{ color: dateOfBirth ? "#111827" : "#9CA3AF" }}
+                      value={dateOfBirth}
+                      onChange={(e) => { setDateOfBirth(e.target.value); setError(""); }}
+                      max={new Date().toISOString().slice(0, 10)}
+                    />
+                  </div>
+                </div>
+
+                {/* Gender */}
+                <div>
+                  <label className="block text-[12px] font-bold text-gray-700 mb-1.5">Gender</label>
+                  <div className="relative">
+                    <User className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={16} />
+                    <select
+                      className="w-full pl-10 pr-8 py-2.5 bg-[#FAFAFA] border border-gray-200 rounded-xl text-[13px] focus:outline-none focus:border-gray-300 transition-colors appearance-none cursor-pointer"
+                      style={{ color: gender ? "#111827" : "#9CA3AF" }}
+                      value={gender}
+                      onChange={(e) => { setGender(e.target.value); setError(""); }}
+                    >
+                      <option value="" disabled hidden>Select gender</option>
+                      {GENDER_OPTIONS.map((opt) => (
+                        <option key={opt.value} value={opt.value} style={{ color: "#111827" }}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={16} />
+                  </div>
+                </div>
+
+                {/* Password Input */}
+                <div>
+                  <label className="block text-[12px] font-bold text-gray-700 mb-1.5">Create Password</label>
+                  <div className="relative">
+                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      placeholder="Create a strong password"
+                      className="w-full pl-10 pr-10 py-2.5 bg-[#FAFAFA] border border-gray-200 rounded-xl text-[13px] focus:outline-none focus:border-gray-300 transition-colors text-gray-800"
+                      value={password}
+                      onChange={(e) => { setPassword(e.target.value); setError(""); }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none bg-transparent border-none p-0 cursor-pointer"
+                    >
+                      {showPassword ? <Eye size={16} /> : <EyeOff size={16} />}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Terms Checkbox */}
+              <div className="flex items-start gap-2.5 mb-5">
+                <input type="checkbox" id="terms" className="w-3.5 h-3.5 mt-0.5 border-gray-300 rounded text-[#F59E0B] focus:ring-[#F59E0B] cursor-pointer" />
+                <label htmlFor="terms" className="text-gray-500 text-[10px] leading-tight">
+                  By clicking on &quot;Continue&quot;, I agree to the <span className="text-[#F59E0B] font-bold cursor-pointer hover:underline">Terms</span> and <span className="text-[#F59E0B] font-bold cursor-pointer hover:underline">Privacy Policy</span>. We ensure your data is secure and never shared without your consent.
+                </label>
+              </div>
+
+              {/* Submit Button */}
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full bg-[#F59E0B] hover:bg-[#E69309] text-white font-bold py-3 rounded-xl transition-colors text-[14px] shadow-sm cursor-pointer"
+                style={{ opacity: isLoading ? 0.7 : 1 }}
+              >
+                {isLoading ? "Creating account..." : "Continue"}
+              </button>
+            </form>
+
+            {/* Footer */}
+            <div className="mt-5 text-center text-[12px] text-gray-500">
+              Already have an account?{" "}
+              <Link href="/login" className="text-[#F59E0B] font-bold hover:underline">
+                Sign In
+              </Link>
+            </div>
+          </div>
+        </div>
       </div>
-      <LocationPicker
-        isOpen={showLocationPicker}
-        onClose={() => setShowLocationPicker(false)}
-        onLocationSelect={handleMerchantLocationSelect}
-        initialLocation={
-          typeof storeCoordinates.latitude === "number" &&
-          typeof storeCoordinates.longitude === "number"
-            ? { lat: storeCoordinates.latitude, lng: storeCoordinates.longitude }
-            : undefined
-        }
-      />
     </AuthLayout>
   );
 }

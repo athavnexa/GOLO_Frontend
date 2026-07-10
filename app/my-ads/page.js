@@ -67,8 +67,8 @@ export default function MyAds() {
     <>
       <Navbar />
 
-      <div className="bg-[#F8F6F2] min-h-screen py-14 px-6">
-        <div className="max-w-7xl mx-auto grid lg:grid-cols-4 gap-10">
+      <div className="relative z-10 min-h-screen bg-transparent px-3 pt-20 pb-5 sm:px-6 sm:pt-24 sm:pb-14">
+        <div className="mx-auto grid max-w-7xl gap-5 lg:grid-cols-4 lg:gap-10">
 
           {/* LEFT SIDEBAR */}
           <ProfileSidebar />
@@ -76,12 +76,12 @@ export default function MyAds() {
           {/* RIGHT CONTENT */}
           <div className="lg:col-span-3">
 
-            <div className="bg-white rounded-3xl shadow-sm p-10">
+            <div className="rounded-2xl bg-white p-4 shadow-sm sm:rounded-3xl sm:p-10">
 
               {/* Header */}
-              <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-10 gap-6">
+              <div className="mb-6 flex flex-col gap-4 md:mb-10 md:flex-row md:items-center md:justify-between md:gap-6">
                 <div>
-                  <h1 className="text-3xl font-semibold text-black">
+                  <h1 className="text-2xl font-semibold text-black sm:text-3xl">
                     My Ads
                   </h1>
                   <p className="text-gray-500 mt-1">
@@ -91,7 +91,7 @@ export default function MyAds() {
 
                 <Link
                   href="/i-want"
-                  className="group relative inline-flex items-center justify-center px-7 py-3 rounded-full bg-[#157A4F] text-white font-semibold shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1 active:scale-95"
+                  className="group relative inline-flex w-full items-center justify-center rounded-full bg-[#157A4F] px-7 py-3 font-semibold text-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl active:scale-95 sm:w-auto"
                 >
                   <span className="relative z-10">I Want</span>
                   <span className="absolute inset-0 rounded-full bg-[#1c9460] opacity-0 group-hover:opacity-20 blur-md transition duration-300"></span>
@@ -120,7 +120,7 @@ export default function MyAds() {
 
               {/* Ads Grid */}
               {!loading && ads.length > 0 && (
-                <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-8 xl:grid-cols-3">
                   {ads.map((ad) => (
                     <AdCard
                       key={ad._id}
@@ -151,11 +151,11 @@ export default function MyAds() {
 
               {/* Pagination */}
               {!loading && totalPages > 1 && (
-                <div className="flex justify-center items-center gap-3 mt-16">
+                <div className="mt-10 flex flex-wrap items-center justify-center gap-2 sm:mt-16 sm:gap-3">
                   <button
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
                     disabled={page === 1}
-                    className="px-4 py-2 rounded-lg border border-gray-300 bg-white hover:border-[#157A4F] hover:text-[#157A4F] transition disabled:opacity-50"
+                    className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm transition hover:border-[#157A4F] hover:text-[#157A4F] disabled:opacity-50 sm:px-4"
                   >
                     Previous
                   </button>
@@ -164,7 +164,7 @@ export default function MyAds() {
                     <button
                       key={p}
                       onClick={() => setPage(p)}
-                      className={`px-4 py-2 rounded-lg ${p === page
+                      className={`rounded-lg px-3 py-2 text-sm sm:px-4 ${p === page
                         ? "bg-[#157A4F] text-white font-semibold shadow-sm"
                         : "border border-gray-300 bg-white hover:border-[#157A4F] hover:text-[#157A4F] transition"
                         }`}
@@ -176,7 +176,7 @@ export default function MyAds() {
                   <button
                     onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                     disabled={page === totalPages}
-                    className="px-4 py-2 rounded-lg border border-gray-300 bg-white hover:border-[#157A4F] hover:text-[#157A4F] transition disabled:opacity-50"
+                    className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm transition hover:border-[#157A4F] hover:text-[#157A4F] disabled:opacity-50 sm:px-4"
                   >
                     Next
                   </button>

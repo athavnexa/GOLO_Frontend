@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Bell, Download, Plus, ShoppingBag, Star, User } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import MerchantNavbar from "../MerchantNavbar";
@@ -17,9 +17,11 @@ function getSafeAvatarSrc(src) {
   return value;
 }
 
-export default function MerchantOrdersPage() {
-  const router = useRouter();
-  const { user, loading, logout } = useAuth();
+function MerchantOrdersPageContent() {
+   const router = useRouter();
+   const searchParams = useSearchParams();
+   const { user, loading, logout } = useAuth();
+   const highlightOrderId = searchParams.get("highlight") || "";
 
   const handleMerchantLogout = async () => {
     await logout();
@@ -36,7 +38,9 @@ export default function MerchantOrdersPage() {
     if (activeTab === "accepted") {
       return orders.filter((order) => order.fulfillmentStatus === "accepted");
     }
-    // Completed tab removed per request
+    if (activeTab === "completed") {
+      return orders.filter((order) => order.fulfillmentStatus === "completed");
+    }
     if (activeTab === "pending") {
       return orders.filter((order) => order.fulfillmentStatus === "pending");
     }
@@ -119,6 +123,22 @@ export default function MerchantOrdersPage() {
     loadData();
   }, [user, activeTab]);
 
+  useEffect(() => {
+    if (!user || user.accountType !== "merchant") return;
+    if (activeTab !== "completed" && activeTab !== "all") return;
+
+    const interval = setInterval(async () => {
+      try {
+        const ordersRes = await getMerchantOrders({ status: activeTab === "all" ? "all" : activeTab, page: 1, limit: 30 });
+        setOrders((ordersRes?.data || []).map(formatOrderForUi));
+      } catch (err) {
+        // silent refresh failure
+      }
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [user, activeTab]);
+
   const handleOrderAction = async (orderId, status) => {
     try {
       await updateMerchantOrderStatus(orderId, status);
@@ -140,6 +160,17 @@ export default function MerchantOrdersPage() {
       router.replace("/");
     }
   }, [loading, user, router]);
+
+  useEffect(() => {
+    if (!highlightOrderId) return;
+    const timer = setTimeout(() => {
+      const el = document.getElementById(`order-${highlightOrderId}`);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [highlightOrderId, orders]);
 
   if (loading || !user || pageLoading) {
     return <div className="min-h-screen bg-[#efefef]" />;
@@ -229,8 +260,18 @@ export default function MerchantOrdersPage() {
             </div>
 
             <div className="mt-4 space-y-3">
-              {filteredOrders.map((order) => (
-                <article key={order.id} className="rounded-[10px] border border-[#ececec] bg-white px-3 py-4 shadow-[0_1px_0_rgba(0,0,0,0.03)] lg:px-4">
+              {filteredOrders.map((order) => {
+                const isHighlighted = highlightOrderId && (
+                  order._id === highlightOrderId ||
+                  order.id === highlightOrderId ||
+                  order.id === `#${highlightOrderId}` ||
+                  String(order.orderNumber || '') === highlightOrderId
+                );
+                return (
+                <article
+                  key={order.id}
+                  className={`rounded-[10px] border px-3 py-4 shadow-[0_1px_0_rgba(0,0,0,0.03)] lg:px-4 ${isHighlighted ? "border-[#1f8f4f] bg-[#f0faf3] ring-2 ring-[#1f8f4f]/20" : "border-[#ececec] bg-white"}`}
+                >
                   <div className="grid grid-cols-1 lg:grid-cols-[220px_1fr_220px] gap-4 items-center">
                     <div>
                       <div className="flex items-center gap-2 text-[9px] uppercase tracking-[0.14em] text-[#7d7d7d]">
@@ -278,24 +319,15 @@ export default function MerchantOrdersPage() {
                           </button>
                         </>
                       ) : (
-                        <select 
-                          className="h-8 min-w-[120px] rounded-[8px] border border-[#dcdcdc] bg-white px-3 text-[11px] text-[#222] font-semibold outline-none focus:border-[#2f8f55]"
-                          value={order.fulfillmentStatus}
-                          onChange={(e) => handleOrderAction(order._id, e.target.value)}
-                          disabled={order.fulfillmentStatus === 'completed' || order.fulfillmentStatus === 'rejected'}
-                        >
-                          <option value={order.fulfillmentStatus}>{order.action}</option>
-                          {user?.merchantProfile?.plan?.planFeatures?.ordersStatusAllowed?.map(status => {
-                            const val = status.toLowerCase();
-                            if (val === order.fulfillmentStatus) return null;
-                            return <option key={val} value={val}>{status}</option>;
-                          })}
-                        </select>
+                        <button className="h-8 min-w-[96px] rounded-[8px] bg-[#f5f5f5] px-5 text-[11px] text-[#9c9c9c]">
+                          {order.action}
+                        </button>
                       )}
                     </div>
                   </div>
                 </article>
-              ))}
+                );
+              })}
             </div>
 
             {filteredOrders.length === 0 && (
@@ -333,6 +365,14 @@ export default function MerchantOrdersPage() {
         </div>
         <div className="mx-auto w-full max-w-[1400px] px-4 py-2 border-t border-[#d49b22] flex items-center justify-between gap-3 text-[10px] lg:px-10 lg:py-3 lg:text-[11px]"><p>© 2026 GOLO Dashboard. All rights reserved.</p></div>
       </footer>
-    </div>
+</div>
+   );
+}
+
+export default function MerchantOrdersPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#F3F3F3]" />}>
+      <MerchantOrdersPageContent />
+    </Suspense>
   );
 }

@@ -277,7 +277,7 @@ export default function MerchantReviewsRatingsPage() {
                 </div>
                 <div className="flex items-center gap-2">
                   <button className="h-8 px-3 rounded-[6px] border border-[#e5e7eb] bg-white text-[11px]">Last 30 Days</button>
-                  <button disabled={user?.merchantProfile?.plan?.planFeatures?.canExportCsv === false} onClick={handleExportCsv} className="h-8 px-3 rounded-[6px] border border-[#e5e7eb] bg-white text-[11px] disabled:opacity-60 disabled:cursor-not-allowed">Export CSV</button>
+                  <button onClick={handleExportCsv} className="h-8 px-3 rounded-[6px] border border-[#e5e7eb] bg-white text-[11px]">Export CSV</button>
                   <button onClick={handleBulkApprove} className="h-8 px-3 rounded-[6px] bg-[#157A4F] text-white text-[11px] font-semibold">Bulk Action</button>
                 </div>
               </div>

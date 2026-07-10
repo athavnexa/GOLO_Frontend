@@ -104,10 +104,7 @@ export default function CreateMerchantOfferPage() {
 
   const [formData, setFormData] = useState(EMPTY_FORM);
 
-  const [merchantStoreCategory, setMerchantStoreCategory] = useState('');
-  const [merchantMaxOfferDuration, setMerchantMaxOfferDuration] = useState(-1);
-  const [monthlyOffersLimit, setMonthlyOffersLimit] = useState(null);
-  const [offersCreatedThisMonth, setOffersCreatedThisMonth] = useState(0);
+   const [merchantStoreCategory, setMerchantStoreCategory] = useState('');
 
   const [inventoryProducts, setInventoryProducts] = useState([]);
   const [selectedProducts, setSelectedProducts] = useState([]);
@@ -215,24 +212,9 @@ export default function CreateMerchantOfferPage() {
        (async () => {
          try {
            const profileRes = await getProfile();
-           const profile = profileRes?.data?.merchantProfile || profileRes?.data || {};
-           setMerchantStoreCategory(profile.storeCategory || '');
-           
-           const maxDuration = profile?.plan?.planFeatures?.maxOfferDurationDays;
-           if (maxDuration !== undefined) {
-             setMerchantMaxOfferDuration(maxDuration);
-           }
-
-           const maxMonthly = profile?.plan?.planFeatures?.maxMonthlyOffers;
-           if (maxMonthly !== undefined) {
-             setMonthlyOffersLimit(maxMonthly);
-           }
-           const offersCreated = profile?.plan?.offersCreatedThisMonth;
-           if (offersCreated !== undefined) {
-             setOffersCreatedThisMonth(offersCreated);
-           }
+           setMerchantStoreCategory(profileRes.data?.storeCategory || '');
          } catch (err) {
-           console.warn('Could not fetch merchant profile details', err);
+           console.warn('Could not fetch merchant store category', err);
          }
        })();
      }
@@ -347,9 +329,9 @@ export default function CreateMerchantOfferPage() {
       const cloudinaryForm = new FormData();
       cloudinaryForm.append("file", file);
       cloudinaryForm.append("upload_preset", "choja_preset");
-      cloudinaryForm.append("cloud_name", "dkiagrvnp");
+      cloudinaryForm.append("cloud_name", "dcm1plq42");
 
-      const res = await fetch("https://api.cloudinary.com/v1_1/dkiagrvnp/image/upload", {
+      const res = await fetch("https://api.cloudinary.com/v1_1/dcm1plq42/image/upload", {
         method: "POST",
         body: cloudinaryForm,
       });
@@ -375,24 +357,9 @@ export default function CreateMerchantOfferPage() {
       return false;
     }
 
-    if (monthlyOffersLimit !== null && monthlyOffersLimit !== -1 && offersCreatedThisMonth >= monthlyOffersLimit) {
-      setError(`You have reached your limit of ${monthlyOffersLimit} offers for this month. Upgrade your plan to create more offers.`);
-      return false;
-    }
-
-    if (!formData.title || !formData.category || !formData.startDate) {
-      setError("Please fill all required fields in Offer Details.");
-      return false;
-    }
-
     const title = formData.title.trim();
     if (!title) {
       setError("Offer title is required.");
-      return false;
-    }
-
-    if (!formData.category) {
-      setError("Promotion Type is required.");
       return false;
     }
 
@@ -404,12 +371,6 @@ export default function CreateMerchantOfferPage() {
     const endDate = formData.endDate || formData.startDate;
     if (new Date(endDate) < new Date(formData.startDate)) {
       setError("End date cannot be before start date.");
-      return false;
-    }
-
-    const selectedDates = buildSelectedDates(formData.startDate, endDate);
-    if (merchantMaxOfferDuration !== -1 && selectedDates.length > merchantMaxOfferDuration) {
-      setError(`Your current plan limits offer duration to ${merchantMaxOfferDuration} days.`);
       return false;
     }
 
@@ -505,12 +466,6 @@ export default function CreateMerchantOfferPage() {
           {!storeLocationReady ? (
             <div className="rounded-[10px] border border-[#f5d2c4] bg-[#fff7f3] px-4 py-3 text-[12px] text-[#a1431d]">
               Store coordinates are missing. Update your store location from map in Merchant Profile to enable nearby deals for customers.
-            </div>
-          ) : null}
-
-          {monthlyOffersLimit !== null && monthlyOffersLimit !== -1 && offersCreatedThisMonth >= monthlyOffersLimit ? (
-            <div className="rounded-[10px] border border-[#f5d2c4] bg-[#fff7f3] px-4 py-3 text-[12px] text-[#a1431d]">
-              You have reached your limit of {monthlyOffersLimit} offers for this month. Upgrade your plan to create more offers.
             </div>
           ) : null}
 

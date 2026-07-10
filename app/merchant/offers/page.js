@@ -186,10 +186,6 @@ export default function MerchantOffersPage() {
     }
   }, [loading, user]);
 
-  const planFeatures = user?.merchantProfile?.plan?.planFeatures || {};
-  const planInfo = user?.merchantProfile || {};
-  const shouldBlur = planInfo.planType === 'free' && planInfo.freeTierMonthsElapsed > 2;
-
   const filteredOffers = useMemo(() => {
     const needle = query.trim().toLowerCase();
     if (!needle) return offers;
@@ -562,7 +558,6 @@ export default function MerchantOffersPage() {
                     <div className="flex flex-col md:flex-row gap-4">
                       <div className="w-full md:w-48">
                         {formData.imageUrl ? (
-                          // eslint-disable-next-line @next/next/no-img-element
                           <img src={formData.imageUrl} alt="Offer" className="w-full h-24 object-cover rounded border border-[#dedede]" />
                         ) : (
                           <div className="w-full h-24 bg-[#f2f2f2] rounded border border-[#dedede] flex items-center justify-center text-[12px] text-[#888]">No image</div>
@@ -709,32 +704,13 @@ export default function MerchantOffersPage() {
                     ) : null}
                   </div>
 
-            {formError ? <p className="md:col-span-2 text-[12px] text-[#ef4d4d]">{formError}</p> : null}
+                    {formError ? <p className="md:col-span-2 text-[12px] text-[#ef4d4d]">{formError}</p> : null}
                   </form>
                 </div>
               </div>
             ) : null}
 
-            <div className="mt-4 relative">
-              {shouldBlur && (
-                <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/40 backdrop-blur-sm rounded-[10px]">
-                  <div className="bg-white p-6 rounded-lg shadow-lg border border-[#e0e0e0] text-center max-w-sm pointer-events-auto">
-                    <h3 className="text-lg font-bold text-[#2a2a2a] mb-2">Upgrade to Premium</h3>
-                    <div className="text-[13px] text-[#555] mb-4 text-left">
-                      <p className="font-semibold mb-2">Unlock:</p>
-                      <ul className="list-disc pl-4 space-y-1 text-[#666]">
-                        <li>Unlimited Offers</li>
-                        <li>Unlimited Products</li>
-                        <li>Complete Analytics</li>
-                      </ul>
-                    </div>
-                    <button className="w-full h-10 rounded-[8px] bg-[#2f9e58] text-white font-semibold text-[13px]">
-                      Upgrade Now
-                    </button>
-                  </div>
-                </div>
-              )}
-              <div className={`overflow-hidden rounded-[10px] border border-[#ececec] bg-white ${shouldBlur ? 'pointer-events-none' : ''}`}>
+            <div className="mt-4 overflow-hidden rounded-[10px] border border-[#ececec] bg-white">
               <table className="w-full text-[12px]">
                 <thead className="bg-[#f2f3f5] text-[#666]">
                   <tr>
@@ -775,21 +751,9 @@ export default function MerchantOffersPage() {
                       </td>
                       <td className="px-4 py-3 text-[#2c2c2c]">{formatDateForDisplay(row.endDate)}</td>
                       <td className="px-4 py-3 text-[11px]">
-                        <button 
-                          onClick={() => openViewForm(row)} 
-                          className="text-[#1f6fb3] font-semibold disabled:text-[#b0c4de] disabled:cursor-not-allowed"
-                          disabled={planFeatures.canEditOffer === false}
-                        >
-                          View
-                        </button>
+                        <button onClick={() => router.push(`/merchant/offers/details?id=${getOfferActionId(row)}`)} className="text-[#1f6fb3] font-semibold">View</button>
                         <span className="mx-2 text-[#cfcfcf]">/</span>
-                        <button 
-                          onClick={() => onDeleteOffer(row)} 
-                          className="text-[#ef4d4d] font-semibold disabled:text-[#fbb2b2] disabled:cursor-not-allowed"
-                          disabled={planFeatures.canDeleteOffer === false}
-                        >
-                          Delete
-                        </button>
+                        <button onClick={() => onDeleteOffer(row)} className="text-[#ef4d4d] font-semibold">Delete</button>
                       </td>
                     </tr>
                   ))}
@@ -817,7 +781,6 @@ export default function MerchantOffersPage() {
                   </button>
                 </div>
               </div>
-            </div>
             </div>
           </section>
         </div>

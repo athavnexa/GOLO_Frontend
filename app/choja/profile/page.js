@@ -66,7 +66,7 @@ export default function ChojaProfilePage() {
     <>
       <Navbar />
 
-      <div className="min-h-screen bg-[#F8F6F2] py-12 px-6">
+      <div className="relative z-10 min-h-screen bg-transparent px-3 pt-20 pb-14 sm:px-6 sm:pt-24 sm:pb-16">
         <div className="max-w-7xl mx-auto grid lg:grid-cols-4 gap-8">
           <ProfileSidebar />
 
@@ -137,15 +137,10 @@ export default function ChojaProfilePage() {
             <div className="bg-white rounded-2xl shadow-sm p-8">
               <h3 className="text-xl font-semibold mb-6 text-black">My Activity</h3>
 
-              <div className="grid md:grid-cols-3 gap-6 text-center">
+              <div className="grid md:grid-cols-2 gap-6 text-center">
                 <div className="bg-[#FFF3D6] rounded-xl p-6">
                   <p className="text-2xl font-bold text-black">{activeAdsCount}</p>
                   <p className="text-gray-600">Active Ads</p>
-                </div>
-
-                <div className="bg-[#FFF3D6] rounded-xl p-6">
-                  <p className="text-2xl font-bold text-black">{displayUser?.isEmailVerified ? "✓" : "✗"}</p>
-                  <p className="text-gray-600">Email Verified</p>
                 </div>
 
                 <div className="bg-[#FFF3D6] rounded-xl p-6">

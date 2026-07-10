@@ -16,14 +16,6 @@ export default function PostAdPage() {
   const { user } = useAuth();
   const { isLoading, isAuthorized } = useRoleProtection("user");
 
-  if (isLoading) {
-    return <LoadingScreen />;
-  }
-
-  if (!isAuthorized) {
-    return null;
-  }
-
   const templates = [
     {
       id: 1,
@@ -80,6 +72,14 @@ export default function PostAdPage() {
 
     return () => clearInterval(interval);
   }, []);
+
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
+
+  if (!isAuthorized) {
+    return null;
+  }
 
   return (
     <>
@@ -209,9 +209,8 @@ export default function PostAdPage() {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        router.push("/chats");
                       }}
-                      className="flex-1 py-3 rounded-full bg-[#157A4F] hover:bg-[#0f5c3a] text-white transition flex items-center justify-center gap-2"
+                      className="flex-1 py-3 rounded-full bg-[#157A4F] hover:bg-[#0f5c3a] text-white transition flex items-center justify-center gap-2 opacity-80 cursor-default"
                     >
                       <MessageCircle size={16} />
                       Chat

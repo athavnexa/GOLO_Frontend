@@ -2,10 +2,11 @@
 
 import { use, useState, useEffect, useRef } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Navbar from "./../../components/Navbar";
 import Footer from "./../../components/Footer";
-import { getAdById, toggleWishlist, getWishlistIds, getAdWishlistCount } from "../../lib/api";
+import { getAdById, toggleWishlist, getWishlistIds, getAdWishlistCount, getUserById } from "../../lib/api";
 import { useAuth } from "../../context/AuthContext";
 import {
 	Heart,
@@ -20,11 +21,36 @@ import {
 import ReportModal from "@/app/components/ReportModal";
 import UserReportModal from "@/app/components/UserReportModal";
 import AuthRequiredModal from "@/app/components/AuthRequiredModal";
-import RecommendationService from "../../services/recommendation.service";
-import { useRecommendationTracking } from "../../hooks/useRecommendationTracking";
-import { SectionCarousel } from "../../components/SectionCarousel";
-import { SectionSkeleton } from "../../components/SectionSkeleton";
-import { LazySection } from "../../components/LazySection";
+
+function getSellerId(ad) {
+	const rawId =
+		ad?.userId?._id ||
+		ad?.userId?.id ||
+		ad?.userId ||
+		ad?.user?._id ||
+		ad?.user?.id ||
+		ad?.sellerId?._id ||
+		ad?.sellerId?.id ||
+		ad?.sellerId ||
+		ad?.ownerId?._id ||
+		ad?.ownerId?.id ||
+		ad?.ownerId ||
+		ad?.createdBy?._id ||
+		ad?.createdBy?.id ||
+		ad?.createdBy;
+
+	return typeof rawId === "string" && rawId.trim() ? rawId.trim() : "";
+}
+
+function firstMeaningfulValue(...values) {
+	for (const value of values) {
+		const normalizedValue = typeof value === "string" ? value.trim() : "";
+		if (normalizedValue && normalizedValue.toLowerCase() !== "user") {
+			return normalizedValue;
+		}
+	}
+	return "";
+}
 
 export default function ProductDetails({ params }) {
 	const resolvedParams = use(params);
@@ -39,74 +65,34 @@ export default function ProductDetails({ params }) {
 	const [isWishlisted, setIsWishlisted] = useState(false);
 	const [isTogglingWishlist, setIsTogglingWishlist] = useState(false);
 	const [wishlistCount, setWishlistCount] = useState(null);
+	const [sellerProfile, setSellerProfile] = useState(null);
 	const [showReportModal, setShowReportModal] = useState(false);
 	const [showUserReportModal, setShowUserReportModal] = useState(false);
 	const [showAuthPrompt, setShowAuthPrompt] = useState(false);
 	const [authPromptDescription, setAuthPromptDescription] = useState("Please log in or create an account to continue.");
-	const { user, isAuthenticated } = useAuth();
-	
-	const [pdpRecommendations, setPdpRecommendations] = useState([]);
-	const [loadingRecommendations, setLoadingRecommendations] = useState(true);
-	const [sessionId, setSessionId] = useState("");
-	const { trackClick } = useRecommendationTracking();
-
-	useEffect(() => {
-		let sid = sessionStorage.getItem("golo_session_id");
-		if (!sid) {
-			sid = "sess_" + Math.random().toString(36).substring(2, 15);
-			sessionStorage.setItem("golo_session_id", sid);
-		}
-		setSessionId(sid);
-	}, []);
-
-	useEffect(() => {
-		if (!adId) return;
-		let cancelled = false;
-
-		async function fetchRecommendations() {
-			setLoadingRecommendations(true);
-			try {
-				const params = { userId: user?.id || undefined };
-				const sectionsData = await RecommendationService.getForProduct(adId, params);
-				if (!cancelled) {
-					setPdpRecommendations(Array.isArray(sectionsData) ? sectionsData : []);
-				}
-			} catch (err) {
-				console.error("Failed to load product recommendations", err);
-			} finally {
-				if (!cancelled) {
-					setLoadingRecommendations(false);
-				}
-			}
-		}
-
-		fetchRecommendations();
-
-		return () => {
-			cancelled = true;
-		};
-	}, [adId, user]);
-
-	const handleRecommendationClick = (item, sectionKey, strategy, position, requestId) => {
-		const targetId = item.offerId || item.merchantId || item.id || item._id;
-		if (!targetId || String(targetId).startsWith("mock-")) return;
-		
-		trackClick(sectionKey, strategy, item, position + 1, {
-			userId: user?.id,
-			sessionId,
-			requestId
-		});
-
-		const isProductOrAd = item.type === "product" || item.type === "ad" || (!item.type && !item.offerId && !item.merchantId);
-
-		if (item.type === "merchant" || (item.merchantId && !item.offerId && !isProductOrAd)) {
-			router.push(`/nearby-deals/store?merchantId=${encodeURIComponent(targetId)}`);
-		} else if (isProductOrAd) {
-			router.push(`/product/${encodeURIComponent(targetId)}`);
-		} else {
-			router.push(`/nearby-deals/deal?offerId=${encodeURIComponent(targetId)}`);
-		}
-	};
+	const { isAuthenticated } = useAuth();
+	const sellerId = getSellerId(ad);
+	const sellerName =
+		firstMeaningfulValue(
+			sellerProfile?.name,
+			sellerProfile?.fullName,
+			ad?.user?.name,
+			ad?.userName,
+			ad?.ownerName,
+			ad?.sellerName,
+			ad?.contactInfo?.sellerName,
+			ad?.contactInfo?.name,
+		) || "Seller";
+	const sellerPhone =
+		firstMeaningfulValue(sellerProfile?.phone, ad?.contactInfo?.phone, ad?.primaryContact) ||
+		"Phone not provided";
+	const sellerEmail = firstMeaningfulValue(sellerProfile?.email, ad?.contactInfo?.email);
+	const sellerCity =
+		firstMeaningfulValue(
+			sellerProfile?.profile?.city,
+			sellerProfile?.city,
+			ad?.contactInfo?.city,
+		);
 
 	const getSafeImageSrc = (value) => {
 		if (!value || typeof value !== "string") return "/images/placeholder.webp";
@@ -189,6 +175,34 @@ export default function ProductDetails({ params }) {
 		}
 		fetchWishlistCount();
 	}, [ad?.adId, adId]);
+
+	useEffect(() => {
+		let cancelled = false;
+
+		async function fetchSellerProfile() {
+			if (!sellerId) {
+				setSellerProfile(null);
+				return;
+			}
+
+			try {
+				const response = await getUserById(sellerId);
+				if (!cancelled) {
+					setSellerProfile(response?.success && response?.data ? response.data : null);
+				}
+			} catch {
+				if (!cancelled) {
+					setSellerProfile(null);
+				}
+			}
+		}
+
+		fetchSellerProfile();
+
+		return () => {
+			cancelled = true;
+		};
+	}, [sellerId]);
 
 	useEffect(() => {
 		async function checkWishlist() {
@@ -328,12 +342,11 @@ export default function ProductDetails({ params }) {
 		);
 	};
 
-	const basicInformationEntries = [
-		["Title", ad?.title],
-		["Description", ad?.description],
-		["Contact", ad?.primaryContact || ad?.contactInfo?.phone],
-		["Category", ad?.category],
-	].filter(([, value]) => hasDisplayValue(value));
+ 	const basicInformationEntries = [
+ 		["Title", ad?.title],
+ 		["Description", ad?.description],
+ 		["Contact", ad?.primaryContact || ad?.contactInfo?.phone],
+ 	].filter(([, value]) => hasDisplayValue(value));
 
 	const categoryDataSource = [
 		ad?.categorySpecificData,
@@ -425,10 +438,13 @@ export default function ProductDetails({ params }) {
 		<>
 			<Navbar />
 
-			<div className="bg-[#F8F6F2] min-h-screen">
+			<div className="relative z-10 min-h-screen bg-transparent -mt-10 pt-4">
 				<div className="max-w-7xl mx-auto px-6 py-10">
 					<p className="text-sm text-gray-500 mb-6">
-						Home &nbsp;›&nbsp; {ad?.category || "Category"} &nbsp;›&nbsp; {ad?.subCategory || "Sub Category"} &nbsp;›&nbsp;
+						<Link href="/" className="hover:text-[#157A4F] transition-colors">
+							Home
+						</Link>
+						<span className="mx-1">›</span>
 						<span className="text-gray-800 font-medium">
 							{ad?.title || "Product"}
 						</span>
@@ -442,14 +458,6 @@ export default function ProductDetails({ params }) {
 										<span className="text-xs font-semibold bg-[#EAF6F0] text-[#157A4F] px-3 py-1 rounded-full">
 											Text Only Ad
 										</span>
-										<span className="text-xs font-semibold bg-gray-100 text-gray-600 px-3 py-1 rounded-full">
-											{ad?.category || "General"}
-										</span>
-										{ad?.subCategory && (
-											<span className="text-xs font-semibold bg-gray-100 text-gray-600 px-3 py-1 rounded-full">
-												{ad.subCategory}
-											</span>
-										)}
 									</div>
 
 									<div className="max-w-4xl">
@@ -493,19 +501,21 @@ export default function ProductDetails({ params }) {
 										))}
 									</div>
 
-									<div className="flex-1 bg-white p-6 rounded-2xl shadow-sm relative border border-gray-200">
-										<Image
-											src={images[selectedImage]}
-											width={900}
-											height={600}
-											alt={ad?.title || "Product"}
-											className="rounded-xl w-full object-cover transition-all duration-300"
-											unoptimized={isExternalImage}
-										/>
-										<div className="absolute bottom-8 right-10 bg-[#157A4F] text-white text-xs px-3 py-1 rounded-full">
-											{selectedImage + 1} / {images.length} Photos
-										</div>
-									</div>
+ 								<div className="flex-1 bg-white p-6 rounded-2xl shadow-sm relative border border-gray-200">
+ 									<div className="relative h-[320px] sm:h-[400px] md:h-[480px]">
+ 										<Image
+ 											src={images[selectedImage]}
+ 											width={900}
+ 											height={600}
+ 											alt={ad?.title || "Product"}
+ 											className="rounded-xl w-full h-full object-cover transition-all duration-300"
+ 											unoptimized={isExternalImage}
+ 										/>
+ 									</div>
+ 									<div className="absolute bottom-6 right-6 bg-[#157A4F] text-white text-xs px-3 py-1 rounded-full">
+ 										{selectedImage + 1} / {images.length} Photos
+ 									</div>
+ 								</div>
 								</div>
 							)}
 
@@ -514,14 +524,6 @@ export default function ProductDetails({ params }) {
 									{ad?.isPromoted && (
 										<span className="text-xs font-semibold bg-[#FFF3D6] text-[#157A4F] px-3 py-1 rounded-full">
 											Featured Ad
-										</span>
-									)}
-									<span className="text-xs font-semibold bg-gray-200 text-gray-700 px-3 py-1 rounded-full">
-										{ad?.category || "General"}
-									</span>
-									{ad?.subCategory && (
-										<span className="text-xs font-semibold bg-gray-200 text-gray-700 px-3 py-1 rounded-full">
-											{ad.subCategory}
 										</span>
 									)}
 								</div>
@@ -645,7 +647,7 @@ export default function ProductDetails({ params }) {
 												setShowAuthPrompt(true);
 												return;
 											}
-											router.push(`/chats?adId=${ad?.adId || ad?._id || adId}&sellerId=${ad?.userId || ''}`);
+											router.push(`/chats?adId=${ad?.adId || ad?._id || adId}&sellerId=${sellerId}`);
 										}}
 										className="w-full mt-6 py-3 rounded-xl bg-[#157A4F] hover:bg-[#0f5c3a] text-white font-semibold flex items-center justify-center gap-2 transition"
 									>
@@ -660,7 +662,7 @@ export default function ProductDetails({ params }) {
 												setShowAuthPrompt(true);
 												return;
 											}
-											router.push(`/chats?adId=${ad?.adId || ad?._id || adId}&sellerId=${ad?.userId || ''}&autoCall=1`);
+											router.push(`/chats?adId=${ad?.adId || ad?._id || adId}&sellerId=${sellerId}&autoCall=1`);
 										}}
 										className="w-full mt-4 py-3 rounded-xl bg-[#F5B849] hover:bg-[#e0a837] text-white font-semibold flex items-center justify-center gap-2 transition"
 									>
@@ -673,30 +675,31 @@ export default function ProductDetails({ params }) {
 									<p className="text-sm font-semibold text-gray-800 mb-3">Ad Uploader Details</p>
 									<div className="flex items-start gap-3">
 										<div className="w-11 h-11 rounded-full bg-[#ecf8f1] text-[#157A4F] font-bold flex items-center justify-center shrink-0">
-											{(ad?.contactInfo?.name || ad?.contactInfo?.sellerName || ad?.sellerName || ad?.title || "U").charAt(0).toUpperCase()}
+											{(sellerName || ad?.title || "U").charAt(0).toUpperCase()}
 										</div>
 										<div className="min-w-0 flex-1">
 											<p className="text-sm font-semibold text-gray-800 truncate">
-												{ad?.contactInfo?.name || ad?.contactInfo?.sellerName || ad?.sellerName || "Seller"}
+												{sellerName}
 											</p>
 											<p className="text-xs text-gray-500 mt-0.5 break-all">
-												{ad?.contactInfo?.phone || ad?.primaryContact || "Phone not provided"}
+												{sellerPhone}
 											</p>
-											{ad?.contactInfo?.email && (
+											{sellerEmail && (
 												<p className="text-xs text-gray-500 mt-0.5 break-all">
-													{ad.contactInfo.email}
+													{sellerEmail}
 												</p>
 											)}
-											{ad?.contactInfo?.city && (
+											{sellerCity && (
 												<p className="text-xs text-gray-400 mt-1">
-													📍 {ad.contactInfo.city}
+													📍 {sellerCity}
 												</p>
 											)}
 										</div>
 									</div>
 
 									<button
-										onClick={() => router.push(`/profile/${ad?.userId}`)}
+										onClick={() => router.push(`/profile/${sellerId}`)}
+										disabled={!sellerId}
 										className="w-full mt-4 py-2 rounded-xl border-2 border-[#157A4F] text-[#157A4F] hover:bg-[#157A4F] hover:text-white hover:border-[#0f5c3a] font-semibold flex items-center justify-center gap-2 transition-all duration-200 transform hover:scale-[1.02] text-sm"
 									>
 										<span className="inline-flex items-center gap-1">
@@ -717,37 +720,6 @@ export default function ProductDetails({ params }) {
 						</div>
 					</div>
 				</div>
-
-				{/* Recommendations Section */}
-				<div className="max-w-7xl mx-auto px-6 pb-10">
-					{loadingRecommendations ? (
-						<>
-							{Array.from({ length: 2 }).map((_, i) => (
-								<SectionSkeleton key={`skeleton-${i}`} title="Loading recommendations..." />
-							))}
-						</>
-					) : (
-						<>
-							{pdpRecommendations.map((section, index) => (
-								<LazySection 
-									key={section.key || `section-${index}`}
-									sectionKey={section.key}
-									strategy={section.strategy}
-									products={section.products}
-									context={{ userId: user?.id, sessionId, requestId: section.metadata?.requestId }}
-									priority={index === 0} // Render first recommendation section immediately
-								>
-									<SectionCarousel 
-										title={section.title} 
-										strategy={section.strategy || section.key}
-										products={section.products} 
-										onItemClick={(item, idx) => handleRecommendationClick(item, section.key, section.strategy, idx, section.metadata?.requestId)} 
-									/>
-								</LazySection>
-							))}
-						</>
-					)}
-				</div>
 			</div>
 
 			<Footer />
@@ -762,8 +734,8 @@ export default function ProductDetails({ params }) {
 			<UserReportModal
 				isOpen={showUserReportModal}
 				onClose={() => setShowUserReportModal(false)}
-				userId={ad?.userId}
-				userName={ad?.contactInfo?.name || ad?.contactInfo?.sellerName || ad?.sellerName || "Seller"}
+				userId={sellerId}
+				userName={sellerName}
 			/>
 
 			<AuthRequiredModal

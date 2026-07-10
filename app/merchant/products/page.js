@@ -244,9 +244,9 @@ export default function MerchantProductsPage() {
 
               <div className="flex items-center gap-2">
                 <button
-                  disabled={isExporting || user?.merchantProfile?.plan?.planFeatures?.canExportCsv === false}
+                  disabled={isExporting}
                   onClick={exportProductsToCsv}
-                  className="h-9 rounded-[8px] border border-[#e2e2e2] bg-white px-4 text-[11px] text-[#666] inline-flex items-center gap-1.5 disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="h-9 rounded-[8px] border border-[#e2e2e2] bg-white px-4 text-[11px] text-[#666] inline-flex items-center gap-1.5 disabled:opacity-60"
                 >
                   <Download size={12} /> Export CSV
                 </button>
@@ -261,11 +261,7 @@ export default function MerchantProductsPage() {
                 >
                   Apply Search
                 </button>
-                <button 
-                  onClick={() => router.push("/merchant/products/add")} 
-                  disabled={user?.merchantProfile?.plan?.planFeatures?.maxProducts !== -1 && (stats?.totalProducts || 0) >= (user?.merchantProfile?.plan?.planFeatures?.maxProducts || 10)}
-                  className="h-9 rounded-[8px] bg-[#2f9e58] px-4 text-[11px] font-semibold text-white inline-flex items-center gap-1.5 disabled:bg-[#a6d5b7] disabled:cursor-not-allowed"
-                >
+                <button onClick={() => router.push("/merchant/products/add")} className="h-9 rounded-[8px] bg-[#2f9e58] px-4 text-[11px] font-semibold text-white inline-flex items-center gap-1.5">
                   <Plus size={12} /> Add New Product
                 </button>
               </div>
@@ -302,7 +298,15 @@ export default function MerchantProductsPage() {
                           <span>{item.status}</span>
                         )}
                       </td>
-                      <td className={`px-4 py-3 ${item.status === "Out of Stock" ? "text-[#ef4d4d]" : ""}`}>{item.stock}</td>
+                      <td className="px-4 py-3">
+                        {(() => {
+                          const raw = item.stockQuantity ?? item.stock ?? 0;
+                          const num = Number(raw) || 0;
+                          if (num === 0) return <span className="font-semibold text-[#c53030]">{String(num)}</span>;
+                          if (num < 10) return <span className="font-semibold text-[#ed6464]">{String(num)}</span>;
+                          return <span>{String(num)}</span>;
+                        })()}
+                      </td>
                       <td className="px-4 py-3 text-[11px]">
                         <button
                           onClick={() => router.push(`/merchant/products/details?id=${item.id}`)}
@@ -311,11 +315,7 @@ export default function MerchantProductsPage() {
                           <Eye size={12} /> View
                         </button>
                         <span className="mx-2 text-[#cfcfcf]">/</span>
-                        <button 
-                          onClick={() => handleDeleteProduct(item.id)} 
-                          disabled={user?.merchantProfile?.plan?.planFeatures?.canDeleteProduct === false}
-                          className="text-[#ef4d4d] font-semibold disabled:text-[#fbb2b2] disabled:cursor-not-allowed"
-                        >
+                        <button onClick={() => handleDeleteProduct(item.id)} className="text-[#ef4d4d] font-semibold">
                           <span className="inline-flex items-center gap-1 rounded-[6px] border border-[#f0c6c6] bg-[#fff0f0] px-3 py-1 text-[#d63f3f] font-semibold">
                             <Trash2 size={12} /> Delete
                           </span>

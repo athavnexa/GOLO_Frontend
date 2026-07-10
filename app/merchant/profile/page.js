@@ -14,7 +14,6 @@ import {
   CalendarDays,
   Store,
   MapPin,
-  MoreVertical,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import MerchantNavbar from "../MerchantNavbar";
@@ -31,7 +30,6 @@ import {
   getMerchantLoyaltyLeaderboard,
 } from "../../lib/api";
 
-const topTabs = ["Profile Settings", "Loyalty Rewards", "Help", "Settings", "Logout"];
 const MERCHANT_CATEGORIES = [
   "Food & Restaurants",
   "Home Services",
@@ -124,7 +122,6 @@ function MerchantProfileContent({ user, logout, router, initialTab = "Profile Se
   const [activeTab, setActiveTab] = useState(initialTab);
   const [isEditMode, setIsEditMode] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-  const [showMobileTabs, setShowMobileTabs] = useState(false);
   const [showLocationPicker, setShowLocationPicker] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -464,79 +461,6 @@ function MerchantProfileContent({ user, logout, router, initialTab = "Profile Se
 
       <main className="w-full px-8 py-6 lg:px-10">
         <div className="mx-auto w-full max-w-[1400px]">
-          <div className="relative mb-4 flex justify-end lg:hidden">
-            <button
-              type="button"
-              onClick={() => setShowMobileTabs((value) => !value)}
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-[#d8d8d8] bg-white text-[#157a4f] shadow-sm"
-              aria-label="Merchant profile menu"
-            >
-              <MoreVertical size={20} />
-            </button>
-
-            {showMobileTabs && (
-              <div className="absolute right-0 top-12 z-30 w-56 overflow-hidden rounded-[14px] border border-[#e5e5e5] bg-white py-2 text-[12px] font-semibold shadow-xl">
-                {topTabs.map((tab) => (
-                  <button
-                    key={tab}
-                    type="button"
-                    onClick={() => {
-                      setShowMobileTabs(false);
-                      if (tab === "Help") {
-                        router.push("/merchant/help");
-                      } else if (tab === "Logout") {
-                        setShowLogoutConfirm(true);
-                      } else {
-                        setActiveTab(tab);
-                      }
-                    }}
-                    className={`flex w-full items-center justify-between px-4 py-3 text-left transition hover:bg-[#f8f8f8] ${
-                      activeTab === tab
-                        ? "text-[#157a4f]"
-                        : tab === "Logout"
-                        ? "text-[#ef4444]"
-                        : "text-[#111]"
-                    }`}
-                  >
-                    <span>{tab}</span>
-                    {activeTab === tab && tab !== "Logout" && (
-                      <span className="h-2 w-2 rounded-full bg-[#157a4f]" />
-                    )}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="mb-6 hidden flex-wrap items-center justify-end gap-8 text-[12px] font-semibold lg:flex">
-            {topTabs.map((tab) => (
-              <button
-                key={tab}
-                type="button"
-                onClick={() => {
-                  if (tab === "Help") {
-                    router.push("/merchant/help");
-                  } else if (tab === "Logout") {
-                    setShowLogoutConfirm(true);
-                  } else {
-                    setActiveTab(tab);
-                  }
-                }}
-                className={`relative pb-1 transition ${
-                  activeTab === tab
-                    ? "text-[#157a4f]"
-                    : tab === "Logout"
-                    ? "text-[#ef4444]"
-                    : "text-[#111]"
-                }`}
-              >
-                <span>{tab}</span>
-                {activeTab === tab && tab !== "Logout" && (
-                  <span className="absolute left-0 right-0 -bottom-[5px] h-[2px] bg-[#157a4f]" />
-                )}
-              </button>
-            ))}
-          </div>
 
           {activeTab === "Loyalty Rewards" ? (
             <div className="mx-auto max-w-[1260px] space-y-5">
@@ -722,7 +646,6 @@ function MerchantProfileContent({ user, logout, router, initialTab = "Profile Se
                           onClick={() => isEditMode && handlePhotoClick(false)}
                         >
                           {merchantPhotoSrc ? (
-                            // eslint-disable-next-line @next/next/no-img-element
                             <img src={merchantPhotoSrc} alt="Merchant profile" className="h-full w-full object-cover" />
                           ) : (
                             <div className="flex h-full w-full items-center justify-center bg-[#f4f4f5] text-[#9ca3af]">
@@ -796,7 +719,6 @@ function MerchantProfileContent({ user, logout, router, initialTab = "Profile Se
 
                     <div className="relative mb-6 h-[260px] overflow-hidden rounded-[18px] bg-[#f3f4f6]">
                       {shopPhotoSrc ? (
-                        // eslint-disable-next-line @next/next/no-img-element
                         <img src={shopPhotoSrc} alt={shopDisplayName} className="h-full w-full object-cover" />
                       ) : (
                         <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#fff4dd] to-[#f5f5f5] text-[#9ca3af]">
@@ -873,13 +795,9 @@ function MerchantProfileContent({ user, logout, router, initialTab = "Profile Se
                               <p className="text-[14px] font-semibold text-[#30343c]">
                                 {storeLocation.address || formData.location || "Store address not set"}
                               </p>
-                              <button
-                                type="button"
-                                onClick={() => (isEditMode ? setShowLocationPicker(true) : setIsEditMode(true))}
-                                className="mt-4 text-[13px] font-semibold text-[#ff8b1f]"
-                              >
-                                {isEditMode ? "Update Store Location" : "View Store Location"}
-                              </button>
+                              <p className="mt-2 text-[12px] text-[#6b7280]">
+                                {isEditMode ? "Tap the map to update your store location." : "Your store location is shown on the map above."}
+                              </p>
                             </div>
                           </>
                         )}

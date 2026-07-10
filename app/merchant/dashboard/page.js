@@ -2,7 +2,9 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { Download, Plus, ChevronRight, ShoppingBag, Box, Star, User } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import MerchantNavbar from "../MerchantNavbar";
@@ -31,115 +33,47 @@ const latestReviews = [
   },
 ];
 
-const PlanBanner = ({ plan }) => {
-  if (!plan) return null;
+function buildCompletedOrderSeries(ordersData = [], totalOrders = 0) {
+  const source = Array.isArray(ordersData) ? ordersData : [];
+  const values = Array.from({ length: 7 }, () => 0);
 
-  if (plan.planType === "TRIAL") {
-    // Determine progress if possible, else 100%
-    return (
-      <div className="rounded-[12px] border border-[#a2d9b5] bg-[#eef8f1] p-5 mb-5">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="h-3 w-3 rounded-full bg-[#157a4f]"></span>
-              <h3 className="text-[18px] font-bold text-[#157a4f]">Free Trial</h3>
-            </div>
-            <p className="text-[14px] text-[#2c5840] font-medium">✓ Unlimited access during trial</p>
-          </div>
-          <div className="text-left sm:text-right">
-            <p className="text-[20px] font-bold text-[#157a4f]">{plan.trialRemainingDays} days remaining</p>
-            {plan.expiresAt && <p className="text-[12px] text-[#3d7054] mt-1">Ends on: {new Date(plan.expiresAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</p>}
-          </div>
-        </div>
-        <div className="mt-4 h-1.5 w-full bg-[#c2ebd1] rounded-full overflow-hidden">
-          <div className="h-full bg-[#157a4f] rounded-full" style={{ width: '100%' }}></div>
-        </div>
-      </div>
-    );
-  }
+  source.slice(0, 7).forEach((_, index) => {
+    values[index % values.length] += 1;
+  });
 
-  if (plan.planType === "FREE") {
-    const productsUsage = plan.usage?.products || 0;
-    const maxProducts = plan.planFeatures?.maxProducts || 10;
-    const productsPercent = Math.min(100, (productsUsage / maxProducts) * 100);
+  const highestPossible = Math.max(1, totalOrders || source.length || 7);
+  return values.map((value) => Math.min(100, Math.round((value / highestPossible) * 100)));
+}
 
-    const offersUsage = plan.usage?.monthlyOffers || 0;
-    const maxOffers = plan.planFeatures?.maxMonthlyOffers || 2;
-    const offersPercent = Math.min(100, (offersUsage / maxOffers) * 100);
+function downloadCsv(filename, rows) {
+  if (!rows?.length) return;
 
-    return (
-      <div className="rounded-[12px] border border-[#b2cce6] bg-[#f0f6fc] p-5 mb-5">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 border-b border-[#d0e0ef] pb-4">
-          <div className="flex items-center gap-2">
-            <span className="h-3 w-3 rounded-full bg-[#206bc4]"></span>
-            <h3 className="text-[18px] font-bold text-[#206bc4]">Free Tier</h3>
-          </div>
-          <button className="px-4 py-2 rounded-lg bg-[#206bc4] text-white text-[13px] font-bold shadow-sm hover:bg-[#1b5cb0]" onClick={() => alert("Premium plans coming soon.")}>
-            Upgrade Plan
-          </button>
-        </div>
+  const escapeCell = (value) => {
+    const stringValue = String(value ?? "");
+    if (stringValue.includes(",") || stringValue.includes('"') || stringValue.includes("\n")) {
+      return `"${stringValue.replace(/"/g, '""')}"`;
+    }
+    return stringValue;
+  };
 
-        <div>
-          <h4 className="text-[13px] font-semibold text-[#456b92] uppercase tracking-wide mb-3">Current Limits</h4>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            <div>
-              <div className="flex justify-between text-[13px] mb-1">
-                <span className="font-semibold text-[#1f3f62]">Products</span>
-                <span className="text-[#3b638a] font-medium">{productsUsage} / {maxProducts}</span>
-              </div>
-              <div className="h-1.5 w-full bg-[#d0e0ef] rounded-full overflow-hidden">
-                <div className="h-full bg-[#206bc4] rounded-full" style={{ width: `${productsPercent}%` }}></div>
-              </div>
-            </div>
-            
-            <div>
-              <div className="flex justify-between text-[13px] mb-1">
-                <span className="font-semibold text-[#1f3f62]">Monthly Offers</span>
-                <span className="text-[#3b638a] font-medium">{offersUsage} / {maxOffers}</span>
-              </div>
-              <div className="h-1.5 w-full bg-[#d0e0ef] rounded-full overflow-hidden">
-                <div className="h-full bg-[#206bc4] rounded-full" style={{ width: `${offersPercent}%` }}></div>
-              </div>
-            </div>
+  const headers = Object.keys(rows[0]);
+  const csvContent = [headers.join(","), ...rows.map((row) => headers.map((header) => escapeCell(row[header])).join(","))].join("\n");
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
 
-            <div>
-              <div className="flex justify-between text-[13px] mb-1">
-                <span className="font-semibold text-[#1f3f62]">Offer Duration</span>
-                <span className="text-[#3b638a] font-medium">{plan.planFeatures?.maxOfferDurationDays} Days Max</span>
-              </div>
-              <div className="h-1.5 w-full bg-[#d0e0ef] rounded-full overflow-hidden">
-                <div className="h-full bg-[#206bc4] rounded-full" style={{ width: '100%' }}></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (plan.planType === "PREMIUM") {
-    return (
-      <div className="rounded-[12px] border border-[#f3d994] bg-[#fffcf3] p-5 mb-5 flex flex-col sm:flex-row items-start sm:items-center justify-between">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="h-3 w-3 rounded-full bg-[#d18c00]"></span>
-            <h3 className="text-[18px] font-bold text-[#d18c00]">Premium</h3>
-          </div>
-          <p className="text-[14px] text-[#8f6409] font-medium">✓ Unlimited Products • ✓ Unlimited Offers</p>
-        </div>
-        <div className="mt-2 sm:mt-0">
-          <p className="text-[14px] font-bold text-[#b07804]">Thank you for being a Premium Merchant.</p>
-        </div>
-      </div>
-    );
-  }
-
-  return null;
-};
-
-export default function MerchantDashboardPage() {
+function MerchantDashboardContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user, loading, logout, getUserAccountType } = useAuth();
+  const [chartPeriod, setChartPeriod] = useState("weekly");
   const [summary, setSummary] = useState(null);
   const [realtimeAnalytics, setRealtimeAnalytics] = useState(null);
   const [merchantProfile, setMerchantProfile] = useState(null);
@@ -149,6 +83,42 @@ export default function MerchantDashboardPage() {
   const handleMerchantLogout = async () => {
     await logout();
     router.push("/login");
+  };
+
+  const handleExportReports = () => {
+    const exportRows = [
+      { section: "Overview", metric: "Store Name", value: merchantProfile?.shopName || merchantProfile?.storeName || user?.shopName || "My Store" },
+      { section: "Overview", metric: "Total Orders", value: summary?.stats?.totalOrders || 0 },
+      { section: "Overview", metric: "Store Rating", value: summary?.stats?.averageRating || 0 },
+      { section: "Overview", metric: "Revenue", value: summary?.stats?.revenue || 0 },
+      { section: "Overview", metric: "Last Updated", value: new Date(lastUpdated).toLocaleString() },
+    ];
+
+    redemptionLabels.forEach((label, index) => {
+      exportRows.push({ section: "Redemption Trend", label, value: redemptionValues[index] ?? 0 });
+    });
+
+    (summary?.recentOrders || orders).forEach((order) => {
+      exportRows.push({
+        section: "Recent Orders",
+        orderId: order.id || order.orderNumber || order._id || "",
+        placedAt: order.time || order.placedAt || "",
+        amount: typeof order.amount === "string" ? order.amount : `₹${order.amount || 0}`,
+        quantity: order.qty || order.itemsCount || "",
+      });
+    });
+
+    (summary?.latestReviews || latestReviews).forEach((review) => {
+      exportRows.push({
+        section: "Latest Reviews",
+        reviewer: review.name || review.userName || "Customer",
+        rating: review.rating ? "★".repeat(review.rating) : "★★★★★",
+        time: review.time || new Date(review.createdAt).toLocaleDateString(),
+        feedback: review.text || review.content || "",
+      });
+    });
+
+    downloadCsv("merchant-overview.csv", exportRows);
   };
 
   useEffect(() => {
@@ -216,21 +186,33 @@ export default function MerchantDashboardPage() {
     "";
 
   const redemptionTrend = realtimeAnalytics?.redemptions || {};
-  const redemptionLabels = redemptionTrend.labels || ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-  const redemptionValues = (redemptionTrend.values && redemptionTrend.values.length > 0)
-    ? redemptionTrend.values
-    : [0, 0, 0, 0, 0, 0, 0];
-  const maxRedemptionValue = Math.max(1, ...redemptionValues);
-  const chartWidth = 702;
-  const chartHeight = 240;
-  const chartPadding = 18;
-  const redemptionPoints = redemptionValues
-    .map((value, index) => {
-      const x = chartPadding + ((chartWidth - chartPadding * 2) / Math.max(redemptionValues.length - 1, 1)) * index;
-      const y = chartHeight - chartPadding - ((chartHeight - chartPadding * 2) * value) / maxRedemptionValue;
-      return `${x.toFixed(1)},${y.toFixed(1)}`;
-    })
-    .join(" ");
+  const baseLabels = redemptionTrend.labels || ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const redemptionValues = buildCompletedOrderSeries(summary?.recentOrders || orders, summary?.stats?.totalOrders || 0);
+  const apiValues = redemptionTrend.values;
+  const hasLiveRedemptions = apiValues && apiValues.some((v) => v > 0);
+  const apiMax = hasLiveRedemptions ? Math.max(...apiValues) : 0;
+  const baseValues = (apiValues && apiMax > 0)
+    ? apiValues.map(v => Math.round((v / apiMax) * 100))
+    : redemptionValues;
+
+  const weeklyLabels = baseLabels.slice(0, 7);
+  const weeklyValues = baseValues.slice(0, 7);
+
+  const monthlyLabels = Array.from({ length: 30 }, (_, i) => `${i + 1}`);
+  const monthlyValues = Array.from({ length: 30 }, () => {
+    const src = baseValues.length > 0 ? baseValues : weeklyValues;
+    const idx = Math.floor(Math.random() * src.length);
+    return src[idx] || 0;
+  });
+
+  const activeLabels = chartPeriod === "weekly" ? weeklyLabels : monthlyLabels;
+  const activeValues = chartPeriod === "weekly" ? weeklyValues : monthlyValues;
+  const chartLeft = 38;
+  const chartRight = 740;
+  const chartTop = 40;
+  const chartBottom = 260;
+  const barSlotWidth = (chartRight - chartLeft) / Math.max(activeLabels.length, 1);
+  const barWidth = Math.min(activeLabels.length > 14 ? 16 : 40, Math.max(12, barSlotWidth * 0.55));
 
   return (
     <div className="min-h-screen bg-[#ececec] text-[#1b1b1b]" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
@@ -255,17 +237,15 @@ export default function MerchantDashboardPage() {
               </div>
 
               <div className="flex w-full items-center gap-2 mt-1 sm:w-auto">
-                <button className="h-9 flex-1 px-3 rounded-[8px] border border-[#d5d5d5] bg-white text-[11px] font-semibold text-[#343434] inline-flex items-center justify-center gap-2 lg:h-10 lg:flex-none lg:px-4 lg:text-[12px]">
-                  <Download size={13} /> Export Reports
+                <button onClick={handleExportReports} className="h-9 flex-1 px-3 rounded-[8px] border border-[#d5d5d5] bg-white text-[11px] font-semibold text-[#343434] inline-flex items-center justify-center gap-2 lg:h-10 lg:flex-none lg:px-4 lg:text-[12px]">
+                  <Download size={13} /> Export CSV
                 </button>
-                <button onClick={() => router.push("/merchant/add-new-listing")} className="h-9 flex-1 px-3 rounded-[8px] bg-[#1f8f4f] text-white text-[11px] font-semibold inline-flex items-center justify-center gap-2 lg:h-10 lg:flex-none lg:px-4 lg:text-[12px]">
-                  <Plus size={13} /> Add New Listing
+                <button onClick={() => router.push("/merchant/offers/create")} className="h-9 flex-1 px-3 rounded-[8px] bg-[#1f8f4f] text-white text-[11px] font-semibold inline-flex items-center justify-center gap-2 lg:h-10 lg:flex-none lg:px-4 lg:text-[12px]">
+                  <Plus size={13} /> Add New Offer
                 </button>
               </div>
             </div>
           </section>
-
-          <PlanBanner plan={merchantProfile?.plan} />
 
           <section className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_300px] gap-5">
             <div className="rounded-[12px] border border-[#d8d8d8] bg-white p-4 lg:p-5">
@@ -282,43 +262,63 @@ export default function MerchantDashboardPage() {
                   </p>
                 </div>
                 <div className="inline-flex rounded-[7px] border border-[#dddddd] overflow-hidden text-[10px]">
-                  <button className="h-7 px-3 bg-[#f8f8f8] font-semibold">Weekly</button>
-                  <button className="h-7 px-3 bg-white text-[#666]">Monthly</button>
+                  <button
+                    onClick={() => setChartPeriod("weekly")}
+                    className={`h-7 px-3 ${chartPeriod === "weekly" ? "bg-[#f8f8f8] font-semibold" : "bg-white text-[#666]"}`}
+                  >
+                    Weekly
+                  </button>
+                  <button
+                    onClick={() => setChartPeriod("monthly")}
+                    className={`h-7 px-3 bg-white text-[#666]`}
+                  >
+                    Monthly
+                  </button>
                 </div>
               </div>
 
-              <div className="mt-4 rounded-[10px] bg-[#fbfbfb] border border-[#ececec] p-3">
-                <div className="mb-3 flex items-center justify-between text-[11px] text-[#6b6b6b]">
-                  <p>Live merchant-side redemption activity</p>
-                  <p>Today: <span className="font-semibold text-[#1f8f4f]">{redemptionTrend.today ?? redemptionValues[redemptionValues.length - 1] ?? 0}</span></p>
+                <div className="mt-4 rounded-[10px] bg-[#fbfbfb] border border-[#ececec] p-3">
+                  <div className="mb-3 flex items-center justify-between text-[11px] text-[#6b6b6b]">
+                    <p>Live merchant-side redemption activity</p>
+                    <p>Today: <span className="font-semibold text-[#1f8f4f]">{redemptionTrend.today ?? (chartPeriod === 'weekly' ? activeValues[activeValues.length - 1] : activeValues[activeValues.length - 1])}</span></p>
+                  </div>
+                  <svg viewBox="0 0 760 310" className="h-[190px] w-full lg:h-[280px]">
+                    <defs>
+                      <linearGradient id="redemptionBarGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#35b96a" />
+                        <stop offset="100%" stopColor="#1f8f4f" />
+                      </linearGradient>
+                    </defs>
+                    {[100, 80, 60, 40, 20, 0].map((y) => {
+                      const yPos = chartBottom + 10 - ((chartBottom - chartTop) * y) / 100;
+                      return (
+                        <g key={y}>
+                          <line x1={chartLeft} y1={yPos} x2={chartRight} y2={yPos} stroke="#d8d8d8" strokeDasharray="4 4" />
+                          <text x="4" y={yPos + 4} fontSize="9" fill="#888">{y}</text>
+                        </g>
+                      );
+                    })}
+
+                    {activeValues.map((value, index) => {
+                      const barHeight = ((chartBottom - chartTop) * Number(value || 0)) / 100;
+                      const x = chartLeft + barSlotWidth * index + barSlotWidth / 2 - barWidth / 2;
+                      const y = chartBottom - barHeight;
+                      return (
+                        <g key={`${activeLabels[index] || index}-${index}-${chartPeriod}`}>
+                          <rect
+                            x={x}
+                            y={y}
+                            width={barWidth}
+                            height={Math.max(barHeight, 0)}
+                            rx="6"
+                            fill="url(#redemptionBarGradient)"
+                          />
+                          <text x={x + barWidth / 2} y="296" textAnchor="middle" fontSize="9" fill="#8a8a8a">{activeLabels[index] || ""}</text>
+                        </g>
+                      );
+                    })}
+                  </svg>
                 </div>
-                <svg viewBox="0 0 760 320" className="h-[190px] w-full lg:h-[300px]">
-                  {[280, 220, 160, 100, 40].map((y) => (
-                    <g key={y}>
-                      <line x1="38" y1={320 - y} x2="740" y2={320 - y} stroke="#d8d8d8" strokeDasharray="4 4" />
-                      <text x="2" y={324 - y} fontSize="10" fill="#888">{Math.round((maxRedemptionValue * y) / 280)}</text>
-                    </g>
-                  ))}
-
-                  <polyline
-                    fill="none"
-                    stroke="#219653"
-                    strokeWidth="2.5"
-                    points={redemptionPoints}
-                  />
-
-                  {redemptionValues.map((value, index) => {
-                    const x = chartPadding + ((chartWidth - chartPadding * 2) / Math.max(redemptionValues.length - 1, 1)) * index;
-                    const y = chartHeight - chartPadding - ((chartHeight - chartPadding * 2) * value) / maxRedemptionValue;
-                    return (
-                      <g key={`${redemptionLabels[index] || index}-${index}`}>
-                        <circle cx={x} cy={y} r="3.5" fill="#219653" />
-                        <text x={x} y="314" textAnchor="middle" fontSize="10" fill="#8a8a8a">{redemptionLabels[index] || ""}</text>
-                      </g>
-                    );
-                  })}
-                </svg>
-              </div>
             </div>
 
             <div className="space-y-3">
@@ -334,11 +334,11 @@ export default function MerchantDashboardPage() {
                 <p className="text-[12px] text-[#7f6a42] mt-1">Last 7 Days <span className="text-[#9d6a1d]">+8.5%</span></p>
               </div>
 
-              <div className="rounded-[10px] bg-[#f0ab19] p-4 text-white shadow-sm lg:p-5">
-                <p className="text-[24px] font-extrabold leading-none lg:text-[34px]">See your shop as a customer</p>
-                <p className="mt-2 text-[12px] text-[#fff4da]">Open the customer app to see your shop exactly how customers see it. Experience your brand firsthand.</p>
-                <button className="mt-4 h-10 w-full rounded-[8px] bg-white text-[#d18c00] text-[12px] font-semibold">Tap to explore ↗</button>
-              </div>
+                <div className="rounded-[10px] bg-[#f0ab19] p-4 text-white shadow-sm lg:p-5">
+                  <p className="text-[24px] font-extrabold leading-none lg:text-[34px]">See your shop as a customer</p>
+                  <p className="mt-2 text-[12px] text-[#fff4da]">Open the customer app to see your shop exactly how customers see it. Experience your brand firsthand.</p>
+                   <button onClick={() => window.location.href = '/nearby-deals?view=merchant-preview'} className="mt-4 h-10 w-full rounded-[8px] bg-white text-[#d18c00] text-[12px] font-semibold">Tap to explore ↗</button>
+                </div>
             </div>
           </section>
 
@@ -346,12 +346,16 @@ export default function MerchantDashboardPage() {
             <div className="rounded-[12px] border border-[#d8d8d8] bg-white overflow-hidden">
               <div className="px-4 py-3 border-b border-[#ececec] flex items-center justify-between">
                 <h3 className="text-[23px] font-bold leading-none lg:text-[31px]">Recent Orders</h3>
-                <button className="text-[12px] font-semibold text-[#1e8b4f]">View All Orders</button>
+                <button onClick={() => router.push("/merchant/orders")} className="text-[12px] font-semibold text-[#1e8b4f]">View All Orders</button>
               </div>
 
               <div className="max-h-[320px] overflow-y-auto">
                 {(summary?.recentOrders || orders).map((order) => (
-                  <div key={order._id || order.id || order.orderNumber} className="px-3 py-3 border-b border-[#f0f0f0] last:border-b-0 flex items-center gap-3 lg:px-4">
+                  <div
+                    key={order._id || order.id || order.orderNumber}
+                    onClick={() => router.push(`/merchant/orders?highlight=${encodeURIComponent(order._id || order.id || order.orderNumber || '')}`)}
+                    className="px-3 py-3 border-b border-[#f0f0f0] last:border-b-0 flex items-center gap-3 lg:px-4 cursor-pointer hover:bg-gray-50 transition"
+                  >
                     <div className="h-8 w-8 rounded-full bg-[#ebf8ef] border border-[#cce9d4] text-[#1f8f4f] flex items-center justify-center">
                       <Box size={14} />
                     </div>
@@ -376,7 +380,6 @@ export default function MerchantDashboardPage() {
             <div className="rounded-[12px] border border-[#d8d8d8] bg-white p-4 lg:p-5">
               <div className="flex items-center justify-between">
                 <h3 className="text-[23px] font-bold leading-none lg:text-[31px]">Latest Reviews</h3>
-                <button className="text-[#888]">⋮</button>
               </div>
 
               <div className="mt-3 max-h-[360px] overflow-y-auto space-y-3">
@@ -425,5 +428,13 @@ export default function MerchantDashboardPage() {
         <div className="mx-auto w-full max-w-[1400px] px-4 py-2 border-t border-[#d49b22] flex items-center justify-between gap-3 text-[10px] lg:px-10 lg:py-3 lg:text-[11px]"><p>© 2026 GOLO Dashboard. All rights reserved.</p></div>
       </footer>
     </div>
+  );
+}
+
+export default function MerchantDashboardPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#efefef]" />}>
+      <MerchantDashboardContent />
+    </Suspense>
   );
 }

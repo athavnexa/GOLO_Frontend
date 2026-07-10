@@ -12,6 +12,7 @@ import {
   getPublicMerchantProducts,
   getPublicMerchantProfile,
   getPublicMerchantStoreLocation,
+  getPublicMerchantReviewStats,
 } from "../../lib/api";
 
 // Dynamically import Leaflet map
@@ -27,9 +28,9 @@ export default function NearbyStorePage() {
 
 function StoreLoadingSkeleton() {
   return (
-    <main className="min-h-screen bg-[#f5f5f5]">
+    <main className="relative z-10 min-h-screen bg-transparent">
       <Navbar />
-      <div className="mx-auto max-w-[1260px] px-4 lg:px-6 py-4 lg:py-6">
+      <div className="relative z-10 mx-auto max-w-[1260px] px-4 lg:px-6 pt-10 md:pt-14 pb-4 lg:pb-6">
         <div className="mb-4 h-3 w-56 animate-pulse rounded bg-[#dfe4ea]" />
         <section className="mb-8 overflow-hidden rounded-2xl bg-white shadow-sm">
           <div className="grid gap-6 p-4 lg:grid-cols-[1.5fr_1fr] lg:p-6">
@@ -87,6 +88,7 @@ function NearbyStoreContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [merchantId, setMerchantId] = useState(null);
+  const [reviewStats, setReviewStats] = useState({ averageRating: 0, totalReviews: 0 });
 
   // Prefer the URL so direct links are never overridden by stale session state.
   useEffect(() => {
@@ -249,6 +251,18 @@ function NearbyStoreContent() {
           }
         } catch {
         }
+
+        try {
+          const statsRes = await getPublicMerchantReviewStats(canonicalMerchantId);
+          if (statsRes?.success && statsRes?.data) {
+            setReviewStats({
+              averageRating: Number(statsRes.data.averageRating || 0),
+              totalReviews: Number(statsRes.data.totalReviews || 0),
+            });
+          }
+        } catch {
+          // reviews may not be available yet
+        }
       } catch (err) {
         console.error("Error loading merchant data:", err);
         setError(err?.data?.message || err?.message || "Failed to load merchant data");
@@ -278,8 +292,6 @@ function NearbyStoreContent() {
     );
   }
 
-  const storeRating = Math.round(Math.random() * 50) / 10 + 4;
-  const reviewCount = Math.floor(Math.random() * 2000) + 500;
   const offerLocation = offers[0]?.merchant || null;
   const resolvedLatitude = Number(
     location?.latitude ??
@@ -320,16 +332,10 @@ function NearbyStoreContent() {
     "/images/place2.avif";
 
   return (
-    <main className="min-h-screen bg-[#f3f3f3]">
+    <main className="relative z-10 min-h-screen bg-transparent">
       <Navbar />
 
-      <div className="mx-auto max-w-[1260px] px-4 lg:px-6 pb-14 pt-5">
-        {/* Breadcrumb */}
-        <p className="text-[11px] text-[#7a7a7a]">
-          Deals <span className="mx-1">›</span> {merchant?.profile?.city || "Store"} <span className="mx-1">›</span> 
-          <span className="font-medium"> {merchant?.name || "Store"}</span>
-        </p>
-
+      <div className="relative z-10 mx-auto max-w-[1260px] px-4 lg:px-6 pb-14 pt-10 md:pt-14">
         {/* Store Header */}
         <h1 className="mt-3 text-3xl lg:text-5xl font-bold leading-tight lg:leading-none text-[#1f2329]">
           {merchant?.name || "Store"}
@@ -345,8 +351,8 @@ function NearbyStoreContent() {
           <div className="flex items-center gap-2">
             <span className="font-semibold text-[#f2b632]">★★★★★</span>
             <span>
-              <span className="font-semibold text-[#1f2329]">{(merchant?.averageRating ?? storeRating).toFixed(1)}</span>
-              {" "}({(merchant?.totalReviews ?? reviewCount).toLocaleString()} Reviews)
+              <span className="font-semibold text-[#1f2329]">{reviewStats.averageRating ? reviewStats.averageRating.toFixed(1) : "0.0"}</span>
+              {" "}({reviewStats.totalReviews.toLocaleString()} Reviews)
             </span>
           </div>
 
@@ -464,7 +470,7 @@ function NearbyStoreContent() {
                         <div className="w-8 h-8 bg-[#f0f9f6] rounded-lg flex items-center justify-center text-[#157a4f]">
                           <ShieldCheck size={20} />
                         </div>
-                        <h2 className="text-xl font-bold text-[#1f2329]">Popular Services</h2>
+                        <h2 className="text-xl font-bold text-[#1f2329]">Popular Deals</h2>
                       </div>
 
                       <div className="-mx-4 px-4 overflow-x-auto">
