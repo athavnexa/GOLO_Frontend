@@ -7,6 +7,7 @@ import { ChevronLeft, X } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
 import { createMerchantProduct, getMerchantProfile } from "../../../lib/api";
 import MerchantNavbar from "../../MerchantNavbar";
+import InappropriateImageModal from "../../../components/InappropriateImageModal";
 
 function pickStoreName(user, merchantProfile) {
   return (
@@ -52,6 +53,7 @@ export default function AddProductPage() {
   const [submitError, setSubmitError] = useState("");
   const [merchantProfile, setMerchantProfile] = useState(null);
   const [merchantProfileError, setMerchantProfileError] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleMerchantLogout = async () => {
     await logout();
@@ -64,7 +66,7 @@ export default function AddProductPage() {
       Array.from(files).forEach((file) => {
         const reader = new FileReader();
         reader.onload = (event) => {
-          setProductImages((prevImages) => [...prevImages, event.target.result]);
+          setProductImages((prevImages) => [...prevImages, { file, preview: event.target.result }]);
         };
         reader.readAsDataURL(file);
       });
@@ -88,6 +90,17 @@ export default function AddProductPage() {
     try {
       setIsSubmitting(true);
       setSubmitError("");
+      
+      const { uploadToCloudinary } = await import('../../../services/cloudinaryConfig');
+      const uploadedUrls = [];
+      for (const img of productImages) {
+        if (img.file) {
+          const uploadedData = await uploadToCloudinary(img.file);
+          uploadedUrls.push(uploadedData.url);
+        } else {
+          uploadedUrls.push(img.preview);
+        }
+      }
 
       await createMerchantProduct({
         name: productName.trim(),
@@ -95,12 +108,17 @@ export default function AddProductPage() {
         stockQuantity: Number(stockQuantity),
         price: Number(regularPrice),
         description: description.trim(),
-        images: productImages,
+        images: uploadedUrls,
       });
 
       router.push("/merchant/products");
     } catch (error) {
-      setSubmitError(error?.message || "Failed to publish product");
+      const errorMsg = error?.data?.message || error.message || "";
+      if (typeof errorMsg === 'string' && errorMsg.includes("inappropriate content")) {
+        setIsModalOpen(true);
+      } else {
+        setSubmitError(errorMsg || "Failed to publish product");
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -296,7 +314,7 @@ export default function AddProductPage() {
                     {productImages.map((img, idx) => (
                       <div key={idx} className="relative rounded-[8px] overflow-hidden border border-[#e2e2e2] h-20 group">
                         <Image
-                          src={img}
+                          src={img.preview}
                           alt={`Product ${idx + 1}`}
                           fill
                           className="w-full h-full object-cover"
@@ -371,6 +389,8 @@ export default function AddProductPage() {
           </div>
         </div>
       </main>
+
+      <InappropriateImageModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
 
       {/* Footer */}
       <footer className="mt-4 bg-[#e8ad2f] border-t border-[#d49b22] px-4 py-4 text-[#5a4514] lg:mt-12 lg:bg-[#f0aa19] lg:px-10 lg:py-8">
