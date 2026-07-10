@@ -290,6 +290,8 @@ export default function MyAds() {
 
                       const categoryNameMap = {
                         Electronics: "Electronics & Home appliances",
+                        "Vehicle Rent": "Vehicle",
+                        "Vehicle Sell": "Vehicle"
                       };
 
                       const normalizedCategory = categoryNameMap[rawCategoryName] || rawCategoryName;

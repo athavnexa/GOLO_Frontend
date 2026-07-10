@@ -91,6 +91,8 @@ export default function FormSidebar({
 
       const categoryNameMap = {
         Electronics: 'Electronics & Home appliances',
+        "Vehicle Rent": "Vehicle",
+        "Vehicle Sell": "Vehicle"
       };
 
       const normalizedCategory = categoryNameMap[rawCategoryName] || rawCategoryName;
@@ -190,7 +192,6 @@ export default function FormSidebar({
       if (categoryDetails) {
         adData.categorySpecificData = categoryDetails;
 
-        const categoryName = rawCategoryName;
         const categoryKeyMap = {
           Education: "educationData",
           Matrimonial: "matrimonialData",
@@ -213,7 +214,7 @@ export default function FormSidebar({
           Other: "otherData",
         };
 
-        const categoryKey = categoryKeyMap[categoryName] || (categoryName?.toLowerCase()?.replace(/\s*&\s*/g, "").replace(/\s+/g, "") + "Data");
+        const categoryKey = categoryKeyMap[normalizedCategory] || (normalizedCategory?.toLowerCase()?.replace(/\s*&\s*/g, "").replace(/\s+/g, "") + "Data");
 
         adData[categoryKey] = categoryDetails;
       }

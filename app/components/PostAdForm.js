@@ -269,6 +269,8 @@ export default function PostAdForm({
 
   const categoryNameMap = {
     Electronics: "Electronics & Home appliances",
+    "Vehicle Rent": "Vehicle",
+    "Vehicle Sell": "Vehicle"
   };
 
   const normalizeCategoryName = (value) => {
@@ -915,7 +917,7 @@ export default function PostAdForm({
     }
 
     console.log("DEBUG PostAdForm:", { selectedCategoryName: selectedCategory.name, selectedSub, isComplete, categoryData });
-    onCategoryDetailsChange && onCategoryDetailsChange(isComplete, categoryData);
+    onCategoryDetailsChange && onCategoryDetailsChange(isComplete ? categoryData : false);
   };
 
   // Helper functions
