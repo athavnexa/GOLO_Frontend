@@ -1,12 +1,12 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "../../../context/AuthContext";
 import MerchantNavbar from "../../MerchantNavbar";
 import { ArrowLeft, Check, Crown, Zap, TrendingUp, Shield, Headphones, BarChart3, Infinity, CreditCard, Lock, FileText, Building2 } from "lucide-react";
 
-import { getSubscriptionPlans } from "../../../lib/api";
+import { getSubscriptionPlans, subscribeToPlan } from "../../../lib/api";
 
 const getIconForPlan = (planName) => {
   const name = (planName || '').toLowerCase();
@@ -38,6 +38,7 @@ function CheckoutPageContent() {
 
   const [plans, setPlans] = useState([]);
   const [loadingPlans, setLoadingPlans] = useState(true);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
     getSubscriptionPlans()
@@ -45,6 +46,30 @@ function CheckoutPageContent() {
       .catch(console.error)
       .finally(() => setLoadingPlans(false));
   }, []);
+
+  const getDiscount = useCallback((months) => {
+    const discounts = [
+      { value: 24, discount: 0.20 },
+      { value: 12, discount: 0.15 },
+      { value: 3, discount: 0.10 },
+      { value: 48, discount: 0.30 },
+    ];
+    return discounts.find(d => months >= d.value)?.discount || 0;
+  }, [selectedMonths]);
+
+  const handlePayment = async () => {
+    setIsProcessing(true);
+    try {
+      const billingCycle = selectedMonths >= 12 ? 'yearly' : 'monthly';
+      await subscribeToPlan(plan.name, billingCycle);
+      alert(`Payment successful! You are now subscribed to ${plan.name}.`);
+      router.push('/merchant/dashboard');
+    } catch (err) {
+      alert(err.message || 'Payment failed. Please try again.');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   const plan = plans.find(p => p.id === planId) || plans[0];
 
@@ -186,7 +211,7 @@ function CheckoutPageContent() {
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-[#6f6f6f]">Monthly price</span>
-                    <span className="font-semibold text-[#1e1e1e]">₹{plan.monthlyPrice.toLocaleString()}</span>
+                    <span className="font-semibold text-[#1e1e1e]">₹{plan.price.toLocaleString()}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-[#6f6f6f]">Subtotal</span>
@@ -205,10 +230,11 @@ function CheckoutPageContent() {
                 </div>
 
                 <button
-                  onClick={() => alert(`Proceeding to payment for ${plan.name} — ${selectedMonths} months at ₹${total.toLocaleString()}`)}
-                  className="mt-5 w-full h-12 rounded-[12px] bg-[#157a4f] text-white font-semibold text-[14px] hover:bg-[#12653e] transition-colors"
+                  onClick={handlePayment}
+                  disabled={isProcessing}
+                  className="mt-5 w-full h-12 rounded-[12px] bg-[#157a4f] text-white font-semibold text-[14px] hover:bg-[#12653e] transition-colors disabled:opacity-50"
                 >
-                  Proceed to Payment
+                  {isProcessing ? 'Processing...' : 'Proceed to Payment'}
                 </button>
 
                 <div className="mt-4 rounded-[10px] bg-[#f8fbfa] p-3">

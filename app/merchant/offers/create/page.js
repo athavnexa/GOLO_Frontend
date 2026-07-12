@@ -612,7 +612,7 @@ export default function CreateMerchantOfferPage() {
                   <div>
                     <label className="mb-1 block text-[12px] font-semibold text-[#555]">Points rewarded to user after redemption <span className="text-[#ef4d4d]">*</span></label>
                     <input
-                      type="number"
+                      type="number" min="0" onKeyDown={(e) => { if (e.key === '-') e.preventDefault(); }}
                       min="1"
                       max="50"
                       value={formData.loyaltyPointsPerPurchase}
@@ -705,7 +705,7 @@ export default function CreateMerchantOfferPage() {
                             <div className="mt-2 flex items-center gap-2">
                               <span className="text-[11px] text-[#777]">Offer Price</span>
                               <input
-                                type="number"
+                                type="number" min="0" onKeyDown={(e) => { if (e.key === '-') e.preventDefault(); }}
                                 min="0"
                                 value={item.offerPrice ?? ''}
                                 onChange={(e) => updateSelectedOfferPrice(item.productId, e.target.value)}

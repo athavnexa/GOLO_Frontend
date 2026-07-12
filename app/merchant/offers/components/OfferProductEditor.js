@@ -203,7 +203,7 @@ export default function OfferProductEditor({ value = [], onChange }) {
                   <div className="mt-2 flex items-center gap-2">
                     <span className="text-[11px] text-[#777]">Offer Price</span>
                     <input
-                      type="number"
+                      type="number" min="0" onKeyDown={(e) => { if (e.key === '-') e.preventDefault(); }}
                       min="0"
                       value={item.offerPrice}
                       onChange={(e) => updateSelectedOfferPrice(item.productId, e.target.value)}

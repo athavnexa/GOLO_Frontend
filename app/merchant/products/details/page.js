@@ -429,7 +429,7 @@ function MerchantProductDetailsContent() {
                     <div className="flex items-center gap-2 rounded-[10px] border border-[#e4e7ec] bg-[#fcfdff] px-3 py-2">
                       <span className="text-[13px] text-[#4b5563]">₹</span>
                       <input
-                        type="number"
+                        type="number" min="0" onKeyDown={(e) => { if (e.key === '-') e.preventDefault(); }}
                         value={formData.price}
                         onChange={(e) => handleInputChange("price", e.target.value)}
                         className="w-full bg-transparent text-[13px] text-[#1f2937] outline-none"
@@ -442,7 +442,7 @@ function MerchantProductDetailsContent() {
                   <label className="mt-4 mb-2 block text-[12px] font-semibold text-[#4a5565]">Stock Quantity</label>
                   {isEditMode ? (
                     <input
-                      type="number"
+                      type="number" min="0" onKeyDown={(e) => { if (e.key === '-') e.preventDefault(); }}
                       value={formData.stockQuantity}
                       onChange={(e) => handleInputChange("stockQuantity", e.target.value)}
                       className="h-10 w-full rounded-[10px] border border-[#e4e7ec] bg-[#fcfdff] px-3 py-2 text-[12px] text-[#1f2937] outline-none transition focus:border-[#157a4f] focus:ring-2 focus:ring-[#d8efe1]"
