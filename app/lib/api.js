@@ -26,6 +26,13 @@ export async function submitUserReport(userId, reason, description) {
         body: JSON.stringify({ reason, description }),
     });
 }
+
+/**
+ * Get all available subscription plans for merchants
+ */
+export async function getSubscriptionPlans() {
+    return apiClient('/subscriptions/plans');
+}
 // ============================================================
 // Centralized API Layer — Choja Frontend → ads-microservice
 // ============================================================

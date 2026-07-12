@@ -6,64 +6,20 @@ import { useAuth } from "../../../context/AuthContext";
 import MerchantNavbar from "../../MerchantNavbar";
 import { ArrowLeft, Check, Crown, Zap, TrendingUp, Shield, Headphones, BarChart3, Infinity, CreditCard, Lock, FileText, Building2 } from "lucide-react";
 
-const PLANS = {
-  basic: {
-    id: "basic",
-    name: "GOLO BASIC",
-    monthlyPrice: 999,
-    color: "#157a4f",
-    icon: Zap,
-    description: "Perfect for small shops getting started",
-    features: [
-      "Up to 50 active products",
-      "Basic analytics dashboard",
-      "Standard customer support",
-      "1 banner promotion/month",
-      "Basic loyalty points system",
-      "Email notifications",
-      "Mobile app access",
-    ],
-  },
-  pro: {
-    id: "pro",
-    name: "GOLO PRO",
-    monthlyPrice: 2499,
-    color: "#2563eb",
-    icon: TrendingUp,
-    description: "For growing businesses that need more",
-    features: [
-      "Up to 500 active products",
-      "Advanced analytics & insights",
-      "Priority customer support",
-      "5 banner promotions/month",
-      "Advanced loyalty program",
-      "Multi-location support",
-      "Custom promotions & deals",
-      "Email + chat support",
-      "API access (basic)",
-    ],
-  },
-  premium: {
-    id: "premium",
-    name: "GOLO PREMIUM",
-    monthlyPrice: 4999,
-    color: "#7c3aed",
-    icon: Crown,
-    description: "Maximum power for enterprise operations",
-    features: [
-      "Unlimited active products",
-      "Real-time advanced analytics",
-      "24/7 dedicated support",
-      "Unlimited banner promotions",
-      "Enterprise loyalty program",
-      "Unlimited locations",
-      "Full API access & integrations",
-      "Custom branding & reports",
-      "Fraud protection suite",
-      "Dedicated account manager",
-      "SLA guarantee",
-    ],
-  },
+import { getSubscriptionPlans } from "../../../lib/api";
+
+const getIconForPlan = (planName) => {
+  const name = (planName || '').toLowerCase();
+  if (name.includes('premium') || name.includes('enterprise')) return Crown;
+  if (name.includes('pro')) return TrendingUp;
+  return Zap;
+};
+
+const getColorForPlan = (planName) => {
+  const name = (planName || '').toLowerCase();
+  if (name.includes('premium') || name.includes('enterprise')) return "#7c3aed";
+  if (name.includes('pro')) return "#2563eb";
+  return "#157a4f";
 };
 
 const MONTH_OPTIONS = [
@@ -80,14 +36,23 @@ function CheckoutPageContent() {
   const planId = searchParams.get("plan") || "basic";
   const [selectedMonths, setSelectedMonths] = useState(1);
 
-  const plan = PLANS[planId] || PLANS.basic;
-  const IconComponent = plan.icon;
+  const [plans, setPlans] = useState([]);
+  const [loadingPlans, setLoadingPlans] = useState(true);
 
-  const subtotal = plan.monthlyPrice * selectedMonths;
+  useEffect(() => {
+    getSubscriptionPlans()
+      .then(res => setPlans(res || []))
+      .catch(console.error)
+      .finally(() => setLoadingPlans(false));
+  }, []);
+
+  const plan = plans.find(p => p.id === planId) || plans[0];
+
+  const subtotal = plan ? plan.price * selectedMonths : 0;
   const discount = selectedMonths >= 24 ? 0.20 : selectedMonths >= 12 ? 0.15 : selectedMonths >= 3 ? 0.10 : 0;
   const discountAmount = Math.round(subtotal * discount);
   const total = subtotal - discountAmount;
-  const perMonth = Math.round(total / selectedMonths);
+  const perMonth = plan ? Math.round(total / selectedMonths) : 0;
 
   useEffect(() => {
     if (!loading && !user) {
@@ -98,8 +63,11 @@ function CheckoutPageContent() {
     }
   }, [loading, user, router]);
 
-  if (loading || !user) return <div className="min-h-screen bg-[#ececec]" />;
+  if (loading || !user || loadingPlans || !plan) return <div className="min-h-screen bg-[#ececec]" />;
   if (user.accountType !== "merchant") return null;
+
+  const IconComponent = getIconForPlan(plan.name);
+  const planColor = getColorForPlan(plan.name);
 
   return (
     <div className="min-h-screen bg-[#f3f3f3] text-[#1b1b1b]" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
@@ -120,9 +88,9 @@ function CheckoutPageContent() {
                 <div className="flex items-start gap-4">
                   <div
                     className="h-14 w-14 rounded-[16px] flex items-center justify-center shrink-0"
-                    style={{ backgroundColor: `${plan.color}15` }}
+                    style={{ backgroundColor: `${planColor}15` }}
                   >
-                    <IconComponent size={28} style={{ color: plan.color }} />
+                    <IconComponent size={28} style={{ color: planColor }} />
                   </div>
                   <div className="flex-1">
                     <h1 className="text-[24px] font-bold text-[#1e1e1e]">{plan.name}</h1>
@@ -171,14 +139,14 @@ function CheckoutPageContent() {
 
               <div className="rounded-[16px] border border-[#d7dbe2] bg-white p-6">
                 <h2 className="text-[16px] font-semibold text-[#1e1e1e] mb-4">What&apos;s included</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {plan.features.map((feature, idx) => (
-                    <div key={idx} className="flex items-start gap-2.5 text-[13px] text-[#4a5565]">
-                      <Check size={16} className="shrink-0 mt-0.5" style={{ color: plan.color }} />
+                <ul className="space-y-3">
+                  {plan.displayFeatures.map((feature, idx) => (
+                    <li key={idx} className="flex items-start gap-2.5 text-[13px] text-[#4a5565]">
+                      <Check size={16} className="shrink-0 mt-0.5 text-[#157a4f]" />
                       <span>{feature}</span>
-                    </div>
+                    </li>
                   ))}
-                </div>
+                </ul>
               </div>
 
               <div className="rounded-[16px] border border-[#d7dbe2] bg-white p-6">
