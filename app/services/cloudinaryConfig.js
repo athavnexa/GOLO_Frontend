@@ -56,21 +56,26 @@ export async function uploadToCloudinary(file) {
         throw new Error('File is required');
     }
 
-    // Validate file size (10MB max)
-    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-    if (file.size > MAX_FILE_SIZE) {
-        throw new Error('File is too large. Maximum size is 10MB.');
-    }
-
     const mimeType = file.type || 'application/octet-stream';
+    const isVideo = mimeType.startsWith('video/');
     const isImage = mimeType.startsWith('image/');
+
+    // Validate file size (10MB max for images, 50MB max for videos)
+    const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
+    const MAX_VIDEO_SIZE = 50 * 1024 * 1024; // 50MB
+
+    if (isVideo && file.size > MAX_VIDEO_SIZE) {
+        throw new Error('Video file is too large. Maximum size is 50MB.');
+    } else if (!isVideo && file.size > MAX_IMAGE_SIZE) {
+        throw new Error('Image file is too large. Maximum size is 10MB.');
+    }
 
     const formData = new FormData();
     formData.append('file', file);
     formData.append('upload_preset', CLOUDINARY_CONFIG.uploadPreset);
     formData.append('cloud_name', CLOUDINARY_CONFIG.cloudName);
 
-    const resourceType = isImage ? 'image' : 'auto';
+    const resourceType = isVideo ? 'video' : isImage ? 'image' : 'auto';
     const uploadUrl = getCloudinaryUploadUrl(resourceType);
 
     try {

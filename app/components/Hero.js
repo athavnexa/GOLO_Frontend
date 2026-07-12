@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { API_ORIGIN_URL, getActiveHomepageBanners } from "../lib/api";
 
 const MAX_SLIDES = 10;
@@ -77,6 +78,7 @@ function getBannerDisplayStatus(item) {
 export default function Hero() {
   const [slides, setSlides] = useState([]);
   const [current, setCurrent] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
   const [debugInfo, setDebugInfo] = useState("");
   const [loading, setLoading] = useState(true);
   const failedUrlsRef = useRef(new Set());
@@ -162,7 +164,7 @@ export default function Hero() {
 
   // Auto slide
   useEffect(() => {
-    if (!slides.length) return;
+    if (!slides.length || isHovered) return;
     if (current >= slides.length) {
       setCurrent(0);
       return;
@@ -173,7 +175,37 @@ export default function Hero() {
     }, 4000);
 
     return () => clearInterval(interval);
-  }, [slides]);
+  }, [slides, isHovered, current]);
+
+  const handleNext = () => {
+    if (slides.length <= 1) return;
+    setCurrent((prev) => (prev + 1) % slides.length);
+  };
+
+  const handlePrev = () => {
+    if (slides.length <= 1) return;
+    setCurrent((prev) => (prev - 1 + slides.length) % slides.length);
+  };
+
+  const getSlideClasses = (index, current, length) => {
+    if (length <= 1) return "opacity-100 z-30 scale-100 translate-x-0 rounded-[20px] sm:rounded-[32px] shadow-2xl";
+
+    const diff = (index - current + length) % length;
+    
+    if (diff === 0) {
+      // Active slide (Center)
+      return "opacity-100 z-30 scale-100 translate-x-0 rounded-[20px] sm:rounded-[32px] shadow-2xl";
+    } else if (diff === 1) {
+      // Next slide (Right)
+      return "opacity-60 z-20 scale-[0.80] translate-x-[94%] blur-[2px] rounded-[20px] sm:rounded-[32px] cursor-pointer hover:opacity-80";
+    } else if (diff === length - 1) {
+      // Prev slide (Left)
+      return "opacity-60 z-20 scale-[0.80] -translate-x-[94%] blur-[2px] rounded-[20px] sm:rounded-[32px] cursor-pointer hover:opacity-80";
+    } else {
+      // Hidden slides
+      return "opacity-0 z-10 scale-50 translate-x-0 rounded-[20px] sm:rounded-[32px] pointer-events-none";
+    }
+  };
 
   const handleImageError = (url) => {
     const normalized = String(url || "");
@@ -192,7 +224,7 @@ export default function Hero() {
   };
 
   const imageClassName =
-    "absolute inset-0 h-full w-full object-cover object-center";
+    "absolute inset-0 h-full w-full object-cover object-center rounded-[20px] sm:rounded-[32px]";
 
   if (loading) {
     return (
@@ -203,7 +235,6 @@ export default function Hero() {
   }
 
   if (!slides.length) {
-    // Keep homepage clean in production; show a hint during development.
     if (process.env.NODE_ENV !== "production") {
       return (
         <section className="relative w-full overflow-hidden bg-[#F8F6F2]">
@@ -220,85 +251,107 @@ export default function Hero() {
     <section className="relative w-full overflow-hidden bg-[#F8F6F2]">
 
       {/* Carousel Wrapper */}
-      <div className="relative h-[150px] w-full overflow-hidden sm:h-[340px] sm:aspect-auto md:h-[520px]">
+      <div 
+        className="relative flex items-center justify-center w-full h-[180px] sm:h-[340px] md:h-[500px] overflow-hidden px-4 sm:px-10 py-6"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        <div className="relative w-full max-w-[1400px] h-full flex items-center justify-center">
+          {slides.map((slide, index) => {
+            const isActive = index === current;
+            const diff = (index - current + slides.length) % slides.length;
+            const isClickableSide = diff === 1 || diff === slides.length - 1;
 
-        {slides.map((slide, index) => (
-          <div
-            key={index}
-            className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-              index === current ? "opacity-100" : "opacity-0"
-            }`}
-          >
-            {slide.href ? (
-              <Link
-                href={slide.href}
-                className="absolute inset-0 block cursor-pointer"
-                aria-label={`Open merchant store for banner ${index + 1}`}
-              >
-                {isRemoteUrl(slide.url) ? (
-                  // Avoid Next/image remote host restrictions & optimizer issues for third-party CDNs.
-                  <img
-                    src={slide.url}
-                    alt={`Slide ${index + 1}`}
-                    className={imageClassName}
-                    loading={index === 0 ? "eager" : "lazy"}
-                    referrerPolicy="no-referrer"
-                    onError={() => handleImageError(slide.url)}
-                  />
-                ) : (
-                  <Image
-                    src={slide.url}
-                    alt={`Slide ${index + 1}`}
-                    fill
-                    priority={index === 0}
-                    sizes="100vw"
-                    className="object-cover object-center"
-                    onError={() => handleImageError(slide.url)}
-                  />
-                )}
-              </Link>
-            ) : isRemoteUrl(slide.url) ? (
-              <img
-                src={slide.url}
-                alt={`Slide ${index + 1}`}
-                className={imageClassName}
-                loading={index === 0 ? "eager" : "lazy"}
-                referrerPolicy="no-referrer"
-                onError={() => handleImageError(slide.url)}
-              />
-            ) : (
-              <Image
-                src={slide.url}
-                alt={`Slide ${index + 1}`}
-                fill
-                priority={index === 0}
-                sizes="100vw"
-                className="object-cover object-center"
-                onError={() => handleImageError(slide.url)}
-              />
-            )}
-          </div>
-        ))}
-
-        {/* Dark Overlay for premium look */}
-        <div className="pointer-events-none absolute inset-0 bg-black/20"></div>
-
-        {/* Dots Indicator */}
-        {slides.length > 1 && (
-          <div className="absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 gap-2 sm:bottom-6 sm:gap-3">
-            {slides.map((_, index) => (
-              <button
+            return (
+              <div
                 key={index}
-                onClick={() => setCurrent(index)}
-                className={`h-2.5 w-2.5 rounded-full transition-all sm:h-3 sm:w-3 ${
-                  current === index ? "w-5 bg-[#F5B849] sm:w-6" : "bg-white/70"
-                }`}
-                aria-label={`Show banner ${index + 1}`}
-              />
-            ))}
-          </div>
-        )}
+                onClick={isClickableSide ? () => setCurrent(index) : undefined}
+                className={`absolute w-[90%] sm:w-[90%] max-w-[1250px] h-full transition-all duration-700 ease-in-out ${getSlideClasses(index, current, slides.length)}`}
+              >
+                {/* Dark Overlay for non-active slides */}
+                {!isActive && (
+                  <div className="absolute inset-0 bg-black/30 rounded-[20px] sm:rounded-[32px] z-10 pointer-events-none transition-opacity duration-700"></div>
+                )}
+                
+                {slide.href ? (
+                  <Link
+                    href={isActive ? slide.href : '#'}
+                    className={`absolute inset-0 block ${isActive ? 'cursor-pointer' : 'cursor-default'}`}
+                    aria-label={`Open merchant store for banner ${index + 1}`}
+                    onClick={(e) => {
+                      if (!isActive) e.preventDefault(); // Prevent navigating if clicking side slide
+                    }}
+                  >
+                    {isRemoteUrl(slide.url) ? (
+                      <img
+                        src={slide.url}
+                        alt={`Slide ${index + 1}`}
+                        className={imageClassName}
+                        loading={index === 0 ? "eager" : "lazy"}
+                        referrerPolicy="no-referrer"
+                        onError={() => handleImageError(slide.url)}
+                      />
+                    ) : (
+                      <Image
+                        src={slide.url}
+                        alt={`Slide ${index + 1}`}
+                        fill
+                        priority={index === 0}
+                        sizes="100vw"
+                        className="object-cover object-center rounded-[20px] sm:rounded-[32px]"
+                        onError={() => handleImageError(slide.url)}
+                      />
+                    )}
+                  </Link>
+                ) : (
+                  <div className="absolute inset-0 block">
+                    {isRemoteUrl(slide.url) ? (
+                      <img
+                        src={slide.url}
+                        alt={`Slide ${index + 1}`}
+                        className={imageClassName}
+                        loading={index === 0 ? "eager" : "lazy"}
+                        referrerPolicy="no-referrer"
+                        onError={() => handleImageError(slide.url)}
+                      />
+                    ) : (
+                      <Image
+                        src={slide.url}
+                        alt={`Slide ${index + 1}`}
+                        fill
+                        priority={index === 0}
+                        sizes="100vw"
+                        className="object-cover object-center rounded-[20px] sm:rounded-[32px]"
+                        onError={() => handleImageError(slide.url)}
+                      />
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
 
+          {/* Navigation Arrows */}
+          {slides.length > 1 && (
+            <>
+              <button 
+                onClick={handlePrev}
+                className="absolute left-2 sm:left-4 md:left-6 lg:left-8 z-40 bg-white/80 hover:bg-white text-gray-800 p-2 sm:p-3 rounded-full shadow-lg backdrop-blur-sm transition-all transform hover:scale-110 active:scale-95"
+                aria-label="Previous Slide"
+              >
+                <ChevronLeft size={24} className="sm:w-8 sm:h-8" strokeWidth={2.5} />
+              </button>
+              <button 
+                onClick={handleNext}
+                className="absolute right-2 sm:right-4 md:right-6 lg:right-8 z-40 bg-white/80 hover:bg-white text-gray-800 p-2 sm:p-3 rounded-full shadow-lg backdrop-blur-sm transition-all transform hover:scale-110 active:scale-95"
+                aria-label="Next Slide"
+              >
+                <ChevronRight size={24} className="sm:w-8 sm:h-8" strokeWidth={2.5} />
+              </button>
+            </>
+          )}
+
+        </div>
       </div>
     </section>
   );

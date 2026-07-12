@@ -3,11 +3,12 @@
 import Image from "next/image";
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronLeft, X } from "lucide-react";
+import { ChevronLeft, X, ImagePlus, Video } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
 import { createMerchantProduct, getMerchantProfile } from "../../../lib/api";
 import MerchantNavbar from "../../MerchantNavbar";
 import InappropriateImageModal from "../../../components/InappropriateImageModal";
+import ImageLimitModal from "../../../components/ImageLimitModal";
 
 function pickStoreName(user, merchantProfile) {
   return (
@@ -54,6 +55,10 @@ export default function AddProductPage() {
   const [merchantProfile, setMerchantProfile] = useState(null);
   const [merchantProfileError, setMerchantProfileError] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLimitModalOpen, setIsLimitModalOpen] = useState(false);
+
+  const [productVideo, setProductVideo] = useState(null);
+  const [videoError, setVideoError] = useState("");
 
   const handleMerchantLogout = async () => {
     await logout();
@@ -63,14 +68,41 @@ export default function AddProductPage() {
   const handleFileUpload = (e) => {
     const files = e.target.files;
     if (files) {
+      setSubmitError("");
+      setVideoError("");
+      
       Array.from(files).forEach((file) => {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          setProductImages((prevImages) => [...prevImages, { file, preview: event.target.result }]);
-        };
-        reader.readAsDataURL(file);
+        if (file.type.startsWith("video/")) {
+          if (productVideo) {
+            setVideoError("You can only upload 1 video.");
+            return;
+          }
+          const videoElement = document.createElement("video");
+          videoElement.preload = "metadata";
+          videoElement.onloadedmetadata = () => {
+            URL.revokeObjectURL(videoElement.src);
+            const duration = videoElement.duration;
+            if (duration > 30) {
+              setVideoError("Video must be up to 30 seconds.");
+            } else {
+              setProductVideo({ file, preview: URL.createObjectURL(file) });
+            }
+          };
+          videoElement.src = URL.createObjectURL(file);
+        } else if (file.type.startsWith("image/")) {
+          setProductImages((prevImages) => {
+            if (prevImages.length >= 5) {
+              setIsLimitModalOpen(true);
+              return prevImages;
+            }
+            return [...prevImages, { file, preview: URL.createObjectURL(file) }];
+          });
+        }
       });
     }
+    
+    // Clear input so same file can be selected again if removed
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const handleRemoveProductImage = (indexToRemove) => {
@@ -79,6 +111,11 @@ export default function AddProductPage() {
 
   const triggerFileInput = () => {
     fileInputRef.current?.click();
+  };
+
+  const handleRemoveVideo = () => {
+    setProductVideo(null);
+    setVideoError("");
   };
 
   const handlePublishProduct = async () => {
@@ -102,14 +139,25 @@ export default function AddProductPage() {
         }
       }
 
-      await createMerchantProduct({
+      let uploadedVideoUrl = null;
+      if (productVideo?.file) {
+        const videoData = await uploadToCloudinary(productVideo.file);
+        uploadedVideoUrl = videoData.url;
+      }
+
+      const payload = {
         name: productName.trim(),
         category: category.trim(),
         stockQuantity: Number(stockQuantity),
         price: Number(regularPrice),
         description: description.trim(),
         images: uploadedUrls,
-      });
+        videoUrl: uploadedVideoUrl,
+      };
+      
+      console.log("SENDING PRODUCT PAYLOAD:", payload);
+
+      await createMerchantProduct(payload);
 
       router.push("/merchant/products");
     } catch (error) {
@@ -306,10 +354,11 @@ export default function AddProductPage() {
 
                 {/* Product Media Section */}
                 <h3 className="text-[13px] font-semibold text-[#333] mb-2">Product Media</h3>
-                <p className="text-[11px] text-[#666] mb-4">High-quality images increase conversion.</p>
+                <p className="text-[11px] text-[#666] mb-4">High-quality media increases conversion. You can upload up to 5 photos and 1 short video/reel (up to 30s).</p>
+                {videoError && <p className="text-[11px] text-[#ef4d4d] mb-4">{videoError}</p>}
 
-                {/* Display Uploaded Images */}
-                {productImages.length > 0 && (
+                {/* Display Uploaded Media */}
+                {(productImages.length > 0 || productVideo) && (
                   <div className="mb-4 grid grid-cols-3 gap-3">
                     {productImages.map((img, idx) => (
                       <div key={idx} className="relative rounded-[8px] overflow-hidden border border-[#e2e2e2] h-20 group">
@@ -329,21 +378,39 @@ export default function AddProductPage() {
                         </button>
                       </div>
                     ))}
+                    {productVideo && (
+                      <div className="relative rounded-[8px] overflow-hidden border border-[#e2e2e2] h-20 group col-span-2 sm:col-span-1">
+                        <video src={productVideo.preview} controls className="w-full h-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={handleRemoveVideo}
+                          className="absolute right-1 top-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-red-600 text-white shadow-md transition hover:bg-red-700"
+                          aria-label="Remove product video"
+                        >
+                          <X size={12} strokeWidth={3} />
+                        </button>
+                      </div>
+                    )}
                   </div>
                 )}
 
                 {/* Upload Area */}
                 <div className="rounded-[10px] border-2 border-dashed border-[#d5d5d5] bg-[#fafafa] py-8 px-4 text-center flex flex-col items-center justify-center min-h-[180px]">
-                  <div className="text-[36px] mb-3">📷</div>
-                  <p className="text-[12px] text-[#666] mb-2">Click to upload product image</p>
-                  <p className="text-[11px] text-[#999]">PNG, JPG or WebP. Max 10MB</p>
+                  <div className="flex items-center justify-center gap-3 mb-3">
+                    <ImagePlus size={36} className="text-[#a0a0a0]" />
+                    <span className="text-[13px] font-semibold text-[#a0a0a0]">or</span>
+                    <Video size={36} className="text-[#a0a0a0]" />
+                  </div>
+                  <p className="text-[12px] text-[#666] mb-2">Click to upload product photos or video</p>
+                  <p className="text-[11px] text-[#999]">Images (PNG, JPG, WebP - Max 10MB)</p>
+                  <p className="text-[11px] text-[#999]">Video (MP4, WebM, OGG - up to 30s, Max 50MB)</p>
 
                   {/* Hidden File Input */}
                   <input
                     ref={fileInputRef}
                     type="file"
                     multiple
-                    accept="image/*"
+                    accept="image/*,video/*"
                     onChange={handleFileUpload}
                     className="hidden"
                   />
@@ -391,6 +458,7 @@ export default function AddProductPage() {
       </main>
 
       <InappropriateImageModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <ImageLimitModal isOpen={isLimitModalOpen} onClose={() => setIsLimitModalOpen(false)} />
 
       {/* Footer */}
       <footer className="mt-4 bg-[#e8ad2f] border-t border-[#d49b22] px-4 py-4 text-[#5a4514] lg:mt-12 lg:bg-[#f0aa19] lg:px-10 lg:py-8">
