@@ -349,6 +349,7 @@ function ProductDetailContent() {
   const productPrice = Number(product?.offerPrice || product?.price || 0);
   const originalPrice = Number(product?.originalPrice || 0);
   const productImages = product?.images && product.images.length > 0 ? product.images : [product?.imageUrl || product?.image || "/images/deal2.avif"];
+  const productVideo = product?.videoUrl || null;
   const productDescription = product?.description || "Description unavailable.";
   const safeStock = Number(product?.stockQuantity ?? 0);
   const refreshedAt = lastUpdatedAt
@@ -605,16 +606,18 @@ function ProductDetailContent() {
         <section className="bg-white rounded-2xl overflow-hidden shadow-sm mb-8">
           <div className="grid lg:grid-cols-[1.2fr_1fr] gap-6 p-4 lg:p-6">
             {/* Image Carousel */}
-            <div className="relative">
-              <ImageCarousel images={productImages} alt={productName} />
-              {discount > 0 && (
-                <span className="absolute top-4 left-4 bg-[#e7a91d] text-white px-3 py-1 rounded-full text-sm font-bold z-10">
-                  {discount}% OFF
+            <div className="relative flex flex-col gap-4">
+              <div className="relative">
+                <ImageCarousel images={productImages} videoUrl={productVideo} alt={productName} />
+                {discount > 0 && (
+                  <span className="absolute top-4 left-4 bg-[#e7a91d] text-white px-3 py-1 rounded-full text-sm font-bold z-10">
+                    {discount}% OFF
+                  </span>
+                )}
+                <span className="absolute top-4 right-4 bg-[#157a4f] text-white px-3 py-1 rounded-full text-sm font-bold z-10">
+                  Stock: {safeStock}
                 </span>
-              )}
-              <span className="absolute top-4 right-4 bg-[#157a4f] text-white px-3 py-1 rounded-full text-sm font-bold z-10">
-                Stock: {safeStock}
-              </span>
+              </div>
             </div>
 
             <div className="flex flex-col">

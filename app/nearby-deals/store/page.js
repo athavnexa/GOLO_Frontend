@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
-import { MapPin, Phone, Star, ArrowRight, ExternalLink, ShieldCheck, ShoppingBag } from "lucide-react";
+import { MapPin, Phone, Star, ArrowRight, ExternalLink, ShieldCheck, ShoppingBag, UserPlus, Check } from "lucide-react";
 import dynamic from "next/dynamic";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
@@ -13,6 +13,8 @@ import {
   getPublicMerchantProfile,
   getPublicMerchantStoreLocation,
   getPublicMerchantReviewStats,
+  toggleFollowMerchant,
+  checkFollowStatus,
 } from "../../lib/api";
 
 // Dynamically import Leaflet map
@@ -89,6 +91,8 @@ function NearbyStoreContent() {
   const [error, setError] = useState("");
   const [merchantId, setMerchantId] = useState(null);
   const [reviewStats, setReviewStats] = useState({ averageRating: 0, totalReviews: 0 });
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [followLoading, setFollowLoading] = useState(false);
 
   // Prefer the URL so direct links are never overridden by stale session state.
   useEffect(() => {
@@ -139,8 +143,9 @@ function NearbyStoreContent() {
 
   useEffect(() => {
     const loadMerchantData = async () => {
-      if (!merchantId) {
-        setError("Merchant ID is missing");
+      const id = merchantId;
+      if (!id) {
+        setError("Invalid merchant ID");
         setLoading(false);
         return;
       }
@@ -149,17 +154,28 @@ function NearbyStoreContent() {
         setLoading(true);
         setError("");
 
-        const publicProfileRes = await getPublicMerchantProfile(merchantId);
+        const [profileData, locationData, productsData, merchantOffersRes, reviewData, followData] = await Promise.all([
+          getPublicMerchantProfile(id),
+          getPublicMerchantStoreLocation(id),
+          getPublicMerchantProducts(id),
+          getNearbyOffers({ merchantId: id }),
+          getPublicMerchantReviewStats(id),
+          checkFollowStatus(id).catch(() => ({ success: true, isFollowing: false }))
+        ]);
 
-        if (!publicProfileRes?.data) {
+        if (followData && followData.isFollowing !== undefined) {
+            setIsFollowing(followData.isFollowing);
+        }
+
+        if (!profileData?.data) {
           setError("Store not found");
           setLoading(false);
           return;
         }
 
-        const profileData = publicProfileRes.data;
+        const data = profileData.data;
         const canonicalMerchantId = normalizeId(
-          profileData?.userId || profileData?.merchantId || merchantId
+          data?.userId || data?.merchantId || id
         );
         const acceptedMerchantIds = new Set(
           [
@@ -274,6 +290,28 @@ function NearbyStoreContent() {
     loadMerchantData();
   }, [merchantId]);
 
+  const handleFollow = async () => {
+    if (!merchantId) return;
+    setFollowLoading(true);
+    try {
+        const data = await toggleFollowMerchant(merchantId);
+        if (data && data.success) {
+            setIsFollowing(data.isFollowing);
+        }
+    } catch (err) {
+        console.error(err);
+        // If unauthenticated, redirect to login
+        if (err.message === 'User not authenticated') {
+            router.push('/login');
+        } else {
+            alert('Failed to follow store. Are you logged in?');
+            router.push('/login');
+        }
+    } finally {
+        setFollowLoading(false);
+    }
+  };
+
   if (loading) {
     return <StoreLoadingSkeleton />;
   }
@@ -337,10 +375,30 @@ function NearbyStoreContent() {
 
       <div className="relative z-10 mx-auto max-w-[1260px] px-4 lg:px-6 pb-14 pt-10 md:pt-14">
         {/* Store Header */}
-        <h1 className="mt-3 text-3xl lg:text-5xl font-bold leading-tight lg:leading-none text-[#1f2329]">
-          {merchant?.name || "Store"}
-        </h1>
-        <p className="mt-2 text-sm lg:text-base text-[#67707b]">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mt-3">
+          <h1 className="text-3xl lg:text-5xl font-bold leading-tight lg:leading-none text-[#1f2329]">
+            {merchant?.name || "Store"}
+          </h1>
+          <button 
+            onClick={handleFollow} 
+            disabled={followLoading}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-full font-semibold transition-all duration-300 shadow-sm disabled:opacity-70 ${isFollowing ? 'bg-[#f1f5f9] text-[#1f2329] border border-[#e2e8f0] hover:bg-[#e2e8f0]' : 'bg-[#157a4f] text-white hover:bg-[#116340] hover:shadow-md'}`}
+          >
+            {isFollowing ? (
+                <>
+                    <Check className="w-5 h-5 text-[#157a4f]" />
+                    Following
+                </>
+            ) : (
+                <>
+                    <UserPlus className="w-5 h-5" />
+                    Follow
+                </>
+            )}
+          </button>
+        </div>
+        
+        <p className="mt-4 text-sm lg:text-base text-[#67707b]">
           {resolvedBio}
         </p>
 

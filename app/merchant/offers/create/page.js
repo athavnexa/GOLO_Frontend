@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ChevronLeft, Search, Upload, X, Circle, CircleCheck } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
 import MerchantNavbar from "../../MerchantNavbar";
+import InappropriateImageModal from "../../../components/InappropriateImageModal";
  import {
    getMerchantStoreLocation,
    getMerchantProducts,
@@ -101,6 +102,7 @@ export default function CreateMerchantOfferPage() {
   const [storeLocationReady, setStoreLocationReady] = useState(true);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [formData, setFormData] = useState(EMPTY_FORM);
 
@@ -443,12 +445,17 @@ export default function CreateMerchantOfferPage() {
          })),
        });
 
-      router.push("/merchant/offers");
-    } catch (err) {
-      setError(err?.message || "Failed to create offer.");
-    } finally {
-      setFormSubmitting(false);
-    }
+       router.push("/merchant/offers");
+     } catch (err) {
+       const errorMsg = err?.data?.message || err?.message || "";
+       if (typeof errorMsg === 'string' && errorMsg.includes("inappropriate content")) {
+         setIsModalOpen(true);
+       } else {
+         setError(errorMsg || "Failed to create offer.");
+       }
+     } finally {
+       setFormSubmitting(false);
+     }
   };
 
   if (loading || !user) {
@@ -996,6 +1003,8 @@ export default function CreateMerchantOfferPage() {
           </div>
         </div>
       ) : null}
+
+      <InappropriateImageModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </div>
   );
 }

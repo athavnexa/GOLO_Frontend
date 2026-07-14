@@ -933,8 +933,8 @@ export async function getPublicMerchantProfile(merchantId) {
 }
 
 export async function getPublicMerchantStoreLocation(merchantId) {
-  return apiClient(`/merchants/public/${encodeURIComponent(merchantId)}/location`);
-}
+    return apiClient(`/merchant/public/${encodeURIComponent(merchantId)}/store-location`);
+  }
 
 export async function getPublicMerchantReviewStats(merchantId) {
   return apiClient(`/reviews/merchant/${encodeURIComponent(merchantId)}/public-stats`);
@@ -1830,3 +1830,23 @@ export async function getUserDealStatistics() {
         };
     }
 }
+
+// --- Follow Merchant ---
+export const toggleFollowMerchant = async (merchantId) => {
+    return apiClient(`/users/merchants/${merchantId}/follow`, {
+        method: 'POST',
+    });
+};
+
+export const checkFollowStatus = async (merchantId) => {
+    try {
+        const token = getStoredAccessToken();
+        if (!token) return { success: true, isFollowing: false };
+        return await apiClient(`/users/merchants/${merchantId}/follow-status`, {
+            method: 'GET',
+        });
+    } catch (error) {
+        console.error('checkFollowStatus error:', error);
+        return { success: true, isFollowing: false };
+    }
+};

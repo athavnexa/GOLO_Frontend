@@ -83,7 +83,7 @@ export default function FormContent() {
       <Navbar />
 
       {/* Main Content */}
-      <div className="mx-auto w-full max-w-7xl flex-1 px-3 py-5 sm:px-6 sm:py-12">
+      <div className="relative z-10 mx-auto w-full max-w-7xl flex-1 px-3 py-5 sm:px-6 sm:py-12">
 
         {/* Step Progress */}
         <StepProgress

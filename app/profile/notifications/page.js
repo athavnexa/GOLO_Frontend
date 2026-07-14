@@ -4,9 +4,11 @@ import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import { Bell, CheckCircle2, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { getNotifications, markNotificationRead, markAllNotificationsRead, clearAllNotifications } from "../../lib/api";
 
 export default function NotificationsPage() {
+  const router = useRouter();
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -139,7 +141,10 @@ export default function NotificationsPage() {
                   {paginatedNotifications.map((notif) => (
                     <div
                       key={notif._id}
-                      onClick={() => !notif.read && handleMarkRead(notif._id)}
+                      onClick={() => {
+                        if (!notif.read) handleMarkRead(notif._id);
+                        if (notif.offerId) router.push(`/nearby-deals/deal?offerId=${notif.offerId}`);
+                      }}
                       className={`flex items-start gap-4 px-5 py-4 border border-[#e5e5e5] rounded-xl shadow-sm transition cursor-pointer group ${notif.read ? "bg-white" : "bg-green-50 hover:bg-green-100"}`}
                     >
                       <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center mt-0.5 ${notif.read ? "bg-[#e5e5e5]" : "bg-[#157a4f]/10"}`}>

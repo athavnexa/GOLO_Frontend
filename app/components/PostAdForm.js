@@ -269,6 +269,8 @@ export default function PostAdForm({
 
   const categoryNameMap = {
     Electronics: "Electronics & Home appliances",
+    "Vehicle Rent": "Vehicle",
+    "Vehicle Sell": "Vehicle"
   };
 
   const normalizeCategoryName = (value) => {
@@ -914,8 +916,8 @@ export default function PostAdForm({
         break;
     }
 
-    // Only set categoryDetails to an object if it's complete, else false
-    onCategoryDetailsChange && onCategoryDetailsChange(isComplete ? (categoryData || {}) : false);
+    console.log("DEBUG PostAdForm:", { selectedCategoryName: selectedCategory.name, selectedSub, isComplete, categoryData });
+    onCategoryDetailsChange && onCategoryDetailsChange(isComplete ? categoryData : false);
   };
 
   // Helper functions

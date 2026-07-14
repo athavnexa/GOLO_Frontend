@@ -398,11 +398,21 @@ export default function ProductDetails({ params }) {
 		return null;
 	})();
 
-	const categorySpecificEntries = Object.keys(categoryDataSource).length > 0
+	let categorySpecificEntries = Object.keys(categoryDataSource).length > 0
 		? Object.entries(categoryDataSource).filter(
 			([key, value]) => !["_id", "__v"].includes(key) && hasDisplayValue(value)
 		)
 		: [];
+
+	if (categorySpecificEntries.length === 0) {
+		const fallbackEntries = [
+			["Category", ad?.category],
+			["Sub Category", ad?.subCategory && ad.subCategory !== ad.category ? ad.subCategory : null],
+			["Location", ad?.location || ad?.city],
+			["Ad ID", ad?.adId],
+		].filter(([, v]) => hasDisplayValue(v));
+		categorySpecificEntries = fallbackEntries;
+	}
 
 	if (loading) {
 		return (
@@ -597,26 +607,22 @@ export default function ProductDetails({ params }) {
 								</div>
 							)}
 
-							<div className="bg-white p-6 rounded-2xl shadow-sm mt-6 border border-gray-200">
-								<h2 className="font-semibold text-lg mb-4">
-									{ad?.category || "Category"} Details
-								</h2>
+							{categorySpecificEntries.length > 0 && (
+								<div className="bg-white p-6 rounded-2xl shadow-sm mt-6 border border-gray-200">
+									<h2 className="font-semibold text-lg mb-4">
+										{ad?.category || "Category"} Details
+									</h2>
 
-								<div className="grid sm:grid-cols-2 gap-3">
-									{categorySpecificEntries.length > 0 ? (
-										categorySpecificEntries.map(([key, value]) => (
+									<div className="grid sm:grid-cols-2 gap-3">
+										{categorySpecificEntries.map(([key, value]) => (
 											<div key={key} className="bg-gray-50 rounded-lg px-4 py-3 border border-gray-100">
 												<p className="text-xs text-gray-500 mb-1">{formatFieldLabel(key)}</p>
 												<p className="text-sm font-medium text-gray-800 break-words">{stringifyValue(value)}</p>
 											</div>
-										))
-									) : (
-										<div className="bg-gray-50 rounded-lg px-4 py-3 border border-gray-100 sm:col-span-2">
-											<p className="text-sm text-gray-600">No category details available.</p>
-										</div>
-									)}
+										))}
+									</div>
 								</div>
-							</div>
+							)}
 						</div>
 
 						<div>
