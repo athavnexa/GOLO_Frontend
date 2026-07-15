@@ -12,6 +12,7 @@ import InappropriateImageModal from "../../../components/InappropriateImageModal
    submitOfferPromotionRequest,
    getProfile,
  } from "../../../lib/api";
+import { uploadToCloudinary } from "../../../services/cloudinaryConfig";
 
 const OFFER_CATEGORIES = [
   "Special",
@@ -328,22 +329,8 @@ export default function CreateMerchantOfferPage() {
     setError("");
 
     try {
-      const cloudinaryForm = new FormData();
-      cloudinaryForm.append("file", file);
-      cloudinaryForm.append("upload_preset", "choja_preset");
-      cloudinaryForm.append("cloud_name", "dcm1plq42");
-
-      const res = await fetch("https://api.cloudinary.com/v1_1/dcm1plq42/image/upload", {
-        method: "POST",
-        body: cloudinaryForm,
-      });
-
-      const data = await res.json();
-      if (!res.ok || !data?.secure_url) {
-        throw new Error(data?.error?.message || "Image upload failed.");
-      }
-
-      setFormData((prev) => ({ ...prev, imageUrl: data.secure_url }));
+      const uploadResult = await uploadToCloudinary(file);
+      setFormData((prev) => ({ ...prev, imageUrl: uploadResult.url }));
     } catch (err) {
       setError(err?.message || "Failed to upload image.");
     } finally {
