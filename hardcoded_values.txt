@@ -1,0 +1,11 @@
+c:\place\nexa\golo_frontend\app\(auth)\merchant-login\page.js:75 -> const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
+c:\place\nexa\golo_frontend\app\merchant\page.js:82 -> const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
+c:\place\nexa\golo_frontend\app\services\cloudinaryConfig.js:8 -> cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'dkiagrvnp',
+c:\place\nexa\golo_frontend\app\services\cloudinaryConfig.js:9 -> uploadPreset: process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || 'choja_preset',
+c:\place\nexa\golo_frontend\app\services\cloudinaryConfig.js:10 -> apiBaseUrl: 'https://api.cloudinary.com/v1_1',
+c:\place\nexa\GOLO_backen_new\src\app.module.ts:134 -> uri = 'mongodb://localhost:27017/golo';
+c:\place\nexa\GOLO_backen_new\src\config\configuration.ts:29 -> uri: process.env.MONGODB_URI || 'mongodb://localhost:27017/golo',
+c:\place\nexa\GOLO_backen_new\src\main.ts:123 -> 'http://localhost:3000',
+c:\place\nexa\GOLO_backen_new\src\main.ts:124 -> 'http://localhost:3001',
+c:\place\nexa\GOLO_backen_new\src\main.ts:125 -> 'http://localhost:3004',
+c:\place\nexa\GOLO_backen_new\src\merchants\public-merchants.controller.ts:52 -> const frontendBaseUrl = (process.env.FRONTEND_URL || 'http://localhost:3001').replace(/\/+$/, '');
