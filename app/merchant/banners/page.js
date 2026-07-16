@@ -23,6 +23,7 @@ function normalizeStatus(status) {
     active: "Active",
     expired: "Expired",
     upcoming: "Upcoming",
+    deleted: "Deleted",
   };
   return map[status] || status;
 }
@@ -35,6 +36,7 @@ function parseDateValue(value) {
 
 function getBannerDisplayStatus(row) {
   const rawStatus = String(row?.status || "").trim().toLowerCase();
+  if (rawStatus === "deleted") return "deleted";
   if (rawStatus === "rejected") return "rejected";
   if (rawStatus === "under_review" || rawStatus === "pending") return "under_review";
 
@@ -270,7 +272,9 @@ export default function MerchantBannersPage() {
                                 ? "bg-[#fef2f2] text-[#b91c1c]"
                                 : displayStatus === "upcoming"
                                   ? "bg-[#eef2ff] text-[#4338ca]"
-                                  : "bg-[#f3f4f6] text-[#4b5563]"
+                                  : displayStatus === "deleted"
+                                    ? "bg-[#fef2f2] text-[#ef4444]"
+                                    : "bg-[#f3f4f6] text-[#4b5563]"
                         }`}
                         >
                           {normalizeStatus(displayStatus)}
@@ -278,14 +282,16 @@ export default function MerchantBannersPage() {
                       </td>
                       <td className="px-4 py-3 text-[11px] font-semibold text-[#1f1f1f]">Rs. {row.totalPrice || 0}</td>
                       <td className="px-4 py-3">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <button
-                            onClick={() => router.push(`/merchant/banners/edit?id=${encodeURIComponent(row.requestId || row._id || "")}`)}
-                            className="h-7 rounded-[6px] border border-[#d7dce4] px-3 text-[10px] font-semibold text-[#374151]"
-                          >
-                            Edit
-                          </button>
-                          {row.status === "approved" && row.paymentStatus !== "paid" ? (
+                        <div className="flex items-center gap-2">
+                          {displayStatus !== "deleted" && (
+                            <button
+                              onClick={() => router.push(`/merchant/banners/edit?id=${encodeURIComponent(row.requestId || row._id || "")}`)}
+                              className="h-7 rounded-[6px] border border-[#d3d3d3] bg-white px-3 text-[10px] font-semibold text-[#3b3b3b] shadow-sm hover:bg-[#f9f9f9]"
+                            >
+                              Edit
+                            </button>
+                          )}
+                          {displayStatus !== "deleted" && row.status === "approved" && row.paymentStatus !== "paid" ? (
                             <button
                               onClick={() => handlePayNow(row.requestId)}
                               className="h-7 rounded-[6px] bg-[#157a4f] px-3 text-[10px] font-semibold text-white"

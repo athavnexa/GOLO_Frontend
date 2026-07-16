@@ -356,122 +356,198 @@ export default function RegisterPage() {
   };
   return (
     <AuthLayout>
-      <div className="flex h-screen w-full overflow-hidden bg-white font-sans text-gray-900">
-        
-        {/* LEFT SIDE - Cream Background */}
-        <div className="hidden lg:flex w-1/2 flex-col items-center justify-center bg-[#FCFAEB] relative">
-          <div className="flex flex-col items-center justify-center text-center max-w-sm px-4">
-            {/* Double Quote icon */}
-            <div className="mb-6 text-[#F8E1BA] text-7xl leading-none font-serif font-black">&rdquo;</div>
+      <div
+        className="flex h-screen w-full overflow-hidden bg-white"
+        style={{ fontFamily: "'Inter', 'Segoe UI', sans-serif" }}
+      >
+        {/* ─── LEFT PANEL ─── */}
+        <div
+          className="hidden lg:flex w-[46%] flex-col items-center justify-center relative"
+          style={{ background: "#E8F5EE" }}
+        >
+          <div className="flex flex-col items-center gap-8 px-10 text-center relative w-full max-w-md">
             
-            {/* Logo Square */}
-            <div className="w-20 h-20 bg-[#F59E0B] rounded-2xl flex items-center justify-center mb-10 shadow-sm">
-              <span className="text-white text-5xl font-bold">G</span>
-            </div>
-            
-            {/* Text */}
-            <h1 className="text-[22px] font-bold text-[#763645] mb-12 leading-relaxed">
-              The simplest way to<br/>manage global ad<br/>campaigns in one place.
-            </h1>
-            
-            {/* Pagination */}
-            <div className="flex items-center gap-4">
-              <button type="button" className="w-8 h-8 rounded-full border border-[#D1D5DB] flex items-center justify-center text-[#9CA3AF] hover:text-gray-600 bg-transparent cursor-pointer hover:bg-gray-50 transition-colors">
-                <span className="text-sm font-semibold">‹</span>
-              </button>
-              <div className="flex gap-2.5">
-                <span className="w-2 h-2 rounded-full bg-[#F59E0B]"></span>
-                <span className="w-2 h-2 rounded-full bg-[#FDE68A]"></span>
-                <span className="w-2 h-2 rounded-full bg-[#FDE68A]"></span>
+            {/* White illustration card */}
+            <div
+              className="rounded-[28px] bg-white shadow-sm flex flex-col items-center px-10 py-8 relative mx-auto w-full max-w-[340px]"
+            >
+              {/* GOLO Logo row */}
+              <div className="flex items-center gap-2 self-end mb-6">
+                {/* Diamond logo icon */}
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 2L2 9l10 13 10-13L12 2z" fill="#157A4F" fillOpacity="0.15" stroke="#157A4F" strokeWidth="1.5"/>
+                  <path d="M12 2L2 9h20L12 2z" fill="#157A4F" fillOpacity="0.35"/>
+                </svg>
+                <span className="text-[15px] font-bold text-gray-800 tracking-wide">GOLO</span>
               </div>
-              <button type="button" className="w-8 h-8 rounded-full border border-[#D1D5DB] flex items-center justify-center text-[#9CA3AF] hover:text-gray-600 bg-transparent cursor-pointer hover:bg-gray-50 transition-colors">
-                <span className="text-sm font-semibold">›</span>
-              </button>
+
+              {/* Phone illustration */}
+              <div className="relative flex items-center justify-center w-full" style={{ height: 260 }}>
+                {/* Floating Avatar (Left) */}
+                <div className="absolute left-[-20px] top-[40px] w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow-md bg-gray-200 z-20">
+                  <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80" alt="avatar" className="w-full h-full object-cover" />
+                </div>
+                
+                {/* Floating Badge (Left Bottom) */}
+                <div className="absolute left-[-40px] bottom-[40px] bg-white rounded-xl py-2 px-3 shadow-lg flex flex-col items-center justify-center z-20 border border-gray-100 min-w-[100px]">
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <div className="w-4 h-4 rounded-full bg-green-100 flex items-center justify-center">
+                      <Check className="w-3 h-3 text-green-600" />
+                    </div>
+                    <span className="text-[11px] font-bold text-gray-800">Verified</span>
+                  </div>
+                  <span className="text-[9px] text-gray-400">Secure Signup</span>
+                </div>
+
+                {/* Floating Tomatoes (Right) */}
+                <div className="absolute right-[-15px] top-[120px] w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow-md bg-gray-200 z-20">
+                  <img src="https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=100&q=80" alt="tomatoes" className="w-full h-full object-cover" />
+                </div>
+
+                {/* The Phone */}
+                <div className="relative bg-[#1A2530] rounded-[32px] p-2 w-[160px] h-[260px] shadow-lg z-10">
+                  <div className="bg-[#FEFAEF] w-full h-full rounded-[26px] overflow-hidden relative flex flex-col pt-6 px-3">
+                    {/* Notch */}
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-16 h-4 bg-[#1A2530] rounded-b-xl"></div>
+                    
+                    {/* Screen Content */}
+                    <div className="mt-4 flex flex-col gap-4">
+                      {/* Search Bar */}
+                      <div className="w-full bg-white rounded-full p-2 flex items-center gap-2 shadow-sm">
+                        <div className="w-6 h-6 bg-[#FEF3C7] rounded-full flex items-center justify-center">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#D97706" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+                        </div>
+                        <div className="h-2 bg-gray-200 rounded-full w-12"></div>
+                      </div>
+
+                      {/* Heart Card */}
+                      <div className="w-full bg-white rounded-xl p-4 flex items-center justify-center shadow-sm border border-[#FEF3C7] relative overflow-hidden">
+                        {/* Circle pattern */}
+                        <div className="absolute w-24 h-24 border border-[#FDE68A] rounded-full opacity-50" style={{ borderStyle: 'dashed' }}></div>
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" strokeWidth="1.5" className="relative z-10"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                      </div>
+
+                      {/* Two Pills */}
+                      <div className="flex gap-2">
+                        <div className="h-6 flex-1 bg-white rounded-full shadow-sm"></div>
+                        <div className="h-6 flex-1 bg-white rounded-full shadow-sm"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Text below card */}
+            <div className="flex flex-col items-center gap-2 max-w-[300px]">
+              {/* Secure platform label */}
+              <div className="flex items-center gap-2 text-[#157A4F] mb-1">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#157A4F" strokeWidth="2">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                </svg>
+                <span className="text-[11px] font-semibold tracking-widest uppercase text-[#157A4F]">
+                  Secure Platform
+                </span>
+              </div>
+
+              <h2 className="text-[22px] font-extrabold text-gray-900 leading-tight">
+                Join GOLO Network
+              </h2>
+              <p className="text-[13px] text-gray-500 leading-relaxed px-4">
+                Create your free account to shop from trusted local businesses, earn rewards and enjoy seamless shopping.
+              </p>
             </div>
           </div>
         </div>
 
-        {/* RIGHT SIDE - White Background */}
-        <div className="w-full lg:w-1/2 flex items-center justify-center bg-white p-6 relative">
-          
-          {/* The Card */}
-          <div className="w-full max-w-[580px] bg-white rounded-[24px] p-8 lg:p-10 border border-gray-200 shadow-[0_12px_40px_rgb(0,0,0,0.06)] relative z-10 overflow-y-auto max-h-full">
-            <h2 className="text-3xl font-extrabold text-center text-gray-900 mb-2">
+        {/* ─── RIGHT PANEL ─── */}
+        <div className="flex flex-1 items-center justify-center bg-white px-6 py-10 overflow-y-auto">
+          <div className="w-full max-w-[500px]">
+            {/* Title */}
+            <h1 className="text-[26px] font-extrabold text-gray-900 text-center mb-1">
               Join GOLO Network Group
-            </h2>
-            <p className="text-center text-gray-500 text-[14px] mb-8">
+            </h1>
+            <p className="text-center text-[13px] text-gray-500 mb-8">
               Grow Smarter With Every Ad. Join Free.
             </p>
-            
+
             {/* Social Buttons */}
-            <div className="flex gap-4 mb-7">
-              <button type="button" className="flex-1 flex items-center justify-center gap-2.5 py-3 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors bg-white cursor-pointer">
-                <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="" className="w-[18px] h-[18px]" />
-                <span className="text-[13px] font-semibold text-gray-700">Google</span>
+            <div className="flex gap-3 mb-6">
+              <button type="button" className="flex-1 flex items-center justify-center gap-2 py-2.5 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors bg-white text-[13px] font-semibold text-gray-700">
+                <svg width="18" height="18" viewBox="0 0 48 48">
+                  <path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3C33.6 32.8 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 2.9l5.7-5.7C34.5 7.1 29.5 5 24 5 12.9 5 4 13.9 4 25s8.9 20 20 20 20-8.9 20-20c0-1.3-.2-2.5-.4-3.9z"/>
+                  <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 16 19 13 24 13c3.1 0 5.8 1.1 8 2.9l5.7-5.7C34.5 7.1 29.5 5 24 5c-7.7 0-14.4 4.3-17.7 9.7z"/>
+                  <path fill="#4CAF50" d="M24 45c5.2 0 10-2 13.5-5.2l-6.2-5.3C29.3 36 26.8 37 24 37c-5.2 0-9.6-3.2-11.3-7.7l-6.5 5C9.5 40.7 16.2 45 24 45z"/>
+                  <path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.3-2.4 4.2-4.4 5.5l6.2 5.3C36.9 40.2 44 35 44 25c0-1.3-.2-2.5-.4-3.9z"/>
+                </svg>
+                Google
               </button>
-              <button type="button" className="flex-1 flex items-center justify-center gap-2.5 py-3 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors bg-white cursor-pointer">
-                <img src="https://www.svgrepo.com/show/448224/facebook.svg" alt="" className="w-[18px] h-[18px]" />
-                <span className="text-[13px] font-semibold text-gray-700">Facebook</span>
+              <button type="button" className="flex-1 flex items-center justify-center gap-2 py-2.5 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors bg-white text-[13px] font-semibold text-gray-700">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="#1877F2">
+                  <path d="M24 12.07C24 5.41 18.63 0 12 0S0 5.4 0 12.07C0 18.1 4.39 23.1 10.13 24v-8.44H7.08v-3.49h3.04V9.41c0-3.02 1.8-4.7 4.54-4.7 1.31 0 2.68.24 2.68.24v2.97h-1.51c-1.49 0-1.95.93-1.95 1.88v2.26h3.32l-.53 3.5h-2.8V24C19.62 23.1 24 18.1 24 12.07z"/>
+                </svg>
+                Facebook
               </button>
             </div>
 
             {/* Divider */}
-            <div className="relative mb-7">
+            <div className="relative mb-6">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-100"></div>
+                <div className="w-full border-t border-gray-200" />
               </div>
-              <div className="relative flex justify-center text-[10px] font-bold uppercase tracking-widest">
-                <span className="bg-white px-3 text-gray-400">
+              <div className="relative flex justify-center">
+                <span className="bg-white px-3 text-[10px] font-bold uppercase tracking-widest text-gray-400">
                   OR SIGN UP WITH
                 </span>
               </div>
             </div>
 
-            <form onSubmit={handleRegister}>
+            {/* Form */}
+            <form onSubmit={handleRegister} noValidate>
               {/* Error / Success Messages */}
               {error && <p className="text-red-500 text-xs mb-4 text-center">{error}</p>}
               {success && <p className="text-[#157A4F] text-xs mb-4 text-center">{success}</p>}
 
-              <div className="grid grid-cols-2 gap-x-4 gap-y-4 mb-6">
-                {/* Name Input */}
+              <div className="grid grid-cols-2 gap-x-4 gap-y-4 mb-5">
+                {/* Name */}
                 <div>
-                  <label className="block text-[12px] font-bold text-gray-700 mb-1.5">Name</label>
+                  <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">Name</label>
                   <div className="relative">
-                    <User className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                    <User className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={15} />
                     <input
                       type="text"
                       placeholder="Enter your full name"
-                      className="w-full pl-10 pr-4 py-2.5 bg-[#FAFAFA] border border-gray-200 rounded-xl text-[13px] focus:outline-none focus:border-gray-300 transition-colors text-gray-800"
+                      className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-[13px] focus:outline-none focus:border-gray-400 transition-colors text-gray-800 placeholder-gray-400"
                       value={name}
                       onChange={(e) => { setName(e.target.value); setError(""); }}
                     />
                   </div>
                 </div>
 
-                {/* Email Input */}
+                {/* Email */}
                 <div>
-                  <label className="block text-[12px] font-bold text-gray-700 mb-1.5">Email</label>
+                  <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">Email</label>
                   <div className="relative">
-                    <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                    <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={15} />
                     <input
                       type="email"
                       placeholder="Enter your email"
-                      className="w-full pl-10 pr-4 py-2.5 bg-[#FAFAFA] border border-gray-200 rounded-xl text-[13px] focus:outline-none focus:border-gray-300 transition-colors text-gray-800"
+                      className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-[13px] focus:outline-none focus:border-gray-400 transition-colors text-gray-800 placeholder-gray-400"
                       value={email}
                       onChange={(e) => { setEmail(e.target.value); setError(""); }}
                     />
                   </div>
                 </div>
 
-                {/* Number Input */}
+                {/* Number */}
                 <div>
-                  <label className="block text-[12px] font-bold text-gray-700 mb-1.5">Number</label>
+                  <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">Number</label>
                   <div className="relative">
-                    <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                    <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={15} />
                     <input
                       type="tel"
                       placeholder="Enter your phone number"
-                      className="w-full pl-10 pr-4 py-2.5 bg-[#FAFAFA] border border-gray-200 rounded-xl text-[13px] focus:outline-none focus:border-gray-300 transition-colors text-gray-800"
+                      className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-[13px] focus:outline-none focus:border-gray-400 transition-colors text-gray-800 placeholder-gray-400"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
                     />
@@ -480,14 +556,14 @@ export default function RegisterPage() {
 
                 {/* Date of Birth */}
                 <div>
-                  <label className="block text-[12px] font-bold text-gray-700 mb-1.5">Date of Birth</label>
+                  <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">Date of Birth</label>
                   <div className="relative" onClick={() => { dateOfBirthInputRef.current?.showPicker?.(); dateOfBirthInputRef.current?.focus(); }}>
-                    <CalendarDays className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={16} />
+                    <CalendarDays className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={15} />
                     <input
                       ref={dateOfBirthInputRef}
                       type="date"
-                      className="w-full pl-10 pr-4 py-2.5 bg-[#FAFAFA] border border-gray-200 rounded-xl text-[13px] focus:outline-none focus:border-gray-300 transition-colors cursor-pointer"
-                      style={{ color: dateOfBirth ? "#111827" : "#9CA3AF" }}
+                      className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-[13px] focus:outline-none focus:border-gray-400 transition-colors cursor-pointer placeholder-gray-400"
+                      style={{ color: dateOfBirth ? "#1F2937" : "#9CA3AF" }}
                       value={dateOfBirth}
                       onChange={(e) => { setDateOfBirth(e.target.value); setError(""); }}
                       max={new Date().toISOString().slice(0, 10)}
@@ -497,35 +573,35 @@ export default function RegisterPage() {
 
                 {/* Gender */}
                 <div>
-                  <label className="block text-[12px] font-bold text-gray-700 mb-1.5">Gender</label>
+                  <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">Gender</label>
                   <div className="relative">
-                    <User className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={16} />
+                    <User className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={15} />
                     <select
-                      className="w-full pl-10 pr-8 py-2.5 bg-[#FAFAFA] border border-gray-200 rounded-xl text-[13px] focus:outline-none focus:border-gray-300 transition-colors appearance-none cursor-pointer"
-                      style={{ color: gender ? "#111827" : "#9CA3AF" }}
+                      className="w-full pl-10 pr-8 py-3 bg-white border border-gray-200 rounded-xl text-[13px] focus:outline-none focus:border-gray-400 transition-colors appearance-none cursor-pointer"
+                      style={{ color: gender ? "#1F2937" : "#9CA3AF" }}
                       value={gender}
                       onChange={(e) => { setGender(e.target.value); setError(""); }}
                     >
                       <option value="" disabled hidden>Select gender</option>
                       {GENDER_OPTIONS.map((opt) => (
-                        <option key={opt.value} value={opt.value} style={{ color: "#111827" }}>
+                        <option key={opt.value} value={opt.value} style={{ color: "#1F2937" }}>
                           {opt.label}
                         </option>
                       ))}
                     </select>
-                    <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={16} />
+                    <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={15} />
                   </div>
                 </div>
 
-                {/* Password Input */}
+                {/* Password */}
                 <div>
-                  <label className="block text-[12px] font-bold text-gray-700 mb-1.5">Create Password</label>
+                  <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">Create Password</label>
                   <div className="relative">
-                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={15} />
                     <input
                       type={showPassword ? "text" : "password"}
-                      placeholder="Create a strong password"
-                      className="w-full pl-10 pr-10 py-2.5 bg-[#FAFAFA] border border-gray-200 rounded-xl text-[13px] focus:outline-none focus:border-gray-300 transition-colors text-gray-800"
+                      placeholder="Create password"
+                      className="w-full pl-10 pr-10 py-3 bg-white border border-gray-200 rounded-xl text-[13px] focus:outline-none focus:border-gray-400 transition-colors text-gray-800 placeholder-gray-400"
                       value={password}
                       onChange={(e) => { setPassword(e.target.value); setError(""); }}
                     />
@@ -534,25 +610,25 @@ export default function RegisterPage() {
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none bg-transparent border-none p-0 cursor-pointer"
                     >
-                      {showPassword ? <Eye size={16} /> : <EyeOff size={16} />}
+                      {showPassword ? <Eye size={15} /> : <EyeOff size={15} />}
                     </button>
                   </div>
                 </div>
               </div>
 
               {/* Terms Checkbox */}
-              <div className="flex items-start gap-2.5 mb-5">
-                <input type="checkbox" id="terms" className="w-3.5 h-3.5 mt-0.5 border-gray-300 rounded text-[#F59E0B] focus:ring-[#F59E0B] cursor-pointer" />
-                <label htmlFor="terms" className="text-gray-500 text-[10px] leading-tight">
-                  By clicking on &quot;Continue&quot;, I agree to the <span className="text-[#F59E0B] font-bold cursor-pointer hover:underline">Terms</span> and <span className="text-[#F59E0B] font-bold cursor-pointer hover:underline">Privacy Policy</span>. We ensure your data is secure and never shared without your consent.
+              <div className="flex items-start gap-2 mb-6">
+                <input type="checkbox" id="terms" className="w-3.5 h-3.5 mt-0.5 border-gray-300 rounded text-[#157A4F] focus:ring-[#157A4F] cursor-pointer accent-[#157A4F]" />
+                <label htmlFor="terms" className="text-gray-500 text-[11px] leading-tight flex-1">
+                  By clicking on &quot;Continue&quot;, I agree to the <span className="text-gray-700 font-bold cursor-pointer hover:underline">Terms</span> and <span className="text-gray-700 font-bold cursor-pointer hover:underline">Privacy Policy</span>. We ensure your data is secure and never shared without your consent.
                 </label>
               </div>
 
-              {/* Submit Button */}
+              {/* Submit */}
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-[#F59E0B] hover:bg-[#E69309] text-white font-bold py-3 rounded-xl transition-colors text-[14px] shadow-sm cursor-pointer"
+                className="w-full bg-[#157A4F] hover:bg-[#116340] text-white font-bold py-3.5 rounded-xl transition-colors text-[14px] shadow-sm cursor-pointer"
                 style={{ opacity: isLoading ? 0.7 : 1 }}
               >
                 {isLoading ? "Creating account..." : "Continue"}
@@ -562,7 +638,7 @@ export default function RegisterPage() {
             {/* Footer */}
             <div className="mt-5 text-center text-[12px] text-gray-500">
               Already have an account?{" "}
-              <Link href="/login" className="text-[#F59E0B] font-bold hover:underline">
+              <Link href="/login" className="text-gray-900 font-bold hover:underline">
                 Sign In
               </Link>
             </div>

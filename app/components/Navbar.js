@@ -34,6 +34,8 @@ import { reverseGeocode, searchLocations } from "../services/leafletService";
 const CURRENT_LOCATION_STORAGE_KEY = "golo_current_location";
 const MIC_PERMISSION_STORAGE_KEY = "golo_voice_mic_permission";
 
+let globalManualLocation = null;
+
 function getShortLocationLabel(locationDetails) {
   const rawAddress = String(
     locationDetails?.address ||
@@ -47,6 +49,10 @@ function getShortLocationLabel(locationDetails) {
     .map((part) => part.trim())
     .filter(Boolean)
     .filter((part) => !/^\d{4,}$/.test(part));
+
+  if (parts.length >= 3) {
+    return parts.slice(0, 3).join(", ");
+  }
 
   if (parts.length >= 2) {
     return parts.slice(0, 2).join(", ");
@@ -119,10 +125,33 @@ function NavbarContent({
     }
   }, [externalSearchQuery]);
 
+  // Read location from localStorage on mount to prevent flickering
+  useEffect(() => {
+    if (typeof window === "undefined" || urlLocation) return;
+    
+    if (globalManualLocation) {
+      hasManualLocationRef.current = true;
+      hasCurrentLocationAccessRef.current = false;
+      setLocation(globalManualLocation);
+      return;
+    }
+
+    try {
+      const stored = localStorage.getItem(CURRENT_LOCATION_STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed && parsed.label && !hasManualLocationRef.current) {
+          setLocation(parsed.label);
+        }
+      }
+    } catch (e) {}
+  }, [urlLocation]);
+
   useEffect(() => {
     if (urlLocation) {
       hasManualLocationRef.current = true;
       hasCurrentLocationAccessRef.current = false;
+      globalManualLocation = urlLocation;
       setLocation(urlLocation);
       return;
     }
@@ -177,10 +206,20 @@ function NavbarContent({
             if (urlLocation || hasManualLocationRef.current) return prev;
             return label;
           });
-          localStorage.setItem(
-            CURRENT_LOCATION_STORAGE_KEY,
-            JSON.stringify({ label, coordinates, updatedAt: Date.now() }),
-          );
+
+          if (!hasManualLocationRef.current) {
+            localStorage.setItem(
+              CURRENT_LOCATION_STORAGE_KEY,
+              JSON.stringify({ 
+                label, 
+                fullLocation: locationDetails?.displayName || locationDetails?.address || label,
+                city: locationDetails?.city || "",
+                coordinates, 
+                updatedAt: Date.now() 
+              }),
+            );
+            window.dispatchEvent(new Event('locationUpdated'));
+          }
         } catch {
           const fallbackLabel = "Current Location";
           if (cancelled) return;
@@ -220,6 +259,7 @@ function NavbarContent({
   const handleLocationChange = (val) => {
     hasManualLocationRef.current = true;
     hasCurrentLocationAccessRef.current = false;
+    globalManualLocation = val;
     setLocation(val);
     setShowSuggestions(true);
   };
@@ -522,15 +562,15 @@ function NavbarContent({
       pathname === "/my-ads" ||
       pathname.startsWith("/profile");
     const isCategorySurface = pathname.startsWith("/category/");
-    const targetBase =
-      isNearbySurface || pathname === "/" || isUserSurface
+    const targetBase = 
+      trimmedSearch !== "" && (pathname === "/" || isUserSurface)
         ? "/nearby-deals"
-        : isCategorySurface
+        : (isCategorySurface || isNearbySurface || pathname === "/" || isUserSurface || pathname.startsWith("/merchant"))
           ? pathname
           : "/choja";
 
     // Nearby deals browsing (including location/city filtering) should work without auth.
-    if (!isAuthenticated && targetBase !== "/nearby-deals") {
+    if (!isAuthenticated && targetBase !== "/nearby-deals" && targetBase !== "/") {
       setShowAuthPrompt(true);
       return;
     }
@@ -1134,6 +1174,7 @@ function NavbarContent({
                   <button
                     onClick={() => {
                       setLocation("");
+                      localStorage.removeItem(CURRENT_LOCATION_STORAGE_KEY);
                       hasManualLocationRef.current = false;
                       setShowSuggestions(false);
                       runSearch(searchQuery, "");
@@ -1177,6 +1218,15 @@ function NavbarContent({
                               place.city ||
                               "";
                             const nextCoordinates = place.coordinates || null;
+                            localStorage.setItem(
+                              CURRENT_LOCATION_STORAGE_KEY,
+                              JSON.stringify({
+                                label: nextLocation,
+                                coordinates: nextCoordinates,
+                                updatedAt: Date.now(),
+                              }),
+                            );
+                            window.dispatchEvent(new Event('locationUpdated'));
                             hasManualLocationRef.current = true;
                             hasCurrentLocationAccessRef.current = false;
                             setLocation(nextLocation);
@@ -1594,6 +1644,7 @@ function NavbarContent({
                     onClick={(event) => {
                       event.stopPropagation();
                       setLocation("");
+                      localStorage.removeItem(CURRENT_LOCATION_STORAGE_KEY);
                       hasManualLocationRef.current = false;
                       setShowSuggestions(false);
                       runSearch(searchQuery, "");
@@ -1603,6 +1654,7 @@ function NavbarContent({
                       event.preventDefault();
                       event.stopPropagation();
                       setLocation("");
+                      localStorage.removeItem(CURRENT_LOCATION_STORAGE_KEY);
                       hasManualLocationRef.current = false;
                       setShowSuggestions(false);
                       runSearch(searchQuery, "");

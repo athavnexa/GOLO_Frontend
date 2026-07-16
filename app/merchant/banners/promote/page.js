@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { CalendarDays, ChevronLeft, Upload, User } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
 import { submitBannerPromotionRequest } from "../../../lib/api";
+import { searchLocations } from "../../../services/leafletService";
 import MerchantNavbar from "../../MerchantNavbar";
 import InappropriateImageModal from "../../../components/InappropriateImageModal";
 
@@ -27,7 +28,7 @@ const bannerCategories = [
   "Services",
 ];
 
-const DAILY_BANNER_RATE = 240;
+const RATE_PER_CITY_PER_DAY = 300;
 
 function formatDate(dateStr) {
   if (!dateStr) return "-";
@@ -70,6 +71,11 @@ export default function PromoteBannerPage() {
   const [bannerTitle, setBannerTitle] = useState("");
   const [bannerCategory, setBannerCategory] = useState("Fashion");
   const [selectedDates, setSelectedDates] = useState([]);
+  const [targetCities, setTargetCities] = useState([]);
+  const [targetLocations, setTargetLocations] = useState([]);
+  const [cityInput, setCityInput] = useState("");
+  const [citySuggestions, setCitySuggestions] = useState([]);
+  const [isSearchingCity, setIsSearchingCity] = useState(false);
   const [bannerPreview, setBannerPreview] = useState("");
   const [bannerFile, setBannerFile] = useState(null);
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
@@ -80,9 +86,63 @@ export default function PromoteBannerPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const selectedDays = useMemo(() => selectedDates.length, [selectedDates]);
-  const subtotal = selectedDays * DAILY_BANNER_RATE;
+  const subtotal = selectedDays * (RATE_PER_CITY_PER_DAY * targetCities.length);
   const platformFee = selectedDays > 0 ? 49 : 0;
   const totalPrice = subtotal + platformFee;
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(async () => {
+      if (cityInput.trim().length > 0) {
+        setIsSearchingCity(true);
+        try {
+          const results = await searchLocations(cityInput);
+          const uniqueCityMap = new Map();
+          results.forEach(item => {
+            const name = item.name || item.displayName.split(',')[0];
+            if (!uniqueCityMap.has(name)) {
+              const segments = item.displayName.split(',');
+              const displayStr = segments.slice(0, 2).join(',').trim();
+              uniqueCityMap.set(name, { name, displayName: displayStr, coordinates: item.coordinates });
+            }
+          });
+          setCitySuggestions(Array.from(uniqueCityMap.values()));
+        } catch (error) {
+          console.error("City search failed", error);
+        } finally {
+          setIsSearchingCity(false);
+        }
+      } else {
+        setCitySuggestions([]);
+      }
+    }, 400);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [cityInput]);
+
+  const addCity = (cityObj) => {
+    const city = cityObj.name;
+    if (targetCities.length >= 7) {
+      alert("You can only select up to 7 cities.");
+      return;
+    }
+    if (!targetCities.includes(city)) {
+      setTargetCities([...targetCities, city]);
+      if (cityObj.coordinates) {
+        setTargetLocations([...targetLocations, { lat: cityObj.coordinates.lat, lng: cityObj.coordinates.lng }]);
+      }
+      setSubmitError("");
+    }
+    setCityInput("");
+    setCitySuggestions([]);
+  };
+
+  const removeCity = (cityToRemove) => {
+    const index = targetCities.indexOf(cityToRemove);
+    if (index > -1) {
+      setTargetCities(targetCities.filter((_, i) => i !== index));
+      setTargetLocations(targetLocations.filter((_, i) => i !== index));
+    }
+  };
 
   const handleSubmitBanner = async () => {
     setSubmitMessage("");
@@ -92,6 +152,11 @@ export default function PromoteBannerPage() {
       setSubmitError("Banner title is required.");
       return;
     }
+    
+    if (targetCities.length === 0) {
+      setSubmitError("Please select at least 1 target city.");
+      return;
+    }
 
     if (!bannerPreview && !bannerFile) {
       setSubmitError("Please upload a banner image before submitting.");
@@ -99,35 +164,37 @@ export default function PromoteBannerPage() {
     }
 
     if (selectedDates.length === 0) {
-      setSubmitError("Please select at least one visibility date.");
+      setSubmitError("Please select at least one date.");
       return;
     }
 
     setSubmitting(true);
+
     try {
       let finalImageUrl = bannerPreview;
-      
-      // Upload to Cloudinary first
+
       if (bannerFile) {
         setSubmitMessage("Uploading banner securely...");
-        const { uploadToCloudinary } = await import('../../../services/cloudinaryConfig');
+        const { uploadToCloudinary } = await import("../../../services/cloudinaryConfig");
         try {
-          const uploadedData = await uploadToCloudinary(bannerFile);
-          finalImageUrl = uploadedData.url;
+          const uploadResult = await uploadToCloudinary(bannerFile);
+          finalImageUrl = uploadResult.url;
         } catch (uploadError) {
           throw new Error("Failed to upload image securely to the cloud. Please try again.");
         }
       }
 
       setSubmitMessage("Analyzing banner for safety compliance...");
-
+  
       const response = await submitBannerPromotionRequest({
         bannerTitle: bannerTitle.trim(),
         bannerCategory,
         imageUrl: finalImageUrl,
         selectedDates,
+        targetCities,
+        targetLocations,
         totalPrice,
-        dailyRate: DAILY_BANNER_RATE,
+        dailyRate: RATE_PER_CITY_PER_DAY * targetCities.length,
         platformFee,
         recommendedSize: "1920 x 520 px",
       });
@@ -219,6 +286,47 @@ export default function PromoteBannerPage() {
                         <option key={item} value={item}>{item}</option>
                       ))}
                     </select>
+                  </div>
+
+                  <div className="relative">
+                    <label className="block text-[13px] font-semibold text-[#2a2a2a] mb-2">Target Cities</label>
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      {targetCities.map((city, idx) => (
+                        <div key={idx} className="flex items-center gap-1.5 rounded-full bg-[#e8f5ed] px-3 py-1.5 text-[11px] font-medium text-[#157a4f]">
+                          {city}
+                          <button onClick={() => removeCity(city)} className="hover:text-red-500">
+                            <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                    <input
+                      value={cityInput}
+                      onChange={(e) => setCityInput(e.target.value)}
+                      disabled={targetCities.length >= 7}
+                      placeholder={targetCities.length >= 7 ? "Max cities reached" : "Type to search city..."}
+                      className="h-10 w-full rounded-[8px] border border-[#dddddd] bg-white px-3 text-[12px] text-[#2f2f2f] outline-none focus:border-[#2f9e58] disabled:bg-gray-100"
+                    />
+                    {isSearchingCity && (
+                      <div className="absolute z-10 w-full bg-white mt-1 border border-gray-200 rounded-md shadow-lg p-2 text-xs text-gray-500 text-center">
+                        Searching...
+                      </div>
+                    )}
+                    {citySuggestions.length > 0 && (
+                      <div className="absolute z-10 w-full bg-white mt-1 border border-gray-200 rounded-md shadow-lg overflow-hidden max-h-[160px] overflow-y-auto">
+                        {citySuggestions.map((cityObj, idx) => (
+                          <div 
+                            key={idx} 
+                            onClick={() => addCity(cityObj)}
+                            className="px-4 py-2.5 text-xs text-gray-700 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-0"
+                          >
+                            {cityObj.displayName}
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
                   <div>
@@ -427,7 +535,7 @@ export default function PromoteBannerPage() {
               <div className="mt-5 space-y-3 text-[13px]">
                 <div className="flex items-center justify-between">
                   <span className="text-[#676767]">Rate per day</span>
-                  <span className="font-semibold">Rs. {DAILY_BANNER_RATE}</span>
+                  <span className="font-semibold">Rs. {RATE_PER_CITY_PER_DAY * targetCities.length}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-[#676767]">Selected days</span>

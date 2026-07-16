@@ -35,10 +35,10 @@ function getReadableLocation(locationDetails) {
 
 function normalizeRedirect(rawRedirect) {
   if (!rawRedirect || rawRedirect.startsWith("http") || rawRedirect.startsWith("//")) {
-    return "/nearby-deals";
+    return "/";
   }
 
-  return rawRedirect === "/" ? "/nearby-deals" : rawRedirect;
+  return rawRedirect;
 }
 
 function SelectLocationContent() {
@@ -161,6 +161,14 @@ function SelectLocationContent() {
 
   const handleSuggestionClick = (place) => {
     const label = place.displayName || place.address || place.name || "";
+    localStorage.setItem(
+      CURRENT_LOCATION_STORAGE_KEY,
+      JSON.stringify({
+        label,
+        coordinates: place.coordinates || null,
+        updatedAt: Date.now(),
+      }),
+    );
     openWithLocation(label, place.coordinates || null, false);
   };
 

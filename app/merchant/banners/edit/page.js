@@ -3,10 +3,10 @@
 import { Suspense, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ArrowLeft, Save, Sparkles } from "lucide-react";
+import { ArrowLeft, Save, Sparkles, Trash2 } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
 import MerchantNavbar from "../../MerchantNavbar";
-import { getMyBannerPromotions, updateMyBannerPromotion } from "../../../lib/api";
+import { getMyBannerPromotions, updateMyBannerPromotion, deleteBannerPromotion } from "../../../lib/api";
 import { uploadToCloudinary } from "../../../services/cloudinaryConfig";
 
 const BANNER_CATEGORIES = [
@@ -87,9 +87,10 @@ function MerchantBannerEditContent() {
     startDate: "",
     endDate: "",
     description: "",
-    promotionExpiryText: "",
-    termsAndConditions: "",
   });
+
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const handleMerchantLogout = async () => {
     await logout();
@@ -141,8 +142,6 @@ function MerchantBannerEditContent() {
         imageUrl: formData.imageUrl,
         description: formData.description,
         selectedDates,
-        promotionExpiryText: formData.promotionExpiryText,
-        termsAndConditions: formData.termsAndConditions,
       });
 
       setSaveMessage("Banner updated successfully.");
@@ -192,8 +191,6 @@ function MerchantBannerEditContent() {
           startDate: toDateInputValue(banner.startDate),
           endDate: toDateInputValue(banner.endDate),
           description: banner.description || "",
-          promotionExpiryText: banner.promotionExpiryText || "",
-          termsAndConditions: banner.termsAndConditions || "",
         });
       } catch (error) {
         setFetchError(error?.message || "Failed to load banner");
@@ -207,6 +204,19 @@ function MerchantBannerEditContent() {
 
   if (loading || !user) return <div className="min-h-screen bg-[#ececec]" />;
   if (user.accountType !== "merchant") return null;
+
+  const handleDelete = async () => {
+    try {
+      setIsDeleting(true);
+      setFetchError("");
+      await deleteBannerPromotion(bannerId);
+      router.push("/merchant/banners");
+    } catch (error) {
+      setFetchError(error?.data?.message || error?.message || "Failed to delete banner");
+      setIsDeleting(false);
+      setShowDeleteModal(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#ececec] text-[#1b1b1b]" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
@@ -306,15 +316,17 @@ function MerchantBannerEditContent() {
                     </div>
                   </div>
 
-                  <div className="rounded-[20px] border border-[#edf0f4] bg-white p-5">
-                    <label className="text-[12px] font-semibold text-[#374151]">
-                      Expiry text
-                      <input value={formData.promotionExpiryText} onChange={(event) => handleInputChange("promotionExpiryText", event.target.value)} className="mt-2 h-11 w-full rounded-[12px] border border-[#d7dce4] bg-white px-3 text-[13px] outline-none" placeholder="Offer ends soon" />
-                    </label>
-                    <label className="mt-4 block text-[12px] font-semibold text-[#374151]">
-                      Terms & conditions
-                      <textarea value={formData.termsAndConditions} onChange={(event) => handleInputChange("termsAndConditions", event.target.value)} rows={4} className="mt-2 w-full rounded-[12px] border border-[#d7dce4] bg-white px-3 py-3 text-[13px] outline-none" placeholder="Mention the offer constraints" />
-                    </label>
+                  <div className="rounded-[20px] border border-[#edf0f4] bg-white p-5 flex flex-col gap-4">
+                    <p className="text-[13px] text-gray-500">
+                      If you no longer want this banner to be active, you can delete it.
+                    </p>
+                    <button 
+                      onClick={() => setShowDeleteModal(true)} 
+                      disabled={isDeleting || isSaving}
+                      className="w-fit rounded-[12px] bg-red-500 px-5 py-2.5 text-[13px] font-semibold text-white shadow-sm transition hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-70"
+                    >
+                      {isDeleting ? "Deleting..." : "Delete Banner"}
+                    </button>
                   </div>
 
                   <div className="flex flex-wrap gap-3">
@@ -326,9 +338,40 @@ function MerchantBannerEditContent() {
                 </div>
               </div>
             )}
-          </section>
-        </div>
-      </main>
-    </div>
-  );
+            </section>
+          </div>
+        </main>
+
+        {showDeleteModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+            <div className="w-full max-w-sm rounded-[24px] bg-white p-6 shadow-xl relative overflow-hidden">
+              <div className="absolute top-0 left-0 h-1.5 w-full bg-red-500" />
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-red-100">
+                <Trash2 className="h-6 w-6 text-red-500" />
+              </div>
+              <h3 className="mt-5 text-center text-[18px] font-bold text-gray-900">Delete Banner</h3>
+              <p className="mt-2 text-center text-[13px] text-gray-500 leading-relaxed">
+                Are you sure you want to delete this banner? This action will immediately remove it from public view, but it will remain in your history.
+              </p>
+              <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-center">
+                <button
+                  onClick={() => setShowDeleteModal(false)}
+                  disabled={isDeleting}
+                  className="rounded-[12px] border border-gray-200 bg-white px-5 py-3 text-[13px] font-semibold text-gray-700 transition hover:bg-gray-50 disabled:opacity-50 sm:flex-1"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDelete}
+                  disabled={isDeleting}
+                  className="rounded-[12px] bg-red-500 px-5 py-3 text-[13px] font-semibold text-white shadow-sm transition hover:bg-red-600 disabled:opacity-70 sm:flex-1 flex items-center justify-center"
+                >
+                  {isDeleting ? "Deleting..." : "Yes, Delete"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
 }

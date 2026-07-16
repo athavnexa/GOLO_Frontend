@@ -203,8 +203,9 @@ function getLocationCity(location) {
     }
   }
 
+  const parts = String(location || "").split(",");
   return normalizeLocationText(
-    String(location || "").split(",")[0] || location,
+    parts[parts.length - 1] || location,
   );
 }
 

@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useSearchParams } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { API_ORIGIN_URL, getActiveHomepageBanners } from "../lib/api";
 
@@ -83,6 +84,9 @@ export default function Hero() {
   const [loading, setLoading] = useState(true);
   const failedUrlsRef = useRef(new Set());
 
+  const searchParams = useSearchParams();
+  const urlLocation = searchParams ? searchParams.get("location") : "";
+
   useEffect(() => {
     let isMounted = true;
 
@@ -92,7 +96,42 @@ export default function Hero() {
           setLoading(true);
         }
 
-        const res = await getActiveHomepageBanners(MAX_SLIDES);
+        let city = "";
+        let fullLocation = "";
+        let labelStr = urlLocation || "";
+
+        try {
+          const stored = localStorage.getItem("golo_current_location");
+          if (stored) {
+            const parsed = JSON.parse(stored);
+            if (parsed?.city) {
+              // Use the exact city provided by the GPS/Location API
+              city = parsed.city;
+            }
+            if (parsed?.fullLocation) {
+              fullLocation = parsed.fullLocation;
+            } else if (parsed?.label) {
+              fullLocation = parsed.label;
+            }
+            if (!labelStr) {
+              labelStr = parsed?.label || "";
+            }
+          }
+        } catch (e) {
+          console.warn("Failed to parse city location from localStorage", e);
+        }
+
+        // If no explicit city was found in storage, fallback to parsing the label
+        if (!city && labelStr) {
+          // Extract the most significant area (usually at the end of the short label)
+          const parts = labelStr.split(",");
+          city = parts[parts.length - 1].trim();
+        }
+
+        // Always pass the most complete string we have as fullLocation
+        const locationToSend = fullLocation || labelStr || city;
+
+        const res = await getActiveHomepageBanners(MAX_SLIDES, city, locationToSend);
 
         const bannerCandidate =
           res?.data?.data ??
@@ -126,22 +165,32 @@ export default function Hero() {
 
             return {
               url: imageUrl,
-              merchantId,
               href,
+              id: item._id || item.id,
+              rawTitle: item.bannerTitle || "",
             };
           })
           .filter(Boolean);
 
+        let finalSlides = [...dynamicSlides];
+        const platformBanners = [
+          { url: "/images/platform-banners/platform_banner_1.png", href: null },
+          { url: "/images/platform-banners/platform_banner_2.png", href: null },
+          { url: "/images/platform-banners/platform_banner_3.jpg", href: null },
+          { url: "/images/platform-banners/platform_banner_4.png", href: null },
+        ];
+
+        let i = 0;
+        while (finalSlides.length < MAX_SLIDES && platformBanners.length > 0) {
+          finalSlides.push({ ...platformBanners[i % platformBanners.length], isFallback: true, id: `fallback_${i}` });
+          i++;
+        }
+
         if (isMounted) {
-          if (dynamicSlides.length > 0) {
-            const finalSlides = dynamicSlides.slice(0, MAX_SLIDES);
-            setSlides(finalSlides);
-            setDebugInfo(`Showing ${finalSlides.length} approved banners`);
-            setCurrent(0);
-          } else {
-            setSlides([]);
-            setDebugInfo("No approved banners found");
-          }
+          const clamped = finalSlides.slice(0, MAX_SLIDES);
+          setSlides(clamped);
+          setDebugInfo(`Showing ${clamped.length} banners`);
+          setCurrent(0);
         }
       } catch (error) {
         if (isMounted) {
@@ -157,10 +206,14 @@ export default function Hero() {
     }
 
     loadHomepageBanners();
+
+    window.addEventListener('locationUpdated', loadHomepageBanners);
+
     return () => {
       isMounted = false;
+      window.removeEventListener('locationUpdated', loadHomepageBanners);
     };
-  }, []);
+  }, [urlLocation]);
 
   // Auto slide
   useEffect(() => {
@@ -229,7 +282,7 @@ export default function Hero() {
   if (loading) {
     return (
       <section className="relative w-full overflow-hidden bg-[#F8F6F2]">
-        <div className="relative h-[150px] w-full bg-[#ece9e1] sm:h-[340px] sm:aspect-auto md:h-[520px]" />
+        <div className="relative h-[170px] w-full bg-[#ece9e1] sm:h-[360px] sm:aspect-auto md:h-[530px]" />
       </section>
     );
   }
@@ -252,7 +305,7 @@ export default function Hero() {
 
       {/* Carousel Wrapper */}
       <div 
-        className="relative flex items-center justify-center w-full h-[180px] sm:h-[340px] md:h-[500px] overflow-hidden px-4 sm:px-10 py-6"
+        className="relative flex items-center justify-center w-full h-[200px] sm:h-[380px] md:h-[550px] overflow-hidden px-4 sm:px-10 py-6"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >

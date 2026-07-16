@@ -276,6 +276,13 @@ export async function socialAuthUser(payload) {
     });
 }
 
+export async function validateMerchantStep(payload) {
+    return apiClient('/users/validate-registration-step', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+    });
+}
+
 export async function registerUser({
     name,
     email,
@@ -287,10 +294,14 @@ export async function registerUser({
     gstNumber,
     storeCategory,
     storeSubCategory,
+    businessType,
+    yearsInBusiness,
+    businessDescription,
     contactNumber,
     storeLocation,
     storeLocationLatitude,
     storeLocationLongitude,
+    documents,
 }) {
     return apiClient('/users/register', {
         method: 'POST',
@@ -305,10 +316,14 @@ export async function registerUser({
             gstNumber,
             storeCategory,
             storeSubCategory,
+            businessType,
+            yearsInBusiness,
+            businessDescription,
             contactNumber,
             storeLocation,
             storeLocationLatitude,
             storeLocationLongitude,
+            documents,
         }),
     });
 }
@@ -730,8 +745,13 @@ export async function payForBannerPromotion(requestId, paymentReference) {
     });
 }
 
-export async function getActiveHomepageBanners(limit = 5) {
-    return apiClient(`/banners/promotions/active?limit=${limit}`);
+export async function getActiveHomepageBanners(limit = 5, city = "", fullLocation = "") {
+    const query = new URLSearchParams({ limit });
+    if (city) query.append("city", city);
+    if (fullLocation) query.append("fullLocation", fullLocation);
+    return apiClient(`/banners/promotions/active?${query.toString()}`, {
+        cache: 'no-store',
+    });
 }
 
 export async function getHomeSectionConfig() {
@@ -1589,10 +1609,16 @@ export async function getMerchantLoyaltyLeaderboard() {
  * @param {string} promotionId - Promotion ID
  * @param {object} updateData - Promotion update data
  */
-export async function updateMyBannerPromotion(promotionId, updateData) {
-    return apiClient(`/banners/promotions/${promotionId}?type=banner`, {
-        method: 'PUT',
-        body: JSON.stringify(updateData),
+export async function updateMyBannerPromotion(requestId, data) {
+    return apiClient(`/banners/promotions/${requestId}`, {
+        method: "PUT",
+        body: JSON.stringify(data),
+    });
+}
+
+export async function deleteBannerPromotion(requestId) {
+    return apiClient(`/banners/promotions/${requestId}`, {
+        method: "DELETE",
     });
 }
 

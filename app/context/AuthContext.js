@@ -118,10 +118,14 @@ export function AuthProvider({ children }) {
         gstNumber,
         storeCategory,
         storeSubCategory,
+        businessType,
+        yearsInBusiness,
+        businessDescription,
         contactNumber,
         storeLocation,
         storeLocationLatitude,
         storeLocationLongitude,
+        documents,
     }) => {
         const response = await registerUser({
             name,
@@ -134,10 +138,14 @@ export function AuthProvider({ children }) {
             gstNumber,
             storeCategory,
             storeSubCategory,
+            businessType,
+            yearsInBusiness,
+            businessDescription,
             contactNumber,
             storeLocation,
             storeLocationLatitude,
             storeLocationLongitude,
+            documents,
         });
         return response;
     }, []);

@@ -229,6 +229,7 @@ function formatLocationDetails(data) {
     id: data.osm_id,
     name: data.name || address.house_number || "",
     displayName: data.display_name,
+    city: address.city || address.town || address.village || address.county || "",
     coordinates: {
       lat: parseFloat(data.lat),
       lng: parseFloat(data.lon),

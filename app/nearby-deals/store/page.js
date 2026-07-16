@@ -374,51 +374,46 @@ function NearbyStoreContent() {
       <Navbar />
 
       <div className="relative z-10 mx-auto max-w-[1260px] px-4 lg:px-6 pb-14 pt-10 md:pt-14">
-        {/* Store Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mt-3">
-          <h1 className="text-3xl lg:text-5xl font-bold leading-tight lg:leading-none text-[#1f2329]">
-            {merchant?.name || "Store"}
-          </h1>
-          <button 
-            onClick={handleFollow} 
-            disabled={followLoading}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-full font-semibold transition-all duration-300 shadow-sm disabled:opacity-70 ${isFollowing ? 'bg-[#f1f5f9] text-[#1f2329] border border-[#e2e8f0] hover:bg-[#e2e8f0]' : 'bg-[#157a4f] text-white hover:bg-[#116340] hover:shadow-md'}`}
-          >
-            {isFollowing ? (
-                <>
-                    <Check className="w-5 h-5 text-[#157a4f]" />
-                    Following
-                </>
-            ) : (
-                <>
-                    <UserPlus className="w-5 h-5" />
-                    Follow
-                </>
-            )}
-          </button>
-        </div>
-        
-        <p className="mt-4 text-sm lg:text-base text-[#67707b]">
-          {resolvedBio}
-        </p>
-
-        {/* Store Info */}
-        <div className="mt-3 flex flex-wrap items-center gap-4 text-xs lg:text-sm text-[#4e5965]">
-          <span className="font-semibold text-[#1f2329]">{resolvedAddress || (merchant?.profile?.city ? `${merchant.profile.city}${merchant.profile.state ? `, ${merchant.profile.state}` : ""}` : "Location")}</span>
-
-          <div className="flex items-center gap-2">
-            <span className="font-semibold text-[#f2b632]">★★★★★</span>
-            <span>
-              <span className="font-semibold text-[#1f2329]">{reviewStats.averageRating ? reviewStats.averageRating.toFixed(1) : "0.0"}</span>
-              {" "}({reviewStats.totalReviews.toLocaleString()} Reviews)
-            </span>
+        {/* Store Header Card */}
+        <div className="rounded-2xl border border-[#d8dce3] bg-white p-5 lg:p-7 shadow-sm mb-6 mt-3">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <h1 className="text-3xl lg:text-4xl font-bold leading-tight lg:leading-none text-[#1f2329]">
+              {merchant?.name || "Store"}
+            </h1>
+            <button 
+              onClick={handleFollow} 
+              disabled={followLoading}
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-full font-semibold transition-all duration-300 shadow-sm disabled:opacity-70 ${isFollowing ? 'bg-[#f1f5f9] text-[#1f2329] border border-[#e2e8f0] hover:bg-[#e2e8f0]' : 'bg-[#157a4f] text-white hover:bg-[#116340] hover:shadow-md'}`}
+            >
+              {isFollowing ? (
+                  <>
+                      <Check className="w-5 h-5 text-[#157a4f]" />
+                      Following
+                  </>
+              ) : (
+                  <>
+                      <UserPlus className="w-5 h-5" />
+                      Follow
+                  </>
+              )}
+            </button>
           </div>
+          
+          <p className="mt-4 text-sm lg:text-base text-[#67707b]">
+            {resolvedBio}
+          </p>
 
-          <span className="hidden text-[#9ca3ad] sm:inline">|</span>
+          <div className="mt-4 flex flex-wrap items-center gap-4 text-xs lg:text-sm text-[#4e5965] border-t border-[#e5e8ec] pt-4">
+            <span className="font-semibold text-[#1f2329]">{resolvedAddress || (merchant?.profile?.city ? `${merchant.profile.city}${merchant.profile.state ? `, ${merchant.profile.state}` : ""}` : "Location")}</span>
 
-          <span>
-            {/* Location {resolvedPhone && <span className="ml-2">• {resolvedPhone}</span>} */}
-          </span>
+            <div className="flex items-center gap-2">
+              <span className="font-semibold text-[#f2b632]">★</span>
+              <span>
+                <span className="font-semibold text-[#1f2329]">{reviewStats.averageRating ? reviewStats.averageRating.toFixed(1) : "0.0"}</span>
+                {" "}({reviewStats.totalReviews.toLocaleString()} Reviews)
+              </span>
+            </div>
+          </div>
         </div>
 
         {/* Main Section */}
