@@ -35,32 +35,8 @@ import {
 } from "lucide-react";
 import { createPortal } from "react-dom";
 import { normalizeAppPath, withFrontendBasePath } from "../lib/path";
-
-const mainCategories = [
-  { name: "Education" },
-  { name: "Vehicle", sub: ["Rent", "Buy"] },
-  { name: "Property", sub: ["Rent", "Buy"] },
-  { name: "Employment" },
-  { name: "Mobiles" },
-  { name: "Electronics & Home Appliances" },
-  { name: "Matrimonial" },
-  { name: "Business" },
-  { name: "Astrology" },
-  { name: "Health & Wellness" },
-  { name: "Lost & Found" },
-];
-
-const extraCategories = [
-  "Lost & Found",
-  "Service",
-  "Personal",
-  "Pets",
-  "Public Notice",
-  "Travel",
-  "Furniture",
-  "Greetings & Tributes",
-  "Other",
-];
+// Categories are now dynamically fetched from backend API
+import { API_BASE_URL } from "../lib/api";
 
 // ----- Icon maps (choja / "all" categories) -----
 const allIconMap = {
@@ -128,6 +104,28 @@ function CategoryBarContent({ variant = "choja", preferredCategories = [] }) {
   const [dropdownPosition, setDropdownPosition] = useState(null);
   const [golocalActiveCategory, setGolocalActiveCategory] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
+  
+  // Dynamic Categories State
+  const [dbCategories, setDbCategories] = useState([]);
+  const [isLoadingCats, setIsLoadingCats] = useState(true);
+
+  useEffect(() => {
+    async function fetchCategories() {
+      try {
+        const res = await fetch(`${API_BASE_URL}/categories`, { cache: "no-store" });
+        const payload = await res.json();
+        if (payload.success && Array.isArray(payload.data)) {
+          // Filter to only Active categories
+          setDbCategories(payload.data.filter(c => c.status === "Active"));
+        }
+      } catch (err) {
+        console.error("Failed to fetch categories dynamically", err);
+      } finally {
+        setIsLoadingCats(false);
+      }
+    }
+    fetchCategories();
+  }, []);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -159,25 +157,22 @@ function CategoryBarContent({ variant = "choja", preferredCategories = [] }) {
     return category ? decodeURIComponent(category) : null;
   })();
 
-  const activeGolocalCategory = activeGolocalCategoryFromUrl || golocalActiveCategory;
+  // Filter DB categories into Golocal and Main
+  const golocalCategories = useMemo(() => {
+    const validGolocalNames = new Set([
+      "Food & Restaurants", "Home Services", "Beauty & Wellness", "Healthcare & Medical",
+      "Hotels & Accommodation", "Shopping & Retail", "Education & Training", "Real Estate",
+      "Events & Entertainment", "Professional Services", "Automotive Services", 
+      "Home Improvement", "Fitness & Sports", "Daily Needs & Utilities", "Local Businesses & Vendors"
+    ]);
+    return dbCategories.filter(c => validGolocalNames.has(c.name));
+  }, [dbCategories]);
 
-  const golocalCategories = [
-    { name: "Food & Restaurants" },
-    { name: "Home Services" },
-    { name: "Beauty & Wellness" },
-    { name: "Healthcare & Medical" },
-    { name: "Hotels & Accommodation" },
-    { name: "Shopping & Retail" },
-    { name: "Education & Training" },
-    { name: "Real Estate" },
-    { name: "Events & Entertainment" },
-    { name: "Professional Services" },
-    { name: "Automotive Services" },
-    { name: "Home Improvement" },
-    { name: "Fitness & Sports" },
-    { name: "Daily Needs & Utilities" },
-    { name: "Local Businesses & Vendors" },
-  ];
+  const mainCategories = useMemo(() => {
+    // Anything not golocal and has no parent
+    const golocalSet = new Set(golocalCategories.map(c => c.name));
+    return dbCategories.filter(c => !golocalSet.has(c.name) && (!c.parent || c.parent === 'None (Root Category)'));
+  }, [dbCategories, golocalCategories]);
 
   // Map backend category names to frontend display names for matching
   const BACKEND_TO_DISPLAY_MAP = {
@@ -219,9 +214,7 @@ function CategoryBarContent({ variant = "choja", preferredCategories = [] }) {
 
   // Stable color lookup keyed by category name, so colors don't shift when the
   // visible/ordered slice changes (e.g. preferred categories reordering).
-  const allNamesForVariant = variant === "golocal"
-    ? golocalCategories.map(c => c.name)
-    : [...mainCategories.map(c => c.name), ...extraCategories];
+  const allNamesForVariant = dbCategories.map(c => c.name);
 
   const colorForCategory = (name) => {
     const idx = allNamesForVariant.indexOf(name);
@@ -557,42 +550,66 @@ function CategoryBarContent({ variant = "choja", preferredCategories = [] }) {
                 {(variant === "golocal" ? golocalCategories : mainCategories).map((cat) => {
                   const { bg, dark } = colorForCategory(cat.name);
                   const IconComponent = (variant === "golocal" ? golocalIconMap : allIconMap)[cat.name] || Package;
-                  const active = isCategoryActive(cat.name);
+                  const subs = dbCategories.filter(c => c.parent === cat.name).map(c => c.name);
+                  const hasSub = subs.length > 0;
                   return (
-                    <button
-                      key={cat.name}
-                      onClick={() => navigateToCategory(cat.name)}
-                      style={{
-                        padding: "14px 10px",
-                        borderRadius: "14px",
-                        border: active ? `1.5px solid ${dark}` : "1.5px solid transparent",
-                        background: bg,
-                        cursor: "pointer",
-                        fontSize: "13px",
-                        fontWeight: 700,
-                        color: dark,
-                        textAlign: "center",
-                        transition: "transform 0.15s",
-                      }}
-                      onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; }}
-                      onMouseLeave={e => { e.currentTarget.style.transform = "none"; }}
-                    >
-                      <span
+                    <div key={cat.name} className="flex flex-col">
+                      <button
+                        onClick={() => navigateToCategory(cat.name)}
                         style={{
-                          width: "40px",
-                          height: "40px",
-                          borderRadius: "50%",
-                          background: "#ffffff",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          margin: "0 auto 8px",
+                          padding: "14px 10px",
+                          borderRadius: "14px",
+                          border: isCategoryActive(cat.name) ? `1.5px solid ${dark}` : "1.5px solid transparent",
+                          background: bg,
+                          cursor: "pointer",
+                          fontSize: "13px",
+                          fontWeight: 700,
+                          color: dark,
+                          textAlign: "center",
+                          transition: "transform 0.15s",
                         }}
+                        onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; }}
+                        onMouseLeave={e => { e.currentTarget.style.transform = "none"; }}
                       >
-                        <IconComponent size={20} color={dark} strokeWidth={2} />
-                      </span>
-                      {cat.name}
-                    </button>
+                        <span
+                          style={{
+                            width: "40px",
+                            height: "40px",
+                            borderRadius: "50%",
+                            background: "#ffffff",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            margin: "0 auto 8px",
+                          }}
+                        >
+                          <IconComponent size={20} color={dark} strokeWidth={2} />
+                        </span>
+                        {cat.name}
+                        {hasSub && (
+                          <ChevronDown 
+                            size={14} 
+                            style={{ display: "inline-block", marginLeft: "4px" }}
+                          />
+                        )}
+                      </button>
+                      {hasSub && (
+                        <div style={{ paddingLeft: "52px", paddingRight: "16px", marginTop: "8px", marginBottom: "16px" }}>
+                          {subs.map((s) => (
+                            <div
+                              key={s}
+                              style={{ padding: "8px 0", fontSize: "13px", color: "#4b5563", cursor: "pointer", borderLeft: "2px solid #f3f4f6", paddingLeft: "12px" }}
+                              onClick={() => {
+                                navigateToCategory(cat.name, s);
+                                setShowAllModal(false);
+                              }}
+                            >
+                              {s}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   );
                 })}
               </div>
