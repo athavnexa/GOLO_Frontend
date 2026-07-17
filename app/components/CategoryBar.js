@@ -307,7 +307,7 @@ function CategoryBarContent({ variant = "choja", preferredCategories = [] }) {
   };
 
   const isCategoryActive = (catName) =>
-    variant === "golocal" ? activeGolocalCategory === catName : activeCat === catName;
+    variant === "golocal" ? (golocalActiveCategory || activeGolocalCategoryFromUrl) === catName : activeCat === catName;
 
   const shellPaddingY = isMobile ? "4px" : "9px";
   const iconLabelGap = isMobile ? "3px" : "5px";
