@@ -161,6 +161,19 @@ export default function ProductDetails({ params }) {
 	}, [adId]);
 
 	useEffect(() => {
+		let interval;
+		const imgCount = Array.isArray(ad?.images) ? ad.images.length : 0;
+		if (imgCount > 1) {
+			interval = setInterval(() => {
+				setSelectedImage((prev) => (prev + 1) % imgCount);
+			}, 3000);
+		}
+		return () => {
+			if (interval) clearInterval(interval);
+		};
+	}, [ad?.images]);
+
+	useEffect(() => {
 		async function fetchWishlistCount() {
 			const wishlistAdId = ad?.adId || adId;
 			if (!wishlistAdId) return;
@@ -487,46 +500,85 @@ export default function ProductDetails({ params }) {
 									</div>
 								</div>
 							) : (
-								<div className="flex gap-6">
-									<div className="flex flex-col gap-4">
-										{images.map((img, index) => (
-											<div
-												key={index}
-												onClick={() => setSelectedImage(index)}
-												className={`w-20 h-20 rounded-xl overflow-hidden border-2 cursor-pointer transition
-													${selectedImage === index
-														? "border-[#157A4F]"
-														: "border-gray-200 hover:border-[#157A4F]"
-													}`}
-											>
+								<>
+									{/* Desktop Image Gallery */}
+									<div className="hidden md:flex gap-6">
+										<div className="flex flex-col gap-4">
+											{images.map((img, index) => (
+												<div
+													key={index}
+													onClick={() => setSelectedImage(index)}
+													className={`w-20 h-20 rounded-xl overflow-hidden border-2 cursor-pointer transition
+														${selectedImage === index
+															? "border-[#157A4F]"
+															: "border-gray-200 hover:border-[#157A4F]"
+														}`}
+												>
+													<Image
+														src={img}
+														width={100}
+														height={100}
+														alt={`thumbnail-${index}`}
+														className="object-cover w-full h-full"
+														unoptimized={isExternalImage}
+													/>
+												</div>
+											))}
+										</div>
+
+										<div className="flex-1 bg-white p-6 rounded-2xl shadow-sm relative border border-gray-200">
+											<div className="relative h-[480px]">
 												<Image
-													src={img}
-													width={100}
-													height={100}
-													alt={`thumbnail-${index}`}
-													className="object-cover w-full h-full"
+													src={images[selectedImage]}
+													width={900}
+													height={600}
+													alt={ad?.title || "Product"}
+													className="rounded-xl w-full h-full object-cover transition-all duration-300"
 													unoptimized={isExternalImage}
 												/>
 											</div>
-										))}
+											<div className="absolute bottom-6 right-6 bg-[#157A4F] text-white text-xs px-3 py-1 rounded-full">
+												{selectedImage + 1} / {images.length} Photos
+											</div>
+										</div>
 									</div>
 
- 								<div className="flex-1 bg-white p-6 rounded-2xl shadow-sm relative border border-gray-200">
- 									<div className="relative h-[320px] sm:h-[400px] md:h-[480px]">
- 										<Image
- 											src={images[selectedImage]}
- 											width={900}
- 											height={600}
- 											alt={ad?.title || "Product"}
- 											className="rounded-xl w-full h-full object-cover transition-all duration-300"
- 											unoptimized={isExternalImage}
- 										/>
- 									</div>
- 									<div className="absolute bottom-6 right-6 bg-[#157A4F] text-white text-xs px-3 py-1 rounded-full">
- 										{selectedImage + 1} / {images.length} Photos
- 									</div>
- 								</div>
-								</div>
+									{/* Mobile Image Gallery */}
+									<div className="flex md:hidden relative w-full aspect-square bg-white rounded-xl overflow-hidden border border-gray-200 shadow-sm max-w-[100%] mx-auto">
+										<Image
+											src={images[selectedImage]}
+											fill
+											alt={ad?.title || "Product"}
+											className="object-cover transition-all duration-300"
+											unoptimized={isExternalImage}
+										/>
+										{images.length > 1 && (
+											<>
+												<button
+													onClick={(e) => {
+														e.stopPropagation();
+														setSelectedImage((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+													}}
+													className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 p-2 rounded-full shadow-md text-gray-800"
+												>
+													<svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7"/></svg>
+												</button>
+												<button
+													onClick={(e) => {
+														e.stopPropagation();
+														setSelectedImage((prev) => (prev + 1) % images.length);
+													}}
+													className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 p-2 rounded-full shadow-md text-gray-800"
+												>
+													<svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/></svg>
+												</button>
+											</>
+										)}
+										<div className="absolute bottom-4 right-4 bg-[#157A4F]/90 text-white text-[10px] px-2.5 py-1 rounded-full z-10">
+											{selectedImage + 1} / {images.length}
+										</div>
+									</div>
+								</>
 							)}
 
 							{!isTextOnlyAd && (
@@ -566,8 +618,8 @@ export default function ProductDetails({ params }) {
 								</div>
 							</div>
 
-							<div className="flex items-center gap-6 text-sm text-gray-500 mt-3">
-								<span>
+							<div className="grid grid-cols-[auto_1fr_auto] items-center gap-2 md:flex md:gap-6 text-[11px] md:text-sm text-gray-500 mt-3 w-full max-w-full">
+								<span className="whitespace-nowrap">
 									Posted{" "}
 									{ad?.createdAt
 										? new Date(ad.createdAt).toLocaleDateString("en-US", {
@@ -577,17 +629,15 @@ export default function ProductDetails({ params }) {
 										})
 										: "recently"}
 								</span>
-								<span className="flex items-center gap-1">
-									<MapPin size={14} />
-									{ad?.location || "Location not specified"}
-								</span>
-								<span className="flex items-center gap-1">
-									<Star size={14} className="text-[#F5B849] fill-[#F5B849]" />
-									{(ad?.viewHistory?.length ?? ad?.views ?? 0)} views
+								<span className="flex items-center gap-1 min-w-0">
+									<MapPin size={12} className="shrink-0 md:w-3.5 md:h-3.5" />
+									<span className="truncate md:whitespace-normal md:overflow-visible">
+										{ad?.location || "Location not specified"}
+									</span>
 								</span>
 								{wishlistCount !== null && (
-									<span className="flex items-center gap-1 text-rose-500">
-										<Heart size={14} className="fill-rose-400 text-rose-400" />
+									<span className="flex items-center gap-1 text-rose-500 whitespace-nowrap justify-self-end">
+										<Heart size={12} className="fill-rose-400 text-rose-400 md:w-3.5 md:h-3.5" />
 										{wishlistCount.toLocaleString()}
 									</span>
 								)}
@@ -634,10 +684,6 @@ export default function ProductDetails({ params }) {
 												{ad?.negotiable ? "Negotiable Price" : "Final Price"}
 											</p>
 										) : <span />}
-										<div className="flex items-center gap-1 text-sm text-gray-600">
-											<Star size={14} className="text-[#F5B849] fill-[#F5B849]" />
-											{ad?.viewHistory?.length ?? ad?.views ?? 0}
-										</div>
 									</div>
 
 									{resolvedDisplayPrice !== null && (

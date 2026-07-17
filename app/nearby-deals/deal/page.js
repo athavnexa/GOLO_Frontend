@@ -1310,7 +1310,10 @@ function NearbyDealDetailsContent() {
               <h2 className="text-2xl font-bold text-[#1f2329]">
                 Recommended for you
               </h2>
-              <p className="text-[#4a5fc1] text-sm font-semibold cursor-pointer hover:underline">
+              <p
+                className="text-[#4a5fc1] text-sm font-semibold cursor-pointer hover:underline"
+                onClick={() => router.push('/nearby-deals')}
+              >
                 Browse all deals →
               </p>
             </div>

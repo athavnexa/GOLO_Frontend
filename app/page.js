@@ -238,14 +238,14 @@ function SectionSkeleton({ title }) {
           {Array.from({ length: 4 }).map((_, index) => (
             <article
               key={`${title}-skeleton-${index}`}
-              className="min-w-[280px] max-w-[280px] overflow-hidden rounded-[14px] border border-[#e2e8f0] bg-white shadow-[0_2px_12px_rgba(15,23,42,0.05)]"
+              className="w-[260px] min-w-[260px] max-w-[260px] flex-none overflow-hidden rounded-[14px] border border-[#e2e8f0] bg-white shadow-[0_2px_12px_rgba(15,23,42,0.05)] sm:w-auto sm:min-w-[280px] sm:max-w-[280px]"
             >
-              <div className="h-[190px] w-full animate-pulse bg-[#dbe3ed]" />
-              <div className="flex min-h-[170px] flex-col gap-4 bg-[#ffe1a3] p-4">
-                <div className="h-6 w-4/5 animate-pulse rounded-full bg-[#f4d77f]" />
-                <div className="h-4 w-full animate-pulse rounded-full bg-[#f4d77f]" />
-                <div className="h-4 w-5/6 animate-pulse rounded-full bg-[#f4d77f]" />
-                <div className="mt-auto h-10 w-full animate-pulse rounded-[7px] bg-[#ffd16c]" />
+              <div className="h-[140px] sm:h-[190px] w-full animate-pulse bg-[#dbe3ed]" />
+              <div className="flex min-h-[135px] sm:min-h-[170px] flex-col gap-4 bg-[#ffe1a3] p-3 sm:p-4">
+                <div className="h-5 sm:h-6 w-4/5 animate-pulse rounded-full bg-[#f4d77f]" />
+                <div className="h-3 sm:h-4 w-full animate-pulse rounded-full bg-[#f4d77f]" />
+                <div className="h-3 sm:h-4 w-5/6 animate-pulse rounded-full bg-[#f4d77f]" />
+                <div className="mt-auto h-9 sm:h-10 w-full animate-pulse rounded-[7px] bg-[#ffd16c]" />
               </div>
             </article>
           ))}
@@ -325,9 +325,9 @@ function SectionCarousel({ title, items, onItemClick }) {
             {items.map((item) => (
               <article
                 key={item.id}
-                className="w-full min-w-full max-w-full flex-none snap-start overflow-hidden rounded-[14px] border border-[#e2e8f0] bg-white shadow-[0_2px_12px_rgba(15,23,42,0.05)] sm:w-auto sm:min-w-[280px] sm:max-w-[280px]"
+                className="w-[260px] min-w-[260px] max-w-[260px] flex-none snap-start overflow-hidden rounded-[14px] border border-[#e2e8f0] bg-white shadow-[0_2px_12px_rgba(15,23,42,0.05)] sm:w-auto sm:min-w-[280px] sm:max-w-[280px]"
               >
-                <div className="relative h-[170px] w-full overflow-hidden sm:h-[190px]">
+                <div className="relative h-[140px] sm:h-[190px] w-full overflow-hidden">
                   <Image
                     src={item.image}
                     alt={item.title}
@@ -342,17 +342,17 @@ function SectionCarousel({ title, items, onItemClick }) {
                   )}
                 </div>
 
-                <div className="flex min-h-[145px] flex-col bg-[#ffe1a3] p-4 sm:min-h-[170px]">
-                  <h3 className="line-clamp-2 min-h-[48px] text-[17px] font-semibold leading-6 text-[#30343c] sm:min-h-[56px] sm:text-[18px] sm:leading-7">
+                <div className="flex min-h-[135px] sm:min-h-[170px] flex-col bg-[#ffe1a3] p-3 sm:p-4">
+                  <h3 className="line-clamp-2 min-h-[40px] sm:min-h-[56px] text-[15px] sm:text-[18px] font-semibold leading-5 sm:leading-7 text-[#30343c]">
                     {item.title}
                   </h3>
-                  <p className="mt-2 line-clamp-2 min-h-[40px] text-[12px] leading-5 text-[#7c8492] sm:min-h-[48px]">
+                  <p className="mt-2 line-clamp-2 min-h-[36px] sm:min-h-[48px] text-[11px] sm:text-[12px] leading-4 sm:leading-5 text-[#7c8492]">
                     {item.subtitle}
                   </p>
                   <button
                     type="button"
                     onClick={() => onItemClick(item)}
-                    className={`mt-auto h-10 w-full rounded-[7px] text-[13px] font-semibold text-white transition ${
+                    className={`mt-auto h-9 sm:h-10 w-full rounded-[7px] text-[12px] sm:text-[13px] font-semibold text-white transition ${
                       item.type === "shop"
                         ? "bg-[#2f9d3c] hover:bg-[#278531]"
                         : "bg-[#2f9d3c] hover:bg-[#278531]"
