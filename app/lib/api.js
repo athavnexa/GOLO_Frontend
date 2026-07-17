@@ -760,7 +760,7 @@ export async function getActiveHomepageBanners(limit = 5) {
 }
 
 export async function getHomeSectionConfig() {
-    return apiClient('/home-sections/config', {
+    return apiClient('/homepage-config', {
         cache: 'no-store',
     });
 }
