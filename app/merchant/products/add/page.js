@@ -300,7 +300,7 @@ export default function AddProductPage() {
                       Stock Quantity <span className="text-[#ef4d4d]">*</span>
                     </label>
                     <input
-                      type="number"
+                      type="number" min="0" onKeyDown={(e) => { if (e.key === '-') e.preventDefault(); }}
                       value={stockQuantity}
                       onChange={(e) => setStockQuantity(e.target.value)}
                       placeholder="0"
@@ -315,7 +315,7 @@ export default function AddProductPage() {
                   <p className="text-[11px] text-[#666] mb-3">Set your base prices and promotional offers.</p>
                   <label className="text-[11px] font-semibold text-[#666] block mb-2">Regular Price (₹) *</label>
                   <input
-                    type="number"
+                    type="number" min="0" onKeyDown={(e) => { if (e.key === '-') e.preventDefault(); }}
                     value={regularPrice}
                     onChange={(e) => setRegularPrice(e.target.value)}
                     placeholder="3.00"

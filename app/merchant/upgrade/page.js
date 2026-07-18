@@ -6,70 +6,20 @@ import { useAuth } from "../../context/AuthContext";
 import MerchantNavbar from "../MerchantNavbar";
 import { Crown, Check, Zap, TrendingUp, Headphones } from "lucide-react";
 
-const PLANS = [
-  {
-    id: "basic",
-    name: "GOLO BASIC",
-    price: "₹999",
-    period: "/month",
-    description: "Perfect for small shops getting started",
-    icon: Zap,
-    features: [
-      "Up to 50 active products",
-      "Basic analytics dashboard",
-      "Standard customer support",
-      "1 banner promotion/month",
-      "Basic loyalty points system",
-      "Email notifications",
-      "Mobile app access",
-    ],
-  },
-  {
-    id: "pro",
-    name: "GOLO PRO",
-    price: "₹2,499",
-    period: "/month",
-    description: "For growing businesses that need more",
-    icon: TrendingUp,
-    popular: true,
-    features: [
-      "Up to 500 active products",
-      "Advanced analytics & insights",
-      "Priority customer support",
-      "5 banner promotions/month",
-      "Advanced loyalty program",
-      "Multi-location support",
-      "Custom promotions & deals",
-      "Email + chat support",
-      "API access (basic)",
-    ],
-    highlightBorder: "border-[#efb02e]",
-    highlightShadow: "hover:shadow-[0_0_0_2px_rgba(239,176,46,0.25)]",
-  },
-  {
-    id: "premium",
-    name: "GOLO PREMIUM",
-    price: "₹4,999",
-    period: "/month",
-    description: "Maximum power for enterprise",
-    icon: Crown,
-    features: [
-      "Unlimited active products",
-      "Real-time advanced analytics",
-      "24/7 dedicated support",
-      "Unlimited banner promotions",
-      "Enterprise loyalty program",
-      "Unlimited locations",
-      "Full API access & integrations",
-      "Custom branding & reports",
-      "Fraud protection suite",
-    ],
-  },
-];
+import { getSubscriptionPlans } from "../../lib/api";
+
+const getIconForPlan = (planName) => {
+  const name = planName.toLowerCase();
+  if (name.includes('premium') || name.includes('enterprise')) return Crown;
+  if (name.includes('pro')) return TrendingUp;
+  return Zap;
+};
 
 export default function MerchantUpgradePage() {
   const router = useRouter();
   const { user, loading } = useAuth();
+  const [plans, setPlans] = useState([]);
+  const [loadingPlans, setLoadingPlans] = useState(true);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -80,7 +30,14 @@ export default function MerchantUpgradePage() {
     }
   }, [loading, user, router]);
 
-  if (loading || !user) return <div className="min-h-screen bg-[#ececec]" />;
+  useEffect(() => {
+    getSubscriptionPlans()
+      .then(res => setPlans(res || []))
+      .catch(console.error)
+      .finally(() => setLoadingPlans(false));
+  }, []);
+
+  if (loading || !user || loadingPlans) return <div className="min-h-screen bg-[#ececec]" />;
   if (user.accountType !== "merchant") return null;
 
   return (
@@ -100,21 +57,20 @@ export default function MerchantUpgradePage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {PLANS.map((plan) => {
-              const IconComponent = plan.icon;
+            {plans.map((plan) => {
+              const IconComponent = getIconForPlan(plan.name);
+              const isPopular = plan.isPopular;
 
               return (
                  <div
                    key={plan.id}
                    className={`relative flex flex-col rounded-[20px] border bg-white p-6 transition-all duration-200 ${
-                     plan.highlightBorder
-                       ? `${plan.highlightBorder} ${plan.highlightShadow}`
-                       : plan.popular
+                     isPopular
                          ? "border-[#157a4f] shadow-[0_0_0_2px_rgba(21,122,79,0.15)] hover:shadow-[0_0_0_2px_rgba(21,122,79,0.25)]"
                          : "border-[#d7dbe2] hover:shadow-lg"
                    }`}
                  >
-                  {plan.popular && (
+                  {isPopular && (
                     <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-[#efb02e] px-4 py-1 text-[11px] font-bold text-white shadow-md">
                       MOST POPULAR
                     </span>
@@ -131,12 +87,12 @@ export default function MerchantUpgradePage() {
                   </div>
 
                   <div className="mb-4">
-                    <span className="text-[32px] font-extrabold text-[#1e1e1e] leading-none">{plan.price}</span>
+                    <span className="text-[32px] font-extrabold text-[#1e1e1e] leading-none">₹{plan.price}</span>
                     <span className="text-[13px] text-[#777]">/month</span>
                   </div>
 
                   <ul className="space-y-2 mb-5 flex-1">
-                    {plan.features.map((feature, idx) => (
+                    {plan.displayFeatures.map((feature, idx) => (
                       <li key={idx} className="flex items-start gap-2.5 text-[13px] text-[#4a5565]">
                         <Check size={16} className="shrink-0 mt-0.5 text-[#157a4f]" />
                         <span>{feature}</span>

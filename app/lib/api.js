@@ -26,6 +26,31 @@ export async function submitUserReport(userId, reason, description) {
         body: JSON.stringify({ reason, description }),
     });
 }
+
+export const getSubscriptionPlans = async () => {
+  try {
+    return apiClient('/subscriptions/plans');
+  } catch (error) {
+    console.error('Failed to get subscription plans:', error);
+    throw error;
+  }
+};
+
+/**
+ * Subscribe a merchant to a specific plan (bypassing payment if testing)
+ */
+export const subscribeToPlan = async (planName, billingCycle) => {
+  try {
+    return apiClient('/subscriptions/subscribe', {
+      method: 'POST',
+      body: JSON.stringify({ planName, billingCycle }),
+    });
+  } catch (error) {
+    console.error('Failed to subscribe to plan:', error);
+    throw error;
+  }
+};
+
 // ============================================================
 // Centralized API Layer — Choja Frontend → ads-microservice
 // ============================================================
@@ -755,7 +780,7 @@ export async function getActiveHomepageBanners(limit = 5, city = "", fullLocatio
 }
 
 export async function getHomeSectionConfig() {
-    return apiClient('/home-sections/config', {
+    return apiClient('/homepage-config', {
         cache: 'no-store',
     });
 }

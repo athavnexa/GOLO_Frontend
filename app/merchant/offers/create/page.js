@@ -12,6 +12,7 @@ import InappropriateImageModal from "../../../components/InappropriateImageModal
    submitOfferPromotionRequest,
    getProfile,
  } from "../../../lib/api";
+import { uploadToCloudinary } from "../../../services/cloudinaryConfig";
 
 const OFFER_CATEGORIES = [
   "Special",
@@ -328,22 +329,8 @@ export default function CreateMerchantOfferPage() {
     setError("");
 
     try {
-      const cloudinaryForm = new FormData();
-      cloudinaryForm.append("file", file);
-      cloudinaryForm.append("upload_preset", "choja_preset");
-      cloudinaryForm.append("cloud_name", "dcm1plq42");
-
-      const res = await fetch("https://api.cloudinary.com/v1_1/dcm1plq42/image/upload", {
-        method: "POST",
-        body: cloudinaryForm,
-      });
-
-      const data = await res.json();
-      if (!res.ok || !data?.secure_url) {
-        throw new Error(data?.error?.message || "Image upload failed.");
-      }
-
-      setFormData((prev) => ({ ...prev, imageUrl: data.secure_url }));
+      const uploadResult = await uploadToCloudinary(file);
+      setFormData((prev) => ({ ...prev, imageUrl: uploadResult.url }));
     } catch (err) {
       setError(err?.message || "Failed to upload image.");
     } finally {
@@ -619,7 +606,7 @@ export default function CreateMerchantOfferPage() {
                   <div>
                     <label className="mb-1 block text-[12px] font-semibold text-[#555]">Points rewarded to user after redemption <span className="text-[#ef4d4d]">*</span></label>
                     <input
-                      type="number"
+                      type="number" min="0" onKeyDown={(e) => { if (e.key === '-') e.preventDefault(); }}
                       min="1"
                       max="50"
                       value={formData.loyaltyPointsPerPurchase}
@@ -712,7 +699,7 @@ export default function CreateMerchantOfferPage() {
                             <div className="mt-2 flex items-center gap-2">
                               <span className="text-[11px] text-[#777]">Offer Price</span>
                               <input
-                                type="number"
+                                type="number" min="0" onKeyDown={(e) => { if (e.key === '-') e.preventDefault(); }}
                                 min="0"
                                 value={item.offerPrice ?? ''}
                                 onChange={(e) => updateSelectedOfferPrice(item.productId, e.target.value)}

@@ -5,8 +5,8 @@
 
 // Load from environment variables (frontend-safe values only)
 const CLOUDINARY_CONFIG = {
-    cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'dcm1plq42',
-    uploadPreset: process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || 'choja_preset',
+    cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+    uploadPreset: process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET,
     apiBaseUrl: 'https://api.cloudinary.com/v1_1',
 };
 
