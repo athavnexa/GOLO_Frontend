@@ -70,6 +70,7 @@ export default function PostAdForm({
   // Education states
   const [educationInstitutionType, setEducationInstitutionType] = useState("");
   const [educationInstitutionName, setEducationInstitutionName] = useState("");
+  const [educationStandardClass, setEducationStandardClass] = useState("");
   const [educationCourseName, setEducationCourseName] = useState("");
   const [educationMode, setEducationMode] = useState("");
   const [educationDemo, setEducationDemo] = useState("");
@@ -596,6 +597,7 @@ export default function PostAdForm({
           categoryData = {
             institutionType: educationInstitutionType,
             institutionName: educationInstitutionName,
+            standardClass: educationStandardClass || undefined,
             courseName: educationCourseName || undefined,
             modeOfEducation: educationMode || undefined,
             demoClassAvailable: educationDemo || undefined,
@@ -1031,6 +1033,7 @@ export default function PostAdForm({
     selectedSub,
     educationInstitutionType,
     educationInstitutionName,
+    educationStandardClass,
     educationCourseName,
     educationMode,
     educationDemo,
@@ -1469,8 +1472,8 @@ export default function PostAdForm({
                     <option value="School">School</option>
                     <option value="College">College</option>
                     <option value="Coaching">Coaching</option>
-                    <option value="Tutorial">Tutorial</option>
                     <option value="Online Course">Online Course</option>
+                    <option value="Other">Other</option>
                   </select>
                 </div>
                 <div>
@@ -1480,6 +1483,15 @@ export default function PostAdForm({
                     className={inputStyle}
                     value={educationInstitutionName}
                     onChange={(e) => setEducationInstitutionName(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-700">Standard / Class</label>
+                  <input
+                    placeholder="e.g. 10th Standard, Class 12"
+                    className={inputStyle}
+                    value={educationStandardClass}
+                    onChange={(e) => setEducationStandardClass(e.target.value)}
                   />
                 </div>
                 <div>
@@ -1596,7 +1608,15 @@ export default function PostAdForm({
             {selectedCategory.name === "Business" && selectedSub === "Promotion" && (
               <div className="grid grid-cols-2 gap-6">
                 <div className="col-span-2"><label className="text-sm font-medium text-gray-700">Business Name</label><input value={businessName} onChange={(e) => setBusinessName(e.target.value)} placeholder="Your Business Name" className={inputStyle} /></div>
-                <div className="col-span-2"><label className="text-sm font-medium text-gray-700">Business Type</label><select value={businessType} onChange={(e) => setBusinessType(e.target.value)} className={inputStyle}><option value="">Select Business Type</option><option value="Retail">Retail</option><option value="SaaS">SaaS</option><option value="Hospitality">Hospitality</option><option value="Other">Other</option></select></div>
+                <div className="col-span-2">
+                  <label className="text-sm font-medium text-gray-700">Business Type</label>
+                  <input
+                    value={businessType}
+                    onChange={(e) => setBusinessType(e.target.value)}
+                    placeholder="Enter Business Type"
+                    className={inputStyle}
+                  />
+                </div>
                 <div className="col-span-2"><label className="text-sm font-medium text-gray-700">Services Offered</label><input value={businessServicesOffered} onChange={(e) => setBusinessServicesOffered(e.target.value)} placeholder="e.g. Web Development, Consulting" className={inputStyle} /></div>
                 <div><label className="text-sm font-medium text-gray-700">GST Number</label><input value={businessGstNumber} onChange={(e) => setBusinessGstNumber(e.target.value)} placeholder="18AABCU9603R1Z0 (optional)" className={inputStyle} /></div>
                 <div><label className="text-sm font-medium text-gray-700">Website URL</label><input value={businessWebsiteUrl} onChange={(e) => setBusinessWebsiteUrl(e.target.value)} placeholder="https://www.example.com (optional)" className={inputStyle} /></div>

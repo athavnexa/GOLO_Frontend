@@ -360,7 +360,7 @@ function CategoryBarContent({ variant = "choja", preferredCategories = [] }) {
             display: "flex",
             alignItems: "flex-start",
             padding: `${shellPaddingY} 24px`,
-            gap: "12px",
+            gap: "8px",
           }}
         >
           {/* Categories — fills available width with equal spacing, scrolls if it overflows */}
@@ -464,9 +464,9 @@ function CategoryBarContent({ variant = "choja", preferredCategories = [] }) {
               background: "transparent",
               border: "none",
               cursor: "pointer",
-              minWidth: isMobile ? "54px" : "72px",
+              width: pillWidth,
               flexShrink: 0,
-              padding: isMobile ? "2px 4px" : "2px 6px",
+              padding: pillPadding,
             }}
           >
             <span
@@ -483,7 +483,25 @@ function CategoryBarContent({ variant = "choja", preferredCategories = [] }) {
             >
               <Grid size={iconGlyphSize} />
             </span>
-            <span style={{ fontSize: isMobile ? "11px" : "12.5px", fontWeight: 700, color: "#1f2933" }}>
+            <span 
+              style={{ 
+                display: "-webkit-box",
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: "vertical",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                wordBreak: "break-word",
+                fontSize: isMobile ? "11px" : "12.5px", 
+                fontWeight: 700, 
+                color: "#1f2933",
+                textAlign: "center",
+                lineHeight: 1.2,
+                borderBottom: "2px solid transparent",
+                paddingBottom: "2px",
+                width: "100%",
+                minHeight: labelMinHeight,
+              }}
+            >
               See All
             </span>
           </button>

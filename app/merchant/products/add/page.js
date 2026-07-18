@@ -10,6 +10,23 @@ import MerchantNavbar from "../../MerchantNavbar";
 import InappropriateImageModal from "../../../components/InappropriateImageModal";
 import ImageLimitModal from "../../../components/ImageLimitModal";
 
+const MERCHANT_CATEGORIES = [
+  "Food & Restaurants",
+  "Home Services",
+  "Beauty & Wellness",
+  "Healthcare & Medical",
+  "Hotels & Accommodation",
+  "Shopping & Retail",
+  "Education & Training",
+  "Real Estate",
+  "Events & Entertainment",
+  "Professional Services",
+  "Automotive Services",
+  "Home Improvement",
+  "Fitness & Sports",
+  "Daily Needs & Utilities",
+  "Local Businesses & Vendors",
+];
 function pickStoreName(user, merchantProfile) {
   return (
     merchantProfile?.storeName ||
@@ -45,7 +62,7 @@ export default function AddProductPage() {
   const { user, loading, logout } = useAuth();
   const fileInputRef = useRef(null);
   const [productName, setProductName] = useState("");
-  const [category, setCategory] = useState("Clothing");
+  const [category, setCategory] = useState("Food & Restaurants");
   const [stockQuantity, setStockQuantity] = useState("");
   const [regularPrice, setRegularPrice] = useState("");
   const [description, setDescription] = useState("");
@@ -269,21 +286,11 @@ export default function AddProductPage() {
                       onChange={(e) => setCategory(e.target.value)}
                       className="w-full h-10 rounded-[8px] border border-[#e2e2e2] bg-white px-3 text-[13px] outline-none focus:border-[#157a4f]"
                     >
-                      <option>Clothing</option>
-                      <option>Electronics</option>
-                      <option>Home & Kitchen</option>
-                      <option>Beauty & Personal Care</option>
-                      <option>Sports & Outdoors</option>
-                      <option>Toys & Games</option>
-                      <option>Books & Media</option>
-                      <option>Jewellery & Accessories</option>
-                      <option>Footwear</option>
-                      <option>Furniture</option>
-                      <option>Health & Wellness</option>
-                      <option>Food & Groceries</option>
-                      <option>Pet Supplies</option>
-                      <option>Garden & Outdoor</option>
-                      <option>Arts & Crafts</option>
+                      {MERCHANT_CATEGORIES.map((cat) => (
+                        <option key={cat} value={cat}>
+                          {cat}
+                        </option>
+                      ))}
                     </select>
                   </div>
 

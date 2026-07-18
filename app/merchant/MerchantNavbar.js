@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { User, Bell, X, CheckCheck, Crown, HelpCircle, LogOut, Settings } from "lucide-react";
+import { User, Bell, X, CheckCheck, Crown, HelpCircle, LogOut, Settings, FileText } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
 import { getNotifications, markNotificationRead, markAllNotificationsRead } from "../lib/api";
@@ -241,6 +241,16 @@ export default function MerchantNavbar({ activeKey = "dashboard" }) {
                 className="flex w-full items-center gap-3 px-4 py-2.5 text-left transition hover:bg-[#f4fbf7] text-[#157a4f]"
               >
                 <Crown size={15} /> Upgrade
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  router.push("/merchant/transactions");
+                  setShowProfileDropdown(false);
+                }}
+                className="flex w-full items-center gap-3 px-4 py-2.5 text-left transition hover:bg-[#f8f8f8] text-[#111]"
+              >
+                <FileText size={15} /> Transactions
               </button>
               <div className="border-t border-[#f0f0f0] mt-1 pt-1">
                 <button

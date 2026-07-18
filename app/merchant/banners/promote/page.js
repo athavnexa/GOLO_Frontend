@@ -11,21 +11,21 @@ import MerchantNavbar from "../../MerchantNavbar";
 import InappropriateImageModal from "../../../components/InappropriateImageModal";
 
 const bannerCategories = [
-  "Fashion",
-  "Electronics",
-  "Groceries",
-  "Home Decor",
-  "Beauty",
-  "Healthcare",
-  "Sports",
-  "Books",
-  "Toys",
-  "Automotive",
-  "Jewelry",
-  "Food & Beverages",
-  "Pet Supplies",
-  "Stationery",
-  "Services",
+  "Food & Restaurants",
+  "Home Services",
+  "Beauty & Wellness",
+  "Healthcare & Medical",
+  "Hotels & Accommodation",
+  "Shopping & Retail",
+  "Education & Training",
+  "Real Estate",
+  "Events & Entertainment",
+  "Professional Services",
+  "Automotive Services",
+  "Home Improvement",
+  "Fitness & Sports",
+  "Daily Needs & Utilities",
+  "Local Businesses & Vendors",
 ];
 
 const RATE_PER_CITY_PER_DAY = 300;

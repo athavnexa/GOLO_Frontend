@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { deleteAd } from "../lib/api";
 import { useState } from "react";
+import { Eye, Edit2, Trash2, Loader2 } from "lucide-react";
 
 /**
  * Template-aware AdCard for My Ads page.
@@ -194,9 +195,10 @@ export default function AdCard({ ad, onDelete, onEdit }) {
             <button style={{
               width: "100%", padding: "8px 0", borderRadius: "10px",
               border: "1.5px solid #157A4F", background: "transparent",
-              color: "#157A4F", fontWeight: 600, fontSize: "13px", cursor: "pointer"
+              color: "#157A4F", fontWeight: 600, fontSize: "13px", cursor: "pointer",
+              display: "flex", alignItems: "center", justifyContent: "center", gap: "4px"
             }}>
-              👁 View
+              <Eye size={14} /> View
             </button>
           </Link>
 
@@ -214,10 +216,11 @@ export default function AdCard({ ad, onDelete, onEdit }) {
               fontSize: "13px",
               cursor: editUsed ? "not-allowed" : "pointer",
               opacity: editUsed ? 0.8 : 1,
+              display: "flex", alignItems: "center", justifyContent: "center", gap: "4px"
             }}
             title={editUsed ? "Edit limit reached (1/1 used)" : "Edit ad (1 edit allowed)"}
           >
-            {editUsed ? "✏️ Used" : "✏️ Edit"}
+            <Edit2 size={14} /> {editUsed ? "Used" : "Edit"}
           </button>
 
           <button
@@ -228,10 +231,11 @@ export default function AdCard({ ad, onDelete, onEdit }) {
               border: "1.5px solid #ef4444", background: "transparent",
               color: "#ef4444", fontWeight: 600, fontSize: "13px",
               cursor: isDeleting ? "not-allowed" : "pointer",
-              opacity: isDeleting ? 0.6 : 1
+              opacity: isDeleting ? 0.6 : 1,
+              display: "flex", alignItems: "center", justifyContent: "center", gap: "4px"
             }}
           >
-            {isDeleting ? "⏳" : "🗑 Delete"}
+            {isDeleting ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />} {isDeleting ? "" : "Delete"}
           </button>
         </div>
       </div>
@@ -255,7 +259,9 @@ export default function AdCard({ ad, onDelete, onEdit }) {
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div style={{ fontSize: "44px", lineHeight: 1 }}>🗑️</div>
+            <div style={{ padding: "16px", borderRadius: "50%", background: "#fee2e2", color: "#ef4444" }}>
+              <Trash2 size={32} />
+            </div>
             <h2 style={{ fontSize: "18px", fontWeight: 700, color: "#111827", margin: 0, textAlign: "center" }}>
               Delete Ad?
             </h2>
