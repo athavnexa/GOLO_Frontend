@@ -21,8 +21,17 @@ export async function generateMetadata(props) {
       };
     }
 
-    const defaultImage = "https://golo.co.in/images/place2.avif"; // Using a sensible fallback
-    const ogImage = product.images?.[0] || product.image || defaultImage;
+    const defaultImage = "https://golo.co.in/images/merchant_shop_storefront.png"; // Must be PNG/JPG for WhatsApp
+    let ogImage = product.images?.[0] || product.image || defaultImage;
+
+    // WhatsApp rejects .webp and .avif. If it's Cloudinary with f_auto, replace it.
+    if (typeof ogImage === "string") {
+      ogImage = ogImage.replace("f_auto", "f_jpg").replace(/\.webp$|\.avif$/, ".jpg");
+      if (ogImage.startsWith("/")) {
+        ogImage = `https://golo.co.in${ogImage}`;
+      }
+    }
+
     const desc = product.description || `Check out ${product.name} on GOLO!`;
 
     return {
@@ -31,7 +40,7 @@ export async function generateMetadata(props) {
       openGraph: {
         title: `${product.name} | GOLO`,
         description: desc,
-        images: [ogImage],
+        images: [{ url: ogImage }],
         type: "website",
       },
       twitter: {
