@@ -4,7 +4,8 @@ import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "../../../context/AuthContext";
 import MerchantNavbar from "../../MerchantNavbar";
-import { ArrowLeft, CheckCircle2, TrendingUp, Shield, Crown, Zap, Lock, Info } from "lucide-react";
+import { ArrowLeft, CheckCircle2, TrendingUp, Shield, Crown, Zap, Lock, Info, Loader2 } from "lucide-react";
+import { subscribeToPlan } from "../../../lib/api";
 
 const PLANS = {
   basic: {
@@ -74,6 +75,28 @@ function CheckoutPageContent() {
   const { user, loading } = useAuth();
   const planId = searchParams.get("plan") || "basic";
   const [selectedMonths, setSelectedMonths] = useState(1);
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const handlePayment = async () => {
+    setIsProcessing(true);
+    try {
+      const backendPlanNameMap = {
+        basic: "Starter",
+        pro: "Pro",
+        premium: "Premium"
+      };
+      const actualPlanName = backendPlanNameMap[planId] || "Starter";
+      const billingCycle = selectedMonths >= 12 ? "yearly" : "monthly";
+
+      await subscribeToPlan(actualPlanName, billingCycle);
+      router.push("/merchant/dashboard?upgrade=success");
+    } catch (error) {
+      console.error("Subscription failed:", error);
+      alert("Payment failed. Please try again.");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   const plan = PLANS[planId] || PLANS.basic;
   const IconComponent = plan.icon;
@@ -258,10 +281,12 @@ function CheckoutPageContent() {
                 </div>
 
                 <button
-                  onClick={() => alert(`Proceeding to payment for ${plan.name} — ${selectedMonths} months at ₹${total.toLocaleString()}`)}
-                  className="w-full h-[52px] rounded-lg bg-[#157a4f] text-white font-bold text-[15px] hover:bg-[#12653e] transition-colors flex items-center justify-center gap-2 shadow-sm"
+                  onClick={handlePayment}
+                  disabled={isProcessing}
+                  className={`w-full h-[52px] rounded-lg text-white font-bold text-[15px] transition-colors flex items-center justify-center gap-2 shadow-sm ${isProcessing ? 'bg-[#157a4f]/70 cursor-not-allowed' : 'bg-[#157a4f] hover:bg-[#12653e]'}`}
                 >
-                  <Lock size={18} /> Proceed to Payment
+                  {isProcessing ? <Loader2 size={18} className="animate-spin" /> : <Lock size={18} />}
+                  {isProcessing ? "Processing..." : "Proceed to Payment"}
                 </button>
               </div>
             </div>

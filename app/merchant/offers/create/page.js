@@ -6,6 +6,7 @@ import { ChevronLeft, Search, Upload, X, Circle, CircleCheck } from "lucide-reac
 import { useAuth } from "../../../context/AuthContext";
 import MerchantNavbar from "../../MerchantNavbar";
 import InappropriateImageModal from "../../../components/InappropriateImageModal";
+import PlanUpgradeModal from "../../../../components/PlanUpgradeModal";
  import {
    getMerchantStoreLocation,
    getMerchantProducts,
@@ -104,6 +105,7 @@ export default function CreateMerchantOfferPage() {
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [upgradeModalInfo, setUpgradeModalInfo] = useState({ isOpen: false, message: "" });
 
   const [formData, setFormData] = useState(EMPTY_FORM);
 
@@ -437,6 +439,8 @@ export default function CreateMerchantOfferPage() {
        const errorMsg = err?.data?.message || err?.message || "";
        if (typeof errorMsg === 'string' && errorMsg.includes("inappropriate content")) {
          setIsModalOpen(true);
+       } else if (typeof errorMsg === 'string' && errorMsg.includes("Please upgrade")) {
+         setUpgradeModalInfo({ isOpen: true, message: errorMsg });
        } else {
          setError(errorMsg || "Failed to create offer.");
        }
@@ -992,6 +996,12 @@ export default function CreateMerchantOfferPage() {
       ) : null}
 
       <InappropriateImageModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      
+      <PlanUpgradeModal 
+        isOpen={upgradeModalInfo.isOpen} 
+        onClose={() => setUpgradeModalInfo({ isOpen: false, message: "" })} 
+        message={upgradeModalInfo.message} 
+      />
     </div>
   );
 }

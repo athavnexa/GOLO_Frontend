@@ -9,6 +9,7 @@ import { submitBannerPromotionRequest } from "../../../lib/api";
 import { searchLocations } from "../../../services/leafletService";
 import MerchantNavbar from "../../MerchantNavbar";
 import InappropriateImageModal from "../../../components/InappropriateImageModal";
+import PlanUpgradeModal from "../../../../components/PlanUpgradeModal";
 
 const bannerCategories = [
   "Food & Restaurants",
@@ -84,6 +85,7 @@ export default function PromoteBannerPage() {
   const [submitMessage, setSubmitMessage] = useState("");
   const [submitError, setSubmitError] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [upgradeModalInfo, setUpgradeModalInfo] = useState({ isOpen: false, message: "" });
 
   const selectedDays = useMemo(() => selectedDates.length, [selectedDates]);
   const subtotal = selectedDays * (RATE_PER_CITY_PER_DAY * targetCities.length);
@@ -215,6 +217,8 @@ export default function PromoteBannerPage() {
       const errorMsg = error?.data?.message || error.message || "";
       if (typeof errorMsg === 'string' && errorMsg.includes("inappropriate content")) {
         setIsModalOpen(true);
+      } else if (typeof errorMsg === 'string' && errorMsg.includes("Please upgrade")) {
+        setUpgradeModalInfo({ isOpen: true, message: errorMsg });
       } else {
         setSubmitError(errorMsg || "Failed to submit banner request.");
       }
@@ -578,6 +582,12 @@ export default function PromoteBannerPage() {
       <InappropriateImageModal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
+      />
+      
+      <PlanUpgradeModal 
+        isOpen={upgradeModalInfo.isOpen} 
+        onClose={() => setUpgradeModalInfo({ isOpen: false, message: "" })} 
+        message={upgradeModalInfo.message} 
       />
 
       <footer className="bg-[#e8ad2f] border-t border-[#d49b22] text-[#1b1b1b] px-4 py-4 lg:bg-[#f0b330] lg:px-8 lg:py-7 mt-4 lg:mt-6">

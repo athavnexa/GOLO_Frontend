@@ -9,6 +9,7 @@ import { createMerchantProduct, getMerchantProfile } from "../../../lib/api";
 import MerchantNavbar from "../../MerchantNavbar";
 import InappropriateImageModal from "../../../components/InappropriateImageModal";
 import ImageLimitModal from "../../../components/ImageLimitModal";
+import PlanUpgradeModal from "../../../../components/PlanUpgradeModal";
 
 const MERCHANT_CATEGORIES = [
   "Food & Restaurants",
@@ -73,6 +74,7 @@ export default function AddProductPage() {
   const [merchantProfileError, setMerchantProfileError] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLimitModalOpen, setIsLimitModalOpen] = useState(false);
+  const [upgradeModalInfo, setUpgradeModalInfo] = useState({ isOpen: false, message: "" });
 
   const [productVideo, setProductVideo] = useState(null);
   const [videoError, setVideoError] = useState("");
@@ -181,6 +183,8 @@ export default function AddProductPage() {
       const errorMsg = error?.data?.message || error.message || "";
       if (typeof errorMsg === 'string' && errorMsg.includes("inappropriate content")) {
         setIsModalOpen(true);
+      } else if (typeof errorMsg === 'string' && errorMsg.includes("Please upgrade")) {
+        setUpgradeModalInfo({ isOpen: true, message: errorMsg });
       } else {
         setSubmitError(errorMsg || "Failed to publish product");
       }
@@ -466,6 +470,11 @@ export default function AddProductPage() {
 
       <InappropriateImageModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
       <ImageLimitModal isOpen={isLimitModalOpen} onClose={() => setIsLimitModalOpen(false)} />
+      <PlanUpgradeModal 
+        isOpen={upgradeModalInfo.isOpen} 
+        onClose={() => setUpgradeModalInfo({ isOpen: false, message: "" })} 
+        message={upgradeModalInfo.message} 
+      />
 
       {/* Footer */}
       <footer className="mt-4 bg-[#e8ad2f] border-t border-[#d49b22] px-4 py-4 text-[#5a4514] lg:mt-12 lg:bg-[#f0aa19] lg:px-10 lg:py-8">
