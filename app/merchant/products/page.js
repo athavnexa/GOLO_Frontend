@@ -27,6 +27,7 @@ export default function MerchantProductsPage() {
   const [isFetching, setIsFetching] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [fetchError, setFetchError] = useState("");
+  const [deleteConfirmProduct, setDeleteConfirmProduct] = useState(null);
 
   const escapeCsvField = (value) => {
     const str = String(value ?? "");
@@ -151,17 +152,28 @@ export default function MerchantProductsPage() {
     fetchProducts();
   }, [user, page, search]);
 
-  const handleDeleteProduct = async (productId) => {
+  const requestDeleteProduct = (product) => {
+    setDeleteConfirmProduct(product);
+  };
+
+  const confirmDeleteProduct = async () => {
+    if (!deleteConfirmProduct) return;
     try {
-      await deleteMerchantProduct(productId);
-      setProducts((prev) => prev.filter((item) => item.id !== productId));
+      await deleteMerchantProduct(deleteConfirmProduct.id);
+      setProducts((prev) => prev.filter((item) => item.id !== deleteConfirmProduct.id));
       setStats((prev) => ({
         ...prev,
         totalProducts: Math.max(0, (prev.totalProducts || 0) - 1),
       }));
     } catch (error) {
       window.alert(error?.message || "Failed to delete product");
+    } finally {
+      setDeleteConfirmProduct(null);
     }
+  };
+
+  const cancelDeleteProduct = () => {
+    setDeleteConfirmProduct(null);
   };
 
   const inventoryValueLabel = useMemo(() => {
@@ -315,7 +327,7 @@ export default function MerchantProductsPage() {
                           <Eye size={12} /> View
                         </button>
                         <span className="mx-2 text-[#cfcfcf]">/</span>
-                        <button onClick={() => handleDeleteProduct(item.id)} className="text-[#ef4d4d] font-semibold">
+                        <button onClick={() => requestDeleteProduct(item)} className="text-[#ef4d4d] font-semibold">
                           <span className="inline-flex items-center gap-1 rounded-[6px] border border-[#f0c6c6] bg-[#fff0f0] px-3 py-1 text-[#d63f3f] font-semibold">
                             <Trash2 size={12} /> Delete
                           </span>
@@ -354,6 +366,31 @@ export default function MerchantProductsPage() {
               </div>
             </div>
           </section>
+
+          {deleteConfirmProduct && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+              <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden animate-in zoom-in-95 duration-200 p-6">
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">Delete Product</h3>
+                <p className="text-gray-600 mb-6 text-sm leading-relaxed">
+                  Delete product "{deleteConfirmProduct.name}"?
+                </p>
+                <div className="flex justify-end gap-3">
+                  <button
+                    onClick={cancelDeleteProduct}
+                    className="px-4 py-2 rounded-lg border border-[#e0e0e0] bg-white text-[#5e5e5e] hover:bg-gray-50 transition-colors font-semibold text-[11px]"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={confirmDeleteProduct}
+                    className="px-4 py-2 rounded-lg bg-[#ef4d4d] text-white hover:bg-red-600 transition-colors font-semibold text-[11px]"
+                  >
+                    Ok
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </main>
 

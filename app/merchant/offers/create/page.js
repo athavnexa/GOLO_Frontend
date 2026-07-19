@@ -1,4 +1,5 @@
 "use client";
+"use client";
 
 import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
@@ -7,6 +8,7 @@ import { useAuth } from "../../../context/AuthContext";
 import MerchantNavbar from "../../MerchantNavbar";
 import InappropriateImageModal from "../../../components/InappropriateImageModal";
 import PlanUpgradeModal from "../../../../components/PlanUpgradeModal";
+import ModerationWarningModal from "../../../../components/ModerationWarningModal";
  import {
    getMerchantStoreLocation,
    getMerchantProducts,
@@ -106,6 +108,7 @@ export default function CreateMerchantOfferPage() {
   const [successMessage, setSuccessMessage] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [upgradeModalInfo, setUpgradeModalInfo] = useState({ isOpen: false, message: "" });
+  const [moderationWarningInfo, setModerationWarningInfo] = useState({ isOpen: false, message: "", restrictedUntil: null });
 
   const [formData, setFormData] = useState(EMPTY_FORM);
 
@@ -437,7 +440,9 @@ export default function CreateMerchantOfferPage() {
        router.push("/merchant/offers");
      } catch (err) {
        const errorMsg = err?.data?.message || err?.message || "";
-       if (typeof errorMsg === 'string' && errorMsg.includes("inappropriate content")) {
+       if (err?.data?.code === 'CONTENT_UPLOAD_RESTRICTED' || err?.data?.code === 'FINAL_MODERATION_WARNING' || err?.data?.code === 'MODERATION_WARNING' || (typeof errorMsg === 'string' && errorMsg.includes("temporarily restricted"))) {
+         setModerationWarningInfo({ isOpen: true, message: errorMsg, restrictedUntil: err?.data?.restrictedUntil });
+       } else if (typeof errorMsg === 'string' && errorMsg.includes("inappropriate content")) {
          setIsModalOpen(true);
        } else if (typeof errorMsg === 'string' && errorMsg.includes("Please upgrade")) {
          setUpgradeModalInfo({ isOpen: true, message: errorMsg });
@@ -1001,6 +1006,12 @@ export default function CreateMerchantOfferPage() {
         isOpen={upgradeModalInfo.isOpen} 
         onClose={() => setUpgradeModalInfo({ isOpen: false, message: "" })} 
         message={upgradeModalInfo.message} 
+      />
+      <ModerationWarningModal
+        isOpen={moderationWarningInfo.isOpen}
+        onClose={() => setModerationWarningInfo({ isOpen: false, message: "", restrictedUntil: null })}
+        message={moderationWarningInfo.message}
+        restrictedUntil={moderationWarningInfo.restrictedUntil}
       />
     </div>
   );

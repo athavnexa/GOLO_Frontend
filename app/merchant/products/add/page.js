@@ -10,6 +10,7 @@ import MerchantNavbar from "../../MerchantNavbar";
 import InappropriateImageModal from "../../../components/InappropriateImageModal";
 import ImageLimitModal from "../../../components/ImageLimitModal";
 import PlanUpgradeModal from "../../../../components/PlanUpgradeModal";
+import ModerationWarningModal from "../../../../components/ModerationWarningModal";
 
 const MERCHANT_CATEGORIES = [
   "Food & Restaurants",
@@ -75,6 +76,7 @@ export default function AddProductPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLimitModalOpen, setIsLimitModalOpen] = useState(false);
   const [upgradeModalInfo, setUpgradeModalInfo] = useState({ isOpen: false, message: "" });
+  const [moderationWarningInfo, setModerationWarningInfo] = useState({ isOpen: false, message: "", restrictedUntil: null });
 
   const [productVideo, setProductVideo] = useState(null);
   const [videoError, setVideoError] = useState("");
@@ -181,7 +183,9 @@ export default function AddProductPage() {
       router.push("/merchant/products");
     } catch (error) {
       const errorMsg = error?.data?.message || error.message || "";
-      if (typeof errorMsg === 'string' && errorMsg.includes("inappropriate content")) {
+      if (error?.data?.code === 'CONTENT_UPLOAD_RESTRICTED' || error?.data?.code === 'FINAL_MODERATION_WARNING' || error?.data?.code === 'MODERATION_WARNING' || (typeof errorMsg === 'string' && errorMsg.includes("temporarily restricted"))) {
+        setModerationWarningInfo({ isOpen: true, message: errorMsg, restrictedUntil: error?.data?.restrictedUntil });
+      } else if (typeof errorMsg === 'string' && errorMsg.includes("inappropriate content")) {
         setIsModalOpen(true);
       } else if (typeof errorMsg === 'string' && errorMsg.includes("Please upgrade")) {
         setUpgradeModalInfo({ isOpen: true, message: errorMsg });
@@ -474,6 +478,12 @@ export default function AddProductPage() {
         isOpen={upgradeModalInfo.isOpen} 
         onClose={() => setUpgradeModalInfo({ isOpen: false, message: "" })} 
         message={upgradeModalInfo.message} 
+      />
+      <ModerationWarningModal
+        isOpen={moderationWarningInfo.isOpen}
+        onClose={() => setModerationWarningInfo({ isOpen: false, message: "", restrictedUntil: null })}
+        message={moderationWarningInfo.message}
+        restrictedUntil={moderationWarningInfo.restrictedUntil}
       />
 
       {/* Footer */}

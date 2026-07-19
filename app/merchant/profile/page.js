@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import MerchantNavbar from "../MerchantNavbar";
+import MerchantPlanBanner from "../MerchantPlanBanner";
 import { useRoleProtection, LoadingScreen } from "../../components/RoleBasedRedirect";
 import LocationPicker from "../../components/LocationPicker";
 import StoreLocationMap from "../../components/StoreLocationMap";
@@ -127,6 +128,7 @@ function MerchantProfileContent({ user, logout, router, initialTab = "Profile Se
   const [isLoading, setIsLoading] = useState(true);
   const [saveMessage, setSaveMessage] = useState("");
   const [isLoadingLocation, setIsLoadingLocation] = useState(true);
+  const [merchantProfile, setMerchantProfile] = useState(null);
   const [formData, setFormData] = useState({
     username: "",
     phone: "",
@@ -219,6 +221,7 @@ function MerchantProfileContent({ user, logout, router, initialTab = "Profile Se
         const merchantData = profileResponse?.data;
 
         if (merchantData) {
+          setMerchantProfile(merchantData);
           const nextFormData = {
             username: user?.name || "",
             phone: user?.profile?.phone || "",
@@ -461,6 +464,7 @@ function MerchantProfileContent({ user, logout, router, initialTab = "Profile Se
 
       <main className="w-full px-8 py-6 lg:px-10">
         <div className="mx-auto w-full max-w-[1400px]">
+          {merchantProfile && <MerchantPlanBanner merchantProfile={merchantProfile} />}
 
           {activeTab === "Loyalty Rewards" ? (
             <div className="mx-auto max-w-[1260px] space-y-5">

@@ -8,6 +8,7 @@ import Link from "next/link";
 import { Download, Plus, ChevronRight, ShoppingBag, Box, Star, User } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import MerchantNavbar from "../MerchantNavbar";
+import MerchantPlanBanner from "../MerchantPlanBanner";
 import { getMerchantDashboardSummary, getMerchantProfile, getMerchantLoyaltyLeaderboard, getMerchantRealtimeAnalytics } from "../../lib/api";
 
 const orders = [
@@ -220,6 +221,8 @@ function MerchantDashboardContent() {
 
       <main className="w-full px-4 py-4 lg:px-10 lg:py-6">
         <div className="mx-auto w-full max-w-[1400px] space-y-4 lg:space-y-5">
+          <MerchantPlanBanner merchantProfile={merchantProfile} />
+          
           <section className="rounded-[12px] border border-[#d5d5d5] bg-white px-4 py-4 lg:px-6 lg:py-5">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="flex items-start gap-4">

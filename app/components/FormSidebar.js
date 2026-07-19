@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
 import { createAd } from "../lib/api";
 import InappropriateImageModal from "./InappropriateImageModal";
+import ModerationWarningModal from "../../components/ModerationWarningModal";
 
 export default function FormSidebar({
   adTitleState,
@@ -29,6 +30,7 @@ export default function FormSidebar({
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [isFeatured, setIsFeatured] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [moderationWarningInfo, setModerationWarningInfo] = useState({ isOpen: false, message: "", restrictedUntil: null });
   const router = useRouter();
   const { user, isAuthenticated, logout } = useAuth();
 
@@ -239,7 +241,9 @@ export default function FormSidebar({
         return;
       }
       const errorMsg = error.data?.message || error.message;
-      if (typeof errorMsg === 'string' && errorMsg.includes("inappropriate content")) {
+      if (error?.data?.code === 'CONTENT_UPLOAD_RESTRICTED' || error?.data?.code === 'FINAL_MODERATION_WARNING' || error?.data?.code === 'MODERATION_WARNING' || (typeof errorMsg === 'string' && errorMsg.includes("temporarily restricted"))) {
+        setModerationWarningInfo({ isOpen: true, message: errorMsg, restrictedUntil: error?.data?.restrictedUntil });
+      } else if (typeof errorMsg === 'string' && errorMsg.includes("inappropriate content")) {
         setIsModalOpen(true);
       } else if (Array.isArray(errorMsg)) {
         setSubmitError(errorMsg.join(", "));
@@ -408,6 +412,12 @@ export default function FormSidebar({
         <InappropriateImageModal 
           isOpen={isModalOpen} 
           onClose={() => setIsModalOpen(false)} 
+        />
+        <ModerationWarningModal
+          isOpen={moderationWarningInfo.isOpen}
+          onClose={() => setModerationWarningInfo({ isOpen: false, message: "", restrictedUntil: null })}
+          message={moderationWarningInfo.message}
+          restrictedUntil={moderationWarningInfo.restrictedUntil}
         />
       </div>
     </div>

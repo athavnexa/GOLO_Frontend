@@ -143,6 +143,7 @@ export default function MerchantOffersPage() {
   const [formError, setFormError] = useState("");
   const [imageUploading, setImageUploading] = useState(false);
   const [imageUploadError, setImageUploadError] = useState("");
+  const [deleteConfirmOffer, setDeleteConfirmOffer] = useState(null);
   const [formData, setFormData] = useState({
     title: "",
     category: "Special",
@@ -392,14 +393,24 @@ export default function MerchantOffersPage() {
     }
   };
 
-  const onDeleteOffer = async (offer) => {
-    if (!window.confirm(`Delete offer \"${offer.title}\"?`)) return;
+  const requestDeleteOffer = (offer) => {
+    setDeleteConfirmOffer(offer);
+  };
+
+  const confirmDeleteOffer = async () => {
+    if (!deleteConfirmOffer) return;
     try {
-      await deleteMyOfferPromotion(getOfferActionId(offer));
+      await deleteMyOfferPromotion(getOfferActionId(deleteConfirmOffer));
       await loadOffers();
     } catch (err) {
       setError(err?.message || "Failed to delete offer");
+    } finally {
+      setDeleteConfirmOffer(null);
     }
+  };
+
+  const cancelDeleteOffer = () => {
+    setDeleteConfirmOffer(null);
   };
 
   if (loading || !user) {
@@ -753,7 +764,7 @@ export default function MerchantOffersPage() {
                       <td className="px-4 py-3 text-[11px]">
                         <button onClick={() => router.push(`/merchant/offers/details?id=${getOfferActionId(row)}`)} className="text-[#1f6fb3] font-semibold">View</button>
                         <span className="mx-2 text-[#cfcfcf]">/</span>
-                        <button onClick={() => onDeleteOffer(row)} className="text-[#ef4d4d] font-semibold">Delete</button>
+                        <button onClick={() => requestDeleteOffer(row)} className="text-[#ef4d4d] font-semibold">Delete</button>
                       </td>
                     </tr>
                   ))}
@@ -782,6 +793,31 @@ export default function MerchantOffersPage() {
                 </div>
               </div>
             </div>
+
+            {deleteConfirmOffer && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+                <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden animate-in zoom-in-95 duration-200 p-6">
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">Delete Offer</h3>
+                  <p className="text-gray-600 mb-6 text-sm leading-relaxed">
+                    Delete offer "{deleteConfirmOffer.title}"?
+                  </p>
+                  <div className="flex justify-end gap-3">
+                    <button
+                      onClick={cancelDeleteOffer}
+                      className="px-4 py-2 rounded-lg border border-[#e0e0e0] bg-white text-[#5e5e5e] hover:bg-gray-50 transition-colors font-semibold text-[11px]"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={confirmDeleteOffer}
+                      className="px-4 py-2 rounded-lg bg-[#ef4d4d] text-white hover:bg-red-600 transition-colors font-semibold text-[11px]"
+                    >
+                      Ok
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </section>
         </div>
       </main>
