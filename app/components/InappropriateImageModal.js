@@ -43,9 +43,14 @@ export default function InappropriateImageModal({ isOpen, onClose }) {
             <ShieldAlert className="w-8 h-8 text-red-500" />
           </div>
           <h3 className="text-lg font-bold text-gray-800 mb-2 sm:text-xl">Upload Rejected</h3>
-          <p className="text-sm text-gray-600 sm:text-base mb-6 leading-relaxed">
+          <p className="text-sm text-gray-600 sm:text-base mb-4 leading-relaxed">
             One or more of your uploaded images contains content that violates our community guidelines. Please remove the inappropriate images and try posting again.
           </p>
+          <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-6 text-left">
+            <p className="text-[12px] sm:text-sm text-orange-800 leading-snug">
+              <strong>Note:</strong> Repeated uploads that violate GOLO's content policy may temporarily restrict your ability to upload images.
+            </p>
+          </div>
           <button
             onClick={onClose}
             className="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-3 px-4 rounded-xl transition-all active:scale-[0.98] shadow-sm hover:shadow text-sm sm:text-base"

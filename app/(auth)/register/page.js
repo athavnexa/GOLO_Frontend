@@ -9,6 +9,7 @@ import { useAuth } from "../../context/AuthContext";
 import SocialButtons from "../../components/SocialButtons";
 import LocationPicker from "../../components/LocationPicker";
 import StoreLocationMap from "../../components/StoreLocationMap";
+import { API_BASE_URL } from "../../lib/api";
 
 const MERCHANT_CATEGORIES = [
   {
@@ -144,6 +145,13 @@ export default function RegisterPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  
+  // OTP state
+  const [otpSent, setOtpSent] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [otpVerified, setOtpVerified] = useState(false);
+  const [isSendingOtp, setIsSendingOtp] = useState(false);
+  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [gender, setGender] = useState("");
   const [password, setPassword] = useState("");
@@ -266,6 +274,56 @@ export default function RegisterPage() {
     }
   };
 
+  const handleSendOtp = async () => {
+    if (!email.trim()) {
+      setError("Please enter your email first.");
+      return;
+    }
+    setIsSendingOtp(true);
+    setError("");
+    setSuccess("");
+    try {
+      const res = await fetch(`${API_BASE_URL}/users/email-otp/send`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim(), type: "register", accountType }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to send OTP");
+      setOtpSent(true);
+      setSuccess("OTP sent to your email!");
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsSendingOtp(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    if (!otp.trim()) {
+      setError("Please enter the OTP.");
+      return;
+    }
+    setIsVerifyingOtp(true);
+    setError("");
+    setSuccess("");
+    try {
+      const res = await fetch(`${API_BASE_URL}/users/email-otp/verify`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim(), otp: otp.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Invalid OTP");
+      setOtpVerified(true);
+      setSuccess("Email verified successfully!");
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsVerifyingOtp(false);
+    }
+  };
+
   const handleRegister = async (e) => {
     e.preventDefault();
     setError("");
@@ -275,6 +333,10 @@ export default function RegisterPage() {
     if (accountType === "user") {
       if (!name.trim() || !email.trim() || !password.trim()) {
         setError("Name, email, and password are required.");
+        return;
+      }
+      if (!otpVerified) {
+        setError("Please verify your email using OTP first.");
         return;
       }
       if (password.length < 6) {
@@ -510,7 +572,7 @@ export default function RegisterPage() {
 
               <div className="grid grid-cols-2 gap-x-4 gap-y-4 mb-5">
                 {/* Name */}
-                <div>
+                <div className="col-span-2">
                   <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">Name</label>
                   <div className="relative">
                     <User className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={15} />
@@ -524,19 +586,58 @@ export default function RegisterPage() {
                   </div>
                 </div>
 
-                {/* Email */}
-                <div>
-                  <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">Email</label>
-                  <div className="relative">
-                    <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={15} />
-                    <input
-                      type="email"
-                      placeholder="Enter your email"
-                      className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-[13px] focus:outline-none focus:border-gray-400 transition-colors text-gray-800 placeholder-gray-400"
-                      value={email}
-                      onChange={(e) => { setEmail(e.target.value); setError(""); }}
-                    />
+                {/* Email & OTP */}
+                <div className="col-span-2">
+                  <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">Email Verification</label>
+                  <div className="flex gap-2">
+                    <div className="relative flex-1">
+                      <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={15} />
+                      <input
+                        type="email"
+                        placeholder="Enter your email"
+                        className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-[13px] focus:outline-none focus:border-gray-400 transition-colors text-gray-800 placeholder-gray-400"
+                        value={email}
+                        onChange={(e) => { setEmail(e.target.value); setError(""); setOtpVerified(false); setOtpSent(false); }}
+                        disabled={otpVerified}
+                      />
+                    </div>
+                    {!otpVerified && (
+                      <button
+                        type="button"
+                        onClick={handleSendOtp}
+                        disabled={isSendingOtp}
+                        className="px-4 py-3 bg-[#E8F5EE] text-[#157A4F] text-[13px] font-bold rounded-xl hover:bg-[#d1efe0] transition-colors whitespace-nowrap"
+                      >
+                        {isSendingOtp ? "Sending..." : (otpSent ? "Resend OTP" : "Send OTP")}
+                      </button>
+                    )}
+                    {otpVerified && (
+                      <div className="px-4 py-3 bg-green-50 text-green-600 text-[13px] font-bold rounded-xl flex items-center gap-1 whitespace-nowrap border border-green-200">
+                        <Check size={16} /> Verified
+                      </div>
+                    )}
                   </div>
+                  
+                  {otpSent && !otpVerified && (
+                    <div className="flex gap-2 mt-2">
+                      <input
+                        type="text"
+                        placeholder="Enter 6-digit OTP"
+                        className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-[13px] focus:outline-none focus:border-gray-400 text-center tracking-widest font-mono"
+                        value={otp}
+                        onChange={(e) => { setOtp(e.target.value); setError(""); }}
+                        maxLength={6}
+                      />
+                      <button
+                        type="button"
+                        onClick={handleVerifyOtp}
+                        disabled={isVerifyingOtp}
+                        className="px-4 py-3 bg-[#157A4F] text-white text-[13px] font-bold rounded-xl hover:bg-[#116340] transition-colors whitespace-nowrap"
+                      >
+                        {isVerifyingOtp ? "Verifying..." : "Verify OTP"}
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 {/* Number */}

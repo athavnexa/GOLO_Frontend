@@ -450,61 +450,61 @@ function CategoryBarContent({ variant = "choja", preferredCategories = [] }) {
                 </button>
               );
             })}
-          </div>
-
-          {/* SEE ALL — static, always visible on the right */}
-          <button
-            onClick={() => setShowAllModal(true)}
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "flex-start",
-              gap: iconLabelGap,
-              background: "transparent",
-              border: "none",
-              cursor: "pointer",
-              width: pillWidth,
-              flexShrink: 0,
-              padding: pillPadding,
-            }}
-          >
-            <span
+            
+            {/* SEE ALL — static, always visible on the right */}
+            <button
+              onClick={() => setShowAllModal(true)}
               style={{
-                width: iconSize,
-                height: iconSize,
-                borderRadius: "12px",
-                background: "#f3f4f6",
                 display: "flex",
+                flexDirection: "column",
                 alignItems: "center",
-                justifyContent: "center",
-                color: "#374151",
+                justifyContent: "flex-start",
+                gap: iconLabelGap,
+                background: "transparent",
+                border: "none",
+                cursor: "pointer",
+                width: pillWidth,
+                flexShrink: 0,
+                padding: pillPadding,
               }}
             >
-              <Grid size={iconGlyphSize} />
-            </span>
-            <span 
-              style={{ 
-                display: "-webkit-box",
-                WebkitLineClamp: 2,
-                WebkitBoxOrient: "vertical",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                wordBreak: "break-word",
-                fontSize: isMobile ? "11px" : "12.5px", 
-                fontWeight: 700, 
-                color: "#1f2933",
-                textAlign: "center",
-                lineHeight: 1.2,
-                borderBottom: "2px solid transparent",
-                paddingBottom: "2px",
-                width: "100%",
-                minHeight: labelMinHeight,
-              }}
-            >
-              See All
-            </span>
-          </button>
+              <span
+                style={{
+                  width: iconSize,
+                  height: iconSize,
+                  borderRadius: "12px",
+                  background: "#f3f4f6",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "#374151",
+                }}
+              >
+                <Grid size={iconGlyphSize} />
+              </span>
+              <span 
+                style={{ 
+                  display: "-webkit-box",
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: "vertical",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  wordBreak: "break-word",
+                  fontSize: isMobile ? "11px" : "12.5px", 
+                  fontWeight: 700, 
+                  color: "#1f2933",
+                  textAlign: "center",
+                  lineHeight: 1.2,
+                  borderBottom: "2px solid transparent",
+                  paddingBottom: "2px",
+                  width: "100%",
+                  minHeight: labelMinHeight,
+                }}
+              >
+                See All
+              </span>
+            </button>
+          </div>
         </div>
       </div>
 
