@@ -105,7 +105,7 @@ function GOLOFooter() {
           <FooterColumn
             title="Customer Service"
             items={[
-              { href: "/help", icon: HelpCircle, label: "Help Center" },
+              { href: "/help-center", icon: HelpCircle, label: "Help Center" },
               { href: "/returns", icon: RotateCcw, label: "Returns & Refunds" },
               { href: "/contact", icon: Mail, label: "Contact Us" },
               { href: "/faqs", icon: HelpCircle, label: "FAQs" },

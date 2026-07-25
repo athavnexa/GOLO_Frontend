@@ -440,7 +440,8 @@ export default function CreateMerchantOfferPage() {
        router.push("/merchant/offers");
      } catch (err) {
        const errorMsg = err?.data?.message || err?.message || "";
-       if (err?.data?.code === 'CONTENT_UPLOAD_RESTRICTED' || err?.data?.code === 'FINAL_MODERATION_WARNING' || err?.data?.code === 'MODERATION_WARNING' || (typeof errorMsg === 'string' && errorMsg.includes("temporarily restricted"))) {
+       const errorCode = err?.data?.errorCode || err?.data?.code;
+       if (errorCode === 'CONTENT_UPLOAD_RESTRICTED' || errorCode === 'FINAL_MODERATION_WARNING' || errorCode === 'MODERATION_WARNING' || (typeof errorMsg === 'string' && errorMsg.includes("temporarily restrict"))) {
          setModerationWarningInfo({ isOpen: true, message: errorMsg, restrictedUntil: err?.data?.restrictedUntil });
        } else if (typeof errorMsg === 'string' && errorMsg.includes("inappropriate content")) {
          setIsModalOpen(true);

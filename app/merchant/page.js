@@ -231,10 +231,18 @@ export default function MerchantLandingPage() {
       {/* NAVBAR */}
       <header className="sticky top-0 z-[9999] bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-3">
-          <Link href="/merchant" className="flex items-center gap-2">
-            <div className="flex h-10 px-5 items-center justify-center rounded-xl bg-[#f3b12a] text-white font-extrabold text-lg shadow-sm">
+          <Link
+            href="/merchant"
+            className="flex h-11 items-center gap-1.5 rounded-full bg-[#f3b12a] px-4 shadow-sm transition hover:opacity-90"
+          >
+            <span
+              className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[11px] font-extrabold leading-none text-[#f3b12a] bg-white"
+            >
+              G
+            </span>
+            <span className="text-[15px] font-extrabold tracking-wide text-white">
               GOLO
-            </div>
+            </span>
           </Link>
         </div>
 

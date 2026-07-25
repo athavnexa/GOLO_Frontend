@@ -189,13 +189,13 @@ export default function ProfilePage() {
   const neededPoints = Math.max(0, pointsGoal - loyaltyPoints);
   const profilePhotoSrc = getRenderableImageSrc(displayUser?.profilePhoto);
   const formattedPhone = displayUser?.profile?.phone || displayUser?.phone || "+91 9876543212";
-  const interests = displayUser?.profile?.interests || [
-    "Home Services",
-    "Real Estate",
-    "Beauty & Wellness",
-    "Shopping & Retail",
-    "Food & Restaurants",
-  ];
+  const interests = (displayUser?.preferredCategories && displayUser.preferredCategories.length > 0)
+    ? displayUser.preferredCategories
+    : (displayUser?.profile?.interests && displayUser.profile.interests.length > 0)
+      ? displayUser.profile.interests
+      : (displayUser?.interests && displayUser.interests.length > 0)
+        ? displayUser.interests
+        : [];
   const modalCategories = [
     "Food & Restaurants",
     "Home Services",
@@ -226,7 +226,7 @@ export default function ProfilePage() {
       email: source?.email || "",
       phone: source?.profile?.phone || source?.phone || "+91 9876543212",
       location: existingLocation,
-      categories: source?.profile?.interests || ["Home Services", "Real Estate", "Beauty & Wellness", "Shopping & Retail", "Food & Restaurants"],
+      categories: interests,
     });
     setEditError("");
     setEditSuccess("");
@@ -316,10 +316,7 @@ export default function ProfilePage() {
       setEditError("Phone number is required");
       return;
     }
-    if (editForm.categories.length < 5) {
-      setEditError("Please select at least 5 categories");
-      return;
-    }
+
 
     setSavingEdit(true);
     setEditError("");
@@ -331,7 +328,7 @@ export default function ProfilePage() {
 
       const profileData = {
         name: editForm.name.trim(),
-        email: editForm.email.trim(),
+        preferredCategories: editForm.categories,
         profile: {
           phone: editForm.phone.trim(),
           city: city,
@@ -339,6 +336,10 @@ export default function ProfilePage() {
           interests: editForm.categories,
         },
       };
+
+      if (editForm.email.trim() !== (displayUser?.email || "")) {
+        profileData.email = editForm.email.trim();
+      }
 
       if (avatarPreview && avatarPreview.startsWith("data:image")) {
         profileData.profilePhoto = avatarPreview;
@@ -518,7 +519,10 @@ export default function ProfilePage() {
                       {interest}
                     </span>
                   ))}
-                  <button className="rounded-full bg-[#f0e7cf] text-[#574f3e] text-xs font-semibold px-3 py-1.5 inline-flex items-center gap-1">
+                  <button 
+                    onClick={openEditModal}
+                    className="rounded-full bg-[#f0e7cf] text-[#574f3e] text-xs font-semibold px-3 py-1.5 inline-flex items-center gap-1"
+                  >
                     <Plus size={12} />
                     Add Category
                   </button>
@@ -655,7 +659,6 @@ export default function ProfilePage() {
               <div className="mt-5">
                 <div className="flex items-center justify-between mb-3">
                   <label className="text-xs font-bold tracking-wide text-[#4c4c4c] uppercase">Category Preferences</label>
-                  <span className="text-[#8cbca8] text-[10px] font-bold">MIN 5 SELECTED</span>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {modalCategories.map((category) => {

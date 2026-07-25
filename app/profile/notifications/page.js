@@ -151,11 +151,20 @@ export default function NotificationsPage() {
                         <Bell size={18} className={notif.read ? "text-[#bdbdbd]" : "text-[#157a4f]"} />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className={`text-[15px] font-semibold ${notif.read ? "text-gray-700" : "text-[#157a4f]"}`}>{notif.message}</span>
-                          {!notif.read && <span className="inline-block w-2 h-2 rounded-full bg-[#f4a632] mt-1" />}
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            {notif.title && (
+                              <h3 className={`text-[15px] font-bold ${notif.read ? "text-gray-800" : "text-[#157a4f]"}`}>
+                                {notif.title}
+                              </h3>
+                            )}
+                            <p className={`text-[14px] ${notif.title ? "mt-1" : ""} font-medium ${notif.read ? "text-gray-600" : "text-[#157a4f]"}`}>
+                              {notif.message}
+                            </p>
+                          </div>
+                          {!notif.read && <span className="inline-block w-2 h-2 flex-shrink-0 rounded-full bg-[#f4a632] mt-1" />}
                         </div>
-                        <span className="text-xs text-gray-400 mt-1 block">
+                        <span className="text-xs text-gray-400 mt-2 block">
                           {new Date(notif.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
                         </span>
                       </div>

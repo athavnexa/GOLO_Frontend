@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useState, useRef, useEffect, Suspense } from "react";
+import { useState, useRef, useEffect, Suspense, useCallback } from "react";
 import {
   Search,
   MapPin,
@@ -165,19 +165,22 @@ function NavbarContent({
     }
   }, [urlLocation, currentLocationLabel]);
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    if (urlLocation) return;
+  const detectLiveLocation = useCallback((forceUpdate = false) => {
+    if (typeof window === "undefined") return () => {};
 
     if (!navigator?.geolocation) {
       localStorage.removeItem(CURRENT_LOCATION_STORAGE_KEY);
-      if (!hasManualLocationRef.current) {
+      if (!hasManualLocationRef.current || forceUpdate) {
         setCurrentLocationLabel("");
         setCurrentLocationCoordinates(null);
         setLocation("");
       }
-      return;
+      return () => {};
+    }
+
+    if (forceUpdate) {
+      setLocation("Detecting location...");
+      setLocationLoading(true);
     }
 
     let cancelled = false;
@@ -203,11 +206,12 @@ function NavbarContent({
           const label = getShortLocationLabel(locationDetails);
           setCurrentLocationLabel(label);
           setLocation((prev) => {
-            if (urlLocation || hasManualLocationRef.current) return prev;
+            if (hasManualLocationRef.current) return prev;
+            if (!forceUpdate && urlLocation) return prev;
             return label;
           });
 
-          if (!hasManualLocationRef.current) {
+          if (forceUpdate || !hasManualLocationRef.current) {
             localStorage.setItem(
               CURRENT_LOCATION_STORAGE_KEY,
               JSON.stringify({ 
@@ -220,6 +224,13 @@ function NavbarContent({
             );
             window.dispatchEvent(new Event('locationUpdated'));
           }
+
+          if (forceUpdate) {
+            setLocationLoading(false);
+            if (!hasManualLocationRef.current) {
+              runSearch(searchQuery, label, coordinates);
+            }
+          }
         } catch {
           const fallbackLabel = "Current Location";
           if (cancelled) return;
@@ -228,6 +239,12 @@ function NavbarContent({
           setLocation((prev) =>
             hasManualLocationRef.current ? prev : fallbackLabel,
           );
+          if (forceUpdate) {
+            setLocationLoading(false);
+            if (!hasManualLocationRef.current) {
+              runSearch(searchQuery, fallbackLabel, coordinates);
+            }
+          }
         }
       },
       () => {
@@ -235,21 +252,30 @@ function NavbarContent({
         setCurrentLocationLabel("");
         setCurrentLocationCoordinates(null);
         localStorage.removeItem(CURRENT_LOCATION_STORAGE_KEY);
-        if (!hasManualLocationRef.current && !urlLocation) {
-          setLocation("");
+        if (!hasManualLocationRef.current) {
+          if (forceUpdate || !urlLocation) {
+            setLocation("");
+          }
         }
+        if (forceUpdate) setLocationLoading(false);
       },
       {
         enableHighAccuracy: true,
         timeout: 8000,
-        maximumAge: 5 * 60 * 1000,
+        maximumAge: forceUpdate ? 0 : 5 * 60 * 1000,
       },
     );
 
     return () => {
       cancelled = true;
     };
-  }, [urlLocation]);
+  }, [urlLocation, searchQuery]);
+
+  useEffect(() => {
+    if (urlLocation) return;
+    const cleanup = detectLiveLocation(false);
+    return cleanup;
+  }, [urlLocation, detectLiveLocation]);
 
   const handleSearchChange = (val) => {
     setSearchQuery(val);
@@ -526,7 +552,7 @@ function NavbarContent({
     const trimmedLocation = nextLocation.trim();
     const resolvedCoordinates =
       nextCoordinates ||
-      (trimmedLocation && trimmedLocation === currentLocationLabel
+      (!trimmedLocation || trimmedLocation === currentLocationLabel
         ? currentLocationCoordinates
         : null);
     const isDetectedCurrentLocation =
@@ -544,7 +570,7 @@ function NavbarContent({
     if (currentView) params.set("view", currentView);
 
     if (trimmedSearch) params.set("q", trimmedSearch);
-    if (trimmedLocation && !isDetectedCurrentLocation)
+    if (trimmedLocation)
       params.set("location", trimmedLocation);
     if (
       resolvedCoordinates &&
@@ -1006,7 +1032,7 @@ function NavbarContent({
   const handleLogout = async () => {
     await logout();
     setShowProfileMenu(false);
-    router.push("/login");
+    router.push("/");
   };
 
   const handleProfileAvatarClick = () => {
@@ -1086,14 +1112,17 @@ function NavbarContent({
               </Link>
             </div>
           ) : (
-            <Link href={logoHref} className="flex min-w-0 items-center gap-2">
-              <div
-                className="w-9 h-9 bg-white rounded-xl flex items-center justify-center shadow font-bold"
-                style={{ color: "#157A4F" }}
+            <Link
+              href={logoHref}
+              className="flex h-11 items-center gap-1.5 rounded-full bg-white px-4 shadow-sm transition hover:opacity-90"
+            >
+              <span
+                className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[11px] font-extrabold leading-none text-white"
+                style={{ background: "#157A4F" }}
               >
                 G
-              </div>
-              <span className="text-lg font-semibold tracking-wide text-white sm:text-xl">
+              </span>
+              <span className="text-[15px] font-extrabold tracking-wide text-[#157A4F]">
                 GOLO
               </span>
             </Link>
@@ -1173,9 +1202,9 @@ function NavbarContent({
                 {location ? (
                   <button
                     onClick={() => {
+                      hasManualLocationRef.current = true;
+                      globalManualLocation = "";
                       setLocation("");
-                      localStorage.removeItem(CURRENT_LOCATION_STORAGE_KEY);
-                      hasManualLocationRef.current = false;
                       setShowSuggestions(false);
                       runSearch(searchQuery, "");
                     }}
@@ -1333,9 +1362,14 @@ function NavbarContent({
                                 <Bell size={14} className="text-[#157A4F]" />
                               </div>
                               <div className="flex-1 min-w-0">
-                                <p className="break-words text-[13px] leading-snug text-gray-800 sm:text-sm">
-                                  {notif.message}
-                                </p>
+                                  {notif.title && (
+                                    <h4 className="font-bold text-[13px] text-[#157a4f] sm:text-sm mb-0.5">
+                                      {notif.title}
+                                    </h4>
+                                  )}
+                                  <p className="break-words text-[13px] leading-snug text-gray-800 sm:text-sm">
+                                    {notif.message}
+                                  </p>
                                 <p className="text-xs text-gray-400 mt-1">
                                   {new Date(notif.createdAt).toLocaleDateString(
                                     "en-IN",
@@ -1643,9 +1677,9 @@ function NavbarContent({
                     tabIndex={0}
                     onClick={(event) => {
                       event.stopPropagation();
+                      hasManualLocationRef.current = true;
+                      globalManualLocation = "";
                       setLocation("");
-                      localStorage.removeItem(CURRENT_LOCATION_STORAGE_KEY);
-                      hasManualLocationRef.current = false;
                       setShowSuggestions(false);
                       runSearch(searchQuery, "");
                     }}
@@ -1653,9 +1687,9 @@ function NavbarContent({
                       if (event.key !== "Enter" && event.key !== " ") return;
                       event.preventDefault();
                       event.stopPropagation();
+                      hasManualLocationRef.current = true;
+                      globalManualLocation = "";
                       setLocation("");
-                      localStorage.removeItem(CURRENT_LOCATION_STORAGE_KEY);
-                      hasManualLocationRef.current = false;
                       setShowSuggestions(false);
                       runSearch(searchQuery, "");
                     }}

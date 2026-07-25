@@ -369,6 +369,13 @@ function ClaimedOfferContent() {
         rating: reviewRating,
         content: reviewFeedback.trim(),
       });
+
+      // Set random delay between 1 to 20 minutes for platform review
+      const minDelayMs = 1 * 60 * 1000;
+      const maxDelayMs = 20 * 60 * 1000;
+      const randomDelay = Math.floor(Math.random() * (maxDelayMs - minDelayMs + 1)) + minDelayMs;
+      localStorage.setItem("golo_platform_review_pending", (Date.now() + randomDelay).toString());
+
       setReviewSubmitted(true);
       setReviewMessage("Your rating and feedback have been saved.");
       setRedirecting(true);

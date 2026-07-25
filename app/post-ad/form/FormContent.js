@@ -27,6 +27,8 @@ export default function FormContent() {
   const [detectedLongitude, setDetectedLongitude] = useState(null);
 
   const searchParams = useSearchParams();
+  const cat = searchParams.get("cat");
+  const sub = searchParams.get("sub");
   const [templateId, setTemplateId] = useState(() => {
     const templateParam = searchParams.get("template");
     const parsed = Number(templateParam);
@@ -97,7 +99,6 @@ export default function FormContent() {
         {/* Form Layout */}
         <div className="mt-5 grid grid-cols-1 gap-5 sm:mt-12 lg:grid-cols-3 lg:gap-10">
 
-          {/* LEFT FORM */}
           <div className="lg:col-span-2">
             <PostAdForm
               adTitleState={adTitleState}
@@ -122,6 +123,8 @@ export default function FormContent() {
               setPropertyTypeRent={setPropertyTypeRent}
               onCategoryDetailsChange={handleCategoryDetailsChange}
               templateId={templateId}
+              setTemplateId={setTemplateId}
+              initialAd={(cat || sub) ? { category: cat, subCategory: sub } : null}
             />
           </div>
 

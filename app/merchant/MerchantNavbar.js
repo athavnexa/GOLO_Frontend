@@ -88,12 +88,20 @@ export default function MerchantNavbar({ activeKey = "dashboard" }) {
       }}
     >
       <div className="flex min-w-0 items-center gap-2 lg:min-w-[180px] lg:gap-3">
-        <button type="button" onClick={() => router.push("/merchant/dashboard")} className="flex items-center gap-3 cursor-pointer">
-          <div className="w-9 h-9 bg-white rounded-xl flex items-center justify-center shadow font-bold" style={{ color: "#157a4f" }}>
+        <Link
+          href="/merchant/dashboard"
+          className="flex h-11 items-center gap-1.5 rounded-full bg-white px-4 shadow-sm transition hover:opacity-90"
+        >
+          <span
+            className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[11px] font-extrabold leading-none text-white"
+            style={{ background: "#157A4F" }}
+          >
             G
-          </div>
-          <span className="text-lg font-semibold tracking-wide text-[#157a4f] lg:text-xl">GOLO</span>
-        </button>
+          </span>
+          <span className="text-[15px] font-extrabold tracking-wide text-[#157A4F]">
+            GOLO
+          </span>
+        </Link>
       </div>
 
       <div className="ml-auto flex min-w-0 items-center gap-2 text-[12px] font-semibold text-[#5a4514] lg:gap-8">
@@ -163,8 +171,15 @@ export default function MerchantNavbar({ activeKey = "dashboard" }) {
                       onClick={() => handleMarkRead(n._id)}
                       className={`px-4 py-3 border-b border-[#f5f5f5] cursor-pointer hover:bg-[#f9f9f9] ${n.read ? "" : "bg-[#f0faf4]"}`}
                     >
-                      <p className="text-[12px] text-[#1e1e1e] leading-snug">{n.message}</p>
-                      <p className="text-[10px] text-[#999] mt-1">{formatTime(n.createdAt)}</p>
+                      <div className="flex-1 min-w-0">
+                        {n.title && (
+                          <h4 className="font-bold text-[12px] text-[#157a4f] mb-0.5">
+                            {n.title}
+                          </h4>
+                        )}
+                        <p className="text-[12px] text-[#1e1e1e] leading-snug">{n.message}</p>
+                        <p className="text-[10px] text-[#999] mt-1">{formatTime(n.createdAt)}</p>
+                      </div>
                     </div>
                   ))
                 )}

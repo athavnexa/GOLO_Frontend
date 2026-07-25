@@ -1876,3 +1876,14 @@ export const checkFollowStatus = async (merchantId) => {
         return { success: true, isFollowing: false };
     }
 };
+
+// ============================================================
+// PLATFORM REVIEWS
+// ============================================================
+
+export async function submitPlatformReview(payload) {
+    return apiClient('/reviews/platform', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+    });
+}

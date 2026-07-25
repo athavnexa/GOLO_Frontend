@@ -205,7 +205,7 @@ function getLocationCity(location) {
 
   const parts = String(location || "").split(",");
   return normalizeLocationText(
-    parts[parts.length - 1] || location,
+    parts[0] || location,
   );
 }
 

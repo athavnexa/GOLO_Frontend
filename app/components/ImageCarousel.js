@@ -231,7 +231,7 @@ export default function ImageCarousel({ images = [], videoUrl = null, alt = "Pro
 
       {/* Enhanced Zoom Popup - Now with preloaded images */}
       {isHovering && !isVideo && loadedImages[currentMedia.url] && (
-        <div className="hidden lg:block absolute top-0 left-[calc(100%+20px)] w-[550px] h-[500px] rounded-xl border border-[#e5e7eb] bg-white shadow-2xl overflow-hidden z-50 pointer-events-none">
+        <div className="hidden lg:block absolute top-0 left-[calc(100%+24px)] w-[calc(83.333%)] h-[500px] rounded-xl border border-[#e5e7eb] bg-white shadow-2xl overflow-hidden z-50 pointer-events-none">
           <div className="relative w-full h-full">
             {/* High Quality Zoomed Image */}
             <div
@@ -254,7 +254,7 @@ export default function ImageCarousel({ images = [], videoUrl = null, alt = "Pro
       
       {/* Optional: Show loading indicator for zoom popup */}
       {isHovering && !isVideo && !loadedImages[currentMedia.url] && (
-        <div className="hidden lg:block absolute top-0 left-[calc(100%+20px)] w-[550px] h-[500px] rounded-xl border border-[#e5e7eb] bg-white shadow-2xl overflow-hidden z-50 pointer-events-none flex items-center justify-center">
+        <div className="hidden lg:block absolute top-0 left-[calc(100%+24px)] w-[calc(83.333%)] h-[500px] rounded-xl border border-[#e5e7eb] bg-white shadow-2xl overflow-hidden z-50 pointer-events-none flex items-center justify-center">
           <div className="text-sm text-[#666]">Loading zoom view...</div>
         </div>
       )}

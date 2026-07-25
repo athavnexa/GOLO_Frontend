@@ -2,17 +2,21 @@
 
 import Image from "next/image";
 import { Heart, Share2, MapPin, Phone, MessageCircle } from "lucide-react";
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
 import { useRoleProtection, LoadingScreen } from "../components/RoleBasedRedirect";
 import Navbar from "./../components/Navbar";
 import Footer from "./../components/Footer";
 
-export default function PostAdPage() {
+function PostAdContent() {
   const [selected, setSelected] = useState(null);
   const [currentSlide, setCurrentSlide] = useState(0);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const cat = searchParams.get("cat");
+  const sub = searchParams.get("sub");
+  
   const { user } = useAuth();
   const { isLoading, isAuthorized } = useRoleProtection("user");
 
@@ -103,7 +107,11 @@ export default function PostAdPage() {
                 key={item.id}
                 onClick={() => {
                   setSelected(item.id);
-                  router.push(`/post-ad/form?template=${item.id}`);
+                  const params = new URLSearchParams();
+                  params.set("template", item.id);
+                  if (cat) params.set("cat", cat);
+                  if (sub) params.set("sub", sub);
+                  router.push(`/post-ad/form?${params.toString()}`);
                 }}
                 className={`group flex flex-col bg-white rounded-3xl shadow-md border transition-all duration-300 cursor-pointer hover:-translate-y-2 hover:shadow-2xl ${
                   selected === item.id
@@ -267,5 +275,13 @@ export default function PostAdPage() {
 
       <Footer />
     </>
+  );
+}
+
+export default function PostAdPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#F8F6F2] flex items-center justify-center">Loading templates...</div>}>
+      <PostAdContent />
+    </Suspense>
   );
 }

@@ -277,7 +277,7 @@ export default function Hero() {
   };
 
   const imageClassName =
-    "absolute inset-0 h-full w-full object-cover object-center rounded-[20px] sm:rounded-[32px]";
+    "absolute inset-0 h-full w-full object-fill object-center rounded-[20px] sm:rounded-[32px]";
 
   if (loading) {
     return (
@@ -351,7 +351,7 @@ export default function Hero() {
                         fill
                         priority={index === 0}
                         sizes="100vw"
-                        className="object-cover object-center rounded-[20px] sm:rounded-[32px]"
+                        className="object-fill object-center rounded-[20px] sm:rounded-[32px]"
                         onError={() => handleImageError(slide.url)}
                       />
                     )}
@@ -374,7 +374,7 @@ export default function Hero() {
                         fill
                         priority={index === 0}
                         sizes="100vw"
-                        className="object-cover object-center rounded-[20px] sm:rounded-[32px]"
+                        className="object-fill object-center rounded-[20px] sm:rounded-[32px]"
                         onError={() => handleImageError(slide.url)}
                       />
                     )}

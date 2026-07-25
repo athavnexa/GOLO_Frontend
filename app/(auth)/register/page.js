@@ -606,13 +606,13 @@ export default function RegisterPage() {
                         type="button"
                         onClick={handleSendOtp}
                         disabled={isSendingOtp}
-                        className="px-4 py-3 bg-[#E8F5EE] text-[#157A4F] text-[13px] font-bold rounded-xl hover:bg-[#d1efe0] transition-colors whitespace-nowrap"
+                        className="w-[120px] py-3 bg-[#E8F5EE] text-[#157A4F] text-[13px] font-bold rounded-xl hover:bg-[#d1efe0] transition-colors flex items-center justify-center"
                       >
                         {isSendingOtp ? "Sending..." : (otpSent ? "Resend OTP" : "Send OTP")}
                       </button>
                     )}
                     {otpVerified && (
-                      <div className="px-4 py-3 bg-green-50 text-green-600 text-[13px] font-bold rounded-xl flex items-center gap-1 whitespace-nowrap border border-green-200">
+                      <div className="w-[120px] py-3 bg-green-50 text-green-600 text-[13px] font-bold rounded-xl flex items-center justify-center gap-1 border border-green-200">
                         <Check size={16} /> Verified
                       </div>
                     )}
@@ -620,19 +620,21 @@ export default function RegisterPage() {
                   
                   {otpSent && !otpVerified && (
                     <div className="flex gap-2 mt-2">
-                      <input
-                        type="text"
-                        placeholder="Enter 6-digit OTP"
-                        className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-[13px] focus:outline-none focus:border-gray-400 text-center tracking-widest font-mono"
-                        value={otp}
-                        onChange={(e) => { setOtp(e.target.value); setError(""); }}
-                        maxLength={6}
-                      />
+                      <div className="flex-1">
+                        <input
+                          type="text"
+                          placeholder="Enter 6-digit OTP"
+                          className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-[13px] focus:outline-none focus:border-gray-400 text-center tracking-widest font-mono"
+                          value={otp}
+                          onChange={(e) => { setOtp(e.target.value); setError(""); }}
+                          maxLength={6}
+                        />
+                      </div>
                       <button
                         type="button"
                         onClick={handleVerifyOtp}
                         disabled={isVerifyingOtp}
-                        className="px-4 py-3 bg-[#157A4F] text-white text-[13px] font-bold rounded-xl hover:bg-[#116340] transition-colors whitespace-nowrap"
+                        className="w-[120px] py-3 bg-[#157A4F] text-white text-[13px] font-bold rounded-xl hover:bg-[#116340] transition-colors flex items-center justify-center"
                       >
                         {isVerifyingOtp ? "Verifying..." : "Verify OTP"}
                       </button>

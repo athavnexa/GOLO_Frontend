@@ -65,7 +65,7 @@ export default function PostAdForm({
   const [selectedSub, setSelectedSub] = useState(null);
   const [mediaError, setMediaError] = useState("");
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  const isEditMode = Boolean(initialAd);
+  const isEditMode = Boolean(initialAd && initialAd._id);
 
   // Education states
   const [educationInstitutionType, setEducationInstitutionType] = useState("");
@@ -277,12 +277,16 @@ export default function PostAdForm({
   const normalizeCategoryName = (value) => {
     if (!value) return "";
     const trimmedValue = String(value).trim();
-    return categoryNameMap[trimmedValue] || trimmedValue;
+    const lowerValue = trimmedValue.toLowerCase();
+    const mappedValue = Object.keys(categoryNameMap).find(
+      key => key.toLowerCase() === lowerValue
+    );
+    return mappedValue ? categoryNameMap[mappedValue] : trimmedValue;
   };
 
   const findCategoryObject = (categoryName) => {
-    const normalized = normalizeCategoryName(categoryName);
-    return categories.find((cat) => cat.name === normalized) || null;
+    const normalized = normalizeCategoryName(categoryName).toLowerCase();
+    return categories.find((cat) => cat.name.toLowerCase() === normalized) || null;
   };
 
   const parseDateValue = (value) => {
@@ -1018,12 +1022,7 @@ export default function PostAdForm({
     setSupportingDocuments((prev) => prev.filter((doc) => doc.id !== id));
   };
 
-  // Initialize selectedCategory on mount
-  useEffect(() => {
-    if (selectedCategory === null && categories.length > 0) {
-      setSelectedCategory(categories[0]);
-    }
-  }, []);
+  // Initialize selectedCategory handled by other useEffects
 
   // Check category completion whenever category-specific fields change
   useEffect(() => {

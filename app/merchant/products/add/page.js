@@ -183,7 +183,8 @@ export default function AddProductPage() {
       router.push("/merchant/products");
     } catch (error) {
       const errorMsg = error?.data?.message || error.message || "";
-      if (error?.data?.code === 'CONTENT_UPLOAD_RESTRICTED' || error?.data?.code === 'FINAL_MODERATION_WARNING' || error?.data?.code === 'MODERATION_WARNING' || (typeof errorMsg === 'string' && errorMsg.includes("temporarily restricted"))) {
+      const errorCode = error?.data?.errorCode || error?.data?.code;
+      if (errorCode === 'CONTENT_UPLOAD_RESTRICTED' || errorCode === 'FINAL_MODERATION_WARNING' || errorCode === 'MODERATION_WARNING' || (typeof errorMsg === 'string' && errorMsg.includes("temporarily restrict"))) {
         setModerationWarningInfo({ isOpen: true, message: errorMsg, restrictedUntil: error?.data?.restrictedUntil });
       } else if (typeof errorMsg === 'string' && errorMsg.includes("inappropriate content")) {
         setIsModalOpen(true);

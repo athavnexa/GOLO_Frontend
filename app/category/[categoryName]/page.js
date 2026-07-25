@@ -345,7 +345,14 @@ function CategoryPageContent() {
                     <h2 className="text-gray-700 font-bold text-xl">No matching ads in {categoryName} yet</h2>
                     <p className="text-gray-400 mb-6">Be the first to post an ad in this category!</p>
                     <button
-                        onClick={() => requireAuth("Please log in or register to post your ad.", () => router.push("/post-ad"))}
+                        onClick={() => {
+                            const params = new URLSearchParams();
+                            if (categoryName) params.set("cat", categoryName);
+                            const subParam = searchParams.get("sub");
+                            if (subParam) params.set("sub", subParam);
+                            const qs = params.toString();
+                            requireAuth("Please log in or register to post your ad.", () => router.push(`/post-ad${qs ? `?${qs}` : ''}`));
+                        }}
                         className="px-8 py-3 rounded-2xl font-bold text-base text-white border-none cursor-pointer bg-green-700"
                     >
                         Post an Ad →

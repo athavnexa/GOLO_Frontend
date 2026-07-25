@@ -3,6 +3,7 @@ import "leaflet/dist/leaflet.css";
 import { AuthProvider } from "./context/AuthContext";
 import { VoucherProvider } from "./context/VoucherContext";
 import GlobalAppBanner from "./components/GlobalAppBanner";
+import PlatformReviewModal from "./components/PlatformReviewModal";
 import { Poppins } from "next/font/google";
 
 const poppins = Poppins({
@@ -63,6 +64,7 @@ export default function RootLayout({ children }) {
           <VoucherProvider>
             <main className="relative z-10 min-h-screen bg-[#f3f3f3]">{children}</main>
             <GlobalAppBanner />
+            <PlatformReviewModal />
           </VoucherProvider>
         </AuthProvider>
       </body>
