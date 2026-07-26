@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, Suspense } from "react";
+import { useState, useEffect, useCallback, Suspense, useMemo, useRef } from "react";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Navbar from "../../components/Navbar";
@@ -449,36 +449,92 @@ function MultiImageAd({ ad, className, isAuthenticated, onRequireAuth }) {
     const displayPrice = getDisplayPrice(ad);
     const images = ad.images && ad.images.length > 0
         ? ad.images.map(getSafeImageSrc)
-        : ["/images/placeholder.webp", "/images/placeholder.webp", "/images/placeholder.webp"];
+        : ad.imageUrl ? [getSafeImageSrc(ad.imageUrl)] : ["/images/placeholder.webp", "/images/placeholder.webp", "/images/placeholder.webp"];
+    const videoUrl = ad.videoUrl || null;
+    
+    // Create a combined media array
+    const media = useMemo(() => {
+        const m = images.map(url => ({ type: 'image', url }));
+        if (videoUrl) {
+            m.push({ type: 'video', url: videoUrl });
+        }
+        return m;
+    }, [images, videoUrl]);
+
     const [current, setCurrent] = useState(0);
+    const videoRef = useRef(null);
 
     useEffect(() => {
-        const interval = setInterval(() => {
-            setCurrent((prev) => (prev + 1) % images.length);
-        }, 2000);
-        return () => clearInterval(interval);
-    }, [images.length]);
+        let timeoutId;
+        const currentMedia = media[current];
+
+        if (currentMedia.type === 'video' && videoRef.current) {
+            // Let the video play to completion
+            const videoElement = videoRef.current;
+            videoElement.currentTime = 0;
+            videoElement.play().catch(e => console.log('Video auto-play blocked:', e));
+            
+            const handleEnded = () => {
+                setCurrent(prev => (prev + 1) % media.length);
+            };
+            videoElement.addEventListener('ended', handleEnded);
+            
+            // Fallback just in case video fails to play or doesn't end properly
+            // We use 30 seconds as the fallback since that's the max allowed
+            timeoutId = setTimeout(() => {
+                videoElement.removeEventListener('ended', handleEnded);
+                setCurrent(prev => (prev + 1) % media.length);
+            }, 30000);
+
+            return () => {
+                videoElement.removeEventListener('ended', handleEnded);
+                clearTimeout(timeoutId);
+            };
+        } else {
+            // It's an image, wait 4 seconds then switch
+            timeoutId = setTimeout(() => {
+                setCurrent(prev => (prev + 1) % media.length);
+            }, 4000);
+            return () => clearTimeout(timeoutId);
+        }
+    }, [current, media]);
 
     return (
         <div
             onClick={() => router.push(`/product/${ad._id || ad.adId}`)}
             className={`relative rounded-3xl overflow-hidden group cursor-pointer shadow-sm hover:shadow-2xl transition ${className}`}
         >
-            {images.map((img, index) => (
-                <Image
-                    key={index}
-                    src={img}
-                    alt={ad.title || "Ad"}
-                    fill
-                    unoptimized
-                    className={`object-cover transition-opacity duration-1000 ${index === current ? "opacity-100" : "opacity-0"
-                        }`}
-                />
-            ))}
+            {media.map((item, index) => {
+                if (item.type === 'image') {
+                    return (
+                        <Image
+                            key={index}
+                            src={item.url}
+                            alt={ad.title || "Ad"}
+                            fill
+                            unoptimized
+                            className={`object-cover transition-opacity duration-1000 ${index === current ? "opacity-100 z-10" : "opacity-0 z-0"
+                                }`}
+                        />
+                    );
+                } else {
+                    return (
+                        <video
+                            key={index}
+                            ref={videoRef}
+                            src={item.url}
+                            muted
+                            playsInline
+                            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${index === current ? "opacity-100 z-10" : "opacity-0 z-0"
+                                }`}
+                        />
+                    );
+                }
+            })}
 
-            <div className="absolute inset-0 bg-black/50" />
+            <div className="absolute inset-0 bg-black/50 z-20" />
 
-            <div className="absolute bottom-0 p-8 text-white w-full">
+            <div className="absolute bottom-0 p-8 text-white w-full z-30">
                 <h2 className="text-2xl font-bold leading-snug">{ad.title}</h2>
                 <p className="mt-2 text-sm opacity-90">{ad.description}</p>
                 {displayPrice !== null && (
@@ -530,24 +586,87 @@ function MultiImageAd({ ad, className, isAuthenticated, onRequireAuth }) {
 function SingleImageAd({ ad, className, isAuthenticated, onRequireAuth }) {
     const router = useRouter();
     const displayPrice = getDisplayPrice(ad);
-    const image = ad.images && ad.images[0] ? getSafeImageSrc(ad.images[0]) : "/images/placeholder.webp";
+    const image = ad.images && ad.images[0] ? getSafeImageSrc(ad.images[0]) : ad.imageUrl ? getSafeImageSrc(ad.imageUrl) : "/images/placeholder.webp";
+    const videoUrl = ad.videoUrl || null;
+    
+    const media = useMemo(() => {
+        const m = [{ type: 'image', url: image }];
+        if (videoUrl) {
+            m.push({ type: 'video', url: videoUrl });
+        }
+        return m;
+    }, [image, videoUrl]);
+
+    const [current, setCurrent] = useState(0);
+    const videoRef = useRef(null);
+
+    useEffect(() => {
+        let timeoutId;
+        const currentMedia = media[current];
+
+        if (currentMedia.type === 'video' && videoRef.current) {
+            const videoElement = videoRef.current;
+            videoElement.currentTime = 0;
+            videoElement.play().catch(e => console.log('Video auto-play blocked:', e));
+            
+            const handleEnded = () => {
+                setCurrent(prev => (prev + 1) % media.length);
+            };
+            videoElement.addEventListener('ended', handleEnded);
+            
+            timeoutId = setTimeout(() => {
+                videoElement.removeEventListener('ended', handleEnded);
+                setCurrent(prev => (prev + 1) % media.length);
+            }, 30000);
+
+            return () => {
+                videoElement.removeEventListener('ended', handleEnded);
+                clearTimeout(timeoutId);
+            };
+        } else if (media.length > 1) {
+            timeoutId = setTimeout(() => {
+                setCurrent(prev => (prev + 1) % media.length);
+            }, 4000);
+            return () => clearTimeout(timeoutId);
+        }
+    }, [current, media]);
 
     return (
         <div
             onClick={() => router.push(`/product/${ad._id || ad.adId}`)}
             className={`relative rounded-3xl overflow-hidden group cursor-pointer shadow-sm hover:shadow-xl transition ${className}`}
         >
-            <Image
-                src={image}
-                alt={ad.title || "Ad"}
-                fill
-                unoptimized
-                className="object-cover group-hover:scale-105 transition duration-500"
-            />
+            {media.map((item, index) => {
+                if (item.type === 'image') {
+                    return (
+                        <Image
+                            key={index}
+                            src={item.url}
+                            alt={ad.title || "Ad"}
+                            fill
+                            unoptimized
+                            className={`object-cover group-hover:scale-105 transition-all duration-1000 ${index === current ? "opacity-100 z-10" : "opacity-0 z-0"
+                                }`}
+                        />
+                    );
+                } else {
+                    return (
+                        <video
+                            key={index}
+                            ref={videoRef}
+                            src={item.url}
+                            muted
+                            playsInline
+                            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${index === current ? "opacity-100 z-10" : "opacity-0 z-0"
+                                }`}
+                        />
+                    );
+                }
+            })}
 
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent z-20" />
 
-            <div className="absolute bottom-0 p-4 text-white w-full">
+            <div className="absolute bottom-0 p-4 text-white w-full z-30">
                 <h3 className="text-sm font-semibold">{ad.title}</h3>
                 {displayPrice !== null && (
                     <p className="text-lg font-bold text-yellow-400 mt-1">₹{displayPrice.toLocaleString("en-IN")}</p>

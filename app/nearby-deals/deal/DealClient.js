@@ -35,6 +35,7 @@ import {
 import Navbar from "../../components/Navbar";
 import { reverseGeocode } from "../../services/leafletService";
 import Footer from "../../components/Footer";
+import ImageCarousel from "../../components/ImageCarousel";
 
 function getTimeRemaining(endDate) {
   if (!endDate) return null;
@@ -664,16 +665,14 @@ function NearbyDealDetailsContent() {
         <section className="bg-white rounded-2xl overflow-hidden shadow-sm mb-8">
           <div className="grid lg:grid-cols-[1.5fr_1fr] gap-6 p-4 lg:p-6">
             {/* Image */}
-            <div className="relative overflow-hidden rounded-xl bg-[#f0f0f0]">
-              <SafeImage
-                src={offer?.imageUrl || "/images/deal2.avif"}
-                alt={offer?.title || "Offer"}
-                width={600}
-                height={400}
-                className="w-full h-[300px] lg:h-[400px] object-cover"
+            <div className="relative overflow-hidden rounded-xl bg-[#f0f0f0] w-full h-[300px] lg:h-[400px]">
+              <ImageCarousel 
+                images={[offer?.imageUrl || "/images/deal2.avif"]} 
+                videoUrl={offer?.videoUrl} 
+                alt={offer?.title || "Offer"} 
               />
               {offerDiscountPercent > 0 && (
-                <span className="absolute top-4 left-4 bg-[#e7a91d] text-white px-3 py-1 rounded-full text-sm font-bold">
+                <span className="absolute top-4 left-4 bg-[#e7a91d] text-white px-3 py-1 rounded-full text-sm font-bold z-10">
                   {offerDiscountPercent}% OFF
                 </span>
               )}

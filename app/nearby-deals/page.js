@@ -11,6 +11,44 @@ import Footer from "../components/Footer";
 import AuthRequiredModal from "../components/AuthRequiredModal";
 import { getNearbyOffers } from "../lib/api";
 
+function OfferCardMedia({ imageUrl, videoUrl, title }) {
+  const [showVideo, setShowVideo] = useState(false);
+  const videoRef = useRef(null);
+
+  useEffect(() => {
+    if (!videoUrl) return;
+    
+    let timer;
+    if (!showVideo) {
+      timer = setTimeout(() => setShowVideo(true), 4000);
+    }
+    return () => clearTimeout(timer);
+  }, [showVideo, videoUrl]);
+
+  return (
+    <div className="relative w-full h-full bg-black flex items-center justify-center">
+      {showVideo && videoUrl ? (
+        <video
+          ref={videoRef}
+          src={videoUrl}
+          autoPlay
+          muted
+          playsInline
+          className="w-full h-full object-cover"
+          onEnded={() => setShowVideo(false)}
+          onError={() => setShowVideo(false)}
+        />
+      ) : (
+        <img
+          src={imageUrl || "/images/deal2.avif"}
+          alt={title}
+          className="h-full w-full object-cover transition-opacity duration-500"
+        />
+      )}
+    </div>
+  );
+}
+
 const OFFER_TYPES = [
   "Special",
   "Festival",
@@ -1095,10 +1133,10 @@ function NearbyDealsPageContent() {
                     className="group flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-[#157A4F] hover:shadow-lg"
                   >
                     <div className="relative h-44 w-full overflow-hidden bg-gray-100 sm:h-36">
-                      <img
-                        src={deal.imageUrl || "/images/deal2.avif"}
-                        alt={deal.title}
-                        className="h-full w-full object-cover"
+                      <OfferCardMedia
+                        imageUrl={deal.imageUrl}
+                        videoUrl={deal.videoUrl}
+                        title={deal.title}
                       />
                       <span className="absolute left-2 top-2 rounded-full bg-gradient-to-r from-[#157A4F] to-[#28A745] px-2 py-0.5 text-[10px] font-bold text-white shadow-sm">
                         {deal.category || "Special"}

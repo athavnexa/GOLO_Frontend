@@ -1350,7 +1350,7 @@ function NavbarContent({
                               onClick={() => {
                                 if (!notif.read) handleMarkRead(notif._id);
                                 setShowNotifications(false);
-                                if (notif.offerId) router.push(`/nearby-deals/deal?offerId=${notif.offerId}`);
+                                router.push('/profile/notifications');
                               }}
                               className={`flex items-start gap-2.5 px-3.5 py-2.5 border-b border-gray-50 transition cursor-pointer sm:gap-3 sm:px-4 sm:py-3 ${
                                 notif.read

@@ -419,8 +419,8 @@ function NearbyStoreContent() {
         {/* Main Section */}
         <section className="mt-6 grid gap-6 lg:grid-cols-[1.5fr_1fr]">
           {/* Store Image */}
-          <div className="overflow-hidden rounded-2xl border border-[#d8dce3] bg-white shadow-sm">
-            <div className="relative h-80 lg:h-96">
+          <div className="overflow-hidden rounded-2xl border border-[#d8dce3] bg-white shadow-sm h-full flex">
+            <div className="relative w-full h-full min-h-[320px] lg:min-h-[384px]">
               <Image
                 src={resolvedStoreImage}
                 alt={merchant?.name || "Store"}

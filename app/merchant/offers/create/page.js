@@ -46,6 +46,7 @@ const EMPTY_FORM = {
   title: "",
   category: "",
   imageUrl: "",
+  videoUrl: "",
   startDate: "",
   endDate: "",
   promotionExpiryText: "",
@@ -102,6 +103,7 @@ export default function CreateMerchantOfferPage() {
 
   const [formSubmitting, setFormSubmitting] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadingVideo, setUploadingVideo] = useState(false);
   const [loadingProducts, setLoadingProducts] = useState(false);
   const [storeLocationReady, setStoreLocationReady] = useState(true);
   const [error, setError] = useState("");
@@ -343,6 +345,46 @@ export default function CreateMerchantOfferPage() {
     }
   };
 
+  const uploadOfferVideo = async (file) => {
+    if (!file) return;
+
+    if (!file.type?.startsWith("video/")) {
+      setError("Please select a video file.");
+      return;
+    }
+
+    setUploadingVideo(true);
+    setError("");
+
+    try {
+      const videoElement = document.createElement("video");
+      videoElement.preload = "metadata";
+      
+      const duration = await new Promise((resolve, reject) => {
+        videoElement.onloadedmetadata = () => {
+          URL.revokeObjectURL(videoElement.src);
+          resolve(videoElement.duration);
+        };
+        videoElement.onerror = () => {
+          URL.revokeObjectURL(videoElement.src);
+          reject(new Error("Failed to load video metadata."));
+        };
+        videoElement.src = URL.createObjectURL(file);
+      });
+
+      if (duration > 30) {
+        throw new Error("Video must be up to 30 seconds.");
+      }
+
+      const uploadResult = await uploadToCloudinary(file);
+      setFormData((prev) => ({ ...prev, videoUrl: uploadResult.url }));
+    } catch (err) {
+      setError(err?.message || "Failed to upload video.");
+    } finally {
+      setUploadingVideo(false);
+    }
+  };
+
   const resetAll = () => resetToEmpty();
 
   const validateBeforeSubmit = () => {
@@ -417,9 +459,9 @@ export default function CreateMerchantOfferPage() {
      try {
        await submitOfferPromotionRequest({
          title: formData.title.trim(),
-         // Promotional type used for UI filtering
          category: formData.category,
          imageUrl: formData.imageUrl.trim(),
+         videoUrl: formData.videoUrl?.trim() || "",
          selectedDates,
          totalPrice: totalOfferValue,
          promotionExpiryText: formData.promotionExpiryText,
@@ -566,31 +608,75 @@ export default function CreateMerchantOfferPage() {
               </div>
 
               <div className="rounded-[12px] border border-[#ececec] bg-[#fbfbfb] p-4">
-                <h2 className="text-[18px] font-semibold text-[#202020]">Offer Banner</h2>
+                <h2 className="text-[18px] font-semibold text-[#202020]">Offer Banner & Video</h2>
 
-                <div className="mt-3 space-y-3">
-                  <label className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-[8px] border border-[#d5d5d5] bg-[#f7f7f7] px-4 text-[12px] font-semibold text-[#333] hover:bg-[#efefef]">
-                    <Upload size={14} />
-                    {uploadingImage ? "Uploading..." : "Upload from device"}
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      disabled={uploadingImage}
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        uploadOfferImage(file);
-                        e.target.value = "";
-                      }}
-                    />
-                  </label>
+                <div className="mt-3 space-y-4">
+                  <div className="flex gap-4">
+                    <label className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-[8px] border border-[#d5d5d5] bg-[#f7f7f7] px-4 text-[12px] font-semibold text-[#333] hover:bg-[#efefef]">
+                      <Upload size={14} />
+                      {uploadingImage ? "Uploading Image..." : "Upload Image"}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        disabled={uploadingImage || uploadingVideo}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          uploadOfferImage(file);
+                          e.target.value = "";
+                        }}
+                      />
+                    </label>
 
-                  <div className="rounded-[10px] border-2 border-dashed border-[#d8c4bb] bg-[#fff] min-h-[140px] p-4 flex items-center justify-center">
-                    {formData.imageUrl ? (
-                      <img src={formData.imageUrl} alt="Offer banner preview" className="max-h-[180px] w-full object-contain rounded-[8px]" />
-                    ) : (
-                      <p className="text-[14px] text-[#666]">Click to add Offer Banner of your Offer</p>
-                    )}
+                    <label className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-[8px] border border-[#d5d5d5] bg-[#f7f7f7] px-4 text-[12px] font-semibold text-[#333] hover:bg-[#efefef]">
+                      <Upload size={14} />
+                      {uploadingVideo ? "Uploading Video..." : "Upload Video (up to 30s)"}
+                      <input
+                        type="file"
+                        accept="video/*"
+                        className="hidden"
+                        disabled={uploadingImage || uploadingVideo}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          uploadOfferVideo(file);
+                          e.target.value = "";
+                        }}
+                      />
+                    </label>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="rounded-[10px] border-2 border-dashed border-[#d8c4bb] bg-[#fff] min-h-[140px] p-4 flex flex-col items-center justify-center relative">
+                      {formData.imageUrl ? (
+                        <>
+                          <button 
+                            onClick={() => setFormData((prev) => ({ ...prev, imageUrl: "" }))}
+                            className="absolute top-2 right-2 p-1 bg-red-100 text-red-600 rounded-full hover:bg-red-200"
+                          >
+                            <X size={14} />
+                          </button>
+                          <img src={formData.imageUrl} alt="Offer banner preview" className="max-h-[180px] w-full object-contain rounded-[8px]" />
+                        </>
+                      ) : (
+                        <p className="text-[14px] text-[#666] text-center">Image Preview</p>
+                      )}
+                    </div>
+                    
+                    <div className="rounded-[10px] border-2 border-dashed border-[#d8c4bb] bg-[#fff] min-h-[140px] p-4 flex flex-col items-center justify-center relative">
+                      {formData.videoUrl ? (
+                        <>
+                          <button 
+                            onClick={() => setFormData((prev) => ({ ...prev, videoUrl: "" }))}
+                            className="absolute top-2 right-2 p-1 bg-red-100 text-red-600 rounded-full hover:bg-red-200 z-10"
+                          >
+                            <X size={14} />
+                          </button>
+                          <video src={formData.videoUrl} controls className="max-h-[180px] w-full rounded-[8px]" />
+                        </>
+                      ) : (
+                        <p className="text-[14px] text-[#666] text-center">Video Preview</p>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
