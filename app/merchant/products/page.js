@@ -114,7 +114,7 @@ export default function MerchantProductsPage() {
 
   const handleMerchantLogout = async () => {
     await logout();
-    router.push("/login");
+    router.push("/merchant-login");
   };
 
   useEffect(() => {

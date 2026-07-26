@@ -18,7 +18,7 @@ export default function GolocalProfileSidebar({ active = "profile" }) {
   const { logout } = useAuth();
 
   const handleLogout = () => {
-    logout().finally(() => router.push("/login"));
+    logout().finally(() => router.push("/"));
   };
 
   return (

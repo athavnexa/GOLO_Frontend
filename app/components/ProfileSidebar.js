@@ -28,7 +28,7 @@ export default function ProfileSidebar() {
     }`;
 
   const handleLogout = () => {
-    logout().finally(() => router.push("/login"));
+    logout().finally(() => router.push("/"));
   };
 
   return (

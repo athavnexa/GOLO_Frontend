@@ -48,7 +48,7 @@ export default function AddNewListingPage() {
 
   const handleMerchantLogout = async () => {
     await logout();
-    router.push("/login");
+    router.push("/merchant-login");
   };
 
   const openProductModal = () => {

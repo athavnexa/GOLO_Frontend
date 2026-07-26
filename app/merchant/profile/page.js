@@ -284,7 +284,7 @@ function MerchantProfileContent({ user, logout, router, initialTab = "Profile Se
 
   const handleMerchantLogout = async () => {
     await logout();
-    router.push("/login");
+    router.push("/merchant-login");
   };
 
   const confirmLogout = async () => {

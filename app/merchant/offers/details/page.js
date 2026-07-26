@@ -141,7 +141,7 @@ function MerchantOfferDetailsContent() {
 
   const handleMerchantLogout = async () => {
     await logout();
-    router.push("/login");
+    router.push("/merchant-login");
   };
 
   const handleEditClick = () => setIsEditMode(true);

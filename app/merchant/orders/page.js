@@ -25,7 +25,7 @@ function MerchantOrdersPageContent() {
 
   const handleMerchantLogout = async () => {
     await logout();
-    router.push("/login");
+    router.push("/merchant-login");
   };
   const [activeTab, setActiveTab] = useState("all");
   const [orders, setOrders] = useState([]);
