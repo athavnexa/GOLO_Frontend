@@ -3,6 +3,8 @@
  * Handles location search, reverse geocoding using OpenStreetMap Nominatim
  */
 
+import { API_BASE_URL } from '../lib/api';
+
 const NOMINATIM_API_BASE = "https://nominatim.openstreetmap.org";
 
 /**
@@ -21,16 +23,69 @@ export async function searchLocations(query, options = {}) {
   console.log("🔍 [searchLocations] Starting search for:", searchQuery);
 
   try {
+    let formatted = [];
+
+    // If scale is NOT provided, use Nominatim for richer local area results (e.g. Tarabai Park)
+    if (!options.scale) {
+      const nomController = new AbortController();
+      const nomTimeoutId = setTimeout(() => nomController.abort(), 10000);
+      try {
+        const nomParams = new URLSearchParams({
+          q: query,
+          format: 'json',
+          addressdetails: 1,
+          limit: options.limit || 8,
+          countrycodes: options.country || 'in',
+        });
+        const nomUrl = `${NOMINATIM_API_BASE}/search?${nomParams.toString()}`;
+        console.log("🌐 [searchLocations] Nominatim API URL:", nomUrl);
+
+        const nomResponse = await fetch(nomUrl, {
+          headers: {
+            "Accept": "application/json",
+            "User-Agent": "GOLO-App/1.0",
+          },
+          signal: nomController.signal,
+        });
+        clearTimeout(nomTimeoutId);
+
+        if (nomResponse.ok) {
+          const data = await nomResponse.json();
+          if (data && data.length > 0) {
+            formatted = data.map((item, index) => {
+              const rawName = item.name || item.display_name.split(',')[0];
+              return {
+                id: `nominatim_${item.place_id || index}`,
+                name: rawName,
+                displayName: item.display_name,
+                coordinates: { lat: parseFloat(item.lat), lng: parseFloat(item.lon) },
+                address: item.display_name,
+                population: 0,
+                dailyRate: 0,
+                type: item.type || item.class || 'area'
+              };
+            });
+            console.log("✅ [searchLocations] Got", formatted.length, "results from Nominatim");
+            return formatted;
+          }
+        }
+        console.log("⚠️  [searchLocations] No results from Nominatim, falling back to backend API");
+      } catch (e) {
+        clearTimeout(nomTimeoutId);
+        console.warn("⚠️  [searchLocations] Nominatim failed, falling back to backend API", e);
+      }
+    }
+
     const params = new URLSearchParams({
       q: query,
-      format: "json",
-      limit: options.limit || 10,
-      addressdetails: 1,
-      countrycodes: options.country || "in",
-      "accept-language": "en",
     });
+    
+    if (options.scale) {
+      params.append('scale', options.scale);
+    }
 
-    const url = `${NOMINATIM_API_BASE}/search?${params.toString()}`;
+    // Call our backend API which proxies to GeoNames
+    const url = `${API_BASE_URL}/regions/search?${params.toString()}`;
     console.log("🌐 [searchLocations] API URL:", url);
     
     const controller = new AbortController();
@@ -40,14 +95,11 @@ export async function searchLocations(query, options = {}) {
     }, 10000); // 10 second timeout
 
     const response = await fetch(url, {
-      method: 'GET',
       headers: {
         "Accept": "application/json",
-        "User-Agent": "GOLO-App/1.0",
       },
       signal: controller.signal,
       mode: 'cors',
-      credentials: 'omit',
     });
 
     clearTimeout(timeoutId);
@@ -67,7 +119,18 @@ export async function searchLocations(query, options = {}) {
       return getLocalSearchResults(query);
     }
     
-    const formatted = formatSearchResults(data || []);
+    // Our backend already formats the results nicely
+    formatted = data.map((item, index) => ({
+      id: `geonames_${index}`,
+      name: item.name,
+      displayName: item.displayName,
+      coordinates: { lat: item.lat, lng: item.lng },
+      address: item.displayName,
+      population: item.population,
+      dailyRate: item.dailyRate,
+      type: item.type
+    }));
+    
     console.log("📊 [searchLocations] Formatted results:", formatted.length);
     return formatted;
   } catch (error) {

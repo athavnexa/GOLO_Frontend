@@ -123,9 +123,9 @@ export default function Hero() {
 
         // If no explicit city was found in storage, fallback to parsing the label
         if (!city && labelStr) {
-          // Extract the most significant area (usually at the end of the short label)
+          // Extract the most significant area (usually at the start of the short label)
           const parts = labelStr.split(",");
-          city = parts[parts.length - 1].trim();
+          city = parts[0].trim();
         }
 
         // Always pass the most complete string we have as fullLocation
@@ -172,7 +172,6 @@ export default function Hero() {
           })
           .filter(Boolean);
 
-        let finalSlides = [...dynamicSlides];
         const platformBanners = [
           { url: "/images/platform-banners/platform_banner_1.png", href: null },
           { url: "/images/platform-banners/platform_banner_2.png", href: null },
@@ -180,11 +179,62 @@ export default function Hero() {
           { url: "/images/platform-banners/platform_banner_4.png", href: null },
         ];
 
-        let i = 0;
-        while (finalSlides.length < MAX_SLIDES && platformBanners.length > 0) {
-          finalSlides.push({ ...platformBanners[i % platformBanners.length], isFallback: true, id: `fallback_${i}` });
-          i++;
+        let finalSlides = [];
+        const D = dynamicSlides.length;
+
+        // 1. If no dynamic banners, just fill with 4 globals (slider size 4)
+        if (D === 0) {
+          finalSlides = platformBanners.map((p, idx) => ({
+            ...p,
+            isFallback: true,
+            id: `fallback_${idx}`,
+          }));
+        } 
+        // 2. If 10 or more dynamic banners, just take the first 10
+        else if (D >= MAX_SLIDES) {
+          finalSlides = dynamicSlides.slice(0, MAX_SLIDES);
+        } 
+        // 3. If 1 to 9 dynamic banners, fill exactly 10 slots
+        else {
+          // User requirement: 10 slots total. Pad with global platform banners.
+          // Do not repeat merchant banners. Only use the D dynamic banners, and (10 - D) global banners.
+          const globalPaddingCount = MAX_SLIDES - D;
+          const globalPadding = [];
+          
+          for (let i = 0; i < globalPaddingCount; i++) {
+            globalPadding.push({
+              ...platformBanners[i % platformBanners.length],
+              isFallback: true,
+              id: `fallback_pad_${i}`
+            });
+          }
+
+          // Interleave to maximize distance between banners
+          // We have exactly 10 slots. We place the D dynamic banners at evenly spaced indices.
+          const slots = new Array(MAX_SLIDES).fill(null);
+          
+          for (let i = 0; i < D; i++) {
+            // Calculate a spaced index for the dynamic banner
+            const idx = Math.round(i * (MAX_SLIDES / D));
+            // In case of rounding collisions (should not happen for D < 10, but to be safe)
+            let placeIdx = idx % MAX_SLIDES;
+            while (slots[placeIdx] !== null) {
+              placeIdx = (placeIdx + 1) % MAX_SLIDES;
+            }
+            slots[placeIdx] = dynamicSlides[i];
+          }
+
+          // Fill the remaining null slots with the global padding banners
+          let pIdx = 0;
+          for (let i = 0; i < MAX_SLIDES; i++) {
+            if (slots[i] === null) {
+              slots[i] = globalPadding[pIdx++];
+            }
+          }
+
+          finalSlides = slots;
         }
+
 
         if (isMounted) {
           const clamped = finalSlides.slice(0, MAX_SLIDES);
@@ -282,7 +332,7 @@ export default function Hero() {
   if (loading) {
     return (
       <section className="relative w-full overflow-hidden bg-[#F8F6F2]">
-        <div className="relative h-[170px] w-full bg-[#ece9e1] sm:h-[360px] sm:aspect-auto md:h-[530px]" />
+        <div className="relative h-[170px] w-full bg-[#ece9e1] sm:h-[360px] sm:aspect-auto md:h-[450px] lg:h-[530px]" />
       </section>
     );
   }
@@ -305,7 +355,7 @@ export default function Hero() {
 
       {/* Carousel Wrapper */}
       <div 
-        className="relative flex items-center justify-center w-full h-[200px] sm:h-[380px] md:h-[550px] overflow-hidden px-4 sm:px-10 py-6"
+        className="relative flex items-center justify-center w-full h-[200px] sm:h-[380px] md:h-[450px] lg:h-[550px] overflow-hidden px-4 sm:px-10 py-6"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >

@@ -785,6 +785,17 @@ export async function getHomeSectionConfig() {
     });
 }
 
+export async function getHomepageRecommendations(params = {}) {
+    const query = new URLSearchParams();
+    if (params.location) query.append("location", params.location);
+    if (params.lat) query.append("lat", params.lat);
+    if (params.lng) query.append("lng", params.lng);
+    
+    return apiClient(`/recommendations/homepage?${query.toString()}`, {
+        cache: 'no-store',
+    });
+}
+
 const LOCAL_BACKEND_URL = API_ORIGIN_URL;
 let nearbyOffersRouteMissingOnPrimary = false;
 const NEARBY_OFFERS_PRIMARY_UNSUPPORTED_KEY = 'golo_nearby_offers_primary_unsupported';

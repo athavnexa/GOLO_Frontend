@@ -113,6 +113,7 @@ function MerchantOfferDetailsContent() {
   const offerId = searchParams.get("id");
   const { user, loading, logout } = useAuth();
   const fileInputRef = useRef(null);
+  const videoInputRef = useRef(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -125,6 +126,7 @@ function MerchantOfferDetailsContent() {
     title: "",
     category: "Special",
     imageUrl: "",
+    videoUrl: "",
     startDate: "",
     endDate: "",
     promotionExpiryText: "",
@@ -175,6 +177,31 @@ function MerchantOfferDetailsContent() {
     setSaveMessage("Offer image removed from preview.");
   };
 
+  const handleVideoUpload = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setIsUploading(true);
+      setFetchError("");
+      const response = await uploadToCloudinary(file);
+      setFormData((prev) => ({ ...prev, videoUrl: response?.url || response?.secure_url || prev.videoUrl }));
+      setSaveMessage("Offer video uploaded successfully.");
+    } catch (error) {
+      setFetchError(error?.message || "Failed to upload offer video");
+    } finally {
+      setIsUploading(false);
+      event.target.value = "";
+    }
+  };
+
+  const triggerVideoUpload = () => videoInputRef.current?.click();
+
+  const handleRemoveOfferVideo = () => {
+    setFormData((prev) => ({ ...prev, videoUrl: "" }));
+    setSaveMessage("Offer video removed from preview.");
+  };
+
   const handleDiscardChanges = () => {
     if (originalData) {
       setFormData(originalData.formData);
@@ -205,6 +232,7 @@ function MerchantOfferDetailsContent() {
         title: formData.title,
         category: formData.category,
         imageUrl: formData.imageUrl,
+        videoUrl: formData.videoUrl,
         selectedDates,
         promotionExpiryText: formData.promotionExpiryText,
         loyaltyRewardEnabled: Boolean(formData.loyaltyRewardEnabled),
@@ -219,6 +247,7 @@ function MerchantOfferDetailsContent() {
           title: formData.title,
           category: formData.category,
           imageUrl: formData.imageUrl,
+          videoUrl: formData.videoUrl,
           startDate: formData.startDate,
           endDate: formData.endDate,
           promotionExpiryText: formData.promotionExpiryText,
@@ -275,6 +304,7 @@ function MerchantOfferDetailsContent() {
           title: offer.title || "",
           category: offer.category || "Special",
           imageUrl: offer.imageUrl || "",
+          videoUrl: offer.videoUrl || "",
           startDate: toDateInputValue(offer.startDate),
           endDate: toDateInputValue(offer.endDate),
           promotionExpiryText: offer.promotionExpiryText || "",
@@ -402,23 +432,32 @@ function MerchantOfferDetailsContent() {
                   <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
                     <div>
                       <p className="text-[12px] font-semibold uppercase tracking-[0.25em] text-[#7a7a7a]">Media</p>
-                      <h2 className="mt-1 text-[18px] font-semibold text-[#1e1e1e]">Offer Image</h2>
-                      <p className="mt-1 text-[12px] text-[#667085]">Replace the main promotion image and keep your campaign visuals fresh.</p>
+                      <h2 className="mt-1 text-[18px] font-semibold text-[#1e1e1e]">Offer Media</h2>
+                      <p className="mt-1 text-[12px] text-[#667085]">Manage the promotion image and video for your campaign.</p>
                     </div>
                     {isEditMode ? (
-                      <button
-                        type="button"
-                        onClick={triggerImageUpload}
-                        className="inline-flex items-center justify-center gap-2 rounded-[12px] bg-[#157a4f] px-4 py-2.5 text-[12px] font-semibold text-white shadow-[0_16px_26px_-18px_rgba(21,122,79,0.95)] transition hover:bg-[#126b43]"
-                      >
-                        <Camera size={13} /> Upload Offer Image
-                      </button>
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          onClick={triggerImageUpload}
+                          className="inline-flex items-center justify-center gap-2 rounded-[12px] bg-[#157a4f] px-4 py-2.5 text-[12px] font-semibold text-white shadow-[0_16px_26px_-18px_rgba(21,122,79,0.95)] transition hover:bg-[#126b43]"
+                        >
+                          <Camera size={13} /> Upload Image
+                        </button>
+                        <button
+                          type="button"
+                          onClick={triggerVideoUpload}
+                          className="inline-flex items-center justify-center gap-2 rounded-[12px] bg-[#2d5f8b] px-4 py-2.5 text-[12px] font-semibold text-white shadow-[0_16px_26px_-18px_rgba(45,95,139,0.95)] transition hover:bg-[#21496b]"
+                        >
+                          <Camera size={13} /> Upload Video
+                        </button>
+                      </div>
                     ) : null}
                   </div>
 
                   <div className="grid gap-5 lg:grid-cols-[1.1fr_0.9fr]">
-                    <div className="rounded-[22px] border border-[#edf0f4] bg-[#f8fbfa] p-3">
-                      <div className="relative h-[320px] overflow-hidden rounded-[18px] border border-[#edf0f4] bg-white">
+                    <div className="rounded-[22px] border border-[#edf0f4] bg-[#f8fbfa] p-3 flex flex-col gap-3">
+                      <div className="relative h-[240px] overflow-hidden rounded-[18px] border border-[#edf0f4] bg-white">
                         {formData.imageUrl ? (
                           <Image src={formData.imageUrl} alt={formData.title || "Offer"} fill className="object-cover" />
                         ) : (
@@ -443,6 +482,26 @@ function MerchantOfferDetailsContent() {
                           </div>
                         ) : null}
                       </div>
+
+                      <div className="relative h-[240px] overflow-hidden rounded-[18px] border border-[#edf0f4] bg-white">
+                        {formData.videoUrl ? (
+                          <video src={formData.videoUrl} controls className="h-full w-full object-cover" />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center bg-[#f6f7f8] text-center text-[13px] text-[#667085]">
+                            No offer video selected
+                          </div>
+                        )}
+                        {isEditMode && formData.videoUrl ? (
+                          <button
+                            type="button"
+                            onClick={handleRemoveOfferVideo}
+                            className="absolute right-2 top-2 inline-flex h-7 w-7 items-center justify-center rounded-full bg-red-600 text-white shadow-lg transition hover:bg-red-700 z-10"
+                            aria-label="Remove offer video"
+                          >
+                            <X size={12} strokeWidth={3} />
+                          </button>
+                        ) : null}
+                      </div>
                     </div>
 
                     <div className="rounded-[18px] border border-[#edf0f4] bg-[#f8fbfa] p-4">
@@ -456,6 +515,7 @@ function MerchantOfferDetailsContent() {
                     </div>
                   </div>
                   <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+                  <input ref={videoInputRef} type="file" accept="video/*" onChange={handleVideoUpload} className="hidden" />
                 </div>
               </div>
 

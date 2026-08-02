@@ -205,27 +205,27 @@ function NearbyStoreContent() {
 
         const firstOfferMerchant = merchantOffers[0]?.merchant || null;
         const mergedMerchant = {
-          ...profileData,
-          name: profileData?.storeName || firstOfferMerchant?.name || profileData?.name,
-          profilePhoto: profileData?.profilePhoto || firstOfferMerchant?.profilePhoto,
+          ...data,
+          name: data?.storeName || firstOfferMerchant?.name || data?.name,
+          profilePhoto: data?.profilePhoto || firstOfferMerchant?.profilePhoto,
           shopPhoto:
-            profileData?.shopPhoto ||
-            profileData?.merchantProfile?.shopPhoto ||
+            data?.shopPhoto ||
+            data?.merchantProfile?.shopPhoto ||
             firstOfferMerchant?.shopPhoto ||
             "",
-          merchantProfile: profileData?.merchantProfile || profileData,
+          merchantProfile: data?.merchantProfile || data,
           profile: {
-            ...(profileData?.profile || {}),
+            ...(data?.profile || {}),
             address:
-              profileData?.profile?.address ||
-              profileData?.storeLocation ||
-              profileData?.merchantProfile?.storeLocation ||
+              data?.profile?.address ||
+              data?.storeLocation ||
+              data?.merchantProfile?.storeLocation ||
               firstOfferMerchant?.address ||
               "",
             phone:
-              profileData?.profile?.phone ||
-              profileData?.contactNumber ||
-              profileData?.merchantProfile?.contactNumber ||
+              data?.profile?.phone ||
+              data?.contactNumber ||
+              data?.merchantProfile?.contactNumber ||
               "",
           },
         };

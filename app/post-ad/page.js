@@ -20,6 +20,7 @@ function PostAdContent() {
   const { user } = useAuth();
   const { isLoading, isAuthorized } = useRoleProtection("user");
 
+  // Base Tier 1 prices (population < 50k). Actual price computed dynamically after location is chosen.
   const templates = [
     {
       id: 1,
@@ -35,9 +36,10 @@ function PostAdContent() {
         "Pure veg meals, monthly plans open. Nutritious home-cooked food delivered at your doorstep.",
       location1: "Model Town, 0.8km",
       location2: "Ghar ka Tiffin",
-      price: "₹5",
-      bundle1: "₹40",
-      bundle2: "₹110",
+      price: "₹25",
+      bundle1: "₹250",
+      bundle2: "₹750",
+      label: "Multi-Image Ad",
     },
     {
       id: 2,
@@ -49,9 +51,10 @@ function PostAdContent() {
         "Opening offer: Flat 20% off for first 3 days.",
       location1: "Model Town, 0.8km",
       location2: "Brew & Bites Café",
-      price: "₹3",
-      bundle1: "₹24",
-      bundle2: "₹66",
+      price: "₹15",
+      bundle1: "₹150",
+      bundle2: "₹450",
+      label: "Single Image Ad",
     },
     {
       id: 3,
@@ -63,9 +66,10 @@ function PostAdContent() {
         "Free entry for college students.",
       location1: "Model Town, 0.8km",
       location2: "City Hall Club",
-      price: "₹2",
-      bundle1: "₹16",
-      bundle2: "₹44",
+      price: "₹10",
+      bundle1: "₹100",
+      bundle2: "₹300",
+      label: "Text-Only Ad",
     },
   ];
 
@@ -97,7 +101,7 @@ function PostAdContent() {
               Choose Your Template
             </h1>
             <p className="text-gray-600 mt-4 text-lg">
-              Select from high-performing templates.
+              Select from high-performing templates. Price varies by location.
             </p>
           </div>
 
@@ -195,6 +199,7 @@ function PostAdContent() {
                         {item.price}
                       </p>
                       <span className="text-xs text-gray-400">PER DAY</span>
+                      <p className="text-xs text-[#157A4F] mt-0.5">Starts at · varies by location</p>
                     </div>
                   </div>
 
@@ -261,7 +266,7 @@ function PostAdContent() {
 
                 <div className="bg-[#FFF3D6] px-6 py-4 rounded-b-3xl flex justify-between text-sm">
                   <span className="text-[#157A4F] font-semibold">
-                    TEMPLATE #{item.id}
+                    TEMPLATE #{item.id} · {item.label}
                   </span>
                   <span className="text-[#157A4F] font-semibold group-hover:translate-x-2 transition">
                     Select →

@@ -87,6 +87,7 @@ function MerchantBannerEditContent() {
     startDate: "",
     endDate: "",
     description: "",
+    targetCities: [],
   });
 
   const [isDeleting, setIsDeleting] = useState(false);
@@ -191,6 +192,7 @@ function MerchantBannerEditContent() {
           startDate: toDateInputValue(banner.startDate),
           endDate: toDateInputValue(banner.endDate),
           description: banner.description || "",
+          targetCities: banner.targetCities || [],
         });
       } catch (error) {
         setFetchError(error?.message || "Failed to load banner");
@@ -286,6 +288,21 @@ function MerchantBannerEditContent() {
                         End date
                         <input type="date" value={formData.endDate} onChange={(event) => handleInputChange("endDate", event.target.value)} className="mt-2 h-11 w-full rounded-[12px] border border-[#d7dce4] bg-white px-3 text-[13px] outline-none" />
                       </label>
+                      <div className="text-[12px] font-semibold text-[#374151] md:col-span-2 pt-2">
+                        Target Locations
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          {formData.targetCities && formData.targetCities.length > 0 ? (
+                            formData.targetCities.map((city, idx) => (
+                              <span key={idx} className="inline-flex items-center rounded-full bg-[#f3f4f6] border border-[#e5e7eb] px-3 py-1 text-[11px] font-medium text-[#4b5563]">
+                                {city}
+                              </span>
+                            ))
+                          ) : (
+                            <span className="text-[#8a8a8a] font-normal text-[12px] italic">Global (All locations)</span>
+                          )}
+                        </div>
+                        <p className="mt-1.5 text-[11px] font-normal text-[#667085]">Target locations cannot be changed after the banner is created.</p>
+                      </div>
                     </div>
                   </div>
 

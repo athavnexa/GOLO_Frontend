@@ -9,7 +9,7 @@ import Navbar from "./components/Navbar";
 import CategoryBar from "./components/CategoryBar";
 import Hero from "./components/Hero";
 import Footer from "./components/Footer";
-import { getHomeSectionConfig, getNearbyOffers } from "./lib/api";
+import { getHomeSectionConfig, getNearbyOffers, getHomepageRecommendations } from "./lib/api";
 
 const SHOP_FALLBACKS = [
   {
@@ -238,9 +238,9 @@ function SectionSkeleton({ title }) {
           {Array.from({ length: 4 }).map((_, index) => (
             <article
               key={`${title}-skeleton-${index}`}
-              className="w-[260px] min-w-[260px] max-w-[260px] flex-none overflow-hidden rounded-[14px] border border-[#e2e8f0] bg-white shadow-[0_2px_12px_rgba(15,23,42,0.05)] sm:w-auto sm:min-w-[280px] sm:max-w-[280px]"
+              className="flex-none overflow-hidden rounded-[14px] border border-[#e2e8f0] bg-white shadow-[0_2px_12px_rgba(15,23,42,0.05)] w-[260px] min-w-[260px] max-w-[260px] sm:w-[280px] sm:min-w-[280px] sm:max-w-[280px] md:w-[240px] md:min-w-[240px] md:max-w-[240px] lg:w-[280px] lg:min-w-[280px] lg:max-w-[280px]"
             >
-              <div className="h-[140px] sm:h-[190px] w-full animate-pulse bg-[#dbe3ed]" />
+              <div className="relative h-[140px] sm:h-[190px] md:h-[160px] lg:h-[190px] w-full animate-pulse bg-[#dbe3ed]" />
               <div className="flex min-h-[135px] sm:min-h-[170px] flex-col gap-4 bg-[#ffe1a3] p-3 sm:p-4">
                 <div className="h-5 sm:h-6 w-4/5 animate-pulse rounded-full bg-[#f4d77f]" />
                 <div className="h-3 sm:h-4 w-full animate-pulse rounded-full bg-[#f4d77f]" />
@@ -325,9 +325,9 @@ function SectionCarousel({ title, items, onItemClick }) {
             {items.map((item) => (
               <article
                 key={item.id}
-                className="w-[260px] min-w-[260px] max-w-[260px] flex-none snap-start overflow-hidden rounded-[14px] border border-[#e2e8f0] bg-white shadow-[0_2px_12px_rgba(15,23,42,0.05)] sm:w-auto sm:min-w-[280px] sm:max-w-[280px]"
+                className="flex-none snap-start overflow-hidden rounded-[14px] border border-[#e2e8f0] bg-white shadow-[0_2px_12px_rgba(15,23,42,0.05)] w-[260px] min-w-[260px] max-w-[260px] sm:w-[280px] sm:min-w-[280px] sm:max-w-[280px] md:w-[240px] md:min-w-[240px] md:max-w-[240px] lg:w-[280px] lg:min-w-[280px] lg:max-w-[280px]"
               >
-                <div className="relative h-[140px] sm:h-[190px] w-full overflow-hidden">
+                <div className="relative h-[140px] sm:h-[190px] md:h-[160px] lg:h-[190px] w-full overflow-hidden">
                   <Image
                     src={item.image}
                     alt={item.title}
@@ -372,10 +372,7 @@ function SectionCarousel({ title, items, onItemClick }) {
 
 function HomeContent() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [shops, setShops] = useState([]);
-  const [dealsUnder2Km, setDealsUnder2Km] = useState([]);
-  const [recommendedDeals, setRecommendedDeals] = useState([]);
-  const [coupleDeals, setCoupleDeals] = useState([]);
+  const [dynamicSections, setDynamicSections] = useState([]);
   const [isLoadingRows, setIsLoadingRows] = useState(true);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -394,99 +391,44 @@ function HomeContent() {
 
   useEffect(() => {
     let cancelled = false;
-    const hasFilteredSearch = Boolean(selectedLocation.trim() || selectedQuery.trim());
 
     async function loadHomepageRows() {
       setIsLoadingRows(true);
       try {
-        const [response, sectionConfigResponse] = await Promise.all([
-          getNearbyOffers({
-            limit: 24,
-            activeNowOnly: true,
+        const response = await getHomepageRecommendations({
             location: selectedLocation || undefined,
             q: selectedQuery || undefined,
-          }),
-          getHomeSectionConfig().catch(() => null),
-        ]);
-
-        const rows = normalizeOffers(response);
-        const sectionConfig = sectionConfigResponse?.data || {};
-        const configuredIds = sectionConfig?.sections || {};
-        const configuredOffers = sectionConfig?.resolved || {};
+        });
 
         if (cancelled) return;
 
-        if (!rows.length) {
-          if (hasFilteredSearch) {
-            setShops([]);
-            setDealsUnder2Km([]);
-            setRecommendedDeals([]);
-            setCoupleDeals([]);
-          }
-          return;
+        if (Array.isArray(response)) {
+            const mappedSections = response.map(section => ({
+                ...section,
+                items: section.products.map((p, index) => {
+                    const fallback = DEAL_FALLBACKS[index % DEAL_FALLBACKS.length];
+                    return {
+                        id: p.id,
+                        offerId: p.offerId,
+                        merchantId: p.merchantId,
+                        title: p.title || fallback.title,
+                        subtitle: p.merchantName || p.category || p.subtitle || fallback.subtitle,
+                        image: p.imageUrl || p.image || fallback.image,
+                        badge: p.discountPercent > 0 ? `${p.discountPercent}% OFF` : p.badge || fallback.badge,
+                        buttonLabel: p.type === 'shop' ? "View Store" : "View Deal",
+                        type: p.type || 'deal'
+                    };
+                })
+            }));
+            
+            // Only keep sections that actually have items
+            setDynamicSections(mappedSections.filter(s => s.items.length > 0));
+        } else {
+            setDynamicSections([]);
         }
-
-        const shopRows = buildShopCards(rows).slice(0, 8);
-        const dealRows = buildDealCards(rows);
-
-        const hasConfiguredIds = (key) =>
-          Array.isArray(configuredIds?.[key]) && configuredIds[key].length > 0;
-
-        const configuredShopRows = buildShopCards(configuredOffers?.popularShops || []).slice(0, 8);
-        const configuredDealsUnder2Km = buildDealCards(configuredOffers?.dealsUnder2Km || []).slice(0, 8);
-        const configuredRecommendedDeals = buildDealCards(configuredOffers?.recommendedDeals || []).slice(0, 8);
-        const configuredCoupleDeals = buildDealCards(configuredOffers?.coupleDeals || []).slice(0, 8);
-
-        if (shopRows.length > 0) {
-          if (hasConfiguredIds("popularShops")) {
-            setShops(configuredShopRows);
-          } else {
-            setShops(shopRows);
-          }
-        }
-
-        if (dealRows.length > 0) {
-          if (hasConfiguredIds("dealsUnder2Km")) {
-            setDealsUnder2Km(configuredDealsUnder2Km);
-          } else {
-            setDealsUnder2Km(dealRows.slice(0, 8));
-          }
-
-          if (hasConfiguredIds("recommendedDeals")) {
-            setRecommendedDeals(configuredRecommendedDeals);
-          } else {
-            setRecommendedDeals(
-              dealRows.slice(4, 12).length ? dealRows.slice(4, 12) : dealRows.slice(0, 8),
-            );
-          }
-
-          if (hasConfiguredIds("coupleDeals")) {
-            setCoupleDeals(configuredCoupleDeals);
-          } else {
-            setCoupleDeals(
-              dealRows.slice(8, 16).length ? dealRows.slice(8, 16) : dealRows.slice(0, 8),
-            );
-          }
-        }
-
-        if (!shopRows.length && hasConfiguredIds("popularShops")) {
-          setShops(configuredShopRows);
-        }
-        if (!dealRows.length && hasConfiguredIds("dealsUnder2Km")) {
-          setDealsUnder2Km(configuredDealsUnder2Km);
-        }
-        if (!dealRows.length && hasConfiguredIds("recommendedDeals")) {
-          setRecommendedDeals(configuredRecommendedDeals);
-        }
-        if (!dealRows.length && hasConfiguredIds("coupleDeals")) {
-          setCoupleDeals(configuredCoupleDeals);
-        }
-      } catch {
+      } catch (err) {
         if (!cancelled) {
-          setShops([]);
-          setDealsUnder2Km([]);
-          setRecommendedDeals([]);
-          setCoupleDeals([]);
+          setDynamicSections([]);
         }
       } finally {
         if (!cancelled) {
@@ -533,36 +475,23 @@ function HomeContent() {
 
         {isLoadingRows ? (
           <>
-            <SectionSkeleton title="Popular Shops" />
-            <SectionSkeleton title="Deals Under 2 KM" />
-            <SectionSkeleton title="Recommended Deals" />
-            <SectionSkeleton title="Couple Deals" />
+            <SectionSkeleton title="Loading..." />
+            <SectionSkeleton title="Loading..." />
+            <SectionSkeleton title="Loading..." />
           </>
         ) : (
           <>
-            <SectionCarousel
-              title="Recommended Deals"
-              items={recommendedDeals}
-              onItemClick={handleDealClick}
-            />
-
-            <SectionCarousel
-              title="Popular Shops"
-              items={shops}
-              onItemClick={handleShopClick}
-            />
-
-            <SectionCarousel
-              title="Deals Under 2 KM"
-              items={dealsUnder2Km}
-              onItemClick={handleDealClick}
-            />
-
-            <SectionCarousel
-              title="Couple Deals"
-              items={coupleDeals}
-              onItemClick={handleDealClick}
-            />
+            {dynamicSections.map((section, idx) => (
+                <SectionCarousel
+                  key={section.key || idx}
+                  title={section.title}
+                  items={section.items}
+                  onItemClick={(item) => {
+                      if (item.type === 'shop') handleShopClick(item);
+                      else handleDealClick(item);
+                  }}
+                />
+            ))}
           </>
         )}
 

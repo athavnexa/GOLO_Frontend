@@ -473,8 +473,8 @@ export default function ProductDetails({ params }) {
 						</span>
 					</p>
 
-					<div className="grid md:grid-cols-3 gap-10">
-						<div className="md:col-span-2">
+					<div className="grid lg:grid-cols-3 gap-10">
+						<div className="lg:col-span-2">
 							{isTextOnlyAd ? (
 								<div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-200">
 									<div className="flex flex-wrap items-center gap-3 mb-6">

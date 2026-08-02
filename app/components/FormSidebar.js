@@ -10,6 +10,7 @@ export default function FormSidebar({
   adTitleState,
   adDescriptionState,
   cities,
+  cityDetails,
   uploadedImages,
   primaryContact,
   selectedCategory,
@@ -45,20 +46,55 @@ export default function FormSidebar({
     }
   }, [templateId, uploadedImages]);
 
-  // Dynamic price logic
-  const getPrice = () => {
-    const templatePrices = { 1: "₹5", 2: "₹3", 3: "₹2" };
-    if (templateId && templatePrices[templateId]) return templatePrices[templateId];
-    return "₹0";
+  // ====== DYNAMIC PRICING ======
+  // Base prices per template (Tier 1 — population < 50k)
+  const BASE_PRICES = { 1: 25, 2: 15, 3: 10 };
+
+  // Population tiers and multipliers matching AdPricingService on the backend
+  const getAdDailyRateForPop = (population, tplId) => {
+    const base = BASE_PRICES[tplId] ?? 25;
+    const tiers = [
+      [0,       1.0],
+      [50000,   1.5],
+      [100000,  2.0],
+      [200000,  3.0],
+      [500000,  4.0],
+      [1000000, 6.0],
+      [5000000, 8.0],
+    ];
+    let mult = 1.0;
+    for (const [minPop, m] of tiers) {
+      if (population >= minPop) mult = m;
+      else break;
+    }
+    return Math.round(base * mult);
   };
 
-  const templateCostPerDay = parseInt(getPrice().replace(/[^0-9]/g, "")) || 0;
+  // Sum of per-city rate for all selected cities. Fall back to base Tier 1 if no cities.
+  const computeEffectiveDailyRate = () => {
+    const tplId = templateId || 1;
+    if (!cityDetails || cityDetails.length === 0) {
+      return BASE_PRICES[tplId] ?? 25;
+    }
+    return cityDetails.reduce((sum, d) => {
+      const rate = d.adDailyRates
+        ? (tplId === 1 ? d.adDailyRates.t1 : tplId === 2 ? d.adDailyRates.t2 : d.adDailyRates.t3)
+        : getAdDailyRateForPop(d.population || 0, tplId);
+      return sum + rate;
+    }, 0);
+  };
+
+  const effectiveDailyRate = computeEffectiveDailyRate();
   const daysCount = selectedDates && selectedDates.length > 0 ? selectedDates.length : 0;
-  const daysCharge = daysCount * templateCostPerDay;
+  const daysCharge = daysCount * effectiveDailyRate;
   const featuredCharge = isFeatured ? 100 : 0;
   const subtotal = daysCharge + featuredCharge;
-  const gst = Math.round(subtotal * 0.18);
-  const total = subtotal + gst;
+  const pgCharge = subtotal * 0.025;
+  const gst = (subtotal + pgCharge) * 0.18;
+  const total = subtotal + pgCharge + gst;
+
+  // Primary city population (for metadata)
+  const primaryCityDetail = cityDetails && cityDetails.length > 0 ? cityDetails[0] : null;
 
   const handlePostAd = async () => {
     setSubmitError("");
@@ -80,6 +116,14 @@ export default function FormSidebar({
     }
     if (!selectedCategory) {
       setSubmitError("Please select a category.");
+      return;
+    }
+    if (!cities || !Array.isArray(cities) || cities.filter((c) => c && String(c).trim().length > 0).length === 0) {
+      setSubmitError("Please enter and select at least one location.");
+      return;
+    }
+    if (!selectedDates || !Array.isArray(selectedDates) || selectedDates.length === 0) {
+      setSubmitError("Please select at least one date from the calendar.");
       return;
     }
 
@@ -180,6 +224,10 @@ export default function FormSidebar({
         selectedDates: selectedDates || [],
         negotiable: Boolean(categoryDetails?.negotiable),
         tags: [typeof selectedCategory === 'string' ? selectedCategory : selectedCategory?.name].filter(Boolean),
+        // Population-based pricing metadata
+        adDailyRate: effectiveDailyRate,
+        cityPopulation: primaryCityDetail?.population || 0,
+        cityCoordinates: (cityDetails || []).filter(d => d.lat && d.lng).map(d => ({ lat: d.lat, lng: d.lng })),
       };
 
       // Add category-specific data
@@ -292,7 +340,7 @@ export default function FormSidebar({
 
         {/* Price */}
         <p className="font-bold text-xl mt-2 text-[#157A4F]">
-          {getPrice()}
+          ₹{effectiveDailyRate}/day
         </p>
 
         {/* Description */}
@@ -348,40 +396,50 @@ export default function FormSidebar({
 
         <div className="space-y-3 text-sm">
 
+          {/* Rate per day */}
+          <div className="flex justify-between">
+            <span className="text-gray-600">Rate per day</span>
+            <span className="font-medium">₹{effectiveDailyRate}/day</span>
+          </div>
+
           {/* Days Count */}
           <div className="flex justify-between">
-            <span>Days ({daysCount})</span>
-            <span className="font-medium">₹{daysCharge}</span>
+            <span className="text-gray-600">Days ({daysCount})</span>
+            <span className="font-medium">₹{daysCharge.toFixed(2)}</span>
           </div>
 
           {/* Featured Charge */}
           {isFeatured && (
             <div className="flex justify-between">
-              <span>Featured Ad Charge</span>
-              <span className="font-medium">₹{featuredCharge}</span>
+              <span className="text-gray-600">Featured Ad Charge</span>
+              <span className="font-medium">₹{featuredCharge.toFixed(2)}</span>
             </div>
           )}
 
-          {/* GST */}
+          {/* Subtotal */}
           <div className="flex justify-between">
-            <span>GST (18%)</span>
-            <span className="font-medium">₹{gst}</span>
+            <span className="text-gray-600">Subtotal</span>
+            <span className="font-medium">₹{subtotal.toFixed(2)}</span>
+          </div>
+
+          {/* Payment Gateway (2.5%) */}
+          <div className="flex justify-between">
+            <span className="text-gray-600">Payment Gateway (2.5%)</span>
+            <span className="font-medium">₹{pgCharge.toFixed(2)}</span>
+          </div>
+
+          {/* GST (18%) */}
+          <div className="flex justify-between">
+            <span className="text-gray-600">GST (18%)</span>
+            <span className="font-medium">₹{gst.toFixed(2)}</span>
           </div>
 
         </div>
 
-        {/* Subtotal */}
-        <div className="border-t pt-4 flex justify-between font-semibold text-gray-800">
-          <span>Subtotal (Before GST)</span>
-          <span className="text-[#157A4F]">
-            ₹{subtotal}
-          </span>
-        </div>
-
         {/* Total */}
-        <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-4 flex justify-between items-center">
+        <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-4 flex justify-between items-center mt-2">
           <span className="font-bold text-gray-800">Total Amount</span>
-          <span className="font-bold text-2xl text-[#157A4F]">₹{total}</span>
+          <span className="font-bold text-2xl text-[#157A4F]">₹{total.toFixed(2)}</span>
         </div>
 
         {/* Error Message */}

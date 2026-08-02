@@ -13,6 +13,7 @@ export default function FormContent() {
   const [adTitleState, setAdTitleState] = useState("");
   const [adDescriptionState, setAdDescriptionState] = useState("");
   const [cities, setCities] = useState([]);
+  const [cityDetails, setCityDetails] = useState([]); // { name, population, adDailyRates }[]
   const [uploadedImages, setUploadedImages] = useState([]);
   const [primaryContact, setPrimaryContact] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -107,6 +108,7 @@ export default function FormContent() {
               setAdDescriptionState={setAdDescriptionState}
               cities={cities}
               setCities={setCities}
+              setCityDetails={setCityDetails}
               uploadedImages={uploadedImages}
               setUploadedImages={setUploadedImages}
               primaryContact={primaryContact}
@@ -134,6 +136,7 @@ export default function FormContent() {
               adTitleState={adTitleState}
               adDescriptionState={adDescriptionState}
               cities={cities}
+              cityDetails={cityDetails}
               uploadedImages={uploadedImages}
               primaryContact={primaryContact}
               selectedCategory={selectedCategory}

@@ -30,8 +30,6 @@ const bannerCategories = [
   "Local Businesses & Vendors",
 ];
 
-const RATE_PER_CITY_PER_DAY = 300;
-
 function formatDate(dateStr) {
   if (!dateStr) return "-";
   const date = new Date(dateStr);
@@ -73,8 +71,13 @@ export default function PromoteBannerPage() {
   const [bannerTitle, setBannerTitle] = useState("");
   const [bannerCategory, setBannerCategory] = useState("Fashion");
   const [selectedDates, setSelectedDates] = useState([]);
+  
+  // New: Coverage scale (Town, City, District)
+  const [coverageScale, setCoverageScale] = useState(null);
+  
   const [targetCities, setTargetCities] = useState([]);
   const [targetLocations, setTargetLocations] = useState([]);
+  const [targetDailyRates, setTargetDailyRates] = useState([]);
   const [cityInput, setCityInput] = useState("");
   const [citySuggestions, setCitySuggestions] = useState([]);
   const [isSearchingCity, setIsSearchingCity] = useState(false);
@@ -90,23 +93,30 @@ export default function PromoteBannerPage() {
   const [moderationWarningInfo, setModerationWarningInfo] = useState({ isOpen: false, message: "", restrictedUntil: null });
 
   const selectedDays = useMemo(() => selectedDates.length, [selectedDates]);
-  const subtotal = selectedDays * (RATE_PER_CITY_PER_DAY * targetCities.length);
-  const platformFee = selectedDays > 0 ? 49 : 0;
-  const totalPrice = subtotal + platformFee;
+  const totalDailyRate = targetDailyRates.reduce((sum, rate) => sum + rate, 0);
+  const subtotal = selectedDays * totalDailyRate;
+  const pgCharge = subtotal * 0.025;
+  const gst = (subtotal + pgCharge) * 0.18;
+  const totalPrice = subtotal + pgCharge + gst;
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(async () => {
-      if (cityInput.trim().length > 0) {
+      if (cityInput.trim().length > 0 && coverageScale) {
         setIsSearchingCity(true);
         try {
-          const results = await searchLocations(cityInput);
+          const results = await searchLocations(cityInput, { scale: coverageScale });
           const uniqueCityMap = new Map();
           results.forEach(item => {
             const name = item.name || item.displayName.split(',')[0];
             if (!uniqueCityMap.has(name)) {
-              const segments = item.displayName.split(',');
-              const displayStr = segments.slice(0, 2).join(',').trim();
-              uniqueCityMap.set(name, { name, displayName: displayStr, coordinates: item.coordinates });
+              const displayStr = item.displayName || name;
+              uniqueCityMap.set(name, { 
+                name, 
+                displayName: displayStr, 
+                coordinates: item.coordinates,
+                population: item.population,
+                dailyRate: item.dailyRate 
+              });
             }
           });
           setCitySuggestions(Array.from(uniqueCityMap.values()));
@@ -134,6 +144,7 @@ export default function PromoteBannerPage() {
       if (cityObj.coordinates) {
         setTargetLocations([...targetLocations, { lat: cityObj.coordinates.lat, lng: cityObj.coordinates.lng }]);
       }
+      setTargetDailyRates([...targetDailyRates, cityObj.dailyRate || 200]);
       setSubmitError("");
     }
     setCityInput("");
@@ -145,6 +156,7 @@ export default function PromoteBannerPage() {
     if (index > -1) {
       setTargetCities(targetCities.filter((_, i) => i !== index));
       setTargetLocations(targetLocations.filter((_, i) => i !== index));
+      setTargetDailyRates(targetDailyRates.filter((_, i) => i !== index));
     }
   };
 
@@ -189,19 +201,23 @@ export default function PromoteBannerPage() {
       }
 
       setSubmitMessage("Analyzing banner for safety compliance...");
-  
-      const response = await submitBannerPromotionRequest({
-        bannerTitle: bannerTitle.trim(),
+      
+      const payload = {
+        bannerTitle,
         bannerCategory,
         imageUrl: finalImageUrl,
-        selectedDates,
+        selectedDates: selectedDates,
         targetCities,
         targetLocations,
+        dailyRate: totalDailyRate, 
+        coverageType: coverageScale,
+        coverageRegion: targetCities[0] || "",
+        promotionType: "banner",
         totalPrice,
-        dailyRate: RATE_PER_CITY_PER_DAY * targetCities.length,
-        platformFee,
         recommendedSize: "1920 x 520 px",
-      });
+      };
+  
+      const response = await submitBannerPromotionRequest(payload);
 
       if (response && response.success === false) {
         throw new Error(response.error || response.message || "Failed to submit banner.");
@@ -268,10 +284,7 @@ export default function PromoteBannerPage() {
               <p className="mt-3 text-[13px] text-[#6f6f6f] max-w-[700px]">
                 Upload your banner creative, pick category, choose visibility dates, and submit for admin approval.
               </p>
-              <p className="mt-2 text-[12px] text-[#4c4c4c]">
-                Homepage banner spec: <span className="font-semibold">1920 x 520 px</span>. Only <span className="font-semibold">5 banners</span> are active at a time.
-              </p>
-
+              
               <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-5">
                 <div className="space-y-4">
                   <div>
@@ -297,55 +310,106 @@ export default function PromoteBannerPage() {
                     </select>
                   </div>
 
-                  <div className="relative">
-                    <label className="block text-[13px] font-semibold text-[#2a2a2a] mb-2">Target Cities</label>
-                    <div className="flex flex-wrap gap-2 mb-2">
-                      {targetCities.map((city, idx) => (
-                        <div key={idx} className="flex items-center gap-1.5 rounded-full bg-[#e8f5ed] px-3 py-1.5 text-[11px] font-medium text-[#157a4f]">
-                          {city}
-                          <button onClick={() => removeCity(city)} className="hover:text-red-500">
-                            <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
+                  <div className="bg-white border border-[#e8e4db] rounded-2xl p-6">
+                    <h2 className="text-xl font-bold text-gray-900 mb-6">Target Location</h2>
+                    <div className="mb-6">
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Select Coverage Scale <span className="text-red-500">*</span>
+                      </label>
+                      <div className="flex gap-4">
+                        {['Town', 'City', 'District'].map((scale) => (
+                          <label key={scale} className={`flex-1 flex items-center justify-center py-3 px-4 rounded-xl border-2 cursor-pointer transition-all ${coverageScale === scale ? 'border-[#2f9e58] bg-[#e8f5e9] text-[#2f9e58]' : 'border-gray-200 hover:border-gray-300'}`}>
+                            <input 
+                              type="radio" 
+                              name="coverageScale" 
+                              value={scale} 
+                              checked={coverageScale === scale} 
+                              onChange={() => {
+                                setCoverageScale(scale);
+                                setTargetCities([]);
+                                setTargetLocations([]);
+                                setTargetDailyRates([]);
+                                setCityInput("");
+                              }}
+                              className="hidden" 
+                            />
+                            <span className="font-bold text-sm">{scale}</span>
+                          </label>
+                        ))}
+                      </div>
+                      <p className="text-xs text-gray-500 mt-2">Prices vary based on the population of the selected scale.</p>
+                    </div>
+
+                    <div className="mb-6">
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Search Location <span className="text-gray-400 font-normal">(Max 7)</span>
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="text"
+                          value={cityInput}
+                          onChange={(e) => setCityInput(e.target.value)}
+                          disabled={!coverageScale}
+                          placeholder={coverageScale ? `Search for a ${coverageScale.toLowerCase()}...` : "Select a coverage scale first"}
+                          className="w-full h-12 bg-gray-50/50 border border-gray-200 rounded-xl px-4 text-sm focus:outline-none focus:border-[#2f9e58] focus:ring-1 focus:ring-[#2f9e58] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        />
+                        {isSearchingCity && (
+                          <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                            <div className="w-4 h-4 border-2 border-gray-300 border-t-[#2f9e58] rounded-full animate-spin" />
+                          </div>
+                        )}
+                        {citySuggestions.length > 0 && (
+                          <div className="absolute z-10 w-full mt-2 bg-white border border-gray-100 rounded-xl shadow-lg max-h-60 overflow-y-auto">
+                            {citySuggestions.map((city, index) => (
+                              <button
+                                key={index}
+                                type="button"
+                                onClick={() => addCity(city)}
+                                className="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0 flex justify-between items-center"
+                              >
+                                <div>
+                                  <span className="block text-sm font-medium text-gray-900">{city.name}</span>
+                                  <span className="block text-xs text-gray-500 mt-0.5">{city.displayName} {city.population ? `• Pop: ${city.population.toLocaleString()}` : ''}</span>
+                                </div>
+                                <div className="text-right">
+                                  <span className="text-[#2f9e58] font-bold text-sm">₹{city.dailyRate || 200}/day</span>
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2">
+                      {targetCities.map((city, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-full pl-3 pr-1.5 py-1.5"
+                        >
+                          <span className="text-sm font-medium text-gray-700">{city}</span>
+                          <button
+                            type="button"
+                            onClick={() => removeCity(city)}
+                            className="w-6 h-6 rounded-full bg-white border border-gray-200 flex items-center justify-center hover:bg-red-50 hover:border-red-200 hover:text-red-500 transition-colors"
+                          >
+                            ×
                           </button>
                         </div>
                       ))}
                     </div>
-                    <input
-                      value={cityInput}
-                      onChange={(e) => setCityInput(e.target.value)}
-                      disabled={targetCities.length >= 7}
-                      placeholder={targetCities.length >= 7 ? "Max cities reached" : "Type to search city..."}
-                      className="h-10 w-full rounded-[8px] border border-[#dddddd] bg-white px-3 text-[12px] text-[#2f2f2f] outline-none focus:border-[#2f9e58] disabled:bg-gray-100"
-                    />
-                    {isSearchingCity && (
-                      <div className="absolute z-10 w-full bg-white mt-1 border border-gray-200 rounded-md shadow-lg p-2 text-xs text-gray-500 text-center">
-                        Searching...
-                      </div>
-                    )}
-                    {citySuggestions.length > 0 && (
-                      <div className="absolute z-10 w-full bg-white mt-1 border border-gray-200 rounded-md shadow-lg overflow-hidden max-h-[160px] overflow-y-auto">
-                        {citySuggestions.map((cityObj, idx) => (
-                          <div 
-                            key={idx} 
-                            onClick={() => addCity(cityObj)}
-                            className="px-4 py-2.5 text-xs text-gray-700 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-0"
-                          >
-                            {cityObj.displayName}
-                          </div>
-                        ))}
-                      </div>
-                    )}
                   </div>
 
                   <div>
                     <label className="block text-[13px] font-semibold text-[#2a2a2a] mb-2">Upload Banner</label>
-                    <label className="h-[176px] rounded-[12px] border border-dashed border-[#cfcfcf] bg-[#fbfbfb] flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-[#2f9e58] transition">
+                    <label className={`h-[176px] rounded-[12px] border border-dashed border-[#cfcfcf] bg-[#fbfbfb] flex flex-col items-center justify-center gap-2 transition ${targetCities.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:border-[#2f9e58]'}`}>
                       <input
                         type="file"
                         accept="image/*"
                         className="hidden"
+                        disabled={targetCities.length === 0}
                         onChange={(e) => {
+                          if (targetCities.length === 0) return;
                           const file = e.target.files[0];
                           if (file) {
                             if (file.size > 5 * 1024 * 1024) {
@@ -366,56 +430,35 @@ export default function PromoteBannerPage() {
                       <div className="h-10 w-10 rounded-full bg-[#ecf8f0] text-[#2f9e58] flex items-center justify-center">
                         <Upload size={16} />
                       </div>
-                      <p className="text-[13px] font-semibold text-[#2a2a2a]">Click to upload banner image</p>
-                      <p className="text-[11px] text-[#757575]">Recommended 1920 x 520 px (ratio ~3.7:1), max 5MB</p>
+                      <p className="text-[13px] font-semibold text-[#2a2a2a]">{targetCities.length === 0 ? "Select location first" : "Click to upload banner image"}</p>
+                      <p className="text-[11px] text-[#757575]">Recommended 1920 x 520 px, max 5MB</p>
                     </label>
                   </div>
                 </div>
 
                 <div className="space-y-4">
-                <div>
+                  <div>
                     <label className="block text-[13px] font-semibold text-[#2a2a2a] mb-2">Promotion Calendar</label>
                     <div className="rounded-[10px] border border-[#e4e4e4] bg-[#fafafa] p-3 flex flex-col sm:p-4 lg:h-[420px]">
                       <div className="grid grid-cols-1 gap-3 flex-1 sm:gap-4 lg:grid-cols-2 lg:overflow-hidden">
-                        {/* Left Column: Calendar */}
                         <div className="bg-white rounded-[8px] border border-[#e4e4e4] p-3 sm:p-4 lg:overflow-y-auto">
-                          {/* Month/Year Navigation */}
                           <div className="flex items-center justify-between mb-3 sm:mb-4">
                             <button
                               onClick={() => {
-                                if (currentMonth === 0) {
-                                  setCurrentMonth(11);
-                                  setCurrentYear(currentYear - 1);
-                                } else {
-                                  setCurrentMonth(currentMonth - 1);
-                                }
+                                if (currentMonth === 0) { setCurrentMonth(11); setCurrentYear(currentYear - 1); } else { setCurrentMonth(currentMonth - 1); }
                               }}
                               className="h-7 w-7 rounded-[4px] border border-[#ddd] bg-white text-[12px] flex items-center justify-center hover:bg-[#f5f5f5]"
-                            >
-                              ‹
-                            </button>
+                            >‹</button>
                             <p className="text-[12px] font-semibold text-[#1f1f1f] sm:text-[13px]">
-                              {new Date(currentYear, currentMonth).toLocaleDateString("en-GB", {
-                                month: "long",
-                                year: "numeric",
-                              })}
+                              {new Date(currentYear, currentMonth).toLocaleDateString("en-GB", { month: "long", year: "numeric" })}
                             </p>
                             <button
                               onClick={() => {
-                                if (currentMonth === 11) {
-                                  setCurrentMonth(0);
-                                  setCurrentYear(currentYear + 1);
-                                } else {
-                                  setCurrentMonth(currentMonth + 1);
-                                }
+                                if (currentMonth === 11) { setCurrentMonth(0); setCurrentYear(currentYear + 1); } else { setCurrentMonth(currentMonth + 1); }
                               }}
                               className="h-7 w-7 rounded-[4px] border border-[#ddd] bg-white text-[12px] flex items-center justify-center hover:bg-[#f5f5f5]"
-                            >
-                              ›
-                            </button>
+                            >›</button>
                           </div>
-
-                          {/* Weekday Headers */}
                           <div className="grid grid-cols-7 gap-1 mb-2">
                             {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
                               <div key={day} className="h-5 flex items-center justify-center text-[9px] font-semibold text-[#666] sm:h-6 sm:text-[10px]">
@@ -424,52 +467,29 @@ export default function PromoteBannerPage() {
                               </div>
                             ))}
                           </div>
-
-                          {/* Calendar Days */}
                           <div className="grid grid-cols-7 gap-1">
                             {generateCalendarDays(currentYear, currentMonth).map((day, idx) => {
-                              const dateObj = day
-                                ? new Date(currentYear, currentMonth, day)
-                                : null;
+                              const dateObj = day ? new Date(currentYear, currentMonth, day) : null;
                               const dateStr = dateObj ? dateToString(dateObj) : null;
                               const isSelected = dateStr && selectedDates.includes(dateStr);
-                              const isToday =
-                                dateObj &&
-                                dateObj.toDateString() === new Date().toDateString();
+                              const isToday = dateObj && dateObj.toDateString() === new Date().toDateString();
                               const isPast = dateObj && dateObj < new Date() && !isToday;
-
                               return (
                                 <button
                                   key={idx}
                                   onClick={() => {
-                                    if (!dateStr || isPast) return;
-                                    if (isSelected) {
-                                      setSelectedDates(selectedDates.filter((d) => d !== dateStr));
-                                    } else {
-                                      setSelectedDates([...selectedDates, dateStr].sort());
-                                    }
+                                    if (!dateStr || isPast || targetCities.length === 0) return;
+                                    if (isSelected) { setSelectedDates(selectedDates.filter((d) => d !== dateStr)); } else { setSelectedDates([...selectedDates, dateStr].sort()); }
                                   }}
-                                  disabled={isPast}
-                                  className={`h-8 rounded-[6px] text-[11px] font-medium transition sm:h-7 sm:rounded-[4px] ${
-                                    !day
-                                      ? "bg-transparent"
-                                      : isPast
-                                        ? "bg-[#f0f0f0] text-[#ccc] cursor-not-allowed"
-                                        : isSelected
-                                          ? "bg-[#2f9e58] text-white font-semibold"
-                                          : isToday
-                                            ? "bg-[#e8f5e9] text-[#2f9e58] border border-[#2f9e58]"
-                                            : "bg-white border border-[#e4e4e4] text-[#2f2f2f] hover:bg-[#f9f9f9]"
-                                  }`}
-                                >
-                                  {day}
-                                </button>
+                                  disabled={isPast || targetCities.length === 0}
+                                  title={targetCities.length === 0 ? "Select location first" : ""}
+                                  className={`h-8 rounded-[6px] text-[11px] font-medium transition sm:h-7 sm:rounded-[4px] ${!day ? "bg-transparent" : isPast ? "bg-[#f0f0f0] text-[#ccc] cursor-not-allowed" : targetCities.length === 0 ? "bg-[#f9f9f9] text-[#aaa] cursor-not-allowed" : isSelected ? "bg-[#2f9e58] text-white font-semibold" : isToday ? "bg-[#e8f5e9] text-[#2f9e58] border border-[#2f9e58]" : "bg-white border border-[#e4e4e4] text-[#2f2f2f] hover:bg-[#f9f9f9]"}`}
+                                >{day}</button>
                               );
                             })}
                           </div>
                         </div>
 
-                        {/* Right Column: Selected Dates */}
                         <div className="space-y-3 flex flex-col min-h-0 lg:overflow-hidden">
                           <div className="flex-1 space-y-2 min-h-0 flex flex-col">
                             <p className="text-[11px] text-[#6c6c6c] font-medium">Selected Dates ({selectedDates.length})</p>
@@ -477,39 +497,18 @@ export default function PromoteBannerPage() {
                               {selectedDates.length > 0 ? (
                                 <div className="space-y-2">
                                   {selectedDates.map((dateStr) => (
-                                    <div
-                                      key={dateStr}
-                                      className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-[6px] bg-[#e8f5e9] border border-[#2f9e58] w-full justify-between"
-                                    >
-                                      <span className="text-[11px] font-semibold text-[#2f9e58]">
-                                        {new Date(dateStr).toLocaleDateString("en-GB", {
-                                          day: "2-digit",
-                                          month: "short",
-                                          year: "2-digit",
-                                        })}
-                                      </span>
-                                      <button
-                                        onClick={() =>
-                                          setSelectedDates(selectedDates.filter((d) => d !== dateStr))
-                                        }
-                                        className="text-[#2f9e58] hover:text-[#1a6b38] font-bold text-xs leading-none"
-                                      >
-                                        ✕
-                                      </button>
+                                    <div key={dateStr} className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-[6px] bg-[#e8f5e9] border border-[#2f9e58] w-full justify-between">
+                                      <span className="text-[11px] font-semibold text-[#2f9e58]">{new Date(dateStr).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "2-digit" })}</span>
+                                      <button onClick={() => setSelectedDates(selectedDates.filter((d) => d !== dateStr))} className="text-[#2f9e58] hover:text-[#1a6b38] font-bold text-xs leading-none">✕</button>
                                     </div>
                                   ))}
                                 </div>
-                              ) : (
-                                <p className="text-[11px] text-[#999] italic py-4 text-center">No dates selected yet</p>
-                              )}
+                              ) : <p className="text-[11px] text-[#999] italic py-4 text-center">No dates selected yet</p>}
                             </div>
                           </div>
-
                           <div className="rounded-[8px] border border-[#ebebeb] bg-white px-3 py-2 text-[12px] text-[#2f2f2f] flex items-center justify-between">
-                            <span className="inline-flex items-center gap-1.5 text-[#666]">
-                              <CalendarDays size={13} /> Total Days
-                            </span>
-                            <span className="font-semibold">{selectedDays > 0 ? `${selectedDays}` : "0"}</span>
+                            <span className="inline-flex items-center gap-1.5 text-[#666]"><CalendarDays size={13} /> Total Days</span>
+                            <span className="font-semibold">{selectedDays}</span>
                           </div>
                         </div>
                       </div>
@@ -519,19 +518,8 @@ export default function PromoteBannerPage() {
                   <div>
                     <label className="block text-[13px] font-semibold text-[#2a2a2a] mb-2">Banner Preview</label>
                     <div className="relative h-[176px] rounded-[12px] border border-[#e4e4e4] overflow-hidden bg-[#f4f4f4]">
-                      {bannerPreview ? (
-                        <Image src={bannerPreview} alt="Banner preview" fill className="object-cover" />
-                      ) : (
-                        <div className="h-full w-full flex items-center justify-center text-[12px] text-[#7a7a7a] px-4 text-center">
-                          Banner preview appears here after upload.
-                        </div>
-                      )}
+                      {bannerPreview ? <Image src={bannerPreview} alt="Banner preview" fill className="object-cover" /> : <div className="h-full w-full flex items-center justify-center text-[12px] text-[#7a7a7a] px-4 text-center">Banner preview appears here after upload.</div>}
                     </div>
-                  </div>
-
-                  <div className="rounded-[10px] border border-[#e4e4e4] bg-[#fff8e8] px-4 py-3 text-[12px] text-[#5e4a1a] space-y-1">
-                    <p>Selected category: <span className="font-semibold">{bannerCategory}</span></p>
-                    <p>Visibility dates: <span className="font-semibold">{selectedDates.length > 0 ? `${selectedDates.length} day(s)` : "No dates selected"}</span></p>
                   </div>
                 </div>
               </div>
@@ -539,29 +527,31 @@ export default function PromoteBannerPage() {
 
             <aside className="rounded-[12px] border border-[#e2e2e2] bg-white p-5 h-fit sticky top-24">
               <p className="text-[21px] font-semibold text-[#1f1f1f]">Pricing Summary</p>
-              <p className="mt-2 text-[12px] text-[#6c6c6c]">Paid promotion charges are calculated based on selected visibility dates.</p>
-
               <div className="mt-5 space-y-3 text-[13px]">
                 <div className="flex items-center justify-between">
                   <span className="text-[#676767]">Rate per day</span>
-                  <span className="font-semibold">Rs. {RATE_PER_CITY_PER_DAY * targetCities.length}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-[#676767]">Selected days</span>
-                  <span className="font-semibold">{selectedDays}</span>
+                  <span className="text-gray-900 font-bold">₹{totalDailyRate.toLocaleString()} × {selectedDays} days</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-[#676767]">Subtotal</span>
-                  <span className="font-semibold">Rs. {subtotal}</span>
+                  <span className="font-semibold">Rs. {subtotal.toFixed(2)}</span>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-[#676767]">Platform fee</span>
-                  <span className="font-semibold">Rs. {platformFee}</span>
-                </div>
+                {selectedDays > 0 && (
+                  <>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[#676767]">Payment Gateway (2.5%)</span>
+                      <span className="font-semibold">Rs. {pgCharge.toFixed(2)}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[#676767]">GST (18%)</span>
+                      <span className="font-semibold">Rs. {gst.toFixed(2)}</span>
+                    </div>
+                  </>
+                )}
                 <div className="h-px bg-[#e8e8e8]" />
                 <div className="flex items-center justify-between text-[16px]">
                   <span className="font-semibold text-[#1f1f1f]">Total Payable</span>
-                  <span className="font-semibold text-[#2f9e58]">Rs. {totalPrice}</span>
+                  <span className="font-semibold text-[#2f9e58]">Rs. {totalPrice.toFixed(2)}</span>
                 </div>
               </div>
 

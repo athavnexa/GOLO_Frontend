@@ -32,6 +32,7 @@ export default function PostAdForm({
   setAdDescriptionState,
   cities,
   setCities,
+  setCityDetails,
   uploadedImages,
   setUploadedImages,
   primaryContact,
@@ -57,6 +58,8 @@ export default function PostAdForm({
   const [locationSuggestions, setLocationSuggestions] = useState([]);
   const [showLocationSuggestions, setShowLocationSuggestions] = useState(false);
   const [locationLoading, setLocationLoading] = useState(false);
+  // Internal city details (population + adDailyRates per city)
+  const [cityDetailsInternal, setCityDetailsInternal] = useState([]);
   // error states
   const [titleError, setTitleError] = useState(false);
   const [descError, setDescError] = useState(false);
@@ -545,6 +548,31 @@ export default function PostAdForm({
     const delay = setTimeout(async () => {
       setLocationLoading(true);
       try {
+        // Use GeoNames via backend with mode=ad to get population + adDailyRates per result
+        const { API_BASE_URL } = await import("../lib/api");
+        const params = new URLSearchParams({ q: input.trim(), mode: "ad" });
+        const response = await fetch(`${API_BASE_URL}/regions/search?${params.toString()}`, {
+          headers: { Accept: "application/json" },
+          mode: "cors",
+        });
+        if (response.ok) {
+          const data = await response.json();
+          if (Array.isArray(data) && data.length > 0) {
+            const formatted = data.map((item, idx) => ({
+              id: `geonames_ad_${idx}`,
+              name: item.name,
+              displayName: item.displayName,
+              lat: item.lat,
+              lng: item.lng,
+              population: item.population || 0,
+              adDailyRates: item.adDailyRates || { t1: 25, t2: 15, t3: 10 },
+            }));
+            setLocationSuggestions(formatted);
+            setShowLocationSuggestions(true);
+            return;
+          }
+        }
+        // Fallback to Nominatim if backend returns empty
         const results = await searchLocations(input.trim(), { limit: 6, country: "in" });
         setLocationSuggestions(results || []);
         setShowLocationSuggestions(true);
@@ -935,16 +963,30 @@ export default function PostAdForm({
     });
   };
 
-  const addCity = (value = input.trim()) => {
-    const normalizedValue = value.trim();
+  const addCity = (suggestionObj) => {
+    // Accept either a full suggestion object (from GeoNames) or a plain string (manual entry)
+    const isObj = typeof suggestionObj === "object" && suggestionObj !== null;
+    const normalizedValue = isObj ? suggestionObj.name.trim() : (suggestionObj || input).trim();
     if (!normalizedValue) return;
 
     setCities((prev) => {
-      if (prev.includes(normalizedValue)) {
-        return prev;
-      }
+      if (prev.includes(normalizedValue)) return prev;
       return [...prev, normalizedValue];
     });
+
+    if (isObj) {
+      const detail = {
+        name: suggestionObj.name,
+        population: suggestionObj.population || 0,
+        adDailyRates: suggestionObj.adDailyRates || { t1: 25, t2: 15, t3: 10 },
+        lat: suggestionObj.lat,
+        lng: suggestionObj.lng,
+      };
+      const updatedDetails = [...cityDetailsInternal.filter(d => d.name !== suggestionObj.name), detail];
+      setCityDetailsInternal(updatedDetails);
+      if (setCityDetails) setCityDetails(updatedDetails);
+    }
+
     setInput("");
     setLocationError(false);
     setShowLocationSuggestions(false);
@@ -952,6 +994,9 @@ export default function PostAdForm({
 
   const removeCity = (cityToRemove) => {
     setCities((prev) => prev.filter((city) => city !== cityToRemove));
+    const updatedDetails = cityDetailsInternal.filter((d) => d.name !== cityToRemove);
+    setCityDetailsInternal(updatedDetails);
+    if (setCityDetails) setCityDetails(updatedDetails);
   };
 
   const handleKeyDown = (e) => {
@@ -1386,7 +1431,7 @@ export default function PostAdForm({
         {/* Locations */}
         <div className="space-y-3">
           <label className="text-sm font-medium text-gray-700">
-            Locations
+            Locations <span className="text-red-500">*</span>
           </label>
 
           <div className={`w-full rounded-lg border bg-white focus-within:ring-2 focus-within:ring-gray-300 ${locationError ? "border-red-500" : "border-gray-300"}`}> 
@@ -1427,18 +1472,26 @@ export default function PostAdForm({
                   <div className="px-3 py-2 text-sm text-gray-500">Searching cities...</div>
                 ) : locationSuggestions.length > 0 ? (
                   locationSuggestions.map((suggestion, index) => {
-                    const suggestionLabel = suggestion.displayName || suggestion.name || suggestion.address || "Unknown location";
-                    const suggestionValue = suggestion.name || suggestion.displayName || suggestion.address || suggestionLabel;
+                    const primaryLabel = suggestion.name || suggestion.displayName?.split(',')[0] || "Unknown";
+                    const subLabel = suggestion.displayName || "";
+                    const pop = suggestion.population;
+                    const rates = suggestion.adDailyRates;
                     return (
                       <button
-                        key={suggestion.id || `${suggestionValue}-${index}`}
+                        key={suggestion.id || `${primaryLabel}-${index}`}
                         type="button"
-                        className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50"
+                        className="w-full text-left px-3 py-2.5 text-sm hover:bg-green-50 border-b border-gray-100 last:border-0"
                         onMouseDown={(e) => e.preventDefault()}
-                        onClick={() => addCity(suggestionValue)}
+                        onClick={() => addCity(suggestion)}
                       >
-                        <div className="font-medium text-gray-800">{suggestionValue}</div>
-                        <div className="text-xs text-gray-500">{suggestionLabel !== suggestionValue ? suggestionLabel : "City suggestion"}</div>
+                        <div className="font-medium text-gray-800">{primaryLabel}</div>
+                        <div className="text-xs text-gray-500 mt-0.5">{subLabel}</div>
+                        {rates && (
+                          <div className="text-xs text-green-700 mt-1 flex items-center gap-2 font-medium">
+                            {pop > 0 && <span>Pop: {pop >= 100000 ? `${(pop/100000).toFixed(1)}L` : `${Math.round(pop/1000)}K`}</span>}
+                            <span>· ₹{rates[`t${templateId || 1}`]}/day</span>
+                          </div>
+                        )}
                       </button>
                     );
                   })
@@ -1891,7 +1944,7 @@ export default function PostAdForm({
           <div className="post-ad-scheduling-card rounded-2xl border border-gray-100 bg-white p-3 shadow-md sm:rounded-3xl sm:p-8">
 
             <h3 className="mb-5 text-center text-lg font-semibold text-gray-800 sm:mb-8 sm:text-2xl">
-              Ad Scheduling
+              Ad Scheduling <span className="text-red-500">*</span>
             </h3>
 
             <div className="grid gap-4 md:grid-cols-2 md:gap-8 items-start">
@@ -1952,7 +2005,7 @@ export default function PostAdForm({
                 {/* Header */}
                 <div className="flex items-center justify-between gap-2 border-b border-gray-200 p-3 sm:p-6">
                   <h4 className="text-base font-semibold text-gray-700 sm:text-lg">
-                    Selected Dates
+                    Selected Dates <span className="text-red-500">*</span>
                   </h4>
 
                   {selectedDates.length > 0 && (

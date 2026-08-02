@@ -85,7 +85,7 @@ export default function MerchantBannerAdvertisementPage() {
   const stats = useMemo(() => {
     const active = banners.filter((banner) => banner.status === "active").length;
     const total = banners.length;
-    const scheduled = banners.filter((banner) => banner.status === "approved" || banner.status === "under_review").length;
+    const scheduled = banners.filter((banner) => banner.status === "approved" || banner.status === "pending").length;
     const gross = banners.reduce((sum, banner) => sum + Number(banner.totalPrice || 0), 0);
     return [
       { label: "ACTIVE BANNER", value: String(active), trend: `${active}/${total}`, icon: Image, line: "#157A4F" },
@@ -229,7 +229,7 @@ export default function MerchantBannerAdvertisementPage() {
               <div className="inline-flex rounded-[7px] border border-[#e5e7eb] overflow-hidden text-[10px] font-semibold">
                 <button onClick={() => setStatusFilter("all")} className={`h-8 px-4 ${statusFilter === "all" ? "bg-[#157A4F] text-white" : "bg-white text-gray-600"}`}>All</button>
                 <button onClick={() => setStatusFilter("active")} className={`h-8 px-4 ${statusFilter === "active" ? "bg-[#157A4F] text-white" : "bg-white text-gray-600"}`}>Active</button>
-                <button onClick={() => setStatusFilter("under_review")} className={`h-8 px-4 ${statusFilter === "under_review" ? "bg-[#157A4F] text-white" : "bg-white text-gray-600"}`}>Under Review</button>
+                <button onClick={() => setStatusFilter("pending")} className={`h-8 px-4 ${statusFilter === "pending" ? "bg-[#157A4F] text-white" : "bg-white text-gray-600"}`}>Pending Payment</button>
                 <button onClick={() => setStatusFilter("expired")} className={`h-8 px-4 ${statusFilter === "expired" ? "bg-[#157A4F] text-white" : "bg-white text-gray-600"}`}>Expired</button>
               </div>
               <div className="flex items-center gap-2">

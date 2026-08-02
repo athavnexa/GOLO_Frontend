@@ -38,7 +38,8 @@ function getBannerDisplayStatus(row) {
   const rawStatus = String(row?.status || "").trim().toLowerCase();
   if (rawStatus === "deleted") return "deleted";
   if (rawStatus === "rejected") return "rejected";
-  if (rawStatus === "under_review" || rawStatus === "pending") return "under_review";
+  if (rawStatus === "under_review") return "under_review";
+  if (rawStatus === "pending") return "pending_payment";
 
   const startDate = parseDateValue(row?.startDate || row?.start || row?.start_date);
   const endDate = parseDateValue(row?.endDate || row?.end || row?.end_date);
@@ -196,7 +197,7 @@ export default function MerchantBannersPage() {
             <div className="flex-1 rounded-[12px] border border-[#e2e2e2] bg-white px-2 py-3 flex min-w-0 items-center justify-between md:px-4 md:py-4">
               <div>
                 <p className="text-[9px] text-[#666] md:text-[11px]">Promotion Spend</p>
-                <p className="text-[16px] font-semibold leading-none mt-1 md:text-[34px]">Rs. {summary.spend}</p>
+                <p className="text-[16px] font-semibold leading-none mt-1 md:text-[34px]">Rs. {Number(summary.spend).toFixed(2)}</p>
               </div>
               <div className="h-10 w-10 rounded-full bg-[#f4f4f1] text-[#f0aa19] flex items-center justify-center text-[20px]">Rs</div>
             </div>
@@ -274,10 +275,12 @@ export default function MerchantBannersPage() {
                                   ? "bg-[#eef2ff] text-[#4338ca]"
                                   : displayStatus === "deleted"
                                     ? "bg-[#fef2f2] text-[#ef4444]"
-                                    : "bg-[#f3f4f6] text-[#4b5563]"
+                                    : displayStatus === "pending_payment"
+                                      ? "bg-[#fff8e6] text-[#d97706]"
+                                      : "bg-[#f3f4f6] text-[#4b5563]"
                         }`}
                         >
-                          {normalizeStatus(displayStatus)}
+                          {displayStatus === "pending_payment" ? "Pending Payment" : normalizeStatus(displayStatus)}
                         </span>
                       </td>
                       <td className="px-4 py-3 text-[11px] font-semibold text-[#1f1f1f]">Rs. {row.totalPrice || 0}</td>
@@ -291,7 +294,7 @@ export default function MerchantBannersPage() {
                               Edit
                             </button>
                           )}
-                          {displayStatus !== "deleted" && row.status === "approved" && row.paymentStatus !== "paid" ? (
+                          {displayStatus !== "deleted" && (row.status === "approved" || row.status === "pending") && row.paymentStatus !== "paid" ? (
                             <button
                               onClick={() => handlePayNow(row.requestId)}
                               className="h-7 rounded-[6px] bg-[#157a4f] px-3 text-[10px] font-semibold text-white"
