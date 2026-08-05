@@ -439,9 +439,9 @@ export default function PromoteBannerPage() {
                 <div className="space-y-4">
                   <div>
                     <label className="block text-[13px] font-semibold text-[#2a2a2a] mb-2">Promotion Calendar</label>
-                    <div className="rounded-[10px] border border-[#e4e4e4] bg-[#fafafa] p-3 flex flex-col sm:p-4 lg:h-[420px]">
-                      <div className="grid grid-cols-1 gap-3 flex-1 sm:gap-4 lg:grid-cols-2 lg:overflow-hidden">
-                        <div className="bg-white rounded-[8px] border border-[#e4e4e4] p-3 sm:p-4 lg:overflow-y-auto">
+                    <div className="rounded-[10px] border border-[#e4e4e4] bg-[#fafafa] p-3 flex flex-col sm:p-4">
+                      <div className="grid grid-cols-1 gap-3 flex-1 sm:gap-4 lg:grid-cols-2">
+                        <div className="bg-white rounded-[8px] border border-[#e4e4e4] p-3 sm:p-4">
                           <div className="flex items-center justify-between mb-3 sm:mb-4">
                             <button
                               onClick={() => {
@@ -489,11 +489,11 @@ export default function PromoteBannerPage() {
                             })}
                           </div>
                         </div>
-
-                        <div className="space-y-3 flex flex-col min-h-0 lg:overflow-hidden">
+ 
+                        <div className="space-y-3 flex flex-col min-h-0">
                           <div className="flex-1 space-y-2 min-h-0 flex flex-col">
                             <p className="text-[11px] text-[#6c6c6c] font-medium">Selected Dates ({selectedDates.length})</p>
-                            <div className="bg-white rounded-[8px] border border-[#e4e4e4] p-3 space-y-2 max-h-[150px] overflow-y-auto lg:max-h-none lg:flex-1">
+                            <div className="bg-white rounded-[8px] border border-[#e4e4e4] p-3 space-y-2 max-h-[150px] overflow-y-auto">
                               {selectedDates.length > 0 ? (
                                 <div className="space-y-2">
                                   {selectedDates.map((dateStr) => (

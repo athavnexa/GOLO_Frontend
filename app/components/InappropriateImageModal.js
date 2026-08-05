@@ -2,8 +2,10 @@
 
 import { ShieldAlert, X } from 'lucide-react';
 
-export default function InappropriateImageModal({ isOpen, onClose }) {
+export default function InappropriateImageModal({ isOpen, onClose, mode = "image" }) {
   if (!isOpen) return null;
+
+  const isTextMode = mode === "text";
 
   return (
     <div className="fixed inset-0 bg-black/45 backdrop-blur-[2px] flex items-center justify-center z-[10000] p-3 sm:p-6">
@@ -24,7 +26,9 @@ export default function InappropriateImageModal({ isOpen, onClose }) {
             </div>
             <div>
               <h2 className="text-base font-bold text-gray-800 leading-tight sm:text-lg">Inappropriate Content</h2>
-              <p className="text-[11px] text-gray-500 mt-0.5 sm:text-xs">Your image has been flagged by our safety system.</p>
+              <p className="text-[11px] text-gray-500 mt-0.5 sm:text-xs">
+                {isTextMode ? "Your text has been flagged by our safety system." : "Your image has been flagged by our safety system."}
+              </p>
             </div>
           </div>
           <button
@@ -42,13 +46,19 @@ export default function InappropriateImageModal({ isOpen, onClose }) {
           <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-5">
             <ShieldAlert className="w-8 h-8 text-red-500" />
           </div>
-          <h3 className="text-lg font-bold text-gray-800 mb-2 sm:text-xl">Upload Rejected</h3>
+          <h3 className="text-lg font-bold text-gray-800 mb-2 sm:text-xl">
+            {isTextMode ? "Content Rejected" : "Upload Rejected"}
+          </h3>
           <p className="text-sm text-gray-600 sm:text-base mb-4 leading-relaxed">
-            One or more of your uploaded images contains content that violates our community guidelines. Please remove the inappropriate images and try posting again.
+            {isTextMode 
+              ? "Your ad contains prohibited or inappropriate content that violates our community guidelines. Please review your text description and try posting again." 
+              : "One or more of your uploaded images contains content that violates our community guidelines. Please remove the inappropriate images and try posting again."}
           </p>
           <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-6 text-left">
             <p className="text-[12px] sm:text-sm text-orange-800 leading-snug">
-              <strong>Note:</strong> Repeated uploads that violate GOLO's content policy may temporarily restrict your ability to upload images.
+              <strong>Note:</strong> {isTextMode 
+                ? "Repeated attempts to post policy-violating text may temporarily restrict your ability to publish ads." 
+                : "Repeated uploads that violate GOLO's content policy may temporarily restrict your ability to upload images."}
             </p>
           </div>
           <button

@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Download, Eye, Package, Plus, Search, Trash2, User, Wallet } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useRoleProtection, LoadingScreen } from "../../components/RoleBasedRedirect";
-import { deleteMerchantProduct, getMerchantProducts } from "../../lib/api";
+import { deleteMerchantProduct, getMerchantProducts, selectActiveProducts } from "../../lib/api";
 import MerchantNavbar from "../MerchantNavbar";
 
 export default function MerchantProductsPage() {
@@ -28,6 +28,63 @@ export default function MerchantProductsPage() {
   const [isExporting, setIsExporting] = useState(false);
   const [fetchError, setFetchError] = useState("");
   const [deleteConfirmProduct, setDeleteConfirmProduct] = useState(null);
+
+  const [isSelectionModalOpen, setIsSelectionModalOpen] = useState(false);
+  const [maxActiveAllowed, setMaxActiveAllowed] = useState(3);
+  const [selectedActiveIds, setSelectedActiveIds] = useState([]);
+  const [selectionProductsList, setSelectionProductsList] = useState([]);
+  const [loadingSelectionList, setLoadingSelectionList] = useState(false);
+  const [saveSelectionError, setSaveSelectionError] = useState("");
+  const [hasCheckedAutoOpen, setHasCheckedAutoOpen] = useState(false);
+  const [hasSelectedActiveProducts, setHasSelectedActiveProducts] = useState(false);
+
+  const loadAllProductsForSelection = async () => {
+    try {
+      setLoadingSelectionList(true);
+      const res = await getMerchantProducts({ page: 1, limit: 100 });
+      const prods = res?.data?.products || [];
+      setSelectionProductsList(prods);
+      setSelectedActiveIds(prods.filter(p => p.isActive).map(p => p.id));
+      if (res?.data?.maxActiveProducts !== undefined) {
+        setMaxActiveAllowed(res.data.maxActiveProducts);
+      }
+    } catch (err) {
+      console.error("Failed to load products for selection modal:", err);
+    } finally {
+      setLoadingSelectionList(false);
+    }
+  };
+
+  const toggleSelectionId = (id) => {
+    if (selectedActiveIds.includes(id)) {
+      setSelectedActiveIds(selectedActiveIds.filter(x => x !== id));
+      setSaveSelectionError("");
+    } else {
+      if (selectedActiveIds.length >= maxActiveAllowed) {
+        setSaveSelectionError(`You can only select up to ${maxActiveAllowed} active product${maxActiveAllowed === 1 ? '' : 's'}.`);
+        return;
+      }
+      setSaveSelectionError("");
+      setSelectedActiveIds([...selectedActiveIds, id]);
+    }
+  };
+
+  const handleSaveActiveProducts = async () => {
+    try {
+      setSaveSelectionError("");
+      const totalProdsCount = selectionProductsList.length;
+      const expectedCount = Math.min(maxActiveAllowed, totalProdsCount);
+      if (selectedActiveIds.length !== expectedCount) {
+        setSaveSelectionError(`You must select exactly ${expectedCount} active product${expectedCount === 1 ? '' : 's'} before saving.`);
+        return;
+      }
+      await selectActiveProducts(selectedActiveIds);
+      setIsSelectionModalOpen(false);
+      window.location.reload();
+    } catch (err) {
+      setSaveSelectionError(err?.message || "Failed to save active products selection");
+    }
+  };
 
   const escapeCsvField = (value) => {
     const str = String(value ?? "");
@@ -142,6 +199,15 @@ export default function MerchantProductsPage() {
             limit: 10,
           }
         );
+        if (res?.data?.hasSelectedActiveProducts !== undefined) {
+          setHasSelectedActiveProducts(res.data.hasSelectedActiveProducts);
+        }
+        if (res?.data?.needsActiveProductsSelection && !hasCheckedAutoOpen) {
+          setMaxActiveAllowed(res.data.maxActiveProducts);
+          setIsSelectionModalOpen(true);
+          setHasCheckedAutoOpen(true);
+          loadAllProductsForSelection();
+        }
       } catch (error) {
         setFetchError(error?.message || "Failed to load products");
       } finally {
@@ -273,6 +339,17 @@ export default function MerchantProductsPage() {
                 >
                   Apply Search
                 </button>
+                {!hasSelectedActiveProducts && (
+                  <button
+                    onClick={() => {
+                      loadAllProductsForSelection();
+                      setIsSelectionModalOpen(true);
+                    }}
+                    className="h-9 rounded-[8px] border border-[#2f9e58] bg-[#eefaf2] px-4 text-[11px] font-semibold text-[#2f9e58] inline-flex items-center gap-1.5"
+                  >
+                    Configure Active Products
+                  </button>
+                )}
                 <button onClick={() => router.push("/merchant/products/add")} className="h-9 rounded-[8px] bg-[#2f9e58] px-4 text-[11px] font-semibold text-white inline-flex items-center gap-1.5">
                   <Plus size={12} /> Add New Product
                 </button>
@@ -301,7 +378,14 @@ export default function MerchantProductsPage() {
                           <Image src={item.image || "/images/deal2.avif"} alt={item.name} width={32} height={32} className="h-full w-full object-cover" />
                         </div>
                       </td>
-                      <td className="px-4 py-3 font-semibold text-[#2a2a2a]">{item.name}</td>
+                      <td className="px-4 py-3 font-semibold text-[#2a2a2a]">
+                        {item.name}
+                        {item.isActive === false && (
+                          <span className="ml-2 inline-flex items-center rounded-md bg-red-50 px-1.5 py-0.5 text-[10px] font-medium text-red-700 ring-1 ring-inset ring-red-600/10">
+                            Inactive
+                          </span>
+                        )}
+                      </td>
                       <td className="px-4 py-3 font-semibold">{item.priceLabel || `?${item.price}`}</td>
                       <td className="px-4 py-3">
                         {item.status === "Out of Stock" ? (
@@ -387,6 +471,115 @@ export default function MerchantProductsPage() {
                   >
                     Ok
                   </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {isSelectionModalOpen && (
+            <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-300">
+              <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col max-h-[85vh]">
+                <div className="px-6 py-5 bg-[#fafafa] border-b border-gray-100 flex items-center justify-between">
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900">Finalize Active Products</h3>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Your current plan allows up to <span className="font-semibold text-[#2f9e58]">{maxActiveAllowed}</span> active product{maxActiveAllowed === 1 ? '' : 's'}.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setIsSelectionModalOpen(false)}
+                    className="text-gray-400 hover:text-gray-600 text-sm font-semibold p-1"
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                <div className="p-6 overflow-y-auto flex-1 space-y-4">
+                  <p className="text-sm text-gray-600 leading-relaxed">
+                    Select the products you want to keep **Active** (available for promotions/offers). All unselected products will remain in your inventory but will be set to **Inactive**.
+                  </p>
+
+                  <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800 leading-relaxed font-medium">
+                    ⚠️ <strong>Important Note:</strong> This selection is a <strong>one-time save</strong>. Once finalized and saved, you cannot edit or change your active products selection again under your current plan tier.
+                  </div>
+
+                  {saveSelectionError && (
+                    <div className="p-3 bg-red-50 border border-red-100 rounded-lg text-xs font-semibold text-red-600">
+                      {saveSelectionError}
+                    </div>
+                  )}
+
+                  {loadingSelectionList ? (
+                    <div className="py-12 text-center text-gray-400 text-sm">
+                      Loading products...
+                    </div>
+                  ) : (
+                    <div className="border border-gray-100 rounded-xl overflow-hidden divide-y divide-gray-50">
+                      {selectionProductsList.map((prod) => {
+                        const isChecked = selectedActiveIds.includes(prod.id);
+                        return (
+                          <div
+                            key={prod.id}
+                            onClick={() => toggleSelectionId(prod.id)}
+                            className={`flex items-center justify-between p-4 cursor-pointer transition-colors hover:bg-gray-50 ${
+                              isChecked ? "bg-[#e8f5e9]/30" : ""
+                            }`}
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="h-10 w-10 rounded-lg overflow-hidden border border-gray-200 flex-shrink-0 bg-gray-50">
+                                {prod.image ? (
+                                  <img src={prod.image} alt={prod.name} className="h-full w-full object-cover" />
+                                ) : (
+                                  <div className="h-full w-full bg-gray-100 flex items-center justify-center text-gray-400 text-xs font-bold">G</div>
+                                )}
+                              </div>
+                              <div>
+                                <p className="text-sm font-semibold text-gray-800">{prod.name}</p>
+                                <p className="text-xs text-[#2f9e58] font-medium">{prod.priceLabel || `₹${prod.price}`}</p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <div
+                                className={`w-5 h-5 rounded-full border flex items-center justify-center transition-all ${
+                                  isChecked
+                                    ? "bg-[#2f9e58] border-[#2f9e58] text-white"
+                                    : "border-gray-300 bg-white"
+                                }`}
+                              >
+                                {isChecked && <span className="text-[10px] font-bold">✓</span>}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                      {selectionProductsList.length === 0 && (
+                        <div className="py-8 text-center text-gray-500 text-sm italic">
+                          No products found in inventory. Add products first.
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
+                  <span className="text-xs text-gray-500 font-medium">
+                    Selected: <span className="font-bold text-gray-700">{selectedActiveIds.length}</span> / {maxActiveAllowed}
+                  </span>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setIsSelectionModalOpen(false)}
+                      className="px-4 py-2 rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 text-[11px] font-bold transition-colors"
+                    >
+                      Skip (Select Later)
+                    </button>
+                    <button
+                      disabled={loadingSelectionList}
+                      onClick={handleSaveActiveProducts}
+                      className="px-5 py-2 rounded-lg bg-[#2f9e58] hover:bg-[#258046] text-white text-[11px] font-bold transition-colors disabled:opacity-50"
+                    >
+                      Save Selection
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

@@ -31,6 +31,7 @@ export default function FormSidebar({
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [isFeatured, setIsFeatured] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState("image");
   const [moderationWarningInfo, setModerationWarningInfo] = useState({ isOpen: false, message: "", restrictedUntil: null });
   const router = useRouter();
   const { user, isAuthenticated, logout } = useAuth();
@@ -291,7 +292,11 @@ export default function FormSidebar({
       const errorMsg = error.data?.message || error.message;
       if (error?.data?.code === 'CONTENT_UPLOAD_RESTRICTED' || error?.data?.code === 'FINAL_MODERATION_WARNING' || error?.data?.code === 'MODERATION_WARNING' || (typeof errorMsg === 'string' && errorMsg.includes("temporarily restricted"))) {
         setModerationWarningInfo({ isOpen: true, message: errorMsg, restrictedUntil: error?.data?.restrictedUntil });
-      } else if (typeof errorMsg === 'string' && errorMsg.includes("inappropriate content")) {
+      } else if (typeof errorMsg === 'string' && errorMsg.includes("images contain inappropriate")) {
+        setModalMode("image");
+        setIsModalOpen(true);
+      } else if (typeof errorMsg === 'string' && errorMsg.includes("Your ad contains prohibited")) {
+        setModalMode("text");
         setIsModalOpen(true);
       } else if (Array.isArray(errorMsg)) {
         setSubmitError(errorMsg.join(", "));
@@ -470,6 +475,7 @@ export default function FormSidebar({
         <InappropriateImageModal 
           isOpen={isModalOpen} 
           onClose={() => setIsModalOpen(false)} 
+          mode={modalMode}
         />
         <ModerationWarningModal
           isOpen={moderationWarningInfo.isOpen}

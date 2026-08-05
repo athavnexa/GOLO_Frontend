@@ -88,14 +88,6 @@ export default function MyAds() {
                     Manage and track your posted ads
                   </p>
                 </div>
-
-                <Link
-                  href="/i-want"
-                  className="group relative inline-flex w-full items-center justify-center rounded-full bg-[#157A4F] px-7 py-3 font-semibold text-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl active:scale-95 sm:w-auto"
-                >
-                  <span className="relative z-10">I Want</span>
-                  <span className="absolute inset-0 rounded-full bg-[#1c9460] opacity-0 group-hover:opacity-20 blur-md transition duration-300"></span>
-                </Link>
               </div>
 
               {/* Loading State */}

@@ -548,31 +548,62 @@ export default function PostAdForm({
     const delay = setTimeout(async () => {
       setLocationLoading(true);
       try {
-        // Use GeoNames via backend with mode=ad to get population + adDailyRates per result
-        const { API_BASE_URL } = await import("../lib/api");
-        const params = new URLSearchParams({ q: input.trim(), mode: "ad" });
-        const response = await fetch(`${API_BASE_URL}/regions/search?${params.toString()}`, {
-          headers: { Accept: "application/json" },
-          mode: "cors",
+        // Direct frontend-only request to Open-Meteo Geocoding API (IP-based limits per client)
+        const params = new URLSearchParams({
+          name: input.trim(),
+          count: "10",
+          language: "en",
+          format: "json",
         });
+        const response = await fetch(`https://geocoding-api.open-meteo.com/v1/search?${params.toString()}`);
         if (response.ok) {
           const data = await response.json();
-          if (Array.isArray(data) && data.length > 0) {
-            const formatted = data.map((item, idx) => ({
-              id: `geonames_ad_${idx}`,
-              name: item.name,
-              displayName: item.displayName,
-              lat: item.lat,
-              lng: item.lng,
-              population: item.population || 0,
-              adDailyRates: item.adDailyRates || { t1: 25, t2: 15, t3: 10 },
-            }));
+          if (data && Array.isArray(data.results) && data.results.length > 0) {
+            const getAdDailyRate = (pop, tempId) => {
+              const basePrices = { 1: 25, 2: 15, 3: 10 };
+              const base = basePrices[tempId] || 25;
+              const tiers = [
+                [0, 1.0],
+                [50000, 1.5],
+                [100000, 2.0],
+                [200000, 3.0],
+                [500000, 4.0],
+                [1000000, 6.0],
+                [5000000, 8.0]
+              ];
+              let multiplier = 1.0;
+              for (const [minPop, mult] of tiers) {
+                if (pop >= minPop) {
+                  multiplier = mult;
+                } else {
+                  break;
+                }
+              }
+              return Math.round(base * multiplier);
+            };
+
+            const formatted = data.results.map((item, idx) => {
+              const pop = item.population || 0;
+              return {
+                id: `open_meteo_${item.id || idx}`,
+                name: item.name,
+                displayName: `${item.name}, ${item.admin1 || "India"}`,
+                lat: item.latitude,
+                lng: item.longitude,
+                population: pop,
+                adDailyRates: {
+                  t1: getAdDailyRate(pop, 1),
+                  t2: getAdDailyRate(pop, 2),
+                  t3: getAdDailyRate(pop, 3)
+                }
+              };
+            });
             setLocationSuggestions(formatted);
             setShowLocationSuggestions(true);
             return;
           }
         }
-        // Fallback to Nominatim if backend returns empty
+        // Fallback to Nominatim if Open-Meteo returns empty/fails
         const results = await searchLocations(input.trim(), { limit: 6, country: "in" });
         setLocationSuggestions(results || []);
         setShowLocationSuggestions(true);
@@ -1434,7 +1465,7 @@ export default function PostAdForm({
             Locations <span className="text-red-500">*</span>
           </label>
 
-          <div className={`w-full rounded-lg border bg-white focus-within:ring-2 focus-within:ring-gray-300 ${locationError ? "border-red-500" : "border-gray-300"}`}> 
+          <div className={`w-full rounded-lg border ${isEditMode ? "bg-gray-50 cursor-not-allowed" : "bg-white focus-within:ring-2 focus-within:ring-gray-300"} ${locationError ? "border-red-500" : "border-gray-300"}`}> 
             <div className="flex min-h-[50px] flex-wrap items-center gap-2 px-3 py-2 sm:min-h-[56px]">
               {/* City Chips */}
               {cities.map((city, index) => (
@@ -1443,27 +1474,35 @@ export default function PostAdForm({
                   className="flex items-center gap-1 px-3 py-1 text-sm bg-gray-100 rounded-full border border-gray-200"
                 >
                   {city}
-                  <button
-                    type="button"
-                    onClick={() => removeCity(city)}
-                    className="text-gray-500 hover:text-gray-700"
-                  >
-                    ×
-                  </button>
+                  {!isEditMode && (
+                    <button
+                      type="button"
+                      onClick={() => removeCity(city)}
+                      className="text-gray-500 hover:text-gray-700"
+                    >
+                      ×
+                    </button>
+                  )}
                 </span>
               ))}
 
               {/* Inline Input */}
-              <input
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                onFocus={() => input.trim() && setShowLocationSuggestions(true)}
-                onBlur={() => setTimeout(() => setShowLocationSuggestions(false), 150)}
-                placeholder="Search city or area"
-                className="flex-1 min-w-[120px] outline-none text-sm"
-              />
+              {!isEditMode ? (
+                <input
+                  type="text"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  onFocus={() => input.trim() && setShowLocationSuggestions(true)}
+                  onBlur={() => setTimeout(() => setShowLocationSuggestions(false), 150)}
+                  placeholder="Search city or area"
+                  className="flex-1 min-w-[120px] outline-none text-sm bg-transparent"
+                />
+              ) : (
+                cities.length === 0 && (
+                  <span className="text-gray-400 text-sm">No location selected</span>
+                )
+              )}
             </div>
 
             {showLocationSuggestions && (

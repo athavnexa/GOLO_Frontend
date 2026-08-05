@@ -1223,6 +1223,13 @@ export async function deleteMerchantProduct(productId) {
     });
 }
 
+export async function selectActiveProducts(productIds) {
+    return apiClient('/merchant/products/select-active', {
+        method: 'POST',
+        body: JSON.stringify({ productIds }),
+    });
+}
+
 // ==================== AD REPORTING & MODERATION ====================
 
 /**

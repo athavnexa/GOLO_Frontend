@@ -122,6 +122,8 @@ export default function CreateMerchantOfferPage() {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [productSearch, setProductSearch] = useState("");
   const [modalSelectionIds, setModalSelectionIds] = useState([]);
+  const [needsSelection, setNeedsSelection] = useState(false);
+  const [maxProductsCount, setMaxProductsCount] = useState(0);
 
   const applyTemplate = (template) => {
     if (!template) return;
@@ -160,6 +162,11 @@ export default function CreateMerchantOfferPage() {
       const firstRows = Array.isArray(firstRes?.data?.products)
         ? firstRes.data.products
         : [];
+
+      if (firstRes?.data?.needsActiveProductsSelection) {
+        setNeedsSelection(true);
+        setMaxProductsCount(firstRes.data.maxActiveProducts);
+      }
 
       const totalPages = Number(firstRes?.pagination?.pages || 1);
 
@@ -251,10 +258,11 @@ export default function CreateMerchantOfferPage() {
   );
 
   const filteredInventory = useMemo(() => {
+    const activeProducts = inventoryProducts.filter((item) => item.isActive !== false);
     const needle = productSearch.trim().toLowerCase();
-    if (!needle) return inventoryProducts;
+    if (!needle) return activeProducts;
 
-    return inventoryProducts.filter((row) =>
+    return activeProducts.filter((row) =>
       String(row?.name || "").toLowerCase().includes(needle),
     );
   }, [inventoryProducts, productSearch]);
@@ -905,7 +913,10 @@ export default function CreateMerchantOfferPage() {
                             <td className="px-4 py-3">Rs {Number(item.price || 0).toLocaleString()}</td>
                             <td className="px-4 py-3">{item.stock || "0 units"}</td>
                             <td className="px-4 py-3">
-                              <button type="button" onClick={() => toggleModalSelection(item.id)}>
+                              <button 
+                                type="button" 
+                                onClick={() => toggleModalSelection(item.id)}
+                              >
                                 {checked ? (
                                   <CircleCheck size={18} className="text-[#2f9e58]" />
                                 ) : (
@@ -1100,6 +1111,25 @@ export default function CreateMerchantOfferPage() {
         message={moderationWarningInfo.message}
         restrictedUntil={moderationWarningInfo.restrictedUntil}
       />
+
+      {needsSelection && (
+        <div className="fixed inset-0 z-[20000] bg-black/60 backdrop-blur-md flex items-center justify-center px-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden p-6 animate-in zoom-in-95 duration-300">
+            <h3 className="text-xl font-bold text-gray-900 mb-2">Active Products Selection Required</h3>
+            <p className="text-gray-600 mb-6 text-sm leading-relaxed">
+              You must select the <span className="font-semibold text-[#2f9e58]">{maxProductsCount}</span> active products included in your plan before you can upload an offer.
+            </p>
+            <div className="flex justify-end">
+              <button
+                onClick={() => router.push("/merchant/products")}
+                className="w-full px-5 py-2.5 rounded-lg bg-[#2f9e58] hover:bg-[#258046] text-white text-[12px] font-bold transition-colors text-center"
+              >
+                Go to Products
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
