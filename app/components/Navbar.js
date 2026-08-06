@@ -1060,7 +1060,7 @@ function NavbarContent({
         aria-hidden="true"
         style={{
           height: 220,
-          position: "fixed",
+          position: "absolute",
           top: 0,
           left: 0,
           right: 0,

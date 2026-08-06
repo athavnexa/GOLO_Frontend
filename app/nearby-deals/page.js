@@ -3,7 +3,7 @@
 import { Suspense, useMemo, useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
-import { SlidersHorizontal, Grid2x2, List, ChevronDown } from "lucide-react";
+import { SlidersHorizontal, Grid2x2, List, ChevronDown, Clock, Star, MapPin, Tag, Calendar, ArrowRight, Heart } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import Navbar from "../components/Navbar";
 import CategoryBar from "../components/CategoryBar";
@@ -1128,73 +1128,183 @@ function NearbyDealsPageContent() {
                 </div>
               ) : (
                 filteredDeals.map((deal) => (
-                  <article
-                    key={deal.offerId}
-                    className="group flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-[#157A4F] hover:shadow-lg"
-                  >
-                    <div className="relative h-44 w-full overflow-hidden bg-gray-100 sm:h-36">
-                      <OfferCardMedia
-                        imageUrl={deal.imageUrl}
-                        videoUrl={deal.videoUrl}
-                        title={deal.title}
-                      />
-                      <span className="absolute left-2 top-2 rounded-full bg-gradient-to-r from-[#157A4F] to-[#28A745] px-2 py-0.5 text-[10px] font-bold text-white shadow-sm">
-                        {deal.category || "Special"}
-                      </span>
-                      <span className="absolute left-2 top-8 rounded-md bg-white/95 px-2 py-0.5 text-[9px] font-semibold text-gray-700 shadow-sm">
-                        {formatDistance(deal.distanceKm)}
-                      </span>
-                      <span
-                        className={`absolute right-2 top-2 rounded-full px-2 py-0.5 text-[10px] font-bold shadow-sm ${getDaysRemainingText(deal.endsAt) === "Expired" ? "bg-red-500 text-white" : "bg-white/95 text-[#157A4F]"}`}
-                      >
-                        {getDaysRemainingText(deal.endsAt) || "N/A"}
-                      </span>
-                    </div>
-                    <div className="p-3 flex flex-col flex-1">
-                      <h3 className="line-clamp-1 text-sm font-bold text-gray-900">
-                        {deal.title}
-                      </h3>
-                      <p className="mt-1 text-[11px] text-gray-500">
-                        {deal.merchant?.name || "Merchant"}
-                      </p>
-                      <p className="mt-2 text-[11px] text-gray-500 line-clamp-1 flex items-center gap-1">
-                        <svg
-                          className="w-3 h-3"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
+                  activeView === "list" ? (
+                    <article
+                      key={deal.offerId}
+                      className="group flex flex-col md:flex-row overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-[#157A4F] hover:shadow-lg"
+                    >
+                      {/* Left side: Image/Media container */}
+                      <div className="relative h-48 md:h-auto md:w-[35%] shrink-0 overflow-hidden bg-gray-100">
+                        <OfferCardMedia
+                          imageUrl={deal.imageUrl}
+                          videoUrl={deal.videoUrl}
+                          title={deal.title}
+                        />
+                        {/* Badge 1: Limited Time */}
+                        <span className="absolute left-3 top-3 rounded-full bg-[#157A4F] px-3 py-1 text-[11px] font-bold text-white shadow-sm">
+                          Limited Time
+                        </span>
+                        {/* Badge 2: Nearby */}
+                        <span className="absolute left-3 top-10 rounded-full bg-white/95 px-2.5 py-0.5 text-[9px] font-semibold text-gray-700 shadow-sm">
+                          Nearby
+                        </span>
+                        {/* Heart Icon / Wishlist */}
+                        <button className="absolute right-3 top-3 rounded-full bg-white p-1.5 shadow-md hover:bg-gray-100 transition-colors">
+                          <Heart size={16} className="text-gray-600" />
+                        </button>
+                      </div>
+
+                      {/* Right side: Content container */}
+                      <div className="p-4 md:p-6 flex flex-col flex-grow min-w-0">
+                        {/* Merchant Info and Time Remaining */}
+                        <div className="flex items-center justify-between gap-4 mb-2">
+                          <div className="flex items-center gap-2">
+                            {/* Merchant Logo placeholder */}
+                            <div className="w-8 h-8 rounded-full bg-[#157A4F]/10 flex items-center justify-center text-sm font-bold text-[#157A4F]">
+                              {deal.merchant?.name ? deal.merchant.name.charAt(0) : 'M'}
+                            </div>
+                            <span className="font-semibold text-gray-900 text-sm">{deal.merchant?.name || "Merchant"}</span>
+                          </div>
+                          {/* Days Left Pill */}
+                          <span className="inline-flex items-center gap-1 bg-[#D1E7DD] text-[#0F5132] px-2.5 py-0.5 rounded-full text-xs font-semibold">
+                            <Clock size={12} />
+                            {getDaysRemainingText(deal.endsAt) || "N/A"}
+                          </span>
+                        </div>
+
+                        {/* Offer Title */}
+                        <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-2 leading-snug">
+                          {deal.title}
+                        </h2>
+
+                        {/* Meta Stats: Rating, Distance, Category */}
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-500 mb-3">
+                          <span className="flex items-center gap-1 font-semibold text-yellow-600">
+                            <Star size={14} fill="currentColor" className="text-yellow-500" />
+                            {Number(deal.merchant?.rating ?? deal.merchant?.averageRating ?? deal.rating ?? 4.2).toFixed(1)}
+                          </span>
+                          <span>•</span>
+                          <span className="flex items-center gap-1">
+                            <MapPin size={12} />
+                            {formatDistance(deal.distanceKm)}
+                          </span>
+                          <span>•</span>
+                          <span className="flex items-center gap-1">
+                            <Tag size={12} />
+                            {deal.category || "Special"}
+                          </span>
+                        </div>
+
+                        {/* Short Description */}
+                        <p className="text-sm text-gray-600 line-clamp-2 mb-4 leading-relaxed">
+                          {deal.description || "Enjoy special offers and rewards near you."}
+                        </p>
+
+                        {/* Address info */}
+                        <div className="flex items-center gap-1.5 text-xs text-gray-500 mb-4">
+                          <MapPin size={12} className="shrink-0" />
+                          <span className="truncate">{deal.merchant?.address || "Location not specified"}</span>
+                        </div>
+
+                        {/* Bottom row: Pricing, valid date, CTA */}
+                        <div className="mt-auto border-t border-gray-100 pt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                          <div className="flex items-center gap-3">
+                            {/* Valid Date */}
+                            <span className="flex items-center gap-1 text-xs text-gray-500">
+                              <Calendar size={12} />
+                              Valid till {formatDate(deal.endsAt)}
+                            </span>
+                            {/* Save Pill */}
+                            <span className="bg-[#E2F0D9] text-[#385723] px-2.5 py-0.5 rounded-full text-xs font-semibold">
+                              Save up to {deal.discountPercentage || "20"}%
+                            </span>
+                          </div>
+
+                          {/* Pricing & CTA */}
+                          <div className="flex items-center justify-between sm:justify-end gap-4">
+                            <span className="text-2xl font-extrabold text-gray-900">
+                              ₹{toNumber(deal.displayPrice, 0).toLocaleString("en-IN")}
+                            </span>
+                            <button
+                              onClick={() => openDealDetails(deal)}
+                              className="inline-flex items-center gap-2 rounded-xl bg-[#157A4F] px-5 py-2.5 text-sm font-bold text-white transition-all duration-200 hover:bg-[#0f5c3a] shadow-sm hover:shadow active:scale-95"
+                            >
+                              <span>View Deal</span>
+                              <ArrowRight size={16} />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </article>
+                  ) : (
+                    <article
+                      key={deal.offerId}
+                      className="group flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-[#157A4F] hover:shadow-lg"
+                    >
+                      <div className="relative h-44 w-full overflow-hidden bg-gray-100 sm:h-36">
+                        <OfferCardMedia
+                          imageUrl={deal.imageUrl}
+                          videoUrl={deal.videoUrl}
+                          title={deal.title}
+                        />
+                        <span className="absolute left-2 top-2 rounded-full bg-gradient-to-r from-[#157A4F] to-[#28A745] px-2 py-0.5 text-[10px] font-bold text-white shadow-sm">
+                          {deal.category || "Special"}
+                        </span>
+                        <span className="absolute left-2 top-8 rounded-md bg-white/95 px-2 py-0.5 text-[9px] font-semibold text-gray-700 shadow-sm">
+                          {formatDistance(deal.distanceKm)}
+                        </span>
+                        <span
+                          className={`absolute right-2 top-2 rounded-full px-2 py-0.5 text-[10px] font-bold shadow-sm ${getDaysRemainingText(deal.endsAt) === "Expired" ? "bg-red-500 text-white" : "bg-white/95 text-[#157A4F]"}`}
                         >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                          />
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                          />
-                        </svg>
-                        {deal.merchant?.address || "Location not specified"}
-                      </p>
-                      <p className="mt-1 text-[10px] text-gray-400">
-                        Valid: {formatDate(deal.startsAt)} -{" "}
-                        {formatDate(deal.endsAt)}
-                      </p>
-                      <p className="mt-2 text-xl font-extrabold text-gray-900">
-                        ₹
-                        {toNumber(deal.displayPrice, 0).toLocaleString("en-IN")}
-                      </p>
-                      <button
-                        onClick={() => openDealDetails(deal)}
-                        className="mt-auto w-full rounded-lg border border-gray-200 bg-[#F7F7F7] py-2 text-xs font-bold text-gray-800 transition-colors duration-200 hover:border-[#157A4F] hover:bg-[#157A4F] hover:text-white"
-                      >
-                        View Deal
-                      </button>
-                    </div>
-                  </article>
+                          {getDaysRemainingText(deal.endsAt) || "N/A"}
+                        </span>
+                      </div>
+                      <div className="p-3 flex flex-col flex-1">
+                        <h3 className="line-clamp-1 text-sm font-bold text-gray-900">
+                          {deal.title}
+                        </h3>
+                        <p className="mt-1 text-[11px] text-gray-500">
+                          {deal.merchant?.name || "Merchant"}
+                        </p>
+                        <p className="mt-2 text-[11px] text-gray-500 line-clamp-1 flex items-center gap-1">
+                          <svg
+                            className="w-3 h-3"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                            />
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                            />
+                          </svg>
+                          {deal.merchant?.address || "Location not specified"}
+                        </p>
+                        <p className="mt-1 text-[10px] text-gray-400">
+                          Valid: {formatDate(deal.startsAt)} -{" "}
+                          {formatDate(deal.endsAt)}
+                        </p>
+                        <p className="mt-2 text-xl font-extrabold text-gray-900">
+                          ₹
+                          {toNumber(deal.displayPrice, 0).toLocaleString("en-IN")}
+                        </p>
+                        <button
+                          onClick={() => openDealDetails(deal)}
+                          className="mt-auto w-full rounded-lg border border-gray-200 bg-[#F7F7F7] py-2 text-xs font-bold text-gray-800 transition-colors duration-200 hover:border-[#157A4F] hover:bg-[#157A4F] hover:text-white"
+                        >
+                          View Deal
+                        </button>
+                      </div>
+                    </article>
+                  )
                 ))
               )}
             </div>
