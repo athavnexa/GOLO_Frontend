@@ -75,7 +75,8 @@ export async function uploadToCloudinary(file) {
     formData.append('upload_preset', CLOUDINARY_CONFIG.uploadPreset);
     formData.append('cloud_name', CLOUDINARY_CONFIG.cloudName);
 
-    const resourceType = isVideo ? 'video' : isImage ? 'image' : 'auto';
+    const isPdf = mimeType === 'application/pdf' || (file.name && file.name.toLowerCase().endsWith('.pdf'));
+    const resourceType = isVideo ? 'video' : (isImage || isPdf) ? 'image' : 'auto';
     const uploadUrl = getCloudinaryUploadUrl(resourceType);
 
     try {
