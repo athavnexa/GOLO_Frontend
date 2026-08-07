@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "../../../context/AuthContext";
 import MerchantNavbar from "../../MerchantNavbar";
 import { ArrowLeft, CheckCircle2, TrendingUp, Shield, Crown, Zap, Lock, Info, Loader2 } from "lucide-react";
-import { subscribeToPlan } from "../../../lib/api";
+import { subscribeToPlan, getSubscriptionPlans } from "../../../lib/api";
 
 const PLANS = {
   basic: {
@@ -76,19 +76,44 @@ function CheckoutPageContent() {
   const planId = searchParams.get("plan") || "basic";
   const [selectedMonths, setSelectedMonths] = useState(1);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [resolvedPlan, setResolvedPlan] = useState(null);
+  const [loadingPlan, setLoadingPlan] = useState(true);
+
+  useEffect(() => {
+    getSubscriptionPlans()
+      .then((plans) => {
+        const matchedPlan = plans.find(
+          (p) => p.id === planId || p._id === planId || p.name.toLowerCase() === planId.toLowerCase()
+        );
+        if (matchedPlan) {
+          const lowerName = matchedPlan.name.toLowerCase();
+          const icon = lowerName.includes('premium') || lowerName.includes('enterprise')
+            ? Crown
+            : (lowerName.includes('pro') ? TrendingUp : Zap);
+          const color = lowerName.includes('premium') || lowerName.includes('enterprise')
+            ? "#7c3aed"
+            : (lowerName.includes('pro') ? "#2563eb" : "#157a4f");
+
+          setResolvedPlan({
+            id: matchedPlan.id || matchedPlan._id,
+            name: matchedPlan.name,
+            monthlyPrice: matchedPlan.price || 0,
+            color,
+            icon,
+            description: matchedPlan.description || "Custom subscription plan",
+            features: matchedPlan.displayFeatures || [],
+          });
+        }
+      })
+      .catch(console.error)
+      .finally(() => setLoadingPlan(false));
+  }, [planId]);
 
   const handlePayment = async () => {
     setIsProcessing(true);
     try {
-      const backendPlanNameMap = {
-        basic: "Starter",
-        pro: "Pro",
-        premium: "Premium"
-      };
-      const actualPlanName = backendPlanNameMap[planId] || "Starter";
       const billingCycle = selectedMonths >= 12 ? "yearly" : "monthly";
-
-      await subscribeToPlan(actualPlanName, billingCycle);
+      await subscribeToPlan(plan.name, billingCycle);
       router.push("/merchant/dashboard?upgrade=success");
     } catch (error) {
       console.error("Subscription failed:", error);
@@ -98,7 +123,7 @@ function CheckoutPageContent() {
     }
   };
 
-  const plan = PLANS[planId] || PLANS.basic;
+  const plan = resolvedPlan || PLANS[planId] || PLANS.basic;
   const IconComponent = plan.icon;
 
   const getDiscount = (months) => {
@@ -134,7 +159,11 @@ function CheckoutPageContent() {
     }
   }, [loading, user, router]);
 
-  if (loading || !user) return <div className="min-h-screen bg-[#F9FAFB]" />;
+  if (loading || !user || loadingPlan) return (
+    <div className="min-h-screen bg-[#F9FAFB] flex items-center justify-center">
+      <Loader2 className="animate-spin text-[#157a4f] w-8 h-8" />
+    </div>
+  );
   if (user.accountType !== "merchant") return null;
 
   return (
