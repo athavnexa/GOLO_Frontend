@@ -1219,9 +1219,17 @@ function ChatsPageContent() {
       const adContextId =
         selectedConversation?.ad?.id || selectedConversation?.lastMessageAdId || selectedConversation?.adId;
 
-      const attachments = files.length
+      const rawAttachments = files.length
         ? await Promise.all(files.map((file) => uploadChatAttachment(file)))
         : [];
+
+      const attachments = rawAttachments.map(({ name, mimeType, size, type, url }) => ({
+        name,
+        mimeType,
+        size: typeof size === 'number' ? size : undefined,
+        type,
+        url,
+      }));
 
       let message;
 
