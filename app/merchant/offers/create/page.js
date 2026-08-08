@@ -14,6 +14,7 @@ import ModerationWarningModal from "../../../../components/ModerationWarningModa
    getMerchantProducts,
    submitOfferPromotionRequest,
    getProfile,
+   getMerchantActivePlan,
  } from "../../../lib/api";
 import { uploadToCloudinary } from "../../../services/cloudinaryConfig";
 
@@ -124,6 +125,7 @@ export default function CreateMerchantOfferPage() {
   const [modalSelectionIds, setModalSelectionIds] = useState([]);
   const [needsSelection, setNeedsSelection] = useState(false);
   const [maxProductsCount, setMaxProductsCount] = useState(0);
+  const [maxOfferDurationDays, setMaxOfferDurationDays] = useState(null);
 
   const applyTemplate = (template) => {
     if (!template) return;
@@ -225,13 +227,21 @@ export default function CreateMerchantOfferPage() {
        loadMerchantProducts();
        verifyMerchantLocation();
 
-       // Fetch merchant profile to get store category (for display)
+       // Fetch merchant profile to get store category (for display) and plan details
        (async () => {
          try {
            const profileRes = await getProfile();
-           setMerchantStoreCategory(profileRes.data?.storeCategory || '');
+           const profileData = profileRes.data;
+           setMerchantStoreCategory(profileData?.storeCategory || '');
+           
+           if (profileData) {
+             const activePlan = await getMerchantActivePlan(profileData);
+             if (activePlan && activePlan.features?.offers?.maxDurationDays) {
+               setMaxOfferDurationDays(activePlan.features.offers.maxDurationDays);
+             }
+           }
          } catch (err) {
-           console.warn('Could not fetch merchant store category', err);
+           console.warn('Could not fetch merchant store category or plan', err);
          }
        })();
      }
@@ -413,9 +423,24 @@ export default function CreateMerchantOfferPage() {
     }
 
     const endDate = formData.endDate || formData.startDate;
-    if (new Date(endDate) < new Date(formData.startDate)) {
+    const startObj = new Date(formData.startDate);
+    const endObj = new Date(endDate);
+
+    if (endObj < startObj) {
       setError("End date cannot be before start date.");
       return false;
+    }
+
+    if (maxOfferDurationDays && maxOfferDurationDays !== -1) {
+      const diffMs = endObj.getTime() - startObj.getTime();
+      const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+      if (diffDays > maxOfferDurationDays) {
+        setUpgradeModalInfo({
+          isOpen: true,
+          message: `Your current plan allows a maximum offer duration of ${maxOfferDurationDays} day${maxOfferDurationDays === 1 ? '' : 's'}. Please reduce the offer end date or upgrade your plan.`
+        });
+        return false;
+      }
     }
 
     const imageUrl = formData.imageUrl.trim();
@@ -495,8 +520,8 @@ export default function CreateMerchantOfferPage() {
          setModerationWarningInfo({ isOpen: true, message: errorMsg, restrictedUntil: err?.data?.restrictedUntil });
        } else if (typeof errorMsg === 'string' && errorMsg.includes("inappropriate content")) {
          setIsModalOpen(true);
-       } else if (typeof errorMsg === 'string' && errorMsg.includes("Please upgrade")) {
-         setUpgradeModalInfo({ isOpen: true, message: errorMsg });
+        } else if (typeof errorMsg === 'string' && (errorMsg.includes("Please upgrade") || errorCode === 'OFFER_DURATION_LIMIT_EXCEEDED' || errorCode === 'ACTIVE_OFFERS_LIMIT_EXCEEDED')) {
+          setUpgradeModalInfo({ isOpen: true, message: errorMsg });
        } else {
          setError(errorMsg || "Failed to create offer.");
        }
@@ -567,9 +592,19 @@ export default function CreateMerchantOfferPage() {
                     <input
                       type="date"
                       value={formData.endDate ?? ''}
+                      min={formData.startDate || undefined}
+                      max={formData.startDate && maxOfferDurationDays && maxOfferDurationDays !== -1 
+                        ? new Date(new Date(formData.startDate).getTime() + maxOfferDurationDays * 24 * 60 * 60 * 1000).toISOString().split('T')[0] 
+                        : undefined}
                       onChange={(e) => setFormData((prev) => ({ ...prev, endDate: e.target.value }))}
                       className="h-10 w-full rounded-[8px] border border-[#dedede] bg-white px-3 text-[13px] outline-none"
                     />
+                    {maxOfferDurationDays && maxOfferDurationDays !== -1 && (
+                      <p className="mt-1 text-[11px] text-[#2f8f55] font-medium flex items-center gap-1">
+                        <span className="inline-flex h-3 w-3 items-center justify-center rounded-full bg-[#ecfdf5] text-[8px] border border-[#10b981]">✓</span>
+                        Your plan allows up to {maxOfferDurationDays} days
+                      </p>
+                    )}
                   </div>
 
                   <div className="md:col-span-2">

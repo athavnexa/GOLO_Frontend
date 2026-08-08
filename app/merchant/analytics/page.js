@@ -9,6 +9,7 @@ import {
   getMerchantRealtimeAnalytics,
   getMerchantLikedProducts,
   getMerchantProfile,
+  getMerchantActivePlan,
 } from "../../lib/api";
 
 export default function MerchantAnalyticsPage() {
@@ -33,6 +34,14 @@ export default function MerchantAnalyticsPage() {
     { label: "45-64", male: 0, female: 0, maleCount: 0, femaleCount: 0, count: 0, total: "0%" },
     { label: "65+", male: 0, female: 0, maleCount: 0, femaleCount: 0, count: 0, total: "0%" },
   ]);
+  const [analyticsPerms, setAnalyticsPerms] = useState({
+    basic: false,
+    advanced: false,
+    ageGender: false,
+    location: false,
+    device: false,
+    graphs: false,
+  });
 
   const deviceSegments = useMemo(() => {
     const circumference = 264;
@@ -159,17 +168,25 @@ export default function MerchantAnalyticsPage() {
   }, [user]);
 
   useEffect(() => {
-    const loadMerchantProfile = async () => {
+    const loadMerchantProfileAndPlan = async () => {
       if (!user || user.accountType !== "merchant") return;
       try {
         const response = await getMerchantProfile();
-        setMerchantProfile(response?.data || null);
+        const profile = response?.data || null;
+        setMerchantProfile(profile);
+
+        if (profile) {
+          const planDetails = await getMerchantActivePlan(profile);
+          if (planDetails?.features?.analytics) {
+            setAnalyticsPerms(planDetails.features.analytics);
+          }
+        }
       } catch {
         setMerchantProfile(null);
       }
     };
 
-    loadMerchantProfile();
+    loadMerchantProfileAndPlan();
   }, [user]);
 
   // Fetch liked products for merchant (keep fallback if none)
@@ -274,53 +291,64 @@ export default function MerchantAnalyticsPage() {
                 </div>
               </div>
 
-              <div className="mt-4 rounded-[12px] border border-[#ececec] bg-[#fbfbfb] p-4">
-                <svg key={dataVersion} viewBox="0 0 760 180" className="w-full h-[130px]">
-                  {[30, 20, 10, 0].map((y) => (
-                    <g key={y}>
-                      <line x1="36" y1={20 + (22 - y) * 4.5} x2="740" y2={20 + (22 - y) * 4.5} stroke="#d8d8d8" strokeDasharray="4 4" />
-                      <text x="2" y={24 + (22 - y) * 4.5} fontSize="10" fill="#888">{y}</text>
-                    </g>
-                  ))}
+              <div className="mt-4 rounded-[12px] border border-[#ececec] bg-[#fbfbfb] p-4 relative overflow-hidden">
+                {!analyticsPerms.graphs && (
+                  <div className="absolute inset-0 z-10 bg-white/70 backdrop-blur-[2px] flex items-center justify-center">
+                    <div className="bg-white px-5 py-3 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center text-center">
+                      <span className="text-xl mb-1">🔒</span>
+                      <p className="text-[13px] font-semibold text-gray-800">Graphs Locked</p>
+                      <p className="text-[11px] text-gray-500 mt-1 max-w-[180px]">Upgrade to Starter or above to view monthly trends.</p>
+                    </div>
+                  </div>
+                )}
+                <div className={!analyticsPerms.graphs ? "opacity-30 pointer-events-none" : ""}>
+                  <svg key={dataVersion} viewBox="0 0 760 180" className="w-full h-[130px]">
+                    {[30, 20, 10, 0].map((y) => (
+                      <g key={y}>
+                        <line x1="36" y1={20 + (22 - y) * 4.5} x2="740" y2={20 + (22 - y) * 4.5} stroke="#d8d8d8" strokeDasharray="4 4" />
+                        <text x="2" y={24 + (22 - y) * 4.5} fontSize="10" fill="#888">{y}</text>
+                      </g>
+                    ))}
 
-                  <polyline
-                    fill="none"
-                    stroke="#157a4f"
-                    strokeWidth="2.2"
-                    points={monthlyTrend
-                      .map((value, index) => {
-                        const x = 36 + index * 110;
-                        const normalized = Math.max(0, Math.min(22, Number(value)));
-                        const y = 164 - normalized * 4.5;
-                        return `${x},${y}`;
-                      })
-                      .join(" ")}
-                  />
+                    <polyline
+                      fill="none"
+                      stroke="#157a4f"
+                      strokeWidth="2.2"
+                      points={monthlyTrend
+                        .map((value, index) => {
+                          const x = 36 + index * 110;
+                          const normalized = Math.max(0, Math.min(22, Number(value)));
+                          const y = 164 - normalized * 4.5;
+                          return `${x},${y}`;
+                        })
+                        .join(" ")}
+                    />
 
-                  {trendLabels.map((d, idx) => (
-                    <text key={d} x={36 + idx * 110} y="180" fontSize="10" fill="#8a8a8a">{d}</text>
-                  ))}
-                </svg>
+                    {trendLabels.map((d, idx) => (
+                      <text key={d} x={36 + idx * 110} y="180" fontSize="10" fill="#8a8a8a">{d}</text>
+                    ))}
+                  </svg>
+                </div>
               </div>
 
-              <div className="mt-4 grid grid-cols-3 gap-3 border-t border-[#ececec] pt-4">
+              <div className={`mt-4 grid grid-cols-3 gap-3 border-t border-[#ececec] pt-4 ${!analyticsPerms.advanced ? "opacity-60 blur-[3px] pointer-events-none select-none" : ""}`}>
                 <div>
                   <p className="text-[11px] uppercase tracking-[0.1em] text-[#7b7b7b]">Total Active</p>
-                  <p className="text-[26px] leading-none font-semibold mt-1">{eventStats.totalActive || 0}</p>
+                  <p className="text-[26px] leading-none font-semibold mt-1">{analyticsPerms.advanced ? (eventStats.totalActive || 0) : 0}</p>
                 </div>
                 <div>
                   <p className="text-[11px] uppercase tracking-[0.1em] text-[#7b7b7b]">Total Redeemed</p>
-                  <p className="text-[26px] leading-none font-semibold mt-1 text-[#2f8f55]">{eventStats.redeemed || 0}</p>
+                  <p className="text-[26px] leading-none font-semibold mt-1 text-[#2f8f55]">{analyticsPerms.advanced ? (eventStats.redeemed || 0) : 0}</p>
                 </div>
                 <div>
                   <p className="text-[11px] uppercase tracking-[0.1em] text-[#7b7b7b]">Retention</p>
-                  <p className="text-[26px] leading-none font-semibold mt-1">{eventStats.retention || 0}%</p>
+                  <p className="text-[26px] leading-none font-semibold mt-1">{analyticsPerms.advanced ? (eventStats.retention || 0) : 0}%</p>
                 </div>
               </div>
             </div>
 
             <aside className="space-y-4">
-              <section className="rounded-[12px] border border-[#d9d9d9] bg-white p-4">
+              <section className="rounded-[12px] border border-[#d9d9d9] bg-white p-4 relative overflow-hidden">
                 <div className="flex items-start justify-between">
                   <div>
                     <h2 className="text-[26px] font-semibold leading-none">Offers liked</h2>
@@ -329,7 +357,13 @@ export default function MerchantAnalyticsPage() {
                   <button className="text-[#888]">⋮</button>
                 </div>
 
-                {likedOffers.length === 0 ? (
+                {!analyticsPerms.basic ? (
+                  <div className="mt-4 bg-[#fafafa] border border-[#efefef] rounded-lg p-6 flex flex-col items-center text-center">
+                    <span className="text-2xl mb-2">🔒</span>
+                    <p className="text-[13px] font-semibold text-gray-800">Basic Analytics Locked</p>
+                    <p className="text-[11px] text-gray-500 mt-1">Upgrade your plan to unlock offers liked data.</p>
+                  </div>
+                ) : likedOffers.length === 0 ? (
                   <p className="mt-4 text-[12px] text-[#999] italic">No liked offers yet. When customers like your offers, they will appear here.</p>
                 ) : (
                   <div className="mt-3 max-h-[340px] overflow-y-auto space-y-2">
@@ -377,32 +411,43 @@ export default function MerchantAnalyticsPage() {
                 </div>
               </div>
 
-              <div className="mt-5 space-y-5">
-                {ageRows.map((row) => (
-                  <div key={row.label} className="space-y-1">
-                    <div className="grid grid-cols-[50px_1fr_100px] items-center gap-4 text-[13px]">
-                      <span className="text-[#333] font-medium">{row.label}</span>
-                      <div className="h-4 rounded-full bg-[#ececec] overflow-hidden flex">
-                        <div className="bg-[#2f8f55]" style={{ width: `${row.male}%` }} />
-                        <div className="bg-[#e3a11f]" style={{ width: `${row.female}%` }} />
-                      </div>
-                      <span className="text-right font-semibold text-[13px]">{row.count !== undefined ? `${row.count} users` : row.total}</span>
-                    </div>
-                    <div className="grid grid-cols-[50px_1fr_100px] items-center gap-4 text-[11px] text-[#666]">
-                      <span></span>
-                      <span></span>
-                      <span className="text-right inline-flex items-center justify-end gap-2">
-                        <span className="text-[#2f8f55] font-medium">♂ {row.maleCount || 0}</span>
-                        <span className="text-[#e3a11f] font-medium">♀ {row.femaleCount || 0}</span>
-                      </span>
+              <div className="mt-5 space-y-5 relative">
+                {!analyticsPerms.ageGender && (
+                  <div className="absolute inset-0 z-10 bg-white/70 backdrop-blur-[2px] flex items-center justify-center">
+                    <div className="bg-white px-5 py-4 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center text-center">
+                      <span className="text-2xl mb-2">🔒</span>
+                      <p className="text-[14px] font-semibold text-gray-800">Age & Gender Locked</p>
+                      <p className="text-[12px] text-gray-500 mt-1 max-w-[220px]">Upgrade to Premium or Enterprise to unlock demographic insights.</p>
                     </div>
                   </div>
-                ))}
+                )}
+                <div className={!analyticsPerms.ageGender ? "opacity-30 pointer-events-none" : ""}>
+                  {ageRows.map((row) => (
+                    <div key={row.label} className="space-y-1 mb-5 last:mb-0">
+                      <div className="grid grid-cols-[50px_1fr_100px] items-center gap-4 text-[13px]">
+                        <span className="text-[#333] font-medium">{row.label}</span>
+                        <div className="h-4 rounded-full bg-[#ececec] overflow-hidden flex">
+                          <div className="bg-[#2f8f55]" style={{ width: `${row.male}%` }} />
+                          <div className="bg-[#e3a11f]" style={{ width: `${row.female}%` }} />
+                        </div>
+                        <span className="text-right font-semibold text-[13px]">{row.count !== undefined ? `${row.count} users` : row.total}</span>
+                      </div>
+                      <div className="grid grid-cols-[50px_1fr_100px] items-center gap-4 text-[11px] text-[#666]">
+                        <span></span>
+                        <span></span>
+                        <span className="text-right inline-flex items-center justify-end gap-2">
+                          <span className="text-[#2f8f55] font-medium">♂ {row.maleCount || 0}</span>
+                          <span className="text-[#e3a11f] font-medium">♀ {row.femaleCount || 0}</span>
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
 
             <aside className="space-y-4">
-              <section className="rounded-[12px] border border-[#d9d9d9] bg-white p-4">
+              <section className="rounded-[12px] border border-[#d9d9d9] bg-white p-4 relative overflow-hidden">
                 <div className="flex items-start justify-between">
                   <div>
                     <h2 className="text-[26px] font-semibold leading-none">Products liked</h2>
@@ -411,7 +456,13 @@ export default function MerchantAnalyticsPage() {
                   <button className="text-[#888]">⋮</button>
                 </div>
 
-                {likedProducts.length === 0 ? (
+                {!analyticsPerms.basic ? (
+                  <div className="mt-4 bg-[#fafafa] border border-[#efefef] rounded-lg p-6 flex flex-col items-center text-center">
+                    <span className="text-2xl mb-2">🔒</span>
+                    <p className="text-[13px] font-semibold text-gray-800">Basic Analytics Locked</p>
+                    <p className="text-[11px] text-gray-500 mt-1">Upgrade your plan to unlock products liked data.</p>
+                  </div>
+                ) : likedProducts.length === 0 ? (
                   <p className="mt-4 text-[12px] text-[#999] italic">No liked products yet. When customers like an offer with products, they will appear here.</p>
                 ) : (
                   <div className="mt-3 max-h-[340px] overflow-y-auto space-y-2">
@@ -447,37 +498,59 @@ export default function MerchantAnalyticsPage() {
           </section>
 
           <section className="grid grid-cols-1 lg:grid-cols-[320px_minmax(0,1fr)] gap-4 items-stretch">
-            <div className="rounded-[12px] border border-[#d9d9d9] bg-white p-4">
+            <div className="rounded-[12px] border border-[#d9d9d9] bg-white p-4 relative overflow-hidden">
               <h3 className="text-[24px] font-semibold leading-none">Device type</h3>
               <p className="text-[11px] text-[#6f6f6f] mt-1">Primary platforms used by customers</p>
 
-              <div className="mt-5 flex justify-center">
-                <div className="relative h-40 w-40">
-                  <svg viewBox="0 0 120 120" className="h-full w-full -rotate-90">
-                    <circle cx="60" cy="60" r="42" stroke="#e5e7eb" strokeWidth="9" fill="none" />
-                    <circle cx="60" cy="60" r="42" stroke="#2f8f55" strokeWidth="9" strokeDasharray={deviceSegments.mobileDash} fill="none" />
-                    <circle cx="60" cy="60" r="42" stroke="#e3a11f" strokeWidth="9" strokeDasharray={deviceSegments.desktopDash} strokeDashoffset={deviceSegments.desktopOffset} fill="none" />
-                    <circle cx="60" cy="60" r="42" stroke="#4b5563" strokeWidth="9" strokeDasharray={deviceSegments.tabletDash} strokeDashoffset={deviceSegments.tabletOffset} fill="none" />
-                  </svg>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                    <p className="text-[36px] font-semibold leading-none">{deviceSegments.mobile + deviceSegments.desktop + deviceSegments.tablet}%</p>
-                    <p className="text-[10px] uppercase tracking-[0.1em] text-[#7d7d7d]">Coverage</p>
+              {!analyticsPerms.device ? (
+                <div className="absolute inset-0 z-10 bg-white/70 backdrop-blur-[2px] flex items-center justify-center pt-8">
+                  <div className="bg-white px-5 py-4 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center text-center">
+                    <span className="text-2xl mb-2">🔒</span>
+                    <p className="text-[14px] font-semibold text-gray-800">Device Analytics Locked</p>
+                    <p className="text-[12px] text-gray-500 mt-1 max-w-[200px]">Upgrade to Enterprise plan to unlock device data.</p>
                   </div>
                 </div>
-              </div>
+              ) : null}
 
-              <div className="mt-4 grid grid-cols-3 gap-2 text-[10px]">
-                <div className="rounded-[8px] border border-[#efefef] bg-[#fafafa] p-2 text-center"><p className="text-[#2f8f55]">● Mobile</p><p className="font-semibold mt-1">{deviceSegments.mobile}%</p></div>
-                <div className="rounded-[8px] border border-[#efefef] bg-[#fafafa] p-2 text-center"><p className="text-[#e3a11f]">● Computer</p><p className="font-semibold mt-1">{deviceSegments.desktop}%</p></div>
-                <div className="rounded-[8px] border border-[#efefef] bg-[#fafafa] p-2 text-center"><p className="text-[#4b5563]">● Tablet</p><p className="font-semibold mt-1">{deviceSegments.tablet}%</p></div>
+              <div className={!analyticsPerms.device ? "opacity-30 pointer-events-none" : ""}>
+                <div className="mt-5 flex justify-center">
+                  <div className="relative h-40 w-40">
+                    <svg viewBox="0 0 120 120" className="h-full w-full -rotate-90">
+                      <circle cx="60" cy="60" r="42" stroke="#e5e7eb" strokeWidth="9" fill="none" />
+                      <circle cx="60" cy="60" r="42" stroke="#2f8f55" strokeWidth="9" strokeDasharray={deviceSegments.mobileDash} fill="none" />
+                      <circle cx="60" cy="60" r="42" stroke="#e3a11f" strokeWidth="9" strokeDasharray={deviceSegments.desktopDash} strokeDashoffset={deviceSegments.desktopOffset} fill="none" />
+                      <circle cx="60" cy="60" r="42" stroke="#4b5563" strokeWidth="9" strokeDasharray={deviceSegments.tabletDash} strokeDashoffset={deviceSegments.tabletOffset} fill="none" />
+                    </svg>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+                      <p className="text-[36px] font-semibold leading-none">{deviceSegments.mobile + deviceSegments.desktop + deviceSegments.tablet}%</p>
+                      <p className="text-[10px] uppercase tracking-[0.1em] text-[#7d7d7d]">Coverage</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-4 grid grid-cols-3 gap-2 text-[10px]">
+                  <div className="rounded-[8px] border border-[#efefef] bg-[#fafafa] p-2 text-center"><p className="text-[#2f8f55]">● Mobile</p><p className="font-semibold mt-1">{deviceSegments.mobile}%</p></div>
+                  <div className="rounded-[8px] border border-[#efefef] bg-[#fafafa] p-2 text-center"><p className="text-[#e3a11f]">● Computer</p><p className="font-semibold mt-1">{deviceSegments.desktop}%</p></div>
+                  <div className="rounded-[8px] border border-[#efefef] bg-[#fafafa] p-2 text-center"><p className="text-[#4b5563]">● Tablet</p><p className="font-semibold mt-1">{deviceSegments.tablet}%</p></div>
+                </div>
               </div>
             </div>
 
-             <section className="rounded-[12px] border border-[#d9d9d9] bg-white p-4">
+             <section className="rounded-[12px] border border-[#d9d9d9] bg-white p-4 relative overflow-hidden">
                <h3 className="text-[24px] font-semibold leading-none">Location breakdown</h3>
                <p className="text-[11px] text-[#6f6f6f] mt-1">Customer density by regional clusters</p>
 
-               <div className="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-4 text-[11px]">
+               {!analyticsPerms.location ? (
+                 <div className="absolute inset-0 z-10 bg-white/70 backdrop-blur-[2px] flex items-center justify-center pt-8">
+                   <div className="bg-white px-5 py-4 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center text-center">
+                     <span className="text-2xl mb-2">🔒</span>
+                     <p className="text-[14px] font-semibold text-gray-800">Location Analytics Locked</p>
+                     <p className="text-[12px] text-gray-500 mt-1 max-w-[200px]">Upgrade to Enterprise plan to unlock location insights.</p>
+                   </div>
+                 </div>
+               ) : null}
+
+               <div className={`mt-4 grid grid-cols-1 lg:grid-cols-2 gap-4 text-[11px] ${!analyticsPerms.location ? 'opacity-30 pointer-events-none' : ''}`}>
                 <div className="space-y-3">
                   {(regions.slice(0, 3)).map((region) => <LocationRow key={region.region} name={region.region} value={region.percent} />)}
                 </div>

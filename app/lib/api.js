@@ -51,6 +51,32 @@ export const subscribeToPlan = async (planName, billingCycle) => {
   }
 };
 
+/**
+ * Fetches the merchant's currently active subscription plan with full feature details.
+ * Pass the merchantProfile object (from getMerchantProfile) to cross-reference the planId.
+ */
+export const getMerchantActivePlan = async (merchantProfile) => {
+  try {
+    const plans = await apiClient('/subscriptions/plans');
+    const planList = Array.isArray(plans) ? plans : (plans?.data || plans?.plans || []);
+    const planId = merchantProfile?.subscription?.planId || 'Free Tier';
+
+    // Trial plan uses Premium features
+    const effectivePlanId =
+      merchantProfile?.subscription?.status === 'TRIAL' ? 'Premium' : planId;
+
+    const matched =
+      planList.find((p) => p.name === effectivePlanId) ||
+      planList.find((p) => p.name === 'Free Tier') ||
+      null;
+
+    return matched;
+  } catch (error) {
+    console.error('Failed to get merchant active plan:', error);
+    return null;
+  }
+};
+
 // ============================================================
 // Centralized API Layer — Choja Frontend → ads-microservice
 // ============================================================
@@ -1199,7 +1225,7 @@ export async function getCallHistory({ page = 1, limit = 100 } = {}) {
 export async function getMerchantProducts({ page = 1, limit = 10, search = '' } = {}) {
     const params = new URLSearchParams({ page, limit });
     if (search) params.append('search', search);
-    return apiClient(`/merchant/products?${params.toString()}`);
+    return apiClient(`/merchant/products?${params.toString()}`, { cache: 'no-store' });
 }
 
 export async function createMerchantProduct(payload) {

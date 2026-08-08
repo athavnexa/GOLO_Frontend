@@ -793,8 +793,17 @@ export default function MerchantRegisterPage() {
                               <p className="text-[10px] text-white/80 font-bold mb-1 tracking-wider uppercase">Status</p>
                               <div className="flex items-center gap-2 justify-center max-w-full">
                                 <span className="text-[11px] text-white font-medium truncate max-w-[120px]" title={uploadedFile.name}>{uploadedFile.name}</span>
-                                <Eye size={12} className="text-white/80 cursor-pointer hover:text-white shrink-0" />
-                                <Download size={12} className="text-white/80 cursor-pointer hover:text-white shrink-0" />
+                                <Eye size={12} className="text-white/80 cursor-pointer hover:text-white shrink-0" onClick={() => window.open(URL.createObjectURL(uploadedFile), '_blank')} />
+                                <Download size={12} className="text-white/80 cursor-pointer hover:text-white shrink-0" onClick={() => {
+                                  const url = URL.createObjectURL(uploadedFile);
+                                  const a = document.createElement('a');
+                                  a.href = url;
+                                  a.download = uploadedFile.name;
+                                  document.body.appendChild(a);
+                                  a.click();
+                                  document.body.removeChild(a);
+                                  URL.revokeObjectURL(url);
+                                }} />
                               </div>
                               <p className="text-[9px] text-white/60 mt-0.5">{(uploadedFile.size / (1024 * 1024)).toFixed(2)} MB • Just now</p>
                             </div>
