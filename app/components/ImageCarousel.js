@@ -41,7 +41,7 @@ function SafeImage({
   );
 }
 
-export default function ImageCarousel({ images = [], videoUrl = null, alt = "Product" }) {
+export default function ImageCarousel({ images = [], videoUrl = null, alt = "Product", disableZoom = false }) {
   const mediaList = [
     ...(images || []).map(url => ({ type: 'image', url }))
   ];
@@ -170,7 +170,7 @@ export default function ImageCarousel({ images = [], videoUrl = null, alt = "Pro
             </div>
           )}
 
-          {isHovering && !isVideo && (
+          {isHovering && !isVideo && !disableZoom && (
             <div
               className="absolute border-2 border-white/90 shadow-lg bg-white/15 pointer-events-none rounded-full"
               style={{
@@ -230,7 +230,7 @@ export default function ImageCarousel({ images = [], videoUrl = null, alt = "Pro
       </div>
 
       {/* Enhanced Zoom Popup - Now with preloaded images */}
-      {isHovering && !isVideo && loadedImages[currentMedia.url] && (
+      {isHovering && !isVideo && !disableZoom && loadedImages[currentMedia.url] && (
         <div className="hidden lg:block absolute top-0 left-[calc(100%+24px)] w-[calc(83.333%)] h-[500px] rounded-xl border border-[#e5e7eb] bg-white shadow-2xl overflow-hidden z-50 pointer-events-none">
           <div className="relative w-full h-full">
             {/* High Quality Zoomed Image */}

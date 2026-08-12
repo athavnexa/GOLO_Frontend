@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Bell, Download, Plus, ShoppingBag, Star, User } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import MerchantNavbar from "../MerchantNavbar";
-import { getMerchantOrders, getMerchantOrderStats, updateMerchantOrderStatus } from "../../lib/api";
+import { getMerchantOrders, getMerchantOrderStats, updateMerchantOrderStatus, getMerchantRedemptionHistory } from "../../lib/api";
 
 const FALLBACK_AVATAR = "/images/place2.avif";
 
@@ -35,9 +35,6 @@ function MerchantOrdersPageContent() {
 
   const filteredOrders = useMemo(() => {
     if (activeTab === "all") return orders;
-    if (activeTab === "accepted") {
-      return orders.filter((order) => order.fulfillmentStatus === "accepted");
-    }
     if (activeTab === "completed") {
       return orders.filter((order) => order.fulfillmentStatus === "completed");
     }
@@ -94,9 +91,35 @@ function MerchantOrdersPageContent() {
     };
   };
 
+  const formatVoucherForUi = (voucher) => {
+    const date = new Date(voucher.redeemedAt || voucher.createdAt || Date.now());
+    
+    return {
+      _id: voucher._id,
+      id: `#${voucher.voucherId || String(voucher._id || "").slice(-6)}`,
+      statusLabel: "Redeemed",
+      amount: voucher.offerTitle || "Special Offer",
+      items: "1 Deal",
+      time: `Redeemed ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}`,
+      date: date.toLocaleDateString(),
+      customer: voucher.userName || "Customer",
+      customerPhone: voucher.userPhone || null,
+      customerType: "Customer",
+      avatar: getSafeAvatarSrc(voucher.userAvatar),
+      fulfillmentStatus: "completed",
+      action: "Completed",
+      actionTone: "muted",
+    };
+  };
+
   const loadOrders = async (statusValue = activeTab) => {
-    const response = await getMerchantOrders({ status: statusValue === "all" ? "all" : statusValue, page: 1, limit: 30 });
-    setOrders((response?.data || []).map(formatOrderForUi));
+    if (statusValue === "completed") {
+      const response = await getMerchantRedemptionHistory({ page: 1, limit: 30 });
+      setOrders((response?.data || []).map(formatVoucherForUi));
+    } else {
+      const response = await getMerchantOrders({ status: statusValue === "all" ? "all" : statusValue, page: 1, limit: 30 });
+      setOrders((response?.data || []).map(formatOrderForUi));
+    }
   };
 
   useEffect(() => {
@@ -105,11 +128,16 @@ function MerchantOrdersPageContent() {
       try {
         setPageLoading(true);
         setLoadError("");
-        const [ordersRes, statsRes] = await Promise.all([
-          getMerchantOrders({ status: activeTab === "all" ? "all" : activeTab, page: 1, limit: 30 }),
-          getMerchantOrderStats(),
-        ]);
-        setOrders((ordersRes?.data || []).map(formatOrderForUi));
+        let ordersRes;
+        if (activeTab === "completed") {
+          ordersRes = await getMerchantRedemptionHistory({ page: 1, limit: 30 });
+          setOrders((ordersRes?.data || []).map(formatVoucherForUi));
+        } else {
+          ordersRes = await getMerchantOrders({ status: activeTab === "all" ? "all" : activeTab, page: 1, limit: 30 });
+          setOrders((ordersRes?.data || []).map(formatOrderForUi));
+        }
+        
+        const statsRes = await getMerchantOrderStats();
         setStats(statsRes?.data || { todayOrders: 0, totalRevenue: 0 });
       } catch (err) {
         setOrders([]);
@@ -129,8 +157,13 @@ function MerchantOrdersPageContent() {
 
     const interval = setInterval(async () => {
       try {
-        const ordersRes = await getMerchantOrders({ status: activeTab === "all" ? "all" : activeTab, page: 1, limit: 30 });
-        setOrders((ordersRes?.data || []).map(formatOrderForUi));
+        if (activeTab === "completed") {
+          const ordersRes = await getMerchantRedemptionHistory({ page: 1, limit: 30 });
+          setOrders((ordersRes?.data || []).map(formatVoucherForUi));
+        } else {
+          const ordersRes = await getMerchantOrders({ status: activeTab === "all" ? "all" : activeTab, page: 1, limit: 30 });
+          setOrders((ordersRes?.data || []).map(formatOrderForUi));
+        }
       } catch (err) {
         // silent refresh failure
       }
@@ -229,12 +262,6 @@ function MerchantOrdersPageContent() {
                   className={`h-8 shrink-0 min-w-[68px] rounded-[8px] px-2.5 text-[11px] font-semibold lg:min-w-[72px] lg:px-3 ${activeTab === "all" ? "bg-[#f2faf4] text-[#157a4f]" : "text-[#6d6d6d]"}`}
                 >
                   All Orders
-                </button>
-                <button
-                  onClick={() => setActiveTab("accepted")}
-                  className={`h-8 shrink-0 min-w-[78px] rounded-[8px] px-2.5 text-[11px] font-semibold lg:min-w-[88px] lg:px-3 ${activeTab === "accepted" ? "bg-[#f2faf4] text-[#157a4f]" : "text-[#6d6d6d]"}`}
-                >
-                  Accepted
                 </button>
                 <button
                   onClick={() => setActiveTab("completed")}

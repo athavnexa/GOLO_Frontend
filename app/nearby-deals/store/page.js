@@ -369,6 +369,10 @@ function NearbyStoreContent() {
     merchant?.profilePhoto ||
     "/images/place2.avif";
 
+  const storeCategory = merchant?.profile?.category || merchant?.merchantProfile?.storeCategory || merchant?.category || "Store";
+  const storeSubCategory = merchant?.profile?.subCategory || merchant?.merchantProfile?.storeSubCategory || merchant?.subCategory || "";
+  const categoryDisplay = storeSubCategory && storeCategory !== storeSubCategory ? `${storeCategory} • ${storeSubCategory}` : storeCategory;
+
   return (
     <main className="relative z-10 min-h-screen bg-transparent">
       <Navbar />
@@ -377,9 +381,21 @@ function NearbyStoreContent() {
         {/* Store Header Card */}
         <div className="rounded-2xl border border-[#d8dce3] bg-white p-5 lg:p-7 shadow-sm mb-6 mt-3">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <h1 className="text-3xl lg:text-4xl font-bold leading-tight lg:leading-none text-[#1f2329]">
-              {merchant?.name || "Store"}
-            </h1>
+            <div className="flex items-center gap-4">
+              <div className="h-16 w-16 overflow-hidden rounded-full border-2 border-[#1f8f4f] shrink-0 lg:h-20 lg:w-20">
+                <Image
+                  src={merchant?.profilePhoto || merchant?.merchantProfile?.profilePhoto || resolvedStoreImage}
+                  alt={merchant?.name || "Store"}
+                  width={80}
+                  height={80}
+                  className="h-full w-full object-cover"
+                  unoptimized
+                />
+              </div>
+              <h1 className="text-3xl lg:text-4xl font-bold leading-tight lg:leading-none text-[#1f2329]">
+                {merchant?.name || "Store"}
+              </h1>
+            </div>
             <button 
               onClick={handleFollow} 
               disabled={followLoading}
@@ -404,7 +420,7 @@ function NearbyStoreContent() {
           </p>
 
           <div className="mt-4 flex flex-wrap items-center gap-4 text-xs lg:text-sm text-[#4e5965] border-t border-[#e5e8ec] pt-4">
-            <span className="font-semibold text-[#1f2329]">{resolvedAddress || (merchant?.profile?.city ? `${merchant.profile.city}${merchant.profile.state ? `, ${merchant.profile.state}` : ""}` : "Location")}</span>
+            <span className="font-semibold text-[#157a4f] bg-[#eef6ef] px-3 py-1 rounded-full">{categoryDisplay}</span>
 
             <div className="flex items-center gap-2">
               <span className="font-semibold text-[#f2b632]">★</span>

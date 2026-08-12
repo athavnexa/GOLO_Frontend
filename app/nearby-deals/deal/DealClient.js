@@ -19,6 +19,7 @@ import {
   Smile,
   AlertCircle,
   Check,
+  ArrowLeft,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useVoucher } from "../../context/VoucherContext";
@@ -661,6 +662,12 @@ function NearbyDealDetailsContent() {
       <Navbar />
 
       <div className="relative z-10 mx-auto max-w-[1260px] px-4 lg:px-6 pt-10 md:pt-14 pb-4 lg:pb-6">
+        <button
+          onClick={() => router.back()}
+          className="mb-4 inline-flex items-center gap-2 text-sm font-semibold text-[#666] hover:text-[#111] transition-colors"
+        >
+          <ArrowLeft size={16} /> Back
+        </button>
         {/* Hero Section */}
         <section className="bg-white rounded-2xl overflow-hidden shadow-sm mb-8">
           <div className="grid lg:grid-cols-[1.5fr_1fr] gap-6 p-4 lg:p-6">
@@ -669,7 +676,8 @@ function NearbyDealDetailsContent() {
               <ImageCarousel 
                 images={[offer?.imageUrl || "/images/deal2.avif"]} 
                 videoUrl={offer?.videoUrl} 
-                alt={offer?.title || "Offer"} 
+                alt={offer?.title || "Offer"}
+                disableZoom={true}
               />
               {offerDiscountPercent > 0 && (
                 <span className="absolute top-4 left-4 bg-[#e7a91d] text-white px-3 py-1 rounded-full text-sm font-bold z-10">

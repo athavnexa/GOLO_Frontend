@@ -186,15 +186,11 @@ function MerchantDashboardContent() {
     user?.shopPhoto ||
     "";
 
-  const redemptionTrend = realtimeAnalytics?.redemptions || {};
+  const redemptionTrend = realtimeAnalytics?.trend || {};
   const baseLabels = redemptionTrend.labels || ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   const redemptionValues = buildCompletedOrderSeries(summary?.recentOrders || orders, summary?.stats?.totalOrders || 0);
   const apiValues = redemptionTrend.values;
-  const hasLiveRedemptions = apiValues && apiValues.some((v) => v > 0);
-  const apiMax = hasLiveRedemptions ? Math.max(...apiValues) : 0;
-  const baseValues = (apiValues && apiMax > 0)
-    ? apiValues.map(v => Math.round((v / apiMax) * 100))
-    : redemptionValues;
+  const baseValues = apiValues && apiValues.length > 0 ? apiValues : redemptionValues;
 
   const weeklyLabels = baseLabels.slice(0, 7);
   const weeklyValues = baseValues.slice(0, 7);
@@ -208,6 +204,14 @@ function MerchantDashboardContent() {
 
   const activeLabels = chartPeriod === "weekly" ? weeklyLabels : monthlyLabels;
   const activeValues = chartPeriod === "weekly" ? weeklyValues : monthlyValues;
+  const dataMax = Math.max(...activeValues, 0);
+  let graphMax = 10;
+  if (dataMax > 10) {
+    graphMax = Math.ceil(dataMax / 10) * 10;
+  } else if (dataMax <= 5 && dataMax > 0) {
+    graphMax = 5;
+  }
+
   const chartLeft = 38;
   const chartRight = 740;
   const chartTop = 40;
@@ -292,18 +296,19 @@ function MerchantDashboardContent() {
                         <stop offset="100%" stopColor="#1f8f4f" />
                       </linearGradient>
                     </defs>
-                    {[100, 80, 60, 40, 20, 0].map((y) => {
-                      const yPos = chartBottom + 10 - ((chartBottom - chartTop) * y) / 100;
+                    {[1, 0.8, 0.6, 0.4, 0.2, 0].map((yFactor) => {
+                      const yVal = Math.round(graphMax * yFactor);
+                      const yPos = chartBottom - ((chartBottom - chartTop) * yFactor);
                       return (
-                        <g key={y}>
+                        <g key={yFactor}>
                           <line x1={chartLeft} y1={yPos} x2={chartRight} y2={yPos} stroke="#d8d8d8" strokeDasharray="4 4" />
-                          <text x="4" y={yPos + 4} fontSize="9" fill="#888">{y}</text>
+                          <text x="4" y={yPos + 4} fontSize="9" fill="#888">{yVal}</text>
                         </g>
                       );
                     })}
 
                     {activeValues.map((value, index) => {
-                      const barHeight = ((chartBottom - chartTop) * Number(value || 0)) / 100;
+                      const barHeight = ((chartBottom - chartTop) * Number(value || 0)) / (graphMax || 1);
                       const x = chartLeft + barSlotWidth * index + barSlotWidth / 2 - barWidth / 2;
                       const y = chartBottom - barHeight;
                       return (
