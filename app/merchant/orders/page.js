@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useEffect, useMemo, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Bell, Download, Plus, ShoppingBag, Star, User } from "lucide-react";
+import { Bell, Download, Plus, ShoppingBag, Star, User, ChevronLeft, ChevronRight } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import MerchantNavbar from "../MerchantNavbar";
 import { getMerchantOrders, getMerchantOrderStats, updateMerchantOrderStatus, getMerchantRedemptionHistory } from "../../lib/api";
@@ -28,10 +28,18 @@ function MerchantOrdersPageContent() {
     router.push("/merchant-login");
   };
   const [activeTab, setActiveTab] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const ORDERS_PER_PAGE = 5;
+
   const [orders, setOrders] = useState([]);
   const [stats, setStats] = useState({ todayOrders: 0, totalRevenue: 0 });
   const [pageLoading, setPageLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
+
+  // Reset page when tab changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab]);
 
   const filteredOrders = useMemo(() => {
     if (activeTab === "all") return orders;
@@ -46,6 +54,12 @@ function MerchantOrdersPageContent() {
     }
     return orders;
   }, [activeTab, orders]);
+
+  const totalPages = Math.ceil(filteredOrders.length / ORDERS_PER_PAGE);
+  const paginatedOrders = filteredOrders.slice(
+    (currentPage - 1) * ORDERS_PER_PAGE,
+    currentPage * ORDERS_PER_PAGE
+  );
 
   const formatOrderForUi = (order) => {
     const date = new Date(order.placedAt || Date.now());
@@ -287,7 +301,7 @@ function MerchantOrdersPageContent() {
             </div>
 
             <div className="mt-4 space-y-3">
-              {filteredOrders.map((order) => {
+              {paginatedOrders.map((order) => {
                 const isHighlighted = highlightOrderId && (
                   order._id === highlightOrderId ||
                   order.id === highlightOrderId ||
@@ -363,11 +377,27 @@ function MerchantOrdersPageContent() {
               </div>
             )}
 
-            <div className="mt-5 flex justify-center">
-              <button className="h-9 rounded-full border border-[#cfe7d5] bg-white px-6 text-[12px] font-semibold text-[#2f8f55]">
-                View All Order History
-              </button>
-            </div>
+            {totalPages > 1 && (
+              <div className="mt-6 flex items-center justify-between border-t border-[#e5e5e5] pt-4">
+                <button
+                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                  className="flex h-8 items-center justify-center gap-1 rounded-[8px] px-3 text-[12px] font-semibold text-[#4a4a4a] transition-colors hover:bg-[#efefef] disabled:opacity-40 disabled:hover:bg-transparent"
+                >
+                  <ChevronLeft size={16} /> Previous
+                </button>
+                <div className="text-[12px] font-semibold text-[#6d6d6d]">
+                  Page {currentPage} of {totalPages}
+                </div>
+                <button
+                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                  className="flex h-8 items-center justify-center gap-1 rounded-[8px] px-3 text-[12px] font-semibold text-[#4a4a4a] transition-colors hover:bg-[#efefef] disabled:opacity-40 disabled:hover:bg-transparent"
+                >
+                  Next <ChevronRight size={16} />
+                </button>
+              </div>
+            )}
           </section>
         </div>
       </main>
