@@ -64,7 +64,7 @@ export default function ModerationWarningModal({ isOpen, onClose, message, restr
               onClick={onClose}
               className="flex-1 bg-gray-900 text-white py-2.5 px-4 rounded-lg font-medium hover:bg-gray-800 transition-colors"
             >
-              I Understand
+              I Understand {restrictedUntil ? `(Unrestricted at ${new Date(restrictedUntil).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })})` : ''}
             </button>
           </div>
         </div>

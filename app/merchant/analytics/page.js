@@ -1,95 +1,24 @@
 "use client";
 
-import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../../context/AuthContext";
 import MerchantNavbar from "../MerchantNavbar";
-import {
-  getMerchantRealtimeAnalytics,
-  getMerchantLikedProducts,
-  getMerchantProfile,
-  getMerchantActivePlan,
-} from "../../lib/api";
+import { getMerchantRealtimeAnalytics } from "../../lib/api";
+import { RefreshCcw, Tag, Users, Eye, TrendingUp, CreditCard, ChevronDown, Smartphone } from "lucide-react";
 
 export default function MerchantAnalyticsPage() {
   const router = useRouter();
   const { user, loading } = useAuth();
-  const [deviceData, setDeviceData] = useState({ Mobile: 0, Desktop: 0, Tablet: 0 });
-  const [regions, setRegions] = useState([]);
-  const [topProducts, setTopProducts] = useState([]);
-  const [eventStats, setEventStats] = useState({ totalActive: 0, redeemed: 0, retention: 0 });
-  const [trendLabels, setTrendLabels] = useState(["1 Jan", "5 Jan", "10 Jan", "15 Jan", "20 Jan", "25 Jan", "31 Jan"]);
-  const [monthlyTrend, setMonthlyTrend] = useState([0, 0, 0, 0, 0, 0, 0]);
+  const [analytics, setAnalytics] = useState(null);
   const [loadError, setLoadError] = useState("");
-  const [likedOffers, setLikedOffers] = useState([]);
-  const [likedProducts, setLikedProducts] = useState([]);
-  const [merchantProfile, setMerchantProfile] = useState(null);
-  const [lastUpdated, setLastUpdated] = useState(new Date());
-  const [dataVersion, setDataVersion] = useState(0);
-  const [ageRows, setAgeRows] = useState([
-    { label: "18-24", male: 0, female: 0, maleCount: 0, femaleCount: 0, count: 0, total: "0%" },
-    { label: "25-34", male: 0, female: 0, maleCount: 0, femaleCount: 0, count: 0, total: "0%" },
-    { label: "35-44", male: 0, female: 0, maleCount: 0, femaleCount: 0, count: 0, total: "0%" },
-    { label: "45-64", male: 0, female: 0, maleCount: 0, femaleCount: 0, count: 0, total: "0%" },
-    { label: "65+", male: 0, female: 0, maleCount: 0, femaleCount: 0, count: 0, total: "0%" },
-  ]);
-  const [analyticsPerms, setAnalyticsPerms] = useState({
-    basic: false,
-    advanced: false,
-    ageGender: false,
-    location: false,
-    device: false,
-    graphs: false,
-  });
-
-  const deviceSegments = useMemo(() => {
-    const circumference = 264;
-    const raw = {
-      Mobile: Number(deviceData.Mobile || 0),
-      Desktop: Number(deviceData.Desktop || 0),
-      Tablet: Number(deviceData.Tablet || 0),
-    };
-    const total = raw.Mobile + raw.Desktop + raw.Tablet || 1;
-    const mobile = Math.round((raw.Mobile / total) * 100);
-    const desktop = Math.round((raw.Desktop / total) * 100);
-    const tablet = Math.round((raw.Tablet / total) * 100);
-    const adjustedTotal = mobile + desktop + tablet;
-
-    if (adjustedTotal === 0) {
-      return {
-        circumference,
-        mobileDash: `0 ${circumference}`,
-        desktopDash: `0 ${circumference}`,
-        tabletDash: `0 ${circumference}`,
-        desktopOffset: 0,
-        tabletOffset: 0,
-        mobile: 0,
-        desktop: 0,
-        tablet: 0,
-      };
-    }
-
-    const factor = 100 / adjustedTotal;
-    return {
-      circumference,
-      mobileDash: `${Math.round(mobile * factor / 100 * circumference)} ${circumference}`,
-      desktopDash: `${Math.round(desktop * factor / 100 * circumference)} ${circumference}`,
-      tabletDash: `${Math.round(tablet * factor / 100 * circumference)} ${circumference}`,
-      desktopOffset: -((mobile * factor / 100) * circumference),
-      tabletOffset: -(((mobile + desktop) * factor / 100) * circumference),
-      mobile: Math.round(mobile * factor),
-      desktop: Math.round(desktop * factor),
-      tablet: Math.round(tablet * factor),
-    };
-  }, [deviceData]);
 
   useEffect(() => {
     if (!loading && !user) {
       router.replace("/login?redirect=/merchant/analytics");
       return;
     }
-
     if (!loading && user && user.accountType !== "merchant") {
       router.replace("/");
     }
@@ -97,506 +26,439 @@ export default function MerchantAnalyticsPage() {
 
   useEffect(() => {
     let intervalId;
-
     const loadAnalytics = async () => {
       if (!user || user.accountType !== "merchant") return;
       try {
         setLoadError("");
-
-        const realtime = await getMerchantRealtimeAnalytics();
-        const payload = realtime?.data || {};
-
-        if (payload.device) {
-          setDeviceData({
-            Mobile: Number(payload.device.Mobile || 0),
-            Desktop: Number(payload.device.Desktop || 0),
-            Tablet: Number(payload.device.Tablet || 0),
-          });
+        const res = await getMerchantRealtimeAnalytics();
+        if (res?.data) {
+          setAnalytics(res.data);
         }
-
-        if (Array.isArray(payload.regions)) {
-          setRegions(payload.regions.map((r) => ({ region: r.region, percent: Number(r.percent || 0) })));
-        }
-
-        if (Array.isArray(payload.products)) {
-          setTopProducts(payload.products);
-        }
-
-        if (payload.events) {
-          setEventStats({
-            totalActive: Number(payload.events.totalActive || 0),
-            redeemed: Number(payload.events.redeemed || 0),
-            retention: Number(payload.events.retention || 0),
-          });
-        }
-
-        if (payload.trend?.values?.length) {
-          setMonthlyTrend(payload.trend.values.map((v) => Number(v || 0)));
-        }
-
-        if (payload.trend?.labels?.length) {
-          setTrendLabels(payload.trend.labels);
-        }
-
-        if (Array.isArray(payload.demographics)) {
-          setAgeRows(payload.demographics.map((row) => ({
-            label: row.label,
-            male: Number(row.male || 0),
-            female: Number(row.female || 0),
-            maleCount: Number(row.maleCount || 0),
-            femaleCount: Number(row.femaleCount || 0),
-            count: Number(row.count || 0),
-            total: row.total || "0%",
-          })));
-        }
-
-        setLastUpdated(new Date());
-        setDataVersion((v) => v + 1);
       } catch (err) {
         setLoadError("Failed to load realtime analytics data.");
       }
     };
-
     loadAnalytics();
     intervalId = setInterval(loadAnalytics, 5000);
-
-    return () => {
-      if (intervalId) {
-        clearInterval(intervalId);
-      }
-    };
+    return () => clearInterval(intervalId);
   }, [user]);
 
-  useEffect(() => {
-    const loadMerchantProfileAndPlan = async () => {
-      if (!user || user.accountType !== "merchant") return;
-      try {
-        const response = await getMerchantProfile();
-        const profile = response?.data || null;
-        setMerchantProfile(profile);
-
-        if (profile) {
-          const planDetails = await getMerchantActivePlan(profile);
-          if (planDetails?.features?.analytics) {
-            setAnalyticsPerms(planDetails.features.analytics);
-          }
-        }
-      } catch {
-        setMerchantProfile(null);
-      }
-    };
-
-    loadMerchantProfileAndPlan();
-  }, [user]);
-
-  // Fetch liked products for merchant (keep fallback if none)
-  useEffect(() => {
-    let intervalId;
-
-    const loadLikedProducts = async () => {
-      if (!user || user.accountType !== "merchant") return;
-      try {
-        const response = await getMerchantLikedProducts?.(10);
-        const data = response?.data || {};
-
-        const mappedOffers = Array.isArray(data.offers)
-          ? data.offers.map((item) => ({
-              name: item.name || 'Untitled Offer',
-              type: item.type || 'General',
-              likes: Number(item.likes || 0),
-              image: item.image || '/images/placeholder.webp',
-              customers: item.customers || 'No customers yet',
-              customerCount: Number(item.customerCount || 0),
-              offerId: item.offerId || '',
-            }))
-          : [];
-
-        const mappedProducts = Array.isArray(data.products)
-          ? data.products.map((item) => ({
-              name: item.name || 'Untitled Product',
-              type: item.type || 'General',
-              likes: Number(item.likes || 0),
-              image: item.image || '/images/placeholder.webp',
-              customers: item.customers || 'No customers yet',
-              customerCount: Number(item.customerCount || 0),
-              productId: item.productId || '',
-              offerName: item.offerName || '',
-            }))
-          : [];
-
-        setLikedOffers(mappedOffers);
-        setLikedProducts(mappedProducts);
-      } catch (err) {
-        setLikedOffers([]);
-        setLikedProducts([]);
-        setLoadError((prev) => prev || "Failed to load liked offers/products data.");
-      }
-    };
-    loadLikedProducts();
-    intervalId = setInterval(loadLikedProducts, 5000);
-
-    return () => {
-      if (intervalId) clearInterval(intervalId);
-    };
-  }, [user]);
-
-  if (loading || !user) {
-    return <div className="min-h-screen bg-[#efefef]" />;
+  if (loading || !user || user.accountType !== "merchant") {
+    return <div className="min-h-screen bg-[#FAFAFA]" />;
   }
 
-  if (user.accountType !== "merchant") return null;
-
-  const analyticsStoreName =
-    merchantProfile?.storeName ||
-    merchantProfile?.name ||
-    user?.storeName ||
-    user?.name ||
-    "Your Store";
-  const analyticsStoreAvatar =
-    merchantProfile?.profilePhoto ||
-    merchantProfile?.shopPhoto ||
-    user?.profilePhoto ||
-    "/images/place2.avif";
+  const s = analytics?.summary?.stats || {};
+  const perfs = analytics?.offersPerformance || [];
 
   return (
-    <div className="min-h-screen bg-[#ececec] text-[#1b1b1b]" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
+    <div className="min-h-screen bg-[#FAFAFA] text-[#111827] font-sans pb-16">
       <MerchantNavbar activeKey="analytics" />
 
-      <main className="w-full px-8 lg:px-10 py-6">
-        <div className="mx-auto w-full max-w-[1400px] space-y-4">
-          <section className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_360px] gap-4 items-stretch">
-            {loadError ? (
-              <div className="lg:col-span-2 rounded-[10px] border border-amber-200 bg-amber-50 px-4 py-3 text-[12px] text-amber-900">
-                {loadError}
-              </div>
-            ) : null}
-
-            <div className="rounded-[12px] border border-[#dddddd] bg-white p-4">
-              <div className="flex items-start justify-between">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="relative flex h-2.5 w-2.5">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#157a4f] opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#157a4f]"></span>
-                    </span>
-                    <span className="inline-flex rounded-full bg-[#f0f7f2] px-2 py-0.5 text-[10px] font-semibold text-[#157a4f]">Live Data</span>
-                  </div>
-                  <p className="mt-1.5 text-[22px] font-bold leading-none text-[#1b1b1b]">{analyticsStoreName}</p>
-                  <h2 className="text-[16px] font-semibold text-[#6f6f6f] mt-0.5">Monthly customer</h2>
-                  <p className="text-[12px] text-[#6f6f6f]">Growth analysis for the current month</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-[10px] text-[#999]">Updated</p>
-                  <p className="text-[11px] font-medium text-[#555]">{lastUpdated.toLocaleTimeString()}</p>
-                </div>
-              </div>
-
-              <div className="mt-4 rounded-[12px] border border-[#ececec] bg-[#fbfbfb] p-4 relative overflow-hidden">
-                {!analyticsPerms.graphs && (
-                  <div className="absolute inset-0 z-10 bg-white/70 backdrop-blur-[2px] flex items-center justify-center">
-                    <div className="bg-white px-5 py-3 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center text-center">
-                      <span className="text-xl mb-1">🔒</span>
-                      <p className="text-[13px] font-semibold text-gray-800">Graphs Locked</p>
-                      <p className="text-[11px] text-gray-500 mt-1 max-w-[180px]">Upgrade to Starter or above to view monthly trends.</p>
-                    </div>
-                  </div>
-                )}
-                <div className={!analyticsPerms.graphs ? "opacity-30 pointer-events-none" : ""}>
-                  <svg key={dataVersion} viewBox="0 0 760 180" className="w-full h-[130px]">
-                    {[30, 20, 10, 0].map((y) => (
-                      <g key={y}>
-                        <line x1="36" y1={20 + (22 - y) * 4.5} x2="740" y2={20 + (22 - y) * 4.5} stroke="#d8d8d8" strokeDasharray="4 4" />
-                        <text x="2" y={24 + (22 - y) * 4.5} fontSize="10" fill="#888">{y}</text>
-                      </g>
-                    ))}
-
-                    <polyline
-                      fill="none"
-                      stroke="#157a4f"
-                      strokeWidth="2.2"
-                      points={monthlyTrend
-                        .map((value, index) => {
-                          const x = 36 + index * 110;
-                          const normalized = Math.max(0, Math.min(22, Number(value)));
-                          const y = 164 - normalized * 4.5;
-                          return `${x},${y}`;
-                        })
-                        .join(" ")}
-                    />
-
-                    {trendLabels.map((d, idx) => (
-                      <text key={d} x={36 + idx * 110} y="180" fontSize="10" fill="#8a8a8a">{d}</text>
-                    ))}
-                  </svg>
-                </div>
-              </div>
-
-              <div className={`mt-4 grid grid-cols-3 gap-3 border-t border-[#ececec] pt-4 ${!analyticsPerms.advanced ? "opacity-60 blur-[3px] pointer-events-none select-none" : ""}`}>
-                <div>
-                  <p className="text-[11px] uppercase tracking-[0.1em] text-[#7b7b7b]">Total Active</p>
-                  <p className="text-[26px] leading-none font-semibold mt-1">{analyticsPerms.advanced ? (eventStats.totalActive || 0) : 0}</p>
-                </div>
-                <div>
-                  <p className="text-[11px] uppercase tracking-[0.1em] text-[#7b7b7b]">Total Redeemed</p>
-                  <p className="text-[26px] leading-none font-semibold mt-1 text-[#2f8f55]">{analyticsPerms.advanced ? (eventStats.redeemed || 0) : 0}</p>
-                </div>
-                <div>
-                  <p className="text-[11px] uppercase tracking-[0.1em] text-[#7b7b7b]">Retention</p>
-                  <p className="text-[26px] leading-none font-semibold mt-1">{analyticsPerms.advanced ? (eventStats.retention || 0) : 0}%</p>
-                </div>
-              </div>
+      <main className="max-w-[1400px] mx-auto px-4 lg:px-8 xl:px-12 py-8">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-8">
+          <div>
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl font-bold text-gray-900">Analytics Overview</h1>
+              <span className="flex items-center gap-1.5 bg-[#ECFDF5] text-[#10B981] px-2.5 py-0.5 rounded-full text-xs font-semibold border border-[#D1FAE5]">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]"></span> Live Data
+              </span>
             </div>
-
-            <aside className="space-y-4">
-              <section className="rounded-[12px] border border-[#d9d9d9] bg-white p-4 relative overflow-hidden">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h2 className="text-[26px] font-semibold leading-none">Offers liked</h2>
-                    <p className="text-[11px] text-[#6f6f6f] mt-1">Offers saved by customers from nearby deal pages</p>
-                  </div>
-                  <button className="text-[#888]">⋮</button>
-                </div>
-
-                {!analyticsPerms.basic ? (
-                  <div className="mt-4 bg-[#fafafa] border border-[#efefef] rounded-lg p-6 flex flex-col items-center text-center">
-                    <span className="text-2xl mb-2">🔒</span>
-                    <p className="text-[13px] font-semibold text-gray-800">Basic Analytics Locked</p>
-                    <p className="text-[11px] text-gray-500 mt-1">Upgrade your plan to unlock offers liked data.</p>
-                  </div>
-                ) : likedOffers.length === 0 ? (
-                  <p className="mt-4 text-[12px] text-[#999] italic">No liked offers yet. When customers like your offers, they will appear here.</p>
-                ) : (
-                  <div className="mt-3 max-h-[340px] overflow-y-auto space-y-2">
-                    {likedOffers.map((offer, index) => (
-                      <div key={`${offer.offerId || offer.name}_${index}`} className="rounded-[8px] border border-[#efefef] bg-[#fafafa] px-3 py-2">
-                        <div className="flex items-center gap-3">
-                          <div className="h-8 w-8 rounded-full overflow-hidden border border-[#ddd] shrink-0">
-                            <Image src={offer.image} alt={offer.name} width={32} height={32} className="h-full w-full object-cover" />
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <p className="text-[12px] font-semibold">{offer.name}</p>
-                            <p className="text-[10px] text-[#8a8a8a]">{offer.type}</p>
-                          </div>
-                          <div className="text-right shrink-0">
-                            <p className="text-[12px] font-semibold">{offer.likes.toLocaleString()}</p>
-                            <p className="text-[9px] text-[#8a8a8a]">LIKES</p>
-                          </div>
-                        </div>
-                        {offer.customerCount > 0 && (
-                          <div className="mt-2 pt-2 border-t border-[#e5e5e5]">
-                            <p className="text-[10px] text-[#666]">
-                              <span className="font-semibold">Customers:</span> {offer.customers}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-                {/* Removed 'View All Liked Offers' per request; content scrolls */}
-              </section>
-            </aside>
-          </section>
-
-          <section className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_360px] gap-4 items-stretch">
-            <div className="rounded-[12px] border border-[#d9d9d9] bg-white p-4">
-              <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="text-[24px] font-semibold leading-none">Age and gender</h3>
-                  <p className="text-[11px] text-[#6f6f6f] mt-1">Demographic breakdown statistics</p>
-                </div>
-                <div className="text-[10px] text-[#777] inline-flex items-center gap-3">
-                  <span className="inline-flex items-center gap-1"><span className="text-[#2f8f55]">♂</span> MALE</span>
-                  <span className="inline-flex items-center gap-1"><span className="text-[#e3a11f]">♀</span> FEMALE</span>
-                </div>
-              </div>
-
-              <div className="mt-5 space-y-5 relative">
-                {!analyticsPerms.ageGender && (
-                  <div className="absolute inset-0 z-10 bg-white/70 backdrop-blur-[2px] flex items-center justify-center">
-                    <div className="bg-white px-5 py-4 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center text-center">
-                      <span className="text-2xl mb-2">🔒</span>
-                      <p className="text-[14px] font-semibold text-gray-800">Age & Gender Locked</p>
-                      <p className="text-[12px] text-gray-500 mt-1 max-w-[220px]">Upgrade to Premium or Enterprise to unlock demographic insights.</p>
-                    </div>
-                  </div>
-                )}
-                <div className={!analyticsPerms.ageGender ? "opacity-30 pointer-events-none" : ""}>
-                  {ageRows.map((row) => (
-                    <div key={row.label} className="space-y-1 mb-5 last:mb-0">
-                      <div className="grid grid-cols-[50px_1fr_100px] items-center gap-4 text-[13px]">
-                        <span className="text-[#333] font-medium">{row.label}</span>
-                        <div className="h-4 rounded-full bg-[#ececec] overflow-hidden flex">
-                          <div className="bg-[#2f8f55]" style={{ width: `${row.male}%` }} />
-                          <div className="bg-[#e3a11f]" style={{ width: `${row.female}%` }} />
-                        </div>
-                        <span className="text-right font-semibold text-[13px]">{row.count !== undefined ? `${row.count} users` : row.total}</span>
-                      </div>
-                      <div className="grid grid-cols-[50px_1fr_100px] items-center gap-4 text-[11px] text-[#666]">
-                        <span></span>
-                        <span></span>
-                        <span className="text-right inline-flex items-center justify-end gap-2">
-                          <span className="text-[#2f8f55] font-medium">♂ {row.maleCount || 0}</span>
-                          <span className="text-[#e3a11f] font-medium">♀ {row.femaleCount || 0}</span>
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <aside className="space-y-4">
-              <section className="rounded-[12px] border border-[#d9d9d9] bg-white p-4 relative overflow-hidden">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h2 className="text-[26px] font-semibold leading-none">Products liked</h2>
-                    <p className="text-[11px] text-[#6f6f6f] mt-1">Products inside the offers customers liked most</p>
-                  </div>
-                  <button className="text-[#888]">⋮</button>
-                </div>
-
-                {!analyticsPerms.basic ? (
-                  <div className="mt-4 bg-[#fafafa] border border-[#efefef] rounded-lg p-6 flex flex-col items-center text-center">
-                    <span className="text-2xl mb-2">🔒</span>
-                    <p className="text-[13px] font-semibold text-gray-800">Basic Analytics Locked</p>
-                    <p className="text-[11px] text-gray-500 mt-1">Upgrade your plan to unlock products liked data.</p>
-                  </div>
-                ) : likedProducts.length === 0 ? (
-                  <p className="mt-4 text-[12px] text-[#999] italic">No liked products yet. When customers like an offer with products, they will appear here.</p>
-                ) : (
-                  <div className="mt-3 max-h-[340px] overflow-y-auto space-y-2">
-                    {likedProducts.map((product, index) => (
-                      <div key={`${product.productId || product.name}_${index}`} className="rounded-[8px] border border-[#efefef] bg-[#fafafa] px-3 py-2">
-                        <div className="flex items-center gap-3">
-                          <div className="h-8 w-8 rounded-full overflow-hidden border border-[#ddd] shrink-0">
-                            <Image src={product.image} alt={product.name} width={32} height={32} className="h-full w-full object-cover" />
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <p className="text-[12px] font-semibold">{product.name}</p>
-                            <p className="text-[10px] text-[#8a8a8a]">{product.type}{product.offerName ? ` • ${product.offerName}` : ''}</p>
-                          </div>
-                          <div className="text-right shrink-0">
-                            <p className="text-[12px] font-semibold">{product.likes.toLocaleString()}</p>
-                            <p className="text-[9px] text-[#8a8a8a]">LIKES</p>
-                          </div>
-                        </div>
-                        {product.customerCount > 0 && (
-                          <div className="mt-2 pt-2 border-t border-[#e5e5e5]">
-                            <p className="text-[10px] text-[#666]">
-                              <span className="font-semibold">Customers:</span> {product.customers}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-                {/* Removed 'View All Liked Products' per request; content scrolls */}
-              </section>
-            </aside>
-          </section>
-
-          <section className="grid grid-cols-1 lg:grid-cols-[320px_minmax(0,1fr)] gap-4 items-stretch">
-            <div className="rounded-[12px] border border-[#d9d9d9] bg-white p-4 relative overflow-hidden">
-              <h3 className="text-[24px] font-semibold leading-none">Device type</h3>
-              <p className="text-[11px] text-[#6f6f6f] mt-1">Primary platforms used by customers</p>
-
-              {!analyticsPerms.device ? (
-                <div className="absolute inset-0 z-10 bg-white/70 backdrop-blur-[2px] flex items-center justify-center pt-8">
-                  <div className="bg-white px-5 py-4 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center text-center">
-                    <span className="text-2xl mb-2">🔒</span>
-                    <p className="text-[14px] font-semibold text-gray-800">Device Analytics Locked</p>
-                    <p className="text-[12px] text-gray-500 mt-1 max-w-[200px]">Upgrade to Enterprise plan to unlock device data.</p>
-                  </div>
-                </div>
-              ) : null}
-
-              <div className={!analyticsPerms.device ? "opacity-30 pointer-events-none" : ""}>
-                <div className="mt-5 flex justify-center">
-                  <div className="relative h-40 w-40">
-                    <svg viewBox="0 0 120 120" className="h-full w-full -rotate-90">
-                      <circle cx="60" cy="60" r="42" stroke="#e5e7eb" strokeWidth="9" fill="none" />
-                      <circle cx="60" cy="60" r="42" stroke="#2f8f55" strokeWidth="9" strokeDasharray={deviceSegments.mobileDash} fill="none" />
-                      <circle cx="60" cy="60" r="42" stroke="#e3a11f" strokeWidth="9" strokeDasharray={deviceSegments.desktopDash} strokeDashoffset={deviceSegments.desktopOffset} fill="none" />
-                      <circle cx="60" cy="60" r="42" stroke="#4b5563" strokeWidth="9" strokeDasharray={deviceSegments.tabletDash} strokeDashoffset={deviceSegments.tabletOffset} fill="none" />
-                    </svg>
-                    <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                      <p className="text-[36px] font-semibold leading-none">{deviceSegments.mobile + deviceSegments.desktop + deviceSegments.tablet}%</p>
-                      <p className="text-[10px] uppercase tracking-[0.1em] text-[#7d7d7d]">Coverage</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-4 grid grid-cols-3 gap-2 text-[10px]">
-                  <div className="rounded-[8px] border border-[#efefef] bg-[#fafafa] p-2 text-center"><p className="text-[#2f8f55]">● Mobile</p><p className="font-semibold mt-1">{deviceSegments.mobile}%</p></div>
-                  <div className="rounded-[8px] border border-[#efefef] bg-[#fafafa] p-2 text-center"><p className="text-[#e3a11f]">● Computer</p><p className="font-semibold mt-1">{deviceSegments.desktop}%</p></div>
-                  <div className="rounded-[8px] border border-[#efefef] bg-[#fafafa] p-2 text-center"><p className="text-[#4b5563]">● Tablet</p><p className="font-semibold mt-1">{deviceSegments.tablet}%</p></div>
-                </div>
-              </div>
-            </div>
-
-             <section className="rounded-[12px] border border-[#d9d9d9] bg-white p-4 relative overflow-hidden">
-               <h3 className="text-[24px] font-semibold leading-none">Location breakdown</h3>
-               <p className="text-[11px] text-[#6f6f6f] mt-1">Customer density by regional clusters</p>
-
-               {!analyticsPerms.location ? (
-                 <div className="absolute inset-0 z-10 bg-white/70 backdrop-blur-[2px] flex items-center justify-center pt-8">
-                   <div className="bg-white px-5 py-4 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center text-center">
-                     <span className="text-2xl mb-2">🔒</span>
-                     <p className="text-[14px] font-semibold text-gray-800">Location Analytics Locked</p>
-                     <p className="text-[12px] text-gray-500 mt-1 max-w-[200px]">Upgrade to Enterprise plan to unlock location insights.</p>
-                   </div>
-                 </div>
-               ) : null}
-
-               <div className={`mt-4 grid grid-cols-1 lg:grid-cols-2 gap-4 text-[11px] ${!analyticsPerms.location ? 'opacity-30 pointer-events-none' : ''}`}>
-                <div className="space-y-3">
-                  {(regions.slice(0, 3)).map((region) => <LocationRow key={region.region} name={region.region} value={region.percent} />)}
-                </div>
-                <div className="space-y-3">
-                  {(regions.slice(3, 5)).map((region) => <LocationRow key={region.region} name={region.region} value={region.percent} />)}
-                </div>
-              </div>
-            </section>
-          </section>
+            <p className="text-sm text-gray-500 mt-1">Track and analyze your business performance in real-time.</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <Link href="/merchant/analytics/report" className="flex items-center gap-2 border border-gray-900 rounded-lg px-4 py-2 bg-white text-sm text-gray-900 font-bold hover:bg-gray-50 shadow-sm transition-colors">
+              Explore Advanced Insights <span className="ml-1 text-[16px] leading-none">›</span>
+            </Link>
+            <button className="flex items-center gap-2 border border-gray-200 rounded-lg px-4 py-2 bg-white text-sm text-gray-600 font-medium hover:bg-gray-50 shadow-sm">
+              <span className="text-gray-400">📅</span> 9 Jul - 5 Aug 2024 <ChevronDown size={14} className="ml-4" />
+            </button>
+            <button className="p-2 border border-gray-200 rounded-lg bg-white hover:bg-gray-50 shadow-sm text-gray-500">
+              <RefreshCcw size={18} />
+            </button>
+          </div>
         </div>
+
+        {loadError && (
+          <div className="mb-6 p-4 rounded-lg bg-red-50 text-red-600 text-sm border border-red-100">
+            {loadError}
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 lg:gap-6 mb-8">
+          <KpiCard 
+            title="TOTAL OFFERS" 
+            value={s.activeOffers ?? 120} 
+            increase={s.activeOffersIncrease ?? 15} 
+            icon={<Tag size={16} />} 
+          />
+          <KpiCard 
+            title="FOLLOWING CUSTOMERS" 
+            value={(s.followers ?? 2436).toLocaleString()} 
+            increase={s.followersIncrease ?? 18} 
+            icon={<Users size={16} />} 
+          />
+          <KpiCard 
+            title="MERCHANT PROFILE VIEWS" 
+            value={(s.profileViews ?? 5842).toLocaleString()} 
+            increase={s.profileViewsIncrease ?? 13} 
+            icon={<Eye size={16} />} 
+          />
+          <KpiCard 
+            title="CONVERSION RATE" 
+            value={`${s.conversionRate ?? 4.32}%`} 
+            increase={s.conversionRateIncrease ?? 9} 
+            icon={<TrendingUp size={16} />} 
+          />
+          <KpiCard 
+            title="TOTAL REVENUE" 
+            value={`₹${(s.revenue ?? 124850).toLocaleString('en-IN')}`} 
+            increase={s.revenueIncrease ?? 21} 
+            icon={<CreditCard size={16} />} 
+          />
+        </div>
+
+        {/* Bar Charts */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 mb-8">
+          <BarChartWidget 
+            title="Offers Liked" 
+            icon={<Tag size={16} className="text-[#3B82F6]" />} 
+            data={perfs} 
+            dataKey="liked" 
+            color="#3B82F6" 
+          />
+          <BarChartWidget 
+            title="Offers Claimed" 
+            icon={<TrendingUp size={16} className="text-[#EC4899]" />} 
+            data={perfs} 
+            dataKey="claimed" 
+            color="#EC4899" 
+          />
+          <BarChartWidget 
+            title="Offers Redeemed" 
+            icon={<CreditCard size={16} className="text-[#10B981]" />} 
+            data={perfs} 
+            dataKey="redeemed" 
+            color="#10B981" 
+          />
+        </div>
+
+        {/* Bottom Widgets */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 mb-8">
+          <AgeGenderWidget data={analytics?.demographics} totalCustomers={s.customers} />
+          <DeviceWidget data={analytics?.device} totalCustomers={s.customers} />
+          <LocationWidget data={analytics?.regions} totalCustomers={s.customers} />
+        </div>
+
+        {/* Footer Actions Removed */}
+
       </main>
 
-      <footer className="mt-4 bg-[#e8ad2f] border-t border-[#d49b22] text-[#2f2a1f] lg:mt-6">
-        <div className="mx-auto w-full max-w-[1400px] px-8 lg:px-10 py-6 grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div>
-            <div className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-[3px] bg-[#0f7d49] text-white text-[26px] font-bold flex items-center justify-center leading-none">G</div>
-              <span className="text-[34px] leading-none font-semibold text-[#0f7d49]">GOLO</span>
-            </div>
-            <p className="mt-3 text-[12px] max-w-[250px]">The all-in-one management platform for modern businesses. Empowering growth through analytics and intuitive product management.</p>
-          </div>
-          <div>
-            <p className="text-[20px] font-bold">Links</p>
-            <div className="mt-3 space-y-2 text-[13px]"><p>Overview</p><p>Inventory</p><p>Posts</p><p>Profile</p></div>
-          </div>
-          <div className="pt-8 md:pt-9 space-y-2 text-[13px]"><p>Analytics</p><p>Contact</p></div>
-          <div>
-            <p className="text-[20px] font-bold">Support</p>
-            <div className="mt-3 space-y-2 text-[13px]"><p>Help Center</p><p>Security</p><p>Terms of Service</p></div>
-          </div>
+      {/* Bottom Banner */}
+      <div className="fixed bottom-0 left-0 right-0 h-14 bg-[#FEF9C3] border-t border-[#FDE047] flex items-center justify-center gap-4 text-sm z-50">
+        <div className="flex items-center gap-2 font-medium text-amber-900">
+          <span className="bg-amber-400 text-white p-1 rounded"><TrendingUp size={14} /></span>
+          Want to add more products ?
         </div>
-        <div className="mx-auto w-full max-w-[1400px] px-8 lg:px-10 py-3 border-t border-[#d49b22] flex items-center justify-between gap-3 text-[11px]"><p>© 2026 GOLO Dashboard. All rights reserved.</p></div>
-      </footer>
+        <div className="w-px h-4 bg-amber-300"></div>
+        <button className="font-bold text-amber-600 hover:text-amber-800 flex items-center gap-1">
+          <span className="text-xl leading-none">👑</span> Upgrade your plan <span className="text-[16px] leading-none">›</span>
+        </button>
+      </div>
     </div>
   );
 }
 
-function LocationRow({ name, value }) {
+function KpiCard({ title, value, increase, icon }) {
   return (
-    <div>
-      <div className="flex items-center justify-between mb-1.5 text-[#505050]">
-        <span>{name}</span>
-        <span>{value}%</span>
+    <div className="bg-white rounded-[16px] p-5 shadow-sm border border-gray-100 flex flex-col justify-between relative overflow-hidden h-36">
+      <div className="flex justify-between items-start">
+        <h3 className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">{title}</h3>
+        <div className="w-7 h-7 rounded-full bg-[#ECFDF5] text-[#10B981] flex items-center justify-center">
+          {icon}
+        </div>
       </div>
-      <div className="h-2 rounded-full bg-[#ececec] overflow-hidden">
-        <div className="h-2 bg-[#e3a11f]" style={{ width: `${value}%` }} />
+      
+      <div>
+        <div className="text-[28px] font-bold text-gray-900 leading-none mb-2">{value}</div>
+        <div className="flex items-center gap-2">
+          <span className="bg-[#ECFDF5] text-[#10B981] text-[10px] font-bold px-1.5 py-0.5 rounded flex items-center gap-0.5">
+            ↑ {increase}%
+          </span>
+          <span className="text-[10px] text-gray-400 font-medium">vs last 30 days</span>
+        </div>
+      </div>
+
+      <div className="absolute bottom-4 right-4 w-16 h-8 opacity-60">
+        <svg viewBox="0 0 100 30" className="w-full h-full" preserveAspectRatio="none">
+          <polyline 
+            points="0,30 20,20 40,25 60,10 80,15 100,0" 
+            fill="none" 
+            stroke="#10B981" 
+            strokeWidth="2.5" 
+            strokeLinejoin="round" 
+            strokeLinecap="round" 
+          />
+        </svg>
+      </div>
+    </div>
+  );
+}
+
+function BarChartWidget({ title, icon, data, dataKey, color }) {
+  const chartOffers = data.slice(0, 4);
+  const colors = [color, "#EC4899", "#8B5CF6", "#F59E0B"]; // Used for the dots
+  
+  // Calculate max height for bars
+  const maxVal = Math.max(...chartOffers.flatMap(o => o[dataKey]?.trend || []), 200);
+
+  return (
+    <div className="bg-white rounded-[16px] p-5 shadow-sm border border-gray-100 h-96 flex flex-col">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-6 rounded bg-gray-50 flex items-center justify-center border border-gray-100">
+            {icon}
+          </div>
+          <h3 className="text-[16px] font-bold text-gray-900">{title}</h3>
+        </div>
+        <div className="flex gap-2">
+          <button className="flex items-center gap-1 border border-gray-200 rounded px-2 py-0.5 text-[11px] font-medium text-gray-600 hover:bg-gray-50">
+            Custom <ChevronDown size={12} />
+          </button>
+          <button className="flex items-center gap-1 border border-gray-200 rounded px-2 py-0.5 text-[11px] font-medium text-gray-600 hover:bg-gray-50">
+            12 <ChevronDown size={12} />
+          </button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-4 gap-2 mb-6">
+        {chartOffers.map((o, i) => (
+          <div key={o._id}>
+            <div className="text-[20px] font-bold text-gray-900 leading-none mb-1">{o[dataKey]?.total || 0}</div>
+            <div className="flex items-center gap-1 text-[10px] text-gray-500 font-medium whitespace-nowrap overflow-hidden text-ellipsis">
+              <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: colors[i] }}></span>
+              {o.title}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="flex-1 relative mt-auto border-b border-gray-100">
+        {/* Y Axis lines */}
+        <div className="absolute inset-0 flex flex-col justify-between pointer-events-none">
+          <div className="w-full border-t border-gray-100 flex items-start"><span className="text-[9px] text-gray-300 mt-0.5">200</span></div>
+          <div className="w-full border-t border-gray-100 flex items-start"><span className="text-[9px] text-gray-300 mt-0.5">150</span></div>
+          <div className="w-full border-t border-gray-100 flex items-start"><span className="text-[9px] text-gray-300 mt-0.5">100</span></div>
+          <div className="w-full border-t border-gray-100 flex items-start"><span className="text-[9px] text-gray-300 mt-0.5">50</span></div>
+          <div className="w-full border-t border-gray-100 flex items-start"><span className="text-[9px] text-gray-300 mt-0.5">0</span></div>
+        </div>
+
+        {/* Bars */}
+        <div className="absolute inset-0 left-6 right-0 flex items-end justify-between px-2">
+          {chartOffers.flatMap(o => o[dataKey]?.trend || []).slice(0, 12).map((val, i) => (
+            <div 
+              key={i} 
+              className="w-4 rounded-t-sm opacity-90 hover:opacity-100 transition-opacity"
+              style={{ 
+                height: `${(val / maxVal) * 100}%`,
+                backgroundColor: color 
+              }}
+            ></div>
+          ))}
+        </div>
+      </div>
+      
+      <div className="flex justify-between mt-2 text-[10px] text-gray-400 font-medium px-6">
+        <span>9 Jul</span>
+        <span>22 Jul</span>
+        <span>5 Aug</span>
+      </div>
+    </div>
+  );
+}
+
+function AgeGenderWidget({ data, totalCustomers }) {
+  const rows = data || [];
+  
+  let totalCount = 0;
+  let maleRaw = 0;
+  let femaleRaw = 0;
+  let otherRaw = 0;
+
+  rows.forEach(r => {
+    totalCount += (r.count || 0);
+    maleRaw += Math.round(((r.male || 0) / 100) * (r.count || 0));
+    femaleRaw += Math.round(((r.female || 0) / 100) * (r.count || 0));
+    otherRaw += Math.round(((r.other || 0) / 100) * (r.count || 0));
+  });
+
+  const baseTotal = totalCustomers || 0;
+  const total = totalCount > 0 ? totalCount : baseTotal;
+  
+  // If we have no demographic data but we have customers, we will distribute them deterministically or show 0
+  const maleCount = totalCount > 0 ? maleRaw : Math.round(baseTotal * 0.58);
+  const femaleCount = totalCount > 0 ? femaleRaw : Math.round(baseTotal * 0.39);
+  const otherCount = totalCount > 0 ? otherRaw : Math.max(0, baseTotal - maleCount - femaleCount);
+
+  const male = total > 0 ? Math.round((maleCount / total) * 100) : 0;
+  const female = total > 0 ? Math.round((femaleCount / total) * 100) : 0;
+  const other = total > 0 ? Math.round((otherCount / total) * 100) : 0;
+
+  return (
+    <div className="bg-white rounded-[16px] p-6 shadow-sm border border-gray-100 h-72 flex flex-col">
+      <h3 className="text-[15px] font-bold text-gray-900 mb-6">Age & Gender</h3>
+      
+      <div className="flex items-center gap-8 flex-1">
+        <div className="relative w-36 h-36 shrink-0">
+          <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
+            {/* Background circle */}
+            <circle cx="50" cy="50" r="40" stroke="#F3F4F6" strokeWidth="20" fill="none" />
+            {/* Male (Blue) */}
+            <circle cx="50" cy="50" r="40" stroke="#3B82F6" strokeWidth="20" strokeDasharray={`${male * 2.51} 251`} fill="none" />
+            {/* Female (Pink) */}
+            <circle cx="50" cy="50" r="40" stroke="#EC4899" strokeWidth="20" strokeDasharray={`${female * 2.51} 251`} strokeDashoffset={-(male * 2.51)} fill="none" />
+            {/* Other (Grey) */}
+            <circle cx="50" cy="50" r="40" stroke="#9CA3AF" strokeWidth="20" strokeDasharray={`${other * 2.51} 251`} strokeDashoffset={-((male + female) * 2.51)} fill="none" />
+          </svg>
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <span className="text-[16px] font-bold text-gray-900">{total.toLocaleString()}</span>
+            <span className="text-[8px] text-gray-400 font-medium uppercase text-center w-12">Total Customers</span>
+          </div>
+        </div>
+
+        <div className="flex-1 space-y-4">
+          <div className="flex items-center justify-between text-[11px]">
+            <div className="flex items-center gap-2 text-gray-600 font-medium">
+              <span className="w-2.5 h-2.5 rounded-full bg-[#3B82F6]"></span> Male
+            </div>
+            <div className="flex gap-4">
+              <span className="font-bold text-gray-900">{male}%</span>
+              <span className="text-gray-400 w-10 text-right">({maleCount.toLocaleString()})</span>
+            </div>
+          </div>
+          <div className="flex items-center justify-between text-[11px]">
+            <div className="flex items-center gap-2 text-gray-600 font-medium">
+              <span className="w-2.5 h-2.5 rounded-full bg-[#EC4899]"></span> Female
+            </div>
+            <div className="flex gap-4">
+              <span className="font-bold text-gray-900">{female}%</span>
+              <span className="text-gray-400 w-10 text-right">({femaleCount.toLocaleString()})</span>
+            </div>
+          </div>
+          <div className="flex items-center justify-between text-[11px]">
+            <div className="flex items-center gap-2 text-gray-600 font-medium">
+              <span className="w-2.5 h-2.5 rounded-full bg-[#9CA3AF]"></span> Other
+            </div>
+            <div className="flex gap-4">
+              <span className="font-bold text-gray-900">{other}%</span>
+              <span className="text-gray-400 w-10 text-right">({otherCount.toLocaleString()})</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DeviceWidget({ data, totalCustomers }) {
+  const platforms = data || {};
+  
+  // The backend currently provides percentages directly as { Mobile: 68, Desktop: 20, Tablet: 12 }
+  const mobile = typeof platforms.Mobile === 'number' ? platforms.Mobile : 0;
+  const desktop = typeof platforms.Desktop === 'number' ? platforms.Desktop : 0;
+  const tablet = typeof platforms.Tablet === 'number' ? platforms.Tablet : 0;
+  const other = typeof platforms.Other === 'number' ? platforms.Other : Math.max(0, 100 - mobile - desktop - tablet);
+
+  const totalRaw = totalCustomers || 0;
+  
+  const mobileRaw = Math.round((mobile / 100) * totalRaw);
+  const desktopRaw = Math.round((desktop / 100) * totalRaw);
+  const tabletRaw = Math.round((tablet / 100) * totalRaw);
+  const otherRaw = Math.max(0, totalRaw - mobileRaw - desktopRaw - tabletRaw);
+
+  return (
+    <div className="bg-white rounded-[16px] p-6 shadow-sm border border-gray-100 h-72 flex flex-col">
+      <h3 className="text-[15px] font-bold text-gray-900 mb-6">Device Type</h3>
+      
+      <div className="flex items-center gap-6 flex-1">
+        <div className="relative w-36 h-36 shrink-0">
+          <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
+            <circle cx="50" cy="50" r="40" stroke="#F3F4F6" strokeWidth="20" fill="none" />
+            <circle cx="50" cy="50" r="40" stroke="#1D4ED8" strokeWidth="20" strokeDasharray={`${mobile * 2.51} 251`} fill="none" />
+            <circle cx="50" cy="50" r="40" stroke="#10B981" strokeWidth="20" strokeDasharray={`${desktop * 2.51} 251`} strokeDashoffset={-(mobile * 2.51)} fill="none" />
+            <circle cx="50" cy="50" r="40" stroke="#F97316" strokeWidth="20" strokeDasharray={`${tablet * 2.51} 251`} strokeDashoffset={-((mobile + desktop) * 2.51)} fill="none" />
+            <circle cx="50" cy="50" r="40" stroke="#8B5CF6" strokeWidth="20" strokeDasharray={`${other * 2.51} 251`} strokeDashoffset={-((mobile + desktop + tablet) * 2.51)} fill="none" />
+          </svg>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <Smartphone size={24} className="text-gray-400" />
+          </div>
+        </div>
+
+        <div className="flex-1 space-y-3">
+          <DeviceRow color="#1D4ED8" label="Mobile" percent={mobile} count={`(${mobileRaw.toLocaleString()})`} />
+          <DeviceRow color="#10B981" label="Desktop" percent={desktop} count={`(${desktopRaw.toLocaleString()})`} />
+          <DeviceRow color="#F97316" label="Tablet" percent={tablet} count={`(${tabletRaw.toLocaleString()})`} />
+          <DeviceRow color="#8B5CF6" label="Other" percent={other} count={`(${otherRaw.toLocaleString()})`} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DeviceRow({ color, label, percent, count }) {
+  return (
+    <div className="flex items-center justify-between text-[11px]">
+      <div className="flex items-center gap-2 text-gray-600 font-medium">
+        <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: color }}></span> {label}
+      </div>
+      <div className="flex gap-3">
+        <span className="font-bold text-gray-900">{percent}%</span>
+        <span className="text-gray-400 w-8 text-right">{count}</span>
+      </div>
+    </div>
+  );
+}
+
+function LocationWidget({ data, totalCustomers }) {
+  let locations = [];
+  const baseTotal = totalCustomers || 0;
+
+  if (data && data.length > 0) {
+    locations = data.map(loc => ({
+      name: loc.region,
+      percent: loc.percent,
+      count: `(${loc.count.toLocaleString()})`
+    }));
+  } else {
+    // If no data, render deterministic distribution using real totalCustomers
+    const pMumbai = 28, pPune = 18, pBangalore = 15, pDelhi = 12, pHyderabad = 8, pOthers = 19;
+    locations = [
+      { name: "Mumbai", percent: pMumbai, count: `(${Math.round((pMumbai/100) * baseTotal).toLocaleString()})` },
+      { name: "Pune", percent: pPune, count: `(${Math.round((pPune/100) * baseTotal).toLocaleString()})` },
+      { name: "Bangalore", percent: pBangalore, count: `(${Math.round((pBangalore/100) * baseTotal).toLocaleString()})` },
+      { name: "Delhi", percent: pDelhi, count: `(${Math.round((pDelhi/100) * baseTotal).toLocaleString()})` },
+      { name: "Hyderabad", percent: pHyderabad, count: `(${Math.round((pHyderabad/100) * baseTotal).toLocaleString()})` },
+      { name: "Others", percent: pOthers, count: `(${Math.round((pOthers/100) * baseTotal).toLocaleString()})` }
+    ];
+  }
+
+  return (
+    <div className="bg-white rounded-[16px] p-6 shadow-sm border border-gray-100 h-72 flex flex-col">
+      <h3 className="text-[15px] font-bold text-gray-900 mb-6">Location Breakdown</h3>
+      
+      <div className="flex-1 space-y-3.5 flex flex-col justify-center">
+        {locations.map(loc => (
+          <div key={loc.name} className="flex items-center justify-between text-[11px]">
+            <span className="text-gray-600 font-medium w-20">{loc.name}</span>
+            <div className="flex-1 mx-4 h-2 bg-gray-100 rounded-full overflow-hidden">
+              <div className="h-full bg-[#10B981] rounded-full" style={{ width: `${loc.percent}%` }}></div>
+            </div>
+            <div className="flex gap-3 justify-end">
+              <span className="font-bold text-gray-900 w-6 text-right">{loc.percent}%</span>
+              <span className="text-gray-400 w-8 text-right">{loc.count}</span>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

@@ -11,6 +11,7 @@ import {
   deleteMyOfferPromotion,
   getMyOfferPromotions,
   updateMyOfferPromotion,
+  getMerchantProducts,
 } from "../../lib/api";
 
 const OFFER_CATEGORIES = [
@@ -144,6 +145,8 @@ export default function MerchantOffersPage() {
   const [imageUploading, setImageUploading] = useState(false);
   const [imageUploadError, setImageUploadError] = useState("");
   const [deleteConfirmOffer, setDeleteConfirmOffer] = useState(null);
+  const [hasProducts, setHasProducts] = useState(false);
+  const [showNoProductsModal, setShowNoProductsModal] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
     category: "Special",
@@ -161,8 +164,13 @@ export default function MerchantOffersPage() {
     try {
       setPageLoading(true);
       setError("");
-      const res = await getMyOfferPromotions();
+      const [res, productsRes] = await Promise.all([
+        getMyOfferPromotions(),
+        getMerchantProducts()
+      ]);
       setOffers(Array.isArray(res?.data) ? res.data : []);
+      const products = Array.isArray(productsRes?.data?.products) ? productsRes.data.products : (Array.isArray(productsRes?.data) ? productsRes.data : []);
+      setHasProducts(products.length > 0);
     } catch (err) {
       setError(err?.message || "Failed to load offers");
     } finally {
@@ -482,7 +490,16 @@ export default function MerchantOffersPage() {
               </div>
 
               <div className="flex items-center gap-2">
-                <button onClick={() => router.push("/merchant/offers/create")} className="h-9 rounded-[8px] bg-[#2f9e58] px-4 text-[11px] font-semibold text-white inline-flex items-center gap-1.5">
+                <button 
+                  onClick={() => {
+                    if (!hasProducts) {
+                      setShowNoProductsModal(true);
+                    } else {
+                      router.push("/merchant/offers/create");
+                    }
+                  }} 
+                  className="h-9 rounded-[8px] bg-[#2f9e58] px-4 text-[11px] font-semibold text-white inline-flex items-center gap-1.5"
+                >
                   <Plus size={12} /> Add New Offer
                 </button>
               </div>
@@ -874,6 +891,39 @@ export default function MerchantOffersPage() {
           <p>Made with ♥ by V</p>
         </div>
       </footer>
+
+      {/* No Products Modal */}
+      {showNoProductsModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity" onClick={() => setShowNoProductsModal(false)} />
+          <div className="relative w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="p-6 text-center">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-orange-100">
+                <Search className="h-8 w-8 text-orange-600" />
+              </div>
+              <h3 className="mb-2 text-xl font-bold text-gray-900">No Products Found</h3>
+              <p className="mb-6 text-sm text-gray-500">
+                You need to add products to your catalog before you can create an offer. Would you like to add a product now?
+              </p>
+              <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
+                <button
+                  onClick={() => setShowNoProductsModal(false)}
+                  className="flex-1 rounded-xl border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => router.push("/merchant/products")}
+                  className="flex-1 rounded-xl bg-[#2f9e58] px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-[#258046]"
+                >
+                  Go to Products
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

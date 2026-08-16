@@ -1,138 +1,76 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
-import { Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState, Suspense } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Download, Plus, ChevronRight, ShoppingBag, Box, Star, User } from "lucide-react";
+import {
+  Download,
+  Plus,
+  ArrowUpRight,
+  ArrowDownRight,
+  Package,
+  IndianRupee,
+  Users,
+  Tag,
+  Heart,
+  Calendar,
+  Gift,
+  MousePointerClick,
+  TrendingUp,
+  ShoppingCart,
+  MoreVertical,
+  ArrowRight,
+  Facebook,
+  Instagram,
+  Linkedin,
+  Youtube,
+  HelpCircle,
+} from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import MerchantNavbar from "../MerchantNavbar";
 import MerchantPlanBanner from "../MerchantPlanBanner";
-import { getMerchantDashboardSummary, getMerchantProfile, getMerchantLoyaltyLeaderboard, getMerchantRealtimeAnalytics } from "../../lib/api";
-
-const orders = [
-  { id: "#2456", time: "Placed 12 hours ago", amount: "₹340", qty: "3 items" },
-  { id: "#2451", time: "Placed 14 hours ago", amount: "₹523", qty: "5 items" },
-  { id: "#2448", time: "Placed 1 day ago", amount: "₹890", qty: "8 items" },
-  { id: "#2445", time: "Placed 1 day ago", amount: "₹120", qty: "1 items" },
-  { id: "#2442", time: "Placed 2 days ago", amount: "₹450", qty: "4 items" },
-];
-
-const latestReviews = [
-  {
-    name: "Rahul K.",
-    time: "Yesterday",
-    text: "Best local store on Golo. Prices are reasonable and the food is always fresh!",
-    avatar: "/images/banner3.avif",
-  },
-  {
-    name: "Anjali S.",
-    time: "2 days ago",
-    text: "Love the Moon Cafe vibes. The packaging was neat and eco-friendly.",
-    avatar: "/images/place2.avif",
-  },
-];
-
-function buildCompletedOrderSeries(ordersData = [], totalOrders = 0) {
-  const source = Array.isArray(ordersData) ? ordersData : [];
-  const values = Array.from({ length: 7 }, () => 0);
-
-  source.slice(0, 7).forEach((_, index) => {
-    values[index % values.length] += 1;
-  });
-
-  const highestPossible = Math.max(1, totalOrders || source.length || 7);
-  return values.map((value) => Math.min(100, Math.round((value / highestPossible) * 100)));
-}
-
-function downloadCsv(filename, rows) {
-  if (!rows?.length) return;
-
-  const escapeCell = (value) => {
-    const stringValue = String(value ?? "");
-    if (stringValue.includes(",") || stringValue.includes('"') || stringValue.includes("\n")) {
-      return `"${stringValue.replace(/"/g, '""')}"`;
-    }
-    return stringValue;
-  };
-
-  const headers = Object.keys(rows[0]);
-  const csvContent = [headers.join(","), ...rows.map((row) => headers.map((header) => escapeCell(row[header])).join(","))].join("\n");
-  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
+import {
+  getMerchantDashboardSummary,
+  getMerchantProfile,
+  getMerchantRealtimeAnalytics,
+} from "../../lib/api";
+function timeAgo(dateString) {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  const seconds = Math.floor((new Date() - date) / 1000);
+  let interval = seconds / 31536000;
+  if (interval > 1) return Math.floor(interval) + " years ago";
+  interval = seconds / 2592000;
+  if (interval > 1) return Math.floor(interval) + " months ago";
+  interval = seconds / 86400;
+  if (interval > 1) {
+    const days = Math.floor(interval);
+    return days === 1 ? "Yesterday" : days + " days ago";
+  }
+  interval = seconds / 3600;
+  if (interval > 1) return Math.floor(interval) + " hr ago";
+  interval = seconds / 60;
+  if (interval > 1) return Math.floor(interval) + " min ago";
+  return Math.floor(seconds) + " sec ago";
 }
 
 function MerchantDashboardContent() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const { user, loading, logout, getUserAccountType } = useAuth();
-  const [chartPeriod, setChartPeriod] = useState("weekly");
+  const { user, loading, getUserAccountType } = useAuth();
   const [summary, setSummary] = useState(null);
-  const [realtimeAnalytics, setRealtimeAnalytics] = useState(null);
   const [merchantProfile, setMerchantProfile] = useState(null);
-  const [loyaltyLeaderboard, setLoyaltyLeaderboard] = useState([]);
+  const [realtimeAnalytics, setRealtimeAnalytics] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(new Date());
-
-  const handleMerchantLogout = async () => {
-    await logout();
-    router.push("/merchant-login");
-  };
-
-  const handleExportReports = () => {
-    const exportRows = [
-      { section: "Overview", metric: "Store Name", value: merchantProfile?.shopName || merchantProfile?.storeName || user?.shopName || "My Store" },
-      { section: "Overview", metric: "Total Orders", value: summary?.stats?.totalOrders || 0 },
-      { section: "Overview", metric: "Store Rating", value: summary?.stats?.averageRating || 0 },
-      { section: "Overview", metric: "Revenue", value: summary?.stats?.revenue || 0 },
-      { section: "Overview", metric: "Last Updated", value: new Date(lastUpdated).toLocaleString() },
-    ];
-
-    redemptionLabels.forEach((label, index) => {
-      exportRows.push({ section: "Redemption Trend", label, value: redemptionValues[index] ?? 0 });
-    });
-
-    (summary?.recentOrders || orders).forEach((order) => {
-      exportRows.push({
-        section: "Recent Orders",
-        orderId: order.id || order.orderNumber || order._id || "",
-        placedAt: order.time || order.placedAt || "",
-        amount: typeof order.amount === "string" ? order.amount : `₹${order.amount || 0}`,
-        quantity: order.qty || order.itemsCount || "",
-      });
-    });
-
-    (summary?.latestReviews || latestReviews).forEach((review) => {
-      exportRows.push({
-        section: "Latest Reviews",
-        reviewer: review.name || review.userName || "Customer",
-        rating: review.rating ? "★".repeat(review.rating) : "★★★★★",
-        time: review.time || new Date(review.createdAt).toLocaleDateString(),
-        feedback: review.text || review.content || "",
-      });
-    });
-
-    downloadCsv("merchant-overview.csv", exportRows);
-  };
+  const [graphPeriod, setGraphPeriod] = useState("weekly");
 
   useEffect(() => {
     if (!loading && !user) {
       router.replace("/login?redirect=/merchant/dashboard");
       return;
     }
-
-    if (!loading && user) {
-      const accountType = user?.accountType || getUserAccountType();
-      if (accountType !== "merchant") {
-        router.replace("/");
-      }
+    if (!loading && user && (user?.accountType || getUserAccountType()) !== "merchant") {
+      router.replace("/");
     }
   }, [loading, user, router, getUserAccountType]);
 
@@ -145,295 +83,494 @@ function MerchantDashboardContent() {
           getMerchantRealtimeAnalytics(),
           getMerchantProfile(),
         ]);
-
-        if (summaryRes.status === "fulfilled") {
-          setSummary(summaryRes.value?.data || null);
-        }
-
-        if (realtimeRes.status === "fulfilled") {
-          setRealtimeAnalytics(realtimeRes.value?.data || null);
-        }
-
-        if (profileRes && profileRes.status === "fulfilled") {
-          setMerchantProfile(profileRes.value?.data || null);
-        }
-
+        if (summaryRes.status === "fulfilled") setSummary(summaryRes.value?.data || null);
+        if (realtimeRes.status === "fulfilled") setRealtimeAnalytics(realtimeRes.value?.data || null);
+        if (profileRes.status === "fulfilled") setMerchantProfile(profileRes.value?.data || null);
         setLastUpdated(new Date());
-      } catch (err) {
-        console.error("Failed to load dashboard summary:", err);
-      }
+      } catch (err) {}
     };
-
     loadSummary();
-
-    // Poll for real-time updates every 10 seconds
     const interval = setInterval(loadSummary, 10000);
-
     return () => clearInterval(interval);
   }, [user, getUserAccountType]);
 
-  if (loading || !user) {
-    return <div className="min-h-screen bg-[#efefef]" />;
-  }
+  if (loading || !user) return <div className="min-h-screen bg-[#F9FAFB]" />;
 
-  const accountType = user?.accountType || getUserAccountType();
-  if (accountType !== "merchant") return null;
+  const shopName = merchantProfile?.shopName || merchantProfile?.storeName || user?.shopName || "Mahalakshmi Chembers";
+  const initials = shopName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || "MC";
 
-  const storeAvatar =
-    merchantProfile?.profilePhoto ||
-    merchantProfile?.shopPhoto ||
-    user?.profilePhoto ||
-    user?.shopPhoto ||
-    "";
+  const getGraphData = () => {
+    const data = summary?.performanceGraph?.[graphPeriod] || [];
+    if (!data.length) return { labels: [], revenuePoints: [], orderPoints: [], redemptionPoints: [], conversionPoints: [], maxRev: 1000 };
+    
+    const maxRev = Math.max(...data.map(d => d.revenue), 1000);
+    const maxOrd = Math.max(...data.map(d => d.orders), 10);
+    const maxRed = Math.max(...data.map(d => d.redemption), 10);
+    const maxConv = Math.max(...data.map(d => d.conversion), 10);
+    
+    const xStep = 720 / Math.max(data.length - 1, 1);
+    
+    return {
+      labels: data.map(d => d.label),
+      revenuePoints: data.map((d, i) => ({ x: 40 + i * xStep, y: 220 - (d.revenue / maxRev) * 160 })),
+      orderPoints: data.map((d, i) => ({ x: 40 + i * xStep, y: 220 - (d.orders / maxOrd) * 160 })),
+      redemptionPoints: data.map((d, i) => ({ x: 40 + i * xStep, y: 220 - (d.redemption / maxRed) * 160 })),
+      conversionPoints: data.map((d, i) => ({ x: 40 + i * xStep, y: 220 - (d.conversion / maxConv) * 160 })),
+      maxRev
+    };
+  };
+  
+  const generatePath = (points) => {
+    if (!points || points.length === 0) return "";
+    return points.map((p, i) => (i === 0 ? `M${p.x} ${p.y}` : `L${p.x} ${p.y}`)).join(" ");
+  };
 
-  const redemptionTrend = realtimeAnalytics?.trend || {};
-  const baseLabels = redemptionTrend.labels || ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-  const redemptionValues = buildCompletedOrderSeries(summary?.recentOrders || orders, summary?.stats?.totalOrders || 0);
-  const apiValues = redemptionTrend.values;
-  const baseValues = apiValues && apiValues.length > 0 ? apiValues : redemptionValues;
+  const gData = getGraphData();
 
-  const weeklyLabels = baseLabels.slice(0, 7);
-  const weeklyValues = baseValues.slice(0, 7);
+  const totalOrders = summary?.stats?.totalOrders ?? 0;
+  const revenue = summary?.stats?.revenue ? `₹${summary?.stats?.revenue.toLocaleString('en-IN')}` : "₹0";
+  const customers = summary?.stats?.customers ?? 0;
+  const activeOffers = summary?.stats?.activeOffers !== undefined ? `${summary.stats.activeOffers} Active` : "0 Active";
+  const followers = summary?.stats?.followers ?? 0;
 
-  const monthlyLabels = Array.from({ length: 30 }, (_, i) => `${i + 1}`);
-  const monthlyValues = Array.from({ length: 30 }, () => {
-    const src = baseValues.length > 0 ? baseValues : weeklyValues;
-    const idx = Math.floor(Math.random() * src.length);
-    return src[idx] || 0;
-  });
-
-  const activeLabels = chartPeriod === "weekly" ? weeklyLabels : monthlyLabels;
-  const activeValues = chartPeriod === "weekly" ? weeklyValues : monthlyValues;
-  const dataMax = Math.max(...activeValues, 0);
-  let graphMax = 10;
-  if (dataMax > 10) {
-    graphMax = Math.ceil(dataMax / 10) * 10;
-  } else if (dataMax <= 5 && dataMax > 0) {
-    graphMax = 5;
-  }
-
-  const chartLeft = 38;
-  const chartRight = 740;
-  const chartTop = 40;
-  const chartBottom = 260;
-  const barSlotWidth = (chartRight - chartLeft) / Math.max(activeLabels.length, 1);
-  const barWidth = Math.min(activeLabels.length > 14 ? 16 : 40, Math.max(12, barSlotWidth * 0.55));
+  const renderStatusPill = (status) => {
+    switch (status.toLowerCase()) {
+      case "delivered":
+      case "active":
+        return <span className="px-2 py-0.5 rounded bg-[#ECFDF5] text-[#059669] text-[11px] font-medium border border-[#D1FAE5]">Delivered</span>;
+      case "pending":
+        return <span className="px-2 py-0.5 rounded bg-[#FFFBEB] text-[#D97706] text-[11px] font-medium border border-[#FEF3C7]">Pending</span>;
+      case "packed":
+        return <span className="px-2 py-0.5 rounded bg-[#EFF6FF] text-[#2563EB] text-[11px] font-medium border border-[#DBEAFE]">Packed</span>;
+      case "cancelled":
+        return <span className="px-2 py-0.5 rounded bg-[#FEF2F2] text-[#DC2626] text-[11px] font-medium border border-[#FEE2E2]">Cancelled</span>;
+      default:
+        return <span className="px-2 py-0.5 rounded bg-[#F3F4F6] text-[#4B5563] text-[11px] font-medium border border-[#E5E7EB]">{status}</span>;
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-[#ececec] text-[#1b1b1b]" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
+    <div className="min-h-screen bg-white text-[#111827]" style={{ fontFamily: "Inter, sans-serif" }}>
       <MerchantNavbar activeKey="dashboard" />
 
-      <main className="w-full px-4 py-4 lg:px-10 lg:py-6">
-        <div className="mx-auto w-full max-w-[1400px] space-y-4 lg:space-y-5">
-          <MerchantPlanBanner merchantProfile={merchantProfile} />
+      <main className="w-full px-4 py-6 lg:px-8 xl:px-12">
+        <div className="mx-auto w-full max-w-[1400px]">
           
-          <section className="rounded-[12px] border border-[#d5d5d5] bg-white px-4 py-4 lg:px-6 lg:py-5">
-            <div className="flex flex-wrap items-start justify-between gap-4">
-              <div className="flex items-start gap-4">
-                <div className="h-12 w-12 rounded-full overflow-hidden border border-[#dadada] lg:h-14 lg:w-14">
-                  <Image src={storeAvatar || "/images/deal2.avif"} alt={merchantProfile?.shopName || merchantProfile?.storeName || user?.shopName || "My Store"} width={56} height={56} className="h-full w-full object-cover" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-[9px] text-[#737373]">Open Now • Last updated {Math.floor((new Date() - lastUpdated) / 60000)} mins ago</p>
-                  <h1 className="mt-1 truncate text-[28px] leading-none font-bold text-[#1f1f1f] lg:text-[44px]">{merchantProfile?.shopName || merchantProfile?.storeName || "My Store"}</h1>
-                  <div className="mt-2 flex flex-wrap items-center gap-3 text-[12px] text-[#424242] lg:gap-6 lg:text-[14px]">
-                    <span className="inline-flex items-center gap-1"><ShoppingBag size={14} className="text-[#157a4f]" /> <span className="font-bold text-[22px] leading-none lg:text-[30px]">{summary?.stats?.totalOrders || 0}</span> Total Orders</span>
-                    <span className="inline-flex items-center gap-1"><Star size={14} className="text-[#e9aa1d]" /> <span className="font-bold text-[22px] leading-none lg:text-[30px]">{summary?.stats?.averageRating || 0}</span> Store Rating</span>
-                  </div>
-                </div>
-              </div>
+          <MerchantPlanBanner merchantProfile={merchantProfile} />
 
-              <div className="flex w-full items-center gap-2 mt-1 sm:w-auto">
-                <button onClick={handleExportReports} className="h-9 flex-1 px-3 rounded-[8px] border border-[#d5d5d5] bg-white text-[11px] font-semibold text-[#343434] inline-flex items-center justify-center gap-2 lg:h-10 lg:flex-none lg:px-4 lg:text-[12px]">
-                  <Download size={13} /> Export CSV
-                </button>
-                <button onClick={() => router.push("/merchant/offers/create")} className="h-9 flex-1 px-3 rounded-[8px] bg-[#1f8f4f] text-white text-[11px] font-semibold inline-flex items-center justify-center gap-2 lg:h-10 lg:flex-none lg:px-4 lg:text-[12px]">
-                  <Plus size={13} /> Add New Offer
-                </button>
+          {/* Header Section */}
+          <section className="mt-4 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-100 pb-6">
+            <div className="flex items-start gap-4">
+              <div className="flex-shrink-0 w-16 h-16 rounded-full border-2 border-[#F59E0B] flex items-center justify-center text-[#F59E0B] text-xl font-bold bg-orange-50">
+                {initials}
               </div>
+              <div>
+                <h1 className="text-2xl font-bold text-[#111827]">{shopName}</h1>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="px-2 py-0.5 bg-[#DCFCE7] text-[#157A4F] text-[11px] font-bold rounded">Open</span>
+                  <span className="text-[12px] text-gray-500">Last updated {Math.floor((new Date() - lastUpdated) / 60000)} min ago</span>
+                </div>
+                <div className="flex items-center gap-2 mt-1.5">
+                  <div className="flex items-center text-[#F59E0B]">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <svg key={star} className="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                    ))}
+                  </div>
+                  <span className="text-[13px] font-bold text-gray-800">4.8</span>
+                  <span className="text-[13px] text-gray-500">(128 reviews)</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-md text-sm font-medium hover:bg-gray-50 transition-colors">
+                <Download size={16} /> Export CSV
+              </button>
+              <button onClick={() => router.push("/merchant/offers/create")} className="flex items-center gap-2 px-4 py-2 bg-[#157A4F] text-white rounded-md text-sm font-medium hover:bg-[#10623E] transition-colors">
+                <Plus size={16} /> Add New Offer
+              </button>
             </div>
           </section>
 
-          <section className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_300px] gap-5">
-            <div className="rounded-[12px] border border-[#d8d8d8] bg-white p-4 lg:p-5">
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <div className="flex items-center gap-3">
-                    <h2 className="text-[21px] font-bold leading-none lg:text-[28px]">Shop Redemptions ↗</h2>
-                    <span className="inline-flex items-center gap-1 rounded-full bg-[#e9f7ee] px-2.5 py-1 text-[10px] font-semibold text-[#1f8f4f]">
-                      <span className="h-2 w-2 rounded-full bg-[#1f8f4f]" /> Live
-                    </span>
-                  </div>
-                  <p className="text-[12px] text-[#666] mt-1">
-                    {(redemptionTrend.total ?? 0)} redemptions this week • updated every 10s
-                  </p>
-                </div>
-                <div className="inline-flex rounded-[7px] border border-[#dddddd] overflow-hidden text-[10px]">
-                  <button
-                    onClick={() => setChartPeriod("weekly")}
-                    className={`h-7 px-3 ${chartPeriod === "weekly" ? "bg-[#f8f8f8] font-semibold" : "bg-white text-[#666]"}`}
-                  >
-                    Weekly
-                  </button>
-                  <button
-                    onClick={() => setChartPeriod("monthly")}
-                    className={`h-7 px-3 bg-white text-[#666]`}
-                  >
-                    Monthly
-                  </button>
-                </div>
+          {/* Stats Grid */}
+          <section className="mt-6 grid grid-cols-2 md:grid-cols-5 gap-0 border border-gray-200 rounded-lg overflow-hidden bg-white">
+            <div className="p-4 border-b md:border-b-0 md:border-r border-gray-200">
+              <div className="flex items-center gap-2 text-gray-500 mb-1">
+                <Calendar size={14} className="text-[#157A4F]" />
+                <span className="text-[12px] font-medium">Total Orders</span>
               </div>
+              <p className="text-2xl font-bold">{totalOrders}</p>
+            </div>
+            <div className="p-4 border-b md:border-b-0 md:border-r border-gray-200">
+              <div className="flex items-center gap-2 text-gray-500 mb-1">
+                <IndianRupee size={14} className="text-[#157A4F]" />
+                <span className="text-[12px] font-medium">Revenue</span>
+              </div>
+              <p className="text-2xl font-bold">{revenue}</p>
+            </div>
+            <div className="p-4 border-b md:border-b-0 md:border-r border-gray-200">
+              <div className="flex items-center gap-2 text-gray-500 mb-1">
+                <Users size={14} className="text-[#3B82F6]" />
+                <span className="text-[12px] font-medium">Customers</span>
+              </div>
+              <p className="text-2xl font-bold">{customers}</p>
+            </div>
+            <div className="p-4 border-r md:border-b-0 border-gray-200">
+              <div className="flex items-center gap-2 text-gray-500 mb-1">
+                <Tag size={14} className="text-[#157A4F]" />
+                <span className="text-[12px] font-medium">Active Offers</span>
+              </div>
+              <p className="text-2xl font-bold">{activeOffers}</p>
+            </div>
+            <div className="p-4">
+              <div className="flex items-center gap-2 text-gray-500 mb-1">
+                <Heart size={14} className="text-[#EF4444]" />
+                <span className="text-[12px] font-medium">Followers</span>
+              </div>
+              <p className="text-2xl font-bold">{followers}</p>
+            </div>
+          </section>
 
-                <div className="mt-4 rounded-[10px] bg-[#fbfbfb] border border-[#ececec] p-3">
-                  <div className="mb-3 flex items-center justify-between text-[11px] text-[#6b6b6b]">
-                    <p>Live merchant-side redemption activity</p>
-                    <p>Today: <span className="font-semibold text-[#1f8f4f]">{redemptionTrend.today ?? (chartPeriod === 'weekly' ? activeValues[activeValues.length - 1] : activeValues[activeValues.length - 1])}</span></p>
+          {/* Main 2-Column Grid */}
+          <div className="mt-6 grid grid-cols-1 lg:grid-cols-[1.8fr_1fr] gap-6">
+            
+            {/* LEFT COLUMN */}
+            <div className="space-y-6">
+              
+              {/* Offers Performance Chart */}
+              <div className="border border-gray-200 rounded-xl p-5 bg-white">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-lg font-bold">Offers Performance</h2>
+                    <HelpCircle size={14} className="text-gray-400" />
                   </div>
-                  <svg viewBox="0 0 760 310" className="h-[190px] w-full lg:h-[280px]">
-                    <defs>
-                      <linearGradient id="redemptionBarGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#35b96a" />
-                        <stop offset="100%" stopColor="#1f8f4f" />
-                      </linearGradient>
-                    </defs>
-                    {[1, 0.8, 0.6, 0.4, 0.2, 0].map((yFactor) => {
-                      const yVal = Math.round(graphMax * yFactor);
-                      const yPos = chartBottom - ((chartBottom - chartTop) * yFactor);
-                      return (
-                        <g key={yFactor}>
-                          <line x1={chartLeft} y1={yPos} x2={chartRight} y2={yPos} stroke="#d8d8d8" strokeDasharray="4 4" />
-                          <text x="4" y={yPos + 4} fontSize="9" fill="#888">{yVal}</text>
-                        </g>
-                      );
-                    })}
+                  <div className="flex items-center gap-3">
+                    <div className="inline-flex rounded-md border border-gray-200 p-0.5 text-[12px]">
+                      <button onClick={() => setGraphPeriod('weekly')} className={`px-3 py-1 rounded-sm font-medium shadow-sm ${graphPeriod === 'weekly' ? 'bg-white text-[#157A4F]' : 'text-gray-500 hover:text-gray-700'}`}>Weekly</button>
+                      <button onClick={() => setGraphPeriod('monthly')} className={`px-3 py-1 rounded-sm font-medium shadow-sm ${graphPeriod === 'monthly' ? 'bg-white text-[#157A4F]' : 'text-gray-500 hover:text-gray-700'}`}>Monthly</button>
+                      <button onClick={() => setGraphPeriod('yearly')} className={`px-3 py-1 rounded-sm font-medium shadow-sm ${graphPeriod === 'yearly' ? 'bg-white text-[#157A4F]' : 'text-gray-500 hover:text-gray-700'}`}>Yearly</button>
+                    </div>
+                    <button className="text-gray-400 hover:text-gray-600"><MoreVertical size={16} /></button>
+                  </div>
+                </div>
 
-                    {activeValues.map((value, index) => {
-                      const barHeight = ((chartBottom - chartTop) * Number(value || 0)) / (graphMax || 1);
-                      const x = chartLeft + barSlotWidth * index + barSlotWidth / 2 - barWidth / 2;
-                      const y = chartBottom - barHeight;
+                <div className="flex flex-wrap items-center gap-4 lg:gap-6 text-[11px] font-bold text-[#4B5563] mb-4 uppercase tracking-wider">
+                  <div className="flex items-center gap-1.5"><div className="w-3 h-1 bg-[#10B981] rounded-full"></div> Orders</div>
+                  <div className="flex items-center gap-1.5"><div className="w-3 h-1 bg-[#3B82F6] rounded-full"></div> Revenue (₹)</div>
+                  <div className="flex items-center gap-1.5"><div className="w-3 h-1 bg-[#F59E0B] rounded-full"></div> Redemption</div>
+                  <div className="flex items-center gap-1.5"><div className="w-3 h-1 bg-[#8B5CF6] rounded-full"></div> Conversion Rate (%)</div>
+                </div>
+
+                <div className="relative h-[250px] w-full mt-4">
+                  <svg viewBox="0 0 800 250" className="w-full h-full overflow-visible">
+                    {/* Y Axis Lines */}
+                    {[0, 1, 2, 3, 4].map((i) => {
+                      const y = 220 - (i * 40);
+                      const val = (gData.maxRev / 4) * i;
+                      const formattedVal = val >= 1000 ? (val / 1000).toFixed(1) + 'k' : Math.round(val);
                       return (
-                        <g key={`${activeLabels[index] || index}-${index}-${chartPeriod}`}>
-                          <rect
-                            x={x}
-                            y={y}
-                            width={barWidth}
-                            height={Math.max(barHeight, 0)}
-                            rx="6"
-                            fill="url(#redemptionBarGradient)"
-                          />
-                          <text x={x + barWidth / 2} y="296" textAnchor="middle" fontSize="9" fill="#8a8a8a">{activeLabels[index] || ""}</text>
+                        <g key={i}>
+                          <line x1="40" y1={y} x2="760" y2={y} stroke="#f3f4f6" strokeWidth="1" />
+                          <text x="30" y={y + 4} fontSize="10" fill="#9CA3AF" textAnchor="end">{formattedVal}</text>
+                          <text x="770" y={y + 4} fontSize="10" fill="#9CA3AF" textAnchor="start">{i * 25}%</text>
                         </g>
                       );
                     })}
+                    
+                    {/* X Axis Labels */}
+                    {gData.labels.map((label, i) => (
+                      <text key={`xl-${i}`} x={40 + (i * (720 / Math.max(gData.labels.length - 1, 1)))} y="240" fontSize="10" fill="#9CA3AF" textAnchor="middle">{label}</text>
+                    ))}
+
+                    {/* Blue Line (Revenue) */}
+                    <path d={generatePath(gData.revenuePoints)} fill="none" stroke="#3B82F6" strokeWidth="2" />
+                    {gData.revenuePoints.map((p, i) => (
+                      <circle key={`blue-${i}`} cx={p.x} cy={p.y} r="3" fill="#3B82F6" />
+                    ))}
+
+                    {/* Green Line (Orders) */}
+                    <path d={generatePath(gData.orderPoints)} fill="none" stroke="#10B981" strokeWidth="2" />
+                    {gData.orderPoints.map((p, i) => (
+                      <circle key={`green-${i}`} cx={p.x} cy={p.y} r="3" fill="#10B981" />
+                    ))}
+
+                    {/* Yellow Line (Redemption) */}
+                    <path d={generatePath(gData.redemptionPoints)} fill="none" stroke="#F59E0B" strokeWidth="2" />
+                    {gData.redemptionPoints.map((p, i) => (
+                      <circle key={`yellow-${i}`} cx={p.x} cy={p.y} r="3" fill="#F59E0B" />
+                    ))}
+
+                    {/* Purple Line (Conversion) */}
+                    <path d={generatePath(gData.conversionPoints)} fill="none" stroke="#8B5CF6" strokeWidth="2" />
+                    {gData.conversionPoints.map((p, i) => (
+                      <circle key={`purple-${i}`} cx={p.x} cy={p.y} r="3" fill="#8B5CF6" />
+                    ))}
                   </svg>
                 </div>
-            </div>
-
-            <div className="space-y-3">
-              <div className="rounded-[10px] border border-[#dce8dd] bg-[#eef6ef] p-4">
-                <p className="text-[10px] uppercase tracking-wide text-[#79927c]">Order Placed</p>
-                <p className="mt-1 text-[34px] font-extrabold leading-none text-[#223322] lg:text-[46px]">{summary?.stats?.totalOrders || 0}</p>
-                <p className="text-[12px] text-[#4a5a4b] mt-1">Last 7 Days <span className="text-[#2e9f5a]">+12%</span></p>
               </div>
 
-              <div className="rounded-[10px] border border-[#ebe3cf] bg-[#f8f4e8] p-4">
-                <p className="text-[10px] uppercase tracking-wide text-[#98835a]">Revenue Earned</p>
-                <p className="mt-1 text-[34px] font-extrabold leading-none text-[#4b3913] lg:text-[46px]">₹{summary?.stats?.revenue || 0}</p>
-                <p className="text-[12px] text-[#7f6a42] mt-1">Last 7 Days <span className="text-[#9d6a1d]">+8.5%</span></p>
-              </div>
-
-                <div className="rounded-[10px] bg-[#f0ab19] p-4 text-white shadow-sm lg:p-5">
-                  <p className="text-[24px] font-extrabold leading-none lg:text-[34px]">See your shop as a customer</p>
-                  <p className="mt-2 text-[12px] text-[#fff4da]">Open the customer app to see your shop exactly how customers see it. Experience your brand firsthand.</p>
-                   <button onClick={() => window.location.href = '/nearby-deals?view=merchant-preview'} className="mt-4 h-10 w-full rounded-[8px] bg-white text-[#d18c00] text-[12px] font-semibold">Tap to explore ↗</button>
+              {/* Top Performing Offers */}
+              <div className="border border-gray-200 rounded-xl p-5 bg-white overflow-hidden">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-bold">Top Performing Offers</h3>
+                  <button className="text-[13px] font-bold text-[#157A4F] flex items-center gap-1 hover:underline">
+                    View All Offers <ArrowRight size={14} />
+                  </button>
                 </div>
-            </div>
-          </section>
-
-          <section className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_360px] gap-5">
-            <div className="rounded-[12px] border border-[#d8d8d8] bg-white overflow-hidden">
-              <div className="px-4 py-3 border-b border-[#ececec] flex items-center justify-between">
-                <h3 className="text-[23px] font-bold leading-none lg:text-[31px]">Recent Orders</h3>
-                <button onClick={() => router.push("/merchant/orders")} className="text-[12px] font-semibold text-[#1e8b4f]">View All Orders</button>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-sm whitespace-nowrap">
+                    <thead>
+                      <tr className="text-[#6B7280] text-[12px] border-b border-gray-100">
+                        <th className="pb-3 font-medium">Offer</th>
+                        <th className="pb-3 font-medium">Redeemed</th>
+                        <th className="pb-3 font-medium">Revenue</th>
+                        <th className="pb-3 font-medium">Conversion</th>
+                        <th className="pb-3 font-medium">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100 text-[13px] text-gray-900 font-bold">
+                      {(summary?.topPerformingOffers || []).map((offer) => (
+                        <tr key={offer._id}>
+                          <td className="py-3">
+                            <div className="flex items-center gap-3">
+                              <div className="w-12 h-8 rounded overflow-hidden bg-gray-100 relative">
+                                <img src={offer.imageUrl || "/images/default-offer.png"} alt={offer.title} onError={(e) => { e.target.style.display='none'; }} className="w-full h-full object-cover" />
+                              </div>
+                              {offer.title}
+                            </div>
+                          </td>
+                          <td className="py-3 text-gray-600">{offer.redeemed}</td>
+                          <td className="py-3 text-gray-600">₹{Number(offer.revenue).toLocaleString('en-IN')}</td>
+                          <td className="py-3 text-gray-600">{offer.conversion}%</td>
+                          <td className="py-3">
+                            <span className={`px-2.5 py-0.5 rounded text-[10px] font-bold ${
+                                offer.status === 'active' ? 'bg-[#ECFDF5] text-[#10B981]' : 'bg-gray-100 text-gray-600'
+                              }`}>
+                              {offer.status}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
 
-              <div className="max-h-[320px] overflow-y-auto">
-                {(summary?.recentOrders || orders).map((order) => (
-                  <div
-                    key={order._id || order.id || order.orderNumber}
-                    onClick={() => router.push(`/merchant/orders?highlight=${encodeURIComponent(order._id || order.id || order.orderNumber || '')}`)}
-                    className="px-3 py-3 border-b border-[#f0f0f0] last:border-b-0 flex items-center gap-3 lg:px-4 cursor-pointer hover:bg-gray-50 transition"
-                  >
-                    <div className="h-8 w-8 rounded-full bg-[#ebf8ef] border border-[#cce9d4] text-[#1f8f4f] flex items-center justify-center">
-                      <Box size={14} />
+              {/* Recent Orders */}
+              <div className="border border-gray-200 rounded-xl p-5 bg-white overflow-hidden">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-bold">Recent Orders</h3>
+                  <button className="text-[13px] font-bold text-[#157A4F] flex items-center gap-1 hover:underline">
+                    View All Orders <ArrowRight size={14} />
+                  </button>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-sm whitespace-nowrap">
+                    <thead>
+                      <tr className="text-[#6B7280] text-[12px] border-b border-gray-100">
+                        <th className="pb-3 font-medium">Order ID</th>
+                        <th className="pb-3 font-medium">Customer</th>
+                        <th className="pb-3 font-medium">Amount</th>
+                        <th className="pb-3 font-medium">Status</th>
+                        <th className="pb-3 font-medium text-right">Time</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100 text-[13px] text-gray-900 font-bold">
+                      {(summary?.recentOrders || []).map((order) => (
+                        <tr key={order._id}>
+                          <td className="py-3 text-gray-500">#{order.orderNumber}</td>
+                          <td className="py-3">
+                            <div className="flex items-center gap-2">
+                              <div className="w-6 h-6 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center text-xs text-gray-500 font-bold">
+                                {order.customerName?.[0] || 'C'}
+                              </div>
+                              {order.customerName || 'Customer'}
+                            </div>
+                          </td>
+                          <td className="py-3">₹{order.amount}</td>
+                          <td className="py-3">{renderStatusPill(order.status)}</td>
+                          <td className="py-3 text-right text-gray-500 font-medium">{timeAgo(order.placedAt)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+            </div>
+
+            {/* RIGHT COLUMN */}
+            <div className="space-y-6">
+              
+              {/* Today's Activity */}
+              <div className="border border-gray-200 rounded-xl p-5 bg-white">
+                <h3 className="text-lg font-bold mb-5">Today's Activity</h3>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-[#ECFDF5] flex items-center justify-center text-[#10B981]"><Calendar size={14} /></div>
+                      <span className="text-sm font-medium text-gray-600">Today's Orders</span>
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-[15px] font-semibold text-[#252525]">Order {order.id || `#${order.orderNumber || String(order._id || '').slice(-6)}`}</p>
-                      <p className="text-[11px] text-[#858585]">{order.time || `Placed ${new Date(order.placedAt).toLocaleString()}`}</p>
+                    <div className="text-right flex items-center gap-2">
+                      <p className="text-sm font-bold">{summary?.todayActivity?.todayOrders ?? 145}</p> <span className="text-[#10B981] text-[11px] font-semibold flex items-center">↑ 12%</span>
                     </div>
-                    <div className="ml-auto text-right">
-                      <p className="text-[16px] font-bold text-[#202020]">{typeof order.amount === 'string' ? order.amount : `₹${order.amount || 0}`}</p>
-                      <p className="text-[9px] uppercase text-[#8a8a8a]">Amount</p>
-                    </div>
-                    <div className="hidden text-right sm:block">
-                      <p className="text-[16px] font-bold text-[#202020]">{order.qty || `${order.itemsCount || 1} items`}</p>
-                      <p className="text-[9px] uppercase text-[#8a8a8a]">Quantity</p>
-                    </div>
-                    <button className="text-[#9a9a9a] hover:text-[#333]"><ChevronRight size={14} /></button>
                   </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="rounded-[12px] border border-[#d8d8d8] bg-white p-4 lg:p-5">
-              <div className="flex items-center justify-between">
-                <h3 className="text-[23px] font-bold leading-none lg:text-[31px]">Latest Reviews</h3>
-              </div>
-
-              <div className="mt-3 max-h-[360px] overflow-y-auto space-y-3">
-                {(summary?.latestReviews || latestReviews).map((review) => (
-                  <article key={review._id || review.name || review.userName} className="rounded-[10px] border border-[#ececec] bg-[#fbfbfb] p-3">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex items-center gap-2">
-                        <div className="h-7 w-7 rounded-full overflow-hidden border border-[#ddd]">
-                          <Image src={review.avatar || "/images/place2.avif"} alt={review.name || "Customer"} width={28} height={28} className="h-full w-full object-cover" />
-                        </div>
-                        <div>
-                          <p className="text-[13px] font-semibold">{review.name || review.userName || "Customer"}</p>
-                          <p className="text-[10px] text-[#f0aa19]">{review.rating ? "★".repeat(review.rating) : "★★★★★"}</p>
-                        </div>
-                      </div>
-                      <span className="text-[10px] text-[#888]">{review.time || new Date(review.createdAt).toLocaleDateString()}</span>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-[#ECFDF5] flex items-center justify-center text-[#10B981]"><IndianRupee size={14} /></div>
+                      <span className="text-sm font-medium text-gray-600">Revenue</span>
                     </div>
-                    <p className="mt-2 text-[11px] leading-5 text-[#5a5a5a]">"{review.text || review.content}"</p>
-                  </article>
-                ))}
+                    <div className="text-right flex items-center gap-2">
+                      <p className="text-sm font-bold">₹{summary?.todayActivity?.todayRevenue?.toLocaleString('en-IN') ?? "18,240"}</p> <span className="text-[#10B981] text-[11px] font-semibold flex items-center">↑ 8%</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-[#F3E8FF] flex items-center justify-center text-[#8B5CF6]"><Gift size={14} /></div>
+                      <span className="text-sm font-medium text-gray-600">Redeemed Coupons</span>
+                    </div>
+                    <div className="text-right flex items-center gap-2">
+                      <p className="text-sm font-bold">{summary?.todayActivity?.todayRedemptions ?? 58}</p> <span className="text-[#10B981] text-[11px] font-semibold flex items-center">↑ 18%</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-[#EFF6FF] flex items-center justify-center text-[#3B82F6]"><Users size={14} /></div>
+                      <span className="text-sm font-medium text-gray-600">Visitors</span>
+                    </div>
+                    <div className="text-right flex items-center gap-2">
+                      <p className="text-sm font-bold">{summary?.todayActivity?.todayVisitors ?? 423}</p> <span className="text-[#10B981] text-[11px] font-semibold flex items-center">↑ 9%</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-[#FFF7ED] flex items-center justify-center text-[#F97316]"><TrendingUp size={14} /></div>
+                      <span className="text-sm font-medium text-gray-600">Conversion Rate</span>
+                    </div>
+                    <div className="text-right flex items-center gap-2">
+                      <p className="text-sm font-bold">{summary?.todayActivity?.todayConversionRate ?? "4.8"}%</p> <span className="text-[#10B981] text-[11px] font-semibold flex items-center">↑ 1.2%</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-[#ECFDF5] flex items-center justify-center text-[#10B981]"><ShoppingCart size={14} /></div>
+                      <span className="text-sm font-medium text-gray-600">Average Order Value</span>
+                    </div>
+                    <div className="text-right flex items-center gap-2">
+                      <p className="text-sm font-bold">₹{summary?.todayActivity?.todayAvgOrderValue ?? "426"}</p> <span className="text-[#10B981] text-[11px] font-semibold flex items-center">↑ 6%</span>
+                    </div>
+                  </div>
+                </div>
               </div>
+
+              {/* Preview Your Store */}
+              <div className="border border-[#FDE68A] bg-[#FEF3C7] rounded-xl p-5 relative overflow-hidden flex items-center justify-between">
+                <div className="relative z-10 w-2/3">
+                  <h3 className="text-lg font-bold text-[#92400E]">Preview Your Store</h3>
+                  <p className="text-xs text-[#B45309] mt-1 mb-4 leading-relaxed font-medium">
+                    See exactly how customers see your store.
+                  </p>
+                  <button className="bg-white text-[13px] font-bold text-gray-700 px-4 py-2 rounded-full shadow-sm flex items-center gap-2 hover:bg-gray-50 transition-colors">
+                    Open Shop <ArrowRight size={14} className="text-gray-400" />
+                  </button>
+                </div>
+                <div className="absolute right-[-20px] top-0 bottom-0 w-1/2 flex items-center justify-end">
+                  <div className="w-full h-full relative">
+                    <div className="w-full h-full bg-[#f3ba3b] rounded-l-3xl shadow-lg flex items-center justify-center text-white/50 text-[10px] font-bold">Preview</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Latest Reviews */}
+              <div className="border border-gray-200 rounded-xl p-5 bg-white">
+                <div className="flex items-center justify-between mb-5">
+                  <h3 className="text-lg font-bold">Latest Reviews</h3>
+                  <button className="text-[13px] font-bold text-[#157A4F] flex items-center gap-1 hover:underline">
+                    View All Reviews <ArrowRight size={14} />
+                  </button>
+                </div>
+                <div className="space-y-4">
+                  {(summary?.latestReviews || []).map((review) => (
+                    <div key={review._id} className="pb-4 border-b border-gray-100 last:border-0 last:pb-0">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full overflow-hidden bg-[#F3E8FF] text-[#8B5CF6] flex items-center justify-center font-bold text-sm">
+                            {review.userName[0]}
+                          </div>
+                          <div>
+                            <p className="text-sm font-bold text-gray-900">{review.userName}</p>
+                            <div className="flex items-center text-[#F59E0B]">
+                              {[...Array(5)].map((_, i) => (
+                                <svg key={i} className={`w-3 h-3 ${i < review.rating ? "fill-current" : "text-gray-200 fill-current"}`} viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                        <span className="text-[11px] text-gray-400 font-medium">{timeAgo(review.createdAt)}</span>
+                      </div>
+                      <p className="text-[13px] text-gray-600 font-medium ml-11">{review.content}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
             </div>
-          </section>
+
+          </div>
         </div>
       </main>
 
-      <footer className="mt-4 bg-[#e8ad2f] border-t border-[#d49b22] text-[#2f2a1f] lg:mt-6">
-        <div className="mx-auto w-full max-w-[1400px] px-4 py-4 grid grid-cols-2 gap-4 text-[12px] md:grid-cols-4 lg:px-10 lg:py-6 lg:gap-8 lg:text-base">
+      {/* Footer */}
+      <footer className="bg-[#FF9800] text-[#111827] pt-10 pb-6 mt-8">
+        <div className="max-w-[1400px] mx-auto px-4 lg:px-8 xl:px-12 grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           <div>
-            <div className="flex items-center gap-2">
-              <div className="h-6 w-6 rounded-[3px] bg-[#0f7d49] text-white text-[20px] font-bold flex items-center justify-center leading-none lg:h-8 lg:w-8 lg:text-[26px]">G</div>
-              <span className="text-[24px] leading-none font-semibold text-[#0f7d49] lg:text-[34px]">GOLO</span>
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-8 h-8 rounded bg-[#157A4F] text-white flex items-center justify-center font-bold text-xl">G</div>
+              <span className="text-2xl font-bold text-[#157A4F]">GOLO</span>
             </div>
-            <p className="mt-2 text-[11px] max-w-[250px] lg:mt-3 lg:text-[12px]">The all-in-one management platform for modern businesses.</p>
+            <p className="text-[13px] font-semibold max-w-[250px] leading-relaxed">
+              Manage your store, promotions, orders, and customer engagement from one merchant dashboard.
+            </p>
+            <div className="flex items-center gap-4 mt-6">
+              <Facebook size={18} className="cursor-pointer hover:opacity-80" />
+              <Instagram size={18} className="cursor-pointer hover:opacity-80" />
+              <Linkedin size={18} className="cursor-pointer hover:opacity-80" />
+              <Youtube size={18} className="cursor-pointer hover:opacity-80" />
+            </div>
           </div>
           <div>
-            <p className="text-[15px] font-bold lg:text-[20px]">Links</p>
-            <div className="mt-2 space-y-1 text-[12px] lg:mt-3 lg:space-y-2 lg:text-[13px]"><p>Overview</p><p>Inventory</p><p>Posts</p><p>Profile</p></div>
+            <h4 className="font-bold text-[15px] mb-4 text-[#111827]">Quick Links</h4>
+            <ul className="space-y-3 text-[13px] font-semibold">
+              <li><Link href="/merchant/orders" className="hover:underline">Orders</Link></li>
+              <li><Link href="/merchant/products" className="hover:underline">Products</Link></li>
+              <li><Link href="/merchant/offers" className="hover:underline">Offers</Link></li>
+              <li><Link href="/merchant/banners" className="hover:underline">Banners</Link></li>
+            </ul>
           </div>
-          <div className="space-y-1 text-[12px] md:pt-9 lg:space-y-2 lg:text-[13px]"><p>Analytics</p><p>Contact</p></div>
           <div>
-            <p className="text-[15px] font-bold lg:text-[20px]">Support</p>
-            <div className="mt-2 space-y-1 text-[12px] lg:mt-3 lg:space-y-2 lg:text-[13px]"><p>Help Center</p><p>Security</p><p>Terms of Service</p></div>
+            <h4 className="font-bold text-[15px] mb-4 text-[#111827]">Support</h4>
+            <ul className="space-y-3 text-[13px] font-semibold">
+              <li><Link href="#" className="hover:underline">Settings</Link></li>
+              <li><Link href="#" className="hover:underline">Help Center</Link></li>
+              <li><Link href="#" className="hover:underline">Contact Us</Link></li>
+              <li><Link href="#" className="hover:underline">Privacy Policy</Link></li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-bold text-[15px] mb-4 text-[#111827]">Stay Updated</h4>
+            <p className="text-[13px] font-semibold mb-4">
+              Subscribe to get tips and updates to grow your business.
+            </p>
+            <div className="flex items-stretch rounded overflow-hidden h-10 w-full max-w-[300px] border border-gray-100">
+              <input type="email" placeholder="Enter your email" className="px-3 text-sm flex-1 text-gray-900 outline-none bg-white" />
+              <button className="bg-[#157A4F] text-white px-4 text-sm font-bold hover:bg-[#10623E] transition-colors">Subscribe</button>
+            </div>
           </div>
         </div>
-        <div className="mx-auto w-full max-w-[1400px] px-4 py-2 border-t border-[#d49b22] flex items-center justify-between gap-3 text-[10px] lg:px-10 lg:py-3 lg:text-[11px]"><p>© 2026 GOLO Dashboard. All rights reserved.</p></div>
+        <div className="max-w-[1400px] mx-auto px-4 lg:px-8 xl:px-12 pt-6 border-t border-[#F57C00] flex flex-col md:flex-row items-center justify-between text-[11px] font-bold">
+          <p>© 2026 GOLO Merchant Dashboard. All rights reserved.</p>
+          <p>Built for smarter local business growth.</p>
+        </div>
       </footer>
     </div>
   );
@@ -441,7 +578,7 @@ function MerchantDashboardContent() {
 
 export default function MerchantDashboardPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#efefef]" />}>
+    <Suspense fallback={<div className="min-h-screen bg-[#F9FAFB]" />}>
       <MerchantDashboardContent />
     </Suspense>
   );

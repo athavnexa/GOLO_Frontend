@@ -1,5 +1,5 @@
 import React from 'react';
-import { Gift, ArrowRight } from 'lucide-react';
+import { Gift, ArrowRight, Rocket } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export default function MerchantPlanBanner({ merchantProfile }) {
@@ -128,17 +128,17 @@ export default function MerchantPlanBanner({ merchantProfile }) {
   }
 
   return (
-    <div className="w-full rounded-2xl border border-gray-200 bg-white p-4 lg:py-5 lg:px-6 mb-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="w-full rounded-2xl bg-[#F0FDF4] p-4 lg:py-5 lg:px-6 mb-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div className="flex items-center gap-4">
-        <div className="w-12 h-12 lg:w-14 lg:h-14 rounded-full bg-[#ecfdf5] flex items-center justify-center flex-shrink-0">
-          <Gift className="text-[#10b981] w-6 h-6 lg:w-7 lg:h-7" />
+        <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-[#DCFCE7] flex items-center justify-center flex-shrink-0">
+          <Rocket className="text-[#157A4F] w-5 h-5 lg:w-6 lg:h-6" />
         </div>
         <div>
-          <h3 className="text-[15px] lg:text-[17px] font-semibold text-[#1f2937]">
+          <h3 className="text-[14px] lg:text-[15px] font-bold text-[#1f2937]">
             {message}
           </h3>
-          <p className="text-[#6b7280] text-[13px] lg:text-[14px] mt-0.5">
-            Current Plan: <span className="font-semibold text-[#374151]">{typeof planName === 'string' ? planName : 'Free Tier'}</span>
+          <p className="text-[#6b7280] text-[12px] lg:text-[13px] mt-0.5">
+            Current Plan: <span className="text-[#6b7280]">{typeof planName === 'string' ? planName : 'Free Tier'}</span>
           </p>
         </div>
       </div>
@@ -146,9 +146,9 @@ export default function MerchantPlanBanner({ merchantProfile }) {
       <div className="flex items-center mt-2 sm:mt-0">
         <button
           onClick={handleUpgrade}
-          className="w-full sm:w-auto h-10 lg:h-11 px-5 lg:px-6 rounded-xl bg-[#22c55e] hover:bg-[#16a34a] text-white font-medium text-[14px] lg:text-[15px] flex items-center justify-center gap-2 transition-colors shadow-sm"
+          className="w-full sm:w-auto h-9 lg:h-10 px-5 rounded-[8px] bg-[#157A4F] hover:bg-[#10623e] text-white font-semibold text-[12px] lg:text-[13px] flex items-center justify-center gap-2 transition-colors shadow-sm"
         >
-          {buttonText} <ArrowRight size={16} strokeWidth={2.5} />
+          {buttonText} <ArrowRight size={14} strokeWidth={2.5} />
         </button>
       </div>
     </div>

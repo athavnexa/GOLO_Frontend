@@ -184,7 +184,7 @@ export default function AddProductPage() {
     } catch (error) {
       const errorMsg = error?.data?.message || error.message || "";
       const errorCode = error?.data?.errorCode || error?.data?.code;
-      if (errorCode === 'CONTENT_UPLOAD_RESTRICTED' || errorCode === 'FINAL_MODERATION_WARNING' || errorCode === 'MODERATION_WARNING' || (typeof errorMsg === 'string' && errorMsg.includes("temporarily restrict"))) {
+      if (errorCode === 'CONTENT_UPLOAD_RESTRICTED' || errorCode === 'FINAL_MODERATION_WARNING' || errorCode === 'MODERATION_WARNING' || (typeof errorMsg === 'string' && (errorMsg.includes("temporarily restrict") || errorMsg.includes("temporarily disable image")))) {
         setModerationWarningInfo({ isOpen: true, message: errorMsg, restrictedUntil: error?.data?.restrictedUntil });
       } else if (typeof errorMsg === 'string' && errorMsg.includes("inappropriate content")) {
         setIsModalOpen(true);

@@ -290,7 +290,7 @@ export default function FormSidebar({
         return;
       }
       const errorMsg = error.data?.message || error.message;
-      if (error?.data?.code === 'CONTENT_UPLOAD_RESTRICTED' || error?.data?.code === 'FINAL_MODERATION_WARNING' || error?.data?.code === 'MODERATION_WARNING' || (typeof errorMsg === 'string' && errorMsg.includes("temporarily restricted"))) {
+      if (error?.data?.code === 'CONTENT_UPLOAD_RESTRICTED' || error?.data?.code === 'FINAL_MODERATION_WARNING' || error?.data?.code === 'MODERATION_WARNING' || (typeof errorMsg === 'string' && (errorMsg.includes("temporarily restricted") || errorMsg.includes("temporarily disable image")))) {
         setModerationWarningInfo({ isOpen: true, message: errorMsg, restrictedUntil: error?.data?.restrictedUntil });
       } else if (typeof errorMsg === 'string' && errorMsg.includes("images contain inappropriate")) {
         setModalMode("image");

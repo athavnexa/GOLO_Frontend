@@ -70,6 +70,7 @@ export default function MerchantRegisterPage() {
   const [storeCategory, setStoreCategory] = useState("");
   const [storeSubCategory, setStoreSubCategory] = useState("");
   const [businessType, setBusinessType] = useState("");
+  const [merchantRole, setMerchantRole] = useState("");
   const [yearsInBusiness, setYearsInBusiness] = useState("");
   const [businessDescription, setBusinessDescription] = useState("");
   
@@ -185,8 +186,8 @@ export default function MerchantRegisterPage() {
         setIsLoading(false);
       }
     } else if (currentStep === 2) {
-      if (!storeName.trim() || !storeCategory || !storeSubCategory || !businessType) {
-        setError("Please fill in required business details.");
+      if (!storeName.trim() || !storeCategory || !storeSubCategory || !businessType || !merchantRole) {
+        setError("Please fill in required business details, including your role.");
         return;
       }
       setCurrentStep(3);
@@ -241,6 +242,7 @@ export default function MerchantRegisterPage() {
         storeCategory,
         storeSubCategory,
         businessType,
+        merchantRole,
         yearsInBusiness: yearsInBusiness ? Number(yearsInBusiness) : undefined,
         businessDescription,
         contactNumber: formatPhone(contactNumber),
@@ -526,6 +528,26 @@ export default function MerchantRegisterPage() {
                 {error && <p className="text-red-500 text-[12px] mb-4 font-semibold">{error}</p>}
 
                 <div className="space-y-5">
+                  {/* Merchant Role */}
+                  <div>
+                    <label className="block text-[12px] font-semibold text-gray-700 mb-2">Role <span className="text-red-500">*</span></label>
+                    <div className="flex gap-4">
+                      {['Merchant', 'Service Provider', 'Both'].map((role) => (
+                        <label key={role} className="flex items-center gap-2 cursor-pointer">
+                          <input 
+                            type="radio" 
+                            name="merchantRole"
+                            value={role}
+                            checked={merchantRole === role}
+                            onChange={(e) => { setMerchantRole(e.target.value); setError(""); }}
+                            className="w-4 h-4 text-[#157A4F] border-gray-300 focus:ring-[#157A4F]"
+                          />
+                          <span className="text-[13px] text-gray-700">{role}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
                   {/* Store Name */}
                   <div>
                     <label className="block text-[12px] font-semibold text-gray-700 mb-1.5">Store Name</label>

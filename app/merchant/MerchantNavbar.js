@@ -81,10 +81,9 @@ export default function MerchantNavbar({ activeKey = "dashboard" }) {
 
   return (
     <header
-      className="sticky top-0 z-[9999] min-h-16 border-b border-[#d7a02a] px-4 py-2 lg:h-16 lg:px-10 lg:py-0 flex items-center justify-between gap-3 overflow-visible"
+      className="sticky top-0 z-[9999] min-h-16 border-b border-[#d49b22] bg-gradient-to-br from-[#f3ba3b] via-[#e8ad2f] to-[#d89b21] px-4 py-2 lg:h-16 lg:px-10 lg:py-0 flex items-center justify-between gap-3 overflow-visible"
       style={{
-        background: "linear-gradient(180deg, #efb02e 0%, #f3c76d 100%)",
-        boxShadow: "0 8px 24px rgba(15, 23, 42, 0.08)",
+        boxShadow: "0 4px 12px rgba(216, 155, 33, 0.15)",
       }}
     >
       <div className="flex min-w-0 items-center gap-2 lg:min-w-[180px] lg:gap-3">

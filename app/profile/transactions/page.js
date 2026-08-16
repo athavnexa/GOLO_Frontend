@@ -69,7 +69,7 @@ export default function TransactionHistory() {
     try {
       await openRazorpayCheckout({
         amount: 10,
-        description: 'GOLO Test Payment',
+        description: 'GOLO Payment',
         notes: {
           source: 'profile_transactions',
         },
@@ -112,7 +112,7 @@ export default function TransactionHistory() {
               disabled={paying || loading || !isAuthenticated}
               className="w-full px-4 py-2 rounded-lg bg-[#157A4F] text-white font-semibold hover:bg-[#0f5c3a] transition disabled:opacity-60 disabled:cursor-not-allowed sm:w-auto"
             >
-              {paying ? 'Processing...' : 'Pay Rs. 10 (Test)'}
+              {paying ? 'Processing...' : 'Pay Rs. 10'}
             </button>
           </div>
 

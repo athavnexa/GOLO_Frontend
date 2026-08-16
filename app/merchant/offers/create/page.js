@@ -516,7 +516,7 @@ export default function CreateMerchantOfferPage() {
      } catch (err) {
        const errorMsg = err?.data?.message || err?.message || "";
        const errorCode = err?.data?.errorCode || err?.data?.code;
-       if (errorCode === 'CONTENT_UPLOAD_RESTRICTED' || errorCode === 'FINAL_MODERATION_WARNING' || errorCode === 'MODERATION_WARNING' || (typeof errorMsg === 'string' && errorMsg.includes("temporarily restrict"))) {
+       if (errorCode === 'CONTENT_UPLOAD_RESTRICTED' || errorCode === 'FINAL_MODERATION_WARNING' || errorCode === 'MODERATION_WARNING' || (typeof errorMsg === 'string' && (errorMsg.includes("temporarily restrict") || errorMsg.includes("temporarily disable image")))) {
          setModerationWarningInfo({ isOpen: true, message: errorMsg, restrictedUntil: err?.data?.restrictedUntil });
        } else if (typeof errorMsg === 'string' && errorMsg.includes("inappropriate content")) {
          setIsModalOpen(true);

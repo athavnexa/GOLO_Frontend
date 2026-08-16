@@ -28,13 +28,14 @@ export default function MerchantProductsPage() {
   const [isExporting, setIsExporting] = useState(false);
   const [fetchError, setFetchError] = useState("");
   const [deleteConfirmProduct, setDeleteConfirmProduct] = useState(null);
-
-  const [isSelectionModalOpen, setIsSelectionModalOpen] = useState(false);
+  const [deleteBlockedModalOpen, setDeleteBlockedModalOpen] = useState(false);
   const [maxActiveAllowed, setMaxActiveAllowed] = useState(3);
   const [selectedActiveIds, setSelectedActiveIds] = useState([]);
   const [selectionProductsList, setSelectionProductsList] = useState([]);
   const [loadingSelectionList, setLoadingSelectionList] = useState(false);
   const [saveSelectionError, setSaveSelectionError] = useState("");
+
+  const [isSelectionModalOpen, setIsSelectionModalOpen] = useState(false);
   const [hasCheckedAutoOpen, setHasCheckedAutoOpen] = useState(false);
   const [hasSelectedActiveProducts, setHasSelectedActiveProducts] = useState(false);
 
@@ -232,7 +233,12 @@ export default function MerchantProductsPage() {
         totalProducts: Math.max(0, (prev.totalProducts || 0) - 1),
       }));
     } catch (error) {
-      window.alert(error?.message || "Failed to delete product");
+      const isOfferLinked = error?.data?.errorCode === 'PRODUCT_LINKED_TO_ACTIVE_OFFER' || error?.status === 409;
+      if (isOfferLinked) {
+        setDeleteBlockedModalOpen(true);
+      } else {
+        window.alert(error?.message || "Failed to delete product");
+      }
     } finally {
       setDeleteConfirmProduct(null);
     }
@@ -451,30 +457,37 @@ export default function MerchantProductsPage() {
             </div>
           </section>
 
-          {deleteConfirmProduct && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-              <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden animate-in zoom-in-95 duration-200 p-6">
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">Delete Product</h3>
-                <p className="text-gray-600 mb-6 text-sm leading-relaxed">
-                  Delete product "{deleteConfirmProduct.name}"?
+        {/* Confirm Delete Product Modal */}
+        {deleteConfirmProduct && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity" onClick={cancelDeleteProduct} />
+            <div className="relative w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl animate-in zoom-in-95 duration-200">
+              <div className="p-6 text-center">
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
+                  <Trash2 className="h-8 w-8 text-red-600" />
+                </div>
+                <h3 className="mb-2 text-xl font-bold text-gray-900">Delete Product</h3>
+                <p className="mb-6 text-sm text-gray-500">
+                  Are you sure you want to delete <span className="font-semibold text-gray-800">"{deleteConfirmProduct.name}"</span>? This action cannot be undone.
                 </p>
-                <div className="flex justify-end gap-3">
+                <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
                   <button
                     onClick={cancelDeleteProduct}
-                    className="px-4 py-2 rounded-lg border border-[#e0e0e0] bg-white text-[#5e5e5e] hover:bg-gray-50 transition-colors font-semibold text-[11px]"
+                    className="flex-1 rounded-xl border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={confirmDeleteProduct}
-                    className="px-4 py-2 rounded-lg bg-[#ef4d4d] text-white hover:bg-red-600 transition-colors font-semibold text-[11px]"
+                    className="flex-1 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-red-700 transition-colors"
                   >
-                    Ok
+                    Delete Product
                   </button>
                 </div>
               </div>
             </div>
-          )}
+          </div>
+        )}
 
           {isSelectionModalOpen && (
             <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-300">
@@ -608,6 +621,38 @@ export default function MerchantProductsPage() {
         </div>
         <div className="mx-auto w-full max-w-[1400px] px-4 py-2 border-t border-[#d49b22] flex items-center justify-between gap-3 text-[10px] lg:px-10 lg:py-3 lg:text-[11px]"><p>� 2026 GOLO Dashboard. All rights reserved.</p></div>
       </footer>
+
+      {/* Delete Blocked Modal */}
+      {deleteBlockedModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity" onClick={() => setDeleteBlockedModalOpen(false)} />
+          <div className="relative w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="p-6 text-center">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
+                <Trash2 className="h-8 w-8 text-red-600" />
+              </div>
+              <h3 className="mb-2 text-xl font-bold text-gray-900">Cannot Delete Product</h3>
+              <p className="mb-6 text-sm text-gray-500">
+                This product is the only product linked to an active offer. You cannot delete it until you delete or edit the active offer first.
+              </p>
+              <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
+                <button
+                  onClick={() => setDeleteBlockedModalOpen(false)}
+                  className="flex-1 rounded-xl border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+                >
+                  Okay
+                </button>
+                <button
+                  onClick={() => router.push("/merchant/offers")}
+                  className="flex-1 rounded-xl bg-[#2f9e58] px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-[#258046]"
+                >
+                  Go to Offers
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

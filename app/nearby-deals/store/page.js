@@ -372,6 +372,8 @@ function NearbyStoreContent() {
   const storeCategory = merchant?.profile?.category || merchant?.merchantProfile?.storeCategory || merchant?.category || "Store";
   const storeSubCategory = merchant?.profile?.subCategory || merchant?.merchantProfile?.storeSubCategory || merchant?.subCategory || "";
   const categoryDisplay = storeSubCategory && storeCategory !== storeSubCategory ? `${storeCategory} • ${storeSubCategory}` : storeCategory;
+  const merchantRole = merchant?.profile?.merchantRole || merchant?.merchantProfile?.merchantRole || merchant?.merchantRole || "Merchant";
+  const roleDisplay = merchantRole === 'Both' ? 'Merchant & Service Provider' : merchantRole;
 
   return (
     <main className="relative z-10 min-h-screen bg-transparent">
@@ -420,6 +422,9 @@ function NearbyStoreContent() {
           </p>
 
           <div className="mt-4 flex flex-wrap items-center gap-4 text-xs lg:text-sm text-[#4e5965] border-t border-[#e5e8ec] pt-4">
+            {roleDisplay && (
+              <span className="font-semibold text-white bg-[#1f2329] px-3 py-1 rounded-full">{roleDisplay}</span>
+            )}
             <span className="font-semibold text-[#157a4f] bg-[#eef6ef] px-3 py-1 rounded-full">{categoryDisplay}</span>
 
             <div className="flex items-center gap-2">
