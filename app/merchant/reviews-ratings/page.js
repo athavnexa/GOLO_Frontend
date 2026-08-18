@@ -182,11 +182,11 @@ export default function MerchantReviewsRatingsPage() {
     }
   };
 
-  if (loading || !user) return <div className="min-h-screen bg-[#f3f4f6]" />;
+  if (loading || !user) return <div className="min-h-screen bg-[#FAFAFA]" />;
   if (user.accountType !== "merchant") return null;
 
   return (
-    <div className="min-h-screen bg-[#f1f2f4] text-[#111827] flex" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
+    <div className="min-h-screen bg-[#FAFAFA] text-[#111827] flex" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
       <aside className="w-[250px] bg-[#f8f9fb] border-r border-[#e4e6eb] px-3.5 py-4 hidden lg:flex lg:flex-col">
         <button type="button" onClick={() => router.push("/")} className="flex items-center gap-2 px-2 mb-5 text-left">
           <div className="h-7 w-7 rounded-md bg-[#157A4F] text-white text-[12px] font-bold flex items-center justify-center">G</div>

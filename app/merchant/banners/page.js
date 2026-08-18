@@ -157,13 +157,13 @@ export default function MerchantBannersPage() {
   }, [loading, user]);
 
   if (loading || !user) {
-    return <div className="min-h-screen bg-[#ececec]" />;
+    return <div className="min-h-screen bg-[#FAFAFA]" />;
   }
 
   if (user.accountType !== "merchant") return null;
 
   return (
-    <div className="min-h-screen bg-[#ececec] text-[#1b1b1b]" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
+    <div className="min-h-screen bg-[#FAFAFA] text-[#1b1b1b]" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
       <MerchantNavbar activeKey="banners" />
 
       <main className="w-full px-8 lg:px-10 py-6">

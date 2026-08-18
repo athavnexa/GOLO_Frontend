@@ -220,13 +220,13 @@ function MerchantOrdersPageContent() {
   }, [highlightOrderId, orders]);
 
   if (loading || !user || pageLoading) {
-    return <div className="min-h-screen bg-[#efefef]" />;
+    return <div className="min-h-screen bg-[#FAFAFA]" />;
   }
 
   if (user.accountType !== "merchant") return null;
 
   return (
-    <div className="min-h-screen bg-[#ececec] text-[#1b1b1b]" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
+    <div className="min-h-screen bg-[#FAFAFA] text-[#1b1b1b]" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
       <MerchantNavbar activeKey="orders" />
 
       <main className="w-full px-4 py-4 lg:px-10 lg:py-6">
@@ -428,7 +428,7 @@ function MerchantOrdersPageContent() {
 
 export default function MerchantOrdersPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#F3F3F3]" />}>
+    <Suspense fallback={<div className="min-h-screen bg-[#FAFAFA]" />}>
       <MerchantOrdersPageContent />
     </Suspense>
   );

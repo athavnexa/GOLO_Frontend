@@ -422,13 +422,13 @@ export default function MerchantOffersPage() {
   };
 
   if (loading || !user) {
-    return <div className="min-h-screen bg-[#ececec]" />;
+    return <div className="min-h-screen bg-[#FAFAFA]" />;
   }
 
   if (user.accountType !== "merchant") return null;
 
   return (
-    <div className="min-h-screen bg-[#ececec] text-[#1b1b1b]" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
+    <div className="min-h-screen bg-[#FAFAFA] text-[#1b1b1b]" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
       <style>{`
         @keyframes shimmer-sweep {
           0% { background-position: -400px 0; }

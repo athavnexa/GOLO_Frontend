@@ -51,7 +51,7 @@ export default function MerchantAnalyticsPage() {
   const perfs = analytics?.offersPerformance || [];
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] text-[#111827] font-sans pb-16">
+    <div className="min-h-screen bg-[#FAFAFA] text-[#111827] font-poppins pb-16">
       <MerchantNavbar activeKey="analytics" />
 
       <main className="max-w-[1400px] mx-auto px-4 lg:px-8 xl:px-12 py-8">
@@ -70,9 +70,7 @@ export default function MerchantAnalyticsPage() {
             <Link href="/merchant/analytics/report" className="flex items-center gap-2 border border-gray-900 rounded-lg px-4 py-2 bg-white text-sm text-gray-900 font-bold hover:bg-gray-50 shadow-sm transition-colors">
               Explore Advanced Insights <span className="ml-1 text-[16px] leading-none">›</span>
             </Link>
-            <button className="flex items-center gap-2 border border-gray-200 rounded-lg px-4 py-2 bg-white text-sm text-gray-600 font-medium hover:bg-gray-50 shadow-sm">
-              <span className="text-gray-400">📅</span> 9 Jul - 5 Aug 2024 <ChevronDown size={14} className="ml-4" />
-            </button>
+
             <button className="p-2 border border-gray-200 rounded-lg bg-white hover:bg-gray-50 shadow-sm text-gray-500">
               <RefreshCcw size={18} />
             </button>
@@ -206,14 +204,32 @@ function KpiCard({ title, value, increase, icon }) {
 }
 
 function BarChartWidget({ title, icon, data, dataKey, color }) {
-  const chartOffers = data.slice(0, 4);
+  const [filter, setFilter] = useState("Yearly");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const filterOptions = ["Weekly", "Monthly", "Yearly"];
+
+  // Sort offers dynamically by the selected dataKey metric
+  const sortedData = [...data].sort((a, b) => (b[dataKey]?.total ?? b[dataKey] ?? 0) - (a[dataKey]?.total ?? a[dataKey] ?? 0));
+  const chartOffers = sortedData.slice(0, 4);
   const colors = [color, "#EC4899", "#8B5CF6", "#F59E0B"]; // Used for the dots
   
-  // Calculate max height for bars
-  const maxVal = Math.max(...chartOffers.flatMap(o => o[dataKey]?.trend || []), 200);
+  // Aggregate trends across all offers for the chart
+  const fullTrend = Array.from({ length: 12 }).map((_, i) => 
+    chartOffers.reduce((sum, o) => sum + (o[dataKey]?.trend?.[i] || 0), 0)
+  );
+
+  let numBars = 12;
+  if (filter === "Weekly") numBars = 7;
+  else if (filter === "Monthly") numBars = 4;
+
+  const aggregatedTrend = fullTrend.slice(12 - numBars);
+
+  // Calculate dynamic max height for bars
+  const maxValRaw = Math.max(...aggregatedTrend, 4);
+  const maxVal = Math.ceil(maxValRaw / 4) * 4;
 
   return (
-    <div className="bg-white rounded-[16px] p-5 shadow-sm border border-gray-100 h-96 flex flex-col">
+    <div className="bg-white rounded-[16px] p-5 shadow-sm border border-gray-100 h-96 flex flex-col relative">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 rounded bg-gray-50 flex items-center justify-center border border-gray-100">
@@ -221,19 +237,32 @@ function BarChartWidget({ title, icon, data, dataKey, color }) {
           </div>
           <h3 className="text-[16px] font-bold text-gray-900">{title}</h3>
         </div>
-        <div className="flex gap-2">
-          <button className="flex items-center gap-1 border border-gray-200 rounded px-2 py-0.5 text-[11px] font-medium text-gray-600 hover:bg-gray-50">
-            Custom <ChevronDown size={12} />
+        <div className="relative">
+          <button 
+            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            className="flex items-center gap-1 border border-gray-200 rounded px-3 py-1 text-[11px] font-medium text-gray-600 hover:bg-gray-50"
+          >
+            {filter} <ChevronDown size={12} />
           </button>
-          <button className="flex items-center gap-1 border border-gray-200 rounded px-2 py-0.5 text-[11px] font-medium text-gray-600 hover:bg-gray-50">
-            12 <ChevronDown size={12} />
-          </button>
+          {isDropdownOpen && (
+            <div className="absolute right-0 mt-1 w-24 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-10" onMouseLeave={() => setIsDropdownOpen(false)}>
+              {filterOptions.map(opt => (
+                <button 
+                  key={opt}
+                  onClick={() => { setFilter(opt); setIsDropdownOpen(false); }}
+                  className={`w-full text-left px-3 py-1.5 text-[11px] hover:bg-gray-50 ${filter === opt ? 'text-[#10B981] font-semibold' : 'text-gray-700'}`}
+                >
+                  {opt}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
       <div className="grid grid-cols-4 gap-2 mb-6">
         {chartOffers.map((o, i) => (
-          <div key={o._id}>
+          <div key={o._id || i}>
             <div className="text-[20px] font-bold text-gray-900 leading-none mb-1">{o[dataKey]?.total || 0}</div>
             <div className="flex items-center gap-1 text-[10px] text-gray-500 font-medium whitespace-nowrap overflow-hidden text-ellipsis">
               <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: colors[i] }}></span>
@@ -246,21 +275,22 @@ function BarChartWidget({ title, icon, data, dataKey, color }) {
       <div className="flex-1 relative mt-auto border-b border-gray-100">
         {/* Y Axis lines */}
         <div className="absolute inset-0 flex flex-col justify-between pointer-events-none">
-          <div className="w-full border-t border-gray-100 flex items-start"><span className="text-[9px] text-gray-300 mt-0.5">200</span></div>
-          <div className="w-full border-t border-gray-100 flex items-start"><span className="text-[9px] text-gray-300 mt-0.5">150</span></div>
-          <div className="w-full border-t border-gray-100 flex items-start"><span className="text-[9px] text-gray-300 mt-0.5">100</span></div>
-          <div className="w-full border-t border-gray-100 flex items-start"><span className="text-[9px] text-gray-300 mt-0.5">50</span></div>
+          <div className="w-full border-t border-gray-100 flex items-start"><span className="text-[9px] text-gray-300 mt-0.5">{maxVal}</span></div>
+          <div className="w-full border-t border-gray-100 flex items-start"><span className="text-[9px] text-gray-300 mt-0.5">{maxVal * 0.75}</span></div>
+          <div className="w-full border-t border-gray-100 flex items-start"><span className="text-[9px] text-gray-300 mt-0.5">{maxVal * 0.5}</span></div>
+          <div className="w-full border-t border-gray-100 flex items-start"><span className="text-[9px] text-gray-300 mt-0.5">{maxVal * 0.25}</span></div>
           <div className="w-full border-t border-gray-100 flex items-start"><span className="text-[9px] text-gray-300 mt-0.5">0</span></div>
         </div>
 
         {/* Bars */}
         <div className="absolute inset-0 left-6 right-0 flex items-end justify-between px-2">
-          {chartOffers.flatMap(o => o[dataKey]?.trend || []).slice(0, 12).map((val, i) => (
+          {aggregatedTrend.map((val, i) => (
             <div 
               key={i} 
-              className="w-4 rounded-t-sm opacity-90 hover:opacity-100 transition-opacity"
+              className="rounded-t-sm opacity-90 hover:opacity-100 transition-opacity"
               style={{ 
                 height: `${(val / maxVal) * 100}%`,
+                width: filter === 'Weekly' ? '12%' : filter === 'Monthly' ? '20%' : '5%',
                 backgroundColor: color 
               }}
             ></div>
@@ -269,9 +299,15 @@ function BarChartWidget({ title, icon, data, dataKey, color }) {
       </div>
       
       <div className="flex justify-between mt-2 text-[10px] text-gray-400 font-medium px-6">
-        <span>9 Jul</span>
-        <span>22 Jul</span>
-        <span>5 Aug</span>
+        {filter === "Weekly" && (
+          <><span>Mon</span><span>Thu</span><span>Sun</span></>
+        )}
+        {filter === "Monthly" && (
+          <><span>Wk 1</span><span>Wk 2</span><span>Wk 3</span><span>Wk 4</span></>
+        )}
+        {filter === "Yearly" && (
+          <><span>Jan</span><span>Jun</span><span>Dec</span></>
+        )}
       </div>
     </div>
   );

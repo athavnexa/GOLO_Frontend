@@ -94,7 +94,7 @@ function MerchantDashboardContent() {
     return () => clearInterval(interval);
   }, [user, getUserAccountType]);
 
-  if (loading || !user) return <div className="min-h-screen bg-[#F9FAFB]" />;
+  if (loading || !user) return <div className="min-h-screen bg-[#FAFAFA]" />;
 
   const shopName = merchantProfile?.shopName || merchantProfile?.storeName || user?.shopName || "Mahalakshmi Chembers";
   const initials = shopName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || "MC";
@@ -113,9 +113,9 @@ function MerchantDashboardContent() {
     return {
       labels: data.map(d => d.label),
       revenuePoints: data.map((d, i) => ({ x: 40 + i * xStep, y: 220 - (d.revenue / maxRev) * 160 })),
-      orderPoints: data.map((d, i) => ({ x: 40 + i * xStep, y: 220 - (d.orders / maxOrd) * 160 })),
-      redemptionPoints: data.map((d, i) => ({ x: 40 + i * xStep, y: 220 - (d.redemption / maxRed) * 160 })),
-      conversionPoints: data.map((d, i) => ({ x: 40 + i * xStep, y: 220 - (d.conversion / maxConv) * 160 })),
+      orderPoints: data.map((d, i) => ({ x: 40 + i * xStep, y: 219 - (d.orders / maxOrd) * 160 })),
+      redemptionPoints: data.map((d, i) => ({ x: 40 + i * xStep, y: 218 - (d.redemption / maxRed) * 160 })),
+      conversionPoints: data.map((d, i) => ({ x: 40 + i * xStep, y: 217 - (d.conversion / maxConv) * 160 })),
       maxRev
     };
   };
@@ -150,7 +150,7 @@ function MerchantDashboardContent() {
   };
 
   return (
-    <div className="min-h-screen bg-white text-[#111827]" style={{ fontFamily: "Inter, sans-serif" }}>
+    <div className="min-h-screen bg-[#FAFAFA] text-[#111827] font-poppins">
       <MerchantNavbar activeKey="dashboard" />
 
       <main className="w-full px-4 py-6 lg:px-8 xl:px-12">
@@ -173,11 +173,11 @@ function MerchantDashboardContent() {
                 <div className="flex items-center gap-2 mt-1.5">
                   <div className="flex items-center text-[#F59E0B]">
                     {[1, 2, 3, 4, 5].map((star) => (
-                      <svg key={star} className="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                      <svg key={star} className={`w-4 h-4 ${star <= (summary?.stats?.averageRating || 0) ? 'fill-current' : 'fill-gray-300'}`} viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
                     ))}
                   </div>
-                  <span className="text-[13px] font-bold text-gray-800">4.8</span>
-                  <span className="text-[13px] text-gray-500">(128 reviews)</span>
+                  <span className="text-[13px] font-bold text-gray-800">{summary?.stats?.averageRating ? summary.stats.averageRating.toFixed(1) : "0.0"}</span>
+                  <span className="text-[13px] text-gray-500">({summary?.stats?.totalReviews || 0} reviews)</span>
                 </div>
               </div>
             </div>
@@ -578,7 +578,7 @@ function MerchantDashboardContent() {
 
 export default function MerchantDashboardPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#F9FAFB]" />}>
+    <Suspense fallback={<div className="min-h-screen bg-[#FAFAFA]" />}>
       <MerchantDashboardContent />
     </Suspense>
   );

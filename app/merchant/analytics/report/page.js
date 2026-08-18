@@ -1,15 +1,48 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronDown, Download, Tag, ShoppingBag, Users, Search, Filter, ArrowUpDown, LayoutGrid, MoreVertical, Heart, TrendingUp, TrendingDown, Star } from "lucide-react";
+import { ChevronLeft, ChevronDown, Download, Tag, ShoppingBag, Users, Search, Filter, ArrowUpDown, LayoutGrid, MoreVertical, Heart, TrendingUp, TrendingDown, Star, Calendar, Eye, Edit, Trash2 } from "lucide-react";
+import { getMerchantRealtimeAnalytics, deleteMyOfferPromotion, deleteMerchantProduct } from "../../../lib/api";
+import { useRouter } from "next/navigation";
 import MerchantNavbar from "../../MerchantNavbar";
 
 export default function AnalyticsReportPage() {
   const [activeTab, setActiveTab] = useState("offers");
+  const [analytics, setAnalytics] = useState(null);
+  
+  const [startDate, setStartDate] = useState(() => {
+    const d = new Date();
+    d.setDate(d.getDate() - 30);
+    return d.toISOString().split('T')[0];
+  });
+  const [endDate, setEndDate] = useState(() => {
+    return new Date().toISOString().split('T')[0];
+  });
+
+  const todayStr = new Date().toISOString().split('T')[0];
+
+  const fetchAnalytics = async (s, e) => {
+    try {
+      const res = await getMerchantRealtimeAnalytics(s, e);
+      if (res?.success) setAnalytics(res.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    fetchAnalytics(startDate, endDate);
+  }, [startDate, endDate]);
+
+  const reloadData = () => fetchAnalytics(startDate, endDate);
+
+  const handleExportCsv = () => {
+     alert('Exporting CSV...');
+  };
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] text-[#111827] font-sans pb-16">
+    <div className="min-h-screen bg-[#FAFAFA] text-[#111827] font-poppins pb-16">
       <MerchantNavbar activeKey="analytics" />
 
       <main className="max-w-[1400px] mx-auto px-4 lg:px-8 xl:px-12 py-8">
@@ -27,14 +60,32 @@ export default function AnalyticsReportPage() {
           </div>
           <div className="flex flex-col items-end gap-2">
             <div className="flex items-center gap-3">
-              <button className="flex items-center gap-2 border border-gray-200 rounded-lg px-4 py-2 bg-white text-sm text-gray-600 font-medium hover:bg-gray-50 shadow-sm">
-                <span className="text-gray-400">📅</span> 9 Jul 2026 - 5 Aug 2026 <ChevronDown size={14} className="ml-4" />
-              </button>
-              <button className="flex items-center gap-2 border border-gray-200 rounded-lg px-4 py-2 bg-white text-sm text-[#10B981] font-medium hover:bg-gray-50 shadow-sm">
+              <div className="flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2 bg-white shadow-sm">
+                <Calendar size={16} className="text-gray-400" />
+                <input 
+                  type="date" 
+                  value={startDate} 
+                  max={endDate || todayStr}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="text-sm text-gray-700 font-medium bg-transparent outline-none cursor-pointer"
+                />
+                <span className="text-gray-300 font-medium px-1">to</span>
+                <input 
+                  type="date" 
+                  value={endDate} 
+                  min={startDate}
+                  max={todayStr}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="text-sm text-gray-700 font-medium bg-transparent outline-none cursor-pointer"
+                />
+              </div>
+              <button 
+                onClick={handleExportCsv}
+                className="flex items-center gap-2 border border-gray-200 rounded-lg px-4 py-2 bg-white text-sm text-[#10B981] font-medium hover:bg-gray-50 shadow-sm"
+              >
                 <Download size={16} /> Export CSV
               </button>
             </div>
-            <span className="text-[11px] text-gray-400">Last Updated: 05 Aug 2026 3:16 PM 🔄</span>
           </div>
         </div>
 
@@ -61,9 +112,9 @@ export default function AnalyticsReportPage() {
         </div>
 
         {/* Tab Content */}
-        {activeTab === "offers" && <OffersTab />}
-        {activeTab === "products" && <ProductsTab />}
-        {activeTab === "retention" && <RetentionTab />}
+        {activeTab === "offers" && <OffersTab analytics={analytics} reloadData={reloadData} />}
+        {activeTab === "products" && <ProductsTab analytics={analytics} reloadData={reloadData} />}
+        {activeTab === "retention" && <RetentionTab analytics={analytics} />}
 
       </main>
     </div>
@@ -85,61 +136,170 @@ function TabButton({ active, onClick, icon, label }) {
   );
 }
 
+function ActionMenu({ onView, onEdit, onDelete, isLast = false }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const menuRef = useRef();
+  
+  useEffect(() => {
+    const handler = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  return (
+    <div className="relative" ref={menuRef}>
+      <button onClick={() => setIsOpen(!isOpen)} className="text-gray-400 hover:text-gray-600 p-1 rounded-md hover:bg-gray-100">
+        <MoreVertical size={16} />
+      </button>
+      {isOpen && (
+        <div className={`absolute right-0 w-36 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50 ${isLast ? 'bottom-full mb-1' : 'top-full mt-1'}`}>
+          <button onClick={() => { setIsOpen(false); onView(); }} className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+            <Eye size={14} className="text-gray-400" /> View
+          </button>
+          <button onClick={() => { setIsOpen(false); onEdit(); }} className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+            <Edit size={14} className="text-blue-500" /> Edit
+          </button>
+          <button onClick={() => { setIsOpen(false); onDelete(); }} className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+            <Trash2 size={14} className="text-red-500" /> Delete
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* =========================================
    1. OFFERS TAB
 ========================================= */
-function OffersTab() {
-  const tableData = [
-    { id: 1, offer: "Summer Sale", product: "Wireless Earbuds", likes: 42 },
-    { id: 2, offer: "Buy 1 Get 1", product: "Smart Watch", likes: 24 },
-    { id: 3, offer: "Flat 20% Off", product: "Bluetooth Speaker", likes: 12 },
-    { id: 4, offer: "Free Shipping", product: "Gaming Mouse", likes: 6 },
-    { id: 5, offer: "Weekend Special", product: "Keyboard", likes: 4 },
-    { id: 6, offer: "Refer & Earn", product: "Laptop Stand", likes: 3 },
-    { id: 7, offer: "Welcome Offer", product: "Power Bank", likes: 2 },
-    { id: 8, offer: "Welcome Offer", product: "Power Bank", likes: 2 },
-    { id: 9, offer: "Welcome Offer", product: "Power Bank", likes: 2 },
-    { id: 10, offer: "Welcome Offer", product: "Power Bank", likes: 2 },
-  ];
+function OffersTab({ analytics, reloadData }) {
+  const router = useRouter();
+  const rawData = analytics?.offersPerformance || [];
+  
+  const totalOffers = rawData.length;
+  const totalLikes = rawData.reduce((sum, item) => sum + (item.liked?.total ?? item.liked ?? 0), 0);
+  
+  const sortedByLikes = [...rawData].sort((a, b) => (b.liked?.total ?? b.liked ?? 0) - (a.liked?.total ?? a.liked ?? 0));
+  const bestOffer = sortedByLikes[0];
+  const bestOfferLikes = bestOffer?.liked?.total ?? bestOffer?.liked ?? 0;
+  const bestOfferPercent = totalLikes > 0 ? ((bestOfferLikes / totalLikes) * 100).toFixed(1) : 0;
+  
+  const productsMap = new Map();
+  rawData.forEach(o => {
+    const pName = o.productName || "N/A";
+    const l = o.liked?.total ?? o.liked ?? 0;
+    productsMap.set(pName, (productsMap.get(pName) || 0) + l);
+  });
+  let topProduct = { name: "N/A", likes: 0 };
+  for (const [name, likes] of productsMap.entries()) {
+    if (likes > topProduct.likes) topProduct = { name, likes };
+  }
+
+  const [typeFilters, setTypeFilters] = useState([]);
+  const [sortBy, setSortBy] = useState("Newest First");
+  const [visibleColumns, setVisibleColumns] = useState(["Offer Name", "Product Name", "Total Likes", "Actions"]);
+  
+  const sortOptions = ["Newest First", "Oldest First", "More Likes", "Least Likes", "A-Z", "Z-A"];
+  const allColumns = ["Offer Name", "Product Name", "Total Likes", "Actions"];
+  
+  const availableTypes = Array.from(new Set(rawData.map(r => r.type || "Standard"))).filter(Boolean);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const rowsPerPage = 10;
+  
+  const filteredAndSorted = rawData
+    .filter(r => typeFilters.length === 0 || typeFilters.includes(r.type || "Standard"))
+    .sort((a, b) => {
+      if (sortBy === "Newest First") return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+      if (sortBy === "Oldest First") return new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime();
+      if (sortBy === "More Likes") return (b.liked?.total ?? b.liked ?? 0) - (a.liked?.total ?? a.liked ?? 0);
+      if (sortBy === "Least Likes") return (a.liked?.total ?? a.liked ?? 0) - (b.liked?.total ?? b.liked ?? 0);
+      if (sortBy === "A-Z") return (a.title || "").localeCompare(b.title || "");
+      if (sortBy === "Z-A") return (b.title || "").localeCompare(a.title || "");
+      return 0;
+    });
+
+  const totalFiltered = filteredAndSorted.length;
+  const totalPages = Math.ceil(totalFiltered / rowsPerPage) || 1;
+  const paginatedData = filteredAndSorted.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [typeFilters, sortBy]);
+
+  const handleDeleteOffer = async (id) => {
+    if (window.confirm('Are you sure you want to delete this offer?')) {
+      try {
+        await deleteMyOfferPromotion(id);
+        reloadData();
+      } catch (e) {
+        alert('Failed to delete offer');
+      }
+    }
+  };
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
-      {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <ReportKpiCard icon={<Tag size={20} />} title="Total Offers" value="15" sub="All offers in selected period" />
-        <ReportKpiCard icon={<Heart size={20} />} title="Total Likes" value="128" sub="Across all offers" />
-        <ReportKpiCard icon={<Star size={20} />} title="Best Performing Offer" value="Summer Sale" sub="42 likes (32.8%)" valueColor="text-[#10B981]" />
-        <ReportKpiCard icon={<ShoppingBag size={20} />} title="Top Product" value="Wireless Earbuds" sub="68 likes from all offers" valueColor="text-[#10B981]" />
+        <ReportKpiCard icon={<Tag size={20} />} title="Total Offers" value={totalOffers} sub="All offers in selected period" />
+        <ReportKpiCard icon={<Heart size={20} />} title="Total Likes" value={totalLikes} sub="Across all offers" />
+        <ReportKpiCard icon={<Star size={20} />} title="Best Performing Offer" value={bestOffer?.title || "N/A"} sub={`${bestOfferLikes} likes (${bestOfferPercent}%)`} valueColor="text-[#10B981]" />
+        <ReportKpiCard icon={<ShoppingBag size={20} />} title="Top Product" value={topProduct?.name || "N/A"} sub={`${topProduct?.likes || 0} likes from all offers`} valueColor="text-[#10B981]" />
       </div>
 
-      {/* Table Section */}
       <div className="bg-white rounded-[16px] shadow-sm border border-gray-100 overflow-hidden">
-        <TableToolbar placeholder="Search offers or products..." />
-        <div className="overflow-x-auto">
+        <TableToolbar 
+          placeholder="Search offers or products..." 
+          showTypeFilter={true} typeFilters={typeFilters} setTypeFilters={setTypeFilters} availableTypes={availableTypes}
+          showSort={true} sortBy={sortBy} setSortBy={setSortBy} sortOptions={sortOptions}
+          showColumns={true} visibleColumns={visibleColumns} setVisibleColumns={setVisibleColumns} allColumns={allColumns}
+        />
+        <div className="overflow-x-auto min-h-[300px]">
           <table className="w-full text-left text-sm whitespace-nowrap">
             <thead>
               <tr className="border-b border-gray-100 bg-white">
                 <th className="py-4 px-6 text-[10px] font-bold text-gray-500 uppercase tracking-wider w-16">#</th>
-                <th className="py-4 px-6 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Offer Name</th>
-                <th className="py-4 px-6 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Product Name</th>
-                <th className="py-4 px-6 text-[10px] font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1">Total Likes <ArrowUpDown size={12}/></th>
-                <th className="py-4 px-6 text-[10px] font-bold text-gray-500 uppercase tracking-wider w-24">Actions</th>
+                {visibleColumns.includes("Offer Name") && <th className="py-4 px-6 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Offer Name</th>}
+                {visibleColumns.includes("Product Name") && <th className="py-4 px-6 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Product Name</th>}
+                {visibleColumns.includes("Total Likes") && <th className="py-4 px-6 text-[10px] font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1">Total Likes <ArrowUpDown size={12}/></th>}
+                {visibleColumns.includes("Actions") && <th className="py-4 px-6 text-[10px] font-bold text-gray-500 uppercase tracking-wider w-24">Actions</th>}
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {tableData.map(row => (
-                <tr key={row.id} className="hover:bg-gray-50/50">
-                  <td className="py-4 px-6 text-gray-500">{row.id}</td>
-                  <td className="py-4 px-6 font-semibold text-gray-900">{row.offer}</td>
-                  <td className="py-4 px-6 text-gray-500">{row.product}</td>
-                  <td className="py-4 px-6 font-bold text-gray-900 text-[#10B981]">{row.likes}</td>
-                  <td className="py-4 px-6"><button className="text-gray-400 hover:text-gray-600"><MoreVertical size={16} /></button></td>
+              {paginatedData.map((row, idx) => (
+                <tr key={row._id || idx} className="hover:bg-gray-50/50 transition-colors">
+                  <td className="py-4 px-6 text-gray-500">{(currentPage - 1) * rowsPerPage + idx + 1}</td>
+                  {visibleColumns.includes("Offer Name") && <td className="py-4 px-6 font-semibold text-gray-900">{row.title}</td>}
+                  {visibleColumns.includes("Product Name") && <td className="py-4 px-6 text-gray-500">{row.productName}</td>}
+                  {visibleColumns.includes("Total Likes") && <td className="py-4 px-6 font-bold text-[#10B981]">{row.liked?.total ?? row.liked ?? 0}</td>}
+                  {visibleColumns.includes("Actions") && <td className="py-4 px-6">
+                    <ActionMenu 
+                      onView={() => router.push(`/merchant/offers/details?id=${row.requestId || row._id}`)} 
+                      onEdit={() => router.push(`/merchant/offers/details?id=${row.requestId || row._id}`)} 
+                      onDelete={() => handleDeleteOffer(row.requestId || row._id)} 
+                      isLast={idx >= paginatedData.length - 2}
+                    />
+                  </td>}
                 </tr>
               ))}
+              {filteredAndSorted.length === 0 && (
+                <tr>
+                  <td colSpan={5} className="py-8 text-center text-gray-500">No offers found.</td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
-        <TablePagination start={1} end={10} total={15} />
+        <TablePagination 
+          currentPage={currentPage} 
+          totalPages={totalPages} 
+          total={totalFiltered} 
+          onPageChange={setCurrentPage} 
+          rowsPerPage={rowsPerPage} 
+        />
       </div>
     </div>
   );
@@ -148,62 +308,136 @@ function OffersTab() {
 /* =========================================
    2. PRODUCTS TAB
 ========================================= */
-function ProductsTab() {
-  const tableData = [
-    { id: 1, product: "Wireless Earbuds", likes: 68, trend: 12 },
-    { id: 2, product: "Smart Watch", likes: 42, trend: 8 },
-    { id: 3, product: "Bluetooth Speaker", likes: 20, trend: -3 },
-    { id: 4, product: "Gaming Mouse", likes: 12, trend: 5 },
-    { id: 5, product: "Keyboard", likes: 8, trend: 2 },
-    { id: 6, product: "Laptop Stand", likes: 7, trend: 10 },
-    { id: 7, product: "Power Bank", likes: 6, trend: -1 },
-    { id: 8, product: "Wireless Charger", likes: 5, trend: 6 },
-    { id: 9, product: "Phone Case", likes: 4, trend: -2 },
-    { id: 10, product: "USB Cable", likes: 3, trend: 1 },
-  ];
+function ProductsTab({ analytics, reloadData }) {
+  const router = useRouter();
+  const products = analytics?.products || [];
+  
+  const totalProducts = products.length;
+  const totalLikes = products.reduce((sum, p) => sum + (p.likes || 0), 0);
+  
+  const mostLikedProduct = products[0];
+  const mostLikedPercent = totalLikes > 0 ? (((mostLikedProduct?.likes || 0) / totalLikes) * 100).toFixed(1) : 0;
+  
+  const performanceTrend = analytics?.summary?.stats?.revenueIncrease || 0;
+  const trendSign = performanceTrend >= 0 ? "↑" : "↓";
+  const trendColor = performanceTrend >= 0 ? "text-[#10B981]" : "text-[#EF4444]";
+
+  const [typeFilters, setTypeFilters] = useState([]);
+  const [sortBy, setSortBy] = useState("Newest First");
+  const [visibleColumns, setVisibleColumns] = useState(["Product Name", "Product Type", "Status", "Total Likes", "Total Views", "Actions"]);
+  
+  const sortOptions = ["Newest First", "Oldest First", "More Likes", "Least Likes", "A-Z", "Z-A"];
+  const allColumns = ["Product Name", "Product Type", "Status", "Total Likes", "Total Views", "Actions"];
+  
+  const availableTypes = Array.from(new Set(products.map(p => p.type || "General"))).filter(Boolean);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const rowsPerPage = 10;
+  
+  const filteredAndSorted = products
+    .filter(r => typeFilters.length === 0 || typeFilters.includes(r.type))
+    .sort((a, b) => {
+      if (sortBy === "Newest First") return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+      if (sortBy === "Oldest First") return new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime();
+      if (sortBy === "More Likes") return (b.likes ?? 0) - (a.likes ?? 0);
+      if (sortBy === "Least Likes") return (a.likes ?? 0) - (b.likes ?? 0);
+      if (sortBy === "A-Z") return (a.name || "").localeCompare(b.name || "");
+      if (sortBy === "Z-A") return (b.name || "").localeCompare(a.name || "");
+      return 0;
+    });
+
+  const totalFiltered = filteredAndSorted.length;
+  const totalPages = Math.ceil(totalFiltered / rowsPerPage) || 1;
+  const paginatedData = filteredAndSorted.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [typeFilters, sortBy]);
+
+  const handleDeleteProduct = async (id) => {
+    if (window.confirm('Are you sure you want to delete this product?')) {
+      try {
+        await deleteMerchantProduct(id);
+        reloadData();
+      } catch (e) {
+        alert('Failed to delete product');
+      }
+    }
+  };
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <ReportKpiCard icon={<ShoppingBag size={20} />} title="Total Products" value="52" sub="All products in selected period" />
-        <ReportKpiCard icon={<Heart size={20} />} title="Total Likes" value="256" sub="Across all products" />
-        <ReportKpiCard icon={<Star size={20} />} title="Most Liked Product" value="Wireless Earbuds" sub="68 likes (26.6%)" valueColor="text-[#10B981]" />
-        <ReportKpiCard icon={<TrendingUp size={20} />} title="Performance" value="↑ 24%" sub="vs last 30 days" valueColor="text-[#10B981]" />
+        <ReportKpiCard icon={<ShoppingBag size={20} />} title="Total Products" value={totalProducts} sub="Active catalog items" />
+        <ReportKpiCard icon={<Heart size={20} />} title="Total Likes" value={totalLikes} sub="Across all products" />
+        <ReportKpiCard icon={<Star size={20} />} title="Most Liked" value={mostLikedProduct?.name || "N/A"} sub={`${mostLikedProduct?.likes || 0} likes (${mostLikedPercent}%)`} valueColor="text-[#10B981]" />
+        <ReportKpiCard 
+          icon={performanceTrend >= 0 ? <TrendingUp size={20} /> : <TrendingDown size={20} />} 
+          title="Performance" 
+          value={`${trendSign} ${Math.abs(performanceTrend)}%`} 
+          sub="vs previous period" 
+          valueColor={trendColor} 
+        />
       </div>
 
       <div className="bg-white rounded-[16px] shadow-sm border border-gray-100 overflow-hidden">
-        <TableToolbar placeholder="Search products..." />
-        <div className="overflow-x-auto">
+        <TableToolbar 
+          placeholder="Search products..." 
+          showTypeFilter={false} typeFilters={typeFilters} setTypeFilters={setTypeFilters} availableTypes={availableTypes}
+          showSort={true} sortBy={sortBy} setSortBy={setSortBy} sortOptions={sortOptions}
+          showColumns={true} visibleColumns={visibleColumns} setVisibleColumns={setVisibleColumns} allColumns={allColumns}
+        />
+        <div className="overflow-x-auto min-h-[300px]">
           <table className="w-full text-left text-sm whitespace-nowrap">
             <thead>
               <tr className="border-b border-gray-100 bg-white">
                 <th className="py-4 px-6 text-[10px] font-bold text-gray-500 uppercase tracking-wider w-16">#</th>
-                <th className="py-4 px-6 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Product Name</th>
-                <th className="py-4 px-6 text-[10px] font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1">Total Likes <ArrowUpDown size={12}/></th>
-                <th className="py-4 px-6 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Trend (Vs Last 30 Days)</th>
-                <th className="py-4 px-6 text-[10px] font-bold text-gray-500 uppercase tracking-wider w-24">Actions</th>
+                {visibleColumns.includes("Product Name") && <th className="py-4 px-6 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Product Name</th>}
+                {visibleColumns.includes("Product Type") && <th className="py-4 px-6 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Product Type</th>}
+                {visibleColumns.includes("Status") && <th className="py-4 px-6 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Status</th>}
+                {visibleColumns.includes("Total Likes") && <th className="py-4 px-6 text-[10px] font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1">Total Likes <ArrowUpDown size={12}/></th>}
+                {visibleColumns.includes("Total Views") && <th className="py-4 px-6 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Total Views</th>}
+                {visibleColumns.includes("Actions") && <th className="py-4 px-6 text-[10px] font-bold text-gray-500 uppercase tracking-wider w-24">Actions</th>}
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {tableData.map(row => (
-                <tr key={row.id} className="hover:bg-gray-50/50">
-                  <td className="py-4 px-6 text-gray-500">{row.id}</td>
-                  <td className="py-4 px-6 font-semibold text-gray-900">{row.product}</td>
-                  <td className="py-4 px-6 font-bold text-[#10B981]">{row.likes}</td>
-                  <td className="py-4 px-6 font-medium">
-                    {row.trend > 0 ? (
-                      <span className="text-[#10B981]">↑ {row.trend}%</span>
-                    ) : (
-                      <span className="text-red-500">↓ {Math.abs(row.trend)}%</span>
-                    )}
-                  </td>
-                  <td className="py-4 px-6"><button className="text-gray-400 hover:text-gray-600"><MoreVertical size={16} /></button></td>
+              {paginatedData.map((row, idx) => (
+                <tr key={row._id || idx} className="hover:bg-gray-50/50 transition-colors">
+                  <td className="py-4 px-6 text-gray-500">{(currentPage - 1) * rowsPerPage + idx + 1}</td>
+                  {visibleColumns.includes("Product Name") && <td className="py-4 px-6 font-semibold text-gray-900">{row.name}</td>}
+                  {visibleColumns.includes("Product Type") && <td className="py-4 px-6 text-gray-500">{row.type}</td>}
+                  {visibleColumns.includes("Status") && <td className="py-4 px-6">
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${row.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
+                      {row.status}
+                    </span>
+                  </td>}
+                  {visibleColumns.includes("Total Likes") && <td className="py-4 px-6 font-bold text-[#10B981]">{row.likes}</td>}
+                  {visibleColumns.includes("Total Views") && <td className="py-4 px-6 font-medium text-gray-700">{row.views}</td>}
+                  {visibleColumns.includes("Actions") && <td className="py-4 px-6">
+                    <ActionMenu 
+                      onView={() => router.push(`/merchant/products/details?id=${row._id}`)} 
+                      onEdit={() => router.push(`/merchant/products/details?id=${row._id}`)} 
+                      onDelete={() => handleDeleteProduct(row._id)} 
+                      isLast={idx >= paginatedData.length - 2}
+                    />
+                  </td>}
                 </tr>
               ))}
+              {filteredAndSorted.length === 0 && (
+                <tr>
+                  <td colSpan={7} className="py-8 text-center text-gray-500">No products found.</td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
-        <TablePagination start={1} end={10} total={52} />
+        <TablePagination 
+          currentPage={currentPage} 
+          totalPages={totalPages} 
+          total={totalFiltered} 
+          onPageChange={setCurrentPage} 
+          rowsPerPage={rowsPerPage} 
+        />
       </div>
     </div>
   );
@@ -212,113 +446,146 @@ function ProductsTab() {
 /* =========================================
    3. RETENTION TAB
 ========================================= */
-function RetentionTab() {
-  const tableData = [
-    { id: 1, cId: "CUST001", name: "John Doe", first: "08 Jul 2026", last: "05 Aug 2026", orders: 6, spent: "₹ 4,250", status: "Returning" },
-    { id: 2, cId: "CUST002", name: "Sarah Lee", first: "11 Jul 2026", last: "30 Jul 2026", orders: 4, spent: "₹ 3,680", status: "Returning" },
-    { id: 3, cId: "CUST003", name: "Mike Ross", first: "16 Jul 2026", last: "05 Aug 2026", orders: 5, spent: "₹ 5,120", status: "Returning" },
-    { id: 4, cId: "CUST004", name: "Emily Clark", first: "20 Jul 2026", last: "02 Aug 2026", orders: 3, spent: "₹ 2,940", status: "Returning" },
-    { id: 5, cId: "CUST005", name: "David Brown", first: "25 Jul 2026", last: "31 Jul 2026", orders: 2, spent: "₹ 1,850", status: "Returning" },
-    { id: 6, cId: "CUST006", name: "Jessica Wilson", first: "28 Jul 2026", last: "28 Jul 2026", orders: 1, spent: "₹ 750", status: "At Risk" },
-    { id: 7, cId: "CUST007", name: "Chris Martin", first: "30 Jul 2026", last: "30 Jul 2026", orders: 1, spent: "₹ 620", status: "At Risk" },
-    { id: 8, cId: "CUST008", name: "Daniel Taylor", first: "01 Aug 2026", last: "01 Aug 2026", orders: 1, spent: "₹ 540", status: "New" },
-    { id: 9, cId: "CUST009", name: "Olivia Green", first: "02 Aug 2026", last: "02 Aug 2026", orders: 1, spent: "₹ 320", status: "New" },
-    { id: 10, cId: "CUST010", name: "James White", first: "03 Aug 2026", last: "03 Aug 2026", orders: 1, spent: "₹ 410", status: "New" },
-  ];
+function RetentionTab({ analytics }) {
+  const events = analytics?.events || {};
+  const stats = analytics?.summary?.stats || {};
+  
+  const retentionRate = events.retention || 0;
+  const returningCustomers = events.returningCount || 0;
+  const newCustomers = Math.max(0, (events.totalActive || 0) - returningCustomers);
+  const totalOrders = stats.totalOrders || 0;
+  const totalRevenue = stats.revenue || 0;
+  
+  const [typeFilters, setTypeFilters] = useState([]);
+  const [sortBy, setSortBy] = useState("Newest First");
+  const [visibleColumns, setVisibleColumns] = useState(["Customer ID", "Name", "Status", "Total Orders", "Total Spent", "First Visit", "Last Visit"]);
+  
+  const sortOptions = ["Newest First", "Oldest First", "Highest Spender", "Lowest Spender", "Most Orders", "Least Orders"];
+  const allColumns = ["Customer ID", "Name", "Status", "Total Orders", "Total Spent", "First Visit", "Last Visit"];
+  
+  const availableTypes = ["New", "Returning", "At Risk"];
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const rowsPerPage = 10;
+  
+  const rawData = analytics?.retentionList || [];
+  
+  const filteredAndSorted = rawData
+    .filter(r => typeFilters.length === 0 || typeFilters.includes(r.status))
+    .sort((a, b) => {
+      if (sortBy === "Newest First") return new Date(b.firstVisit || 0).getTime() - new Date(a.firstVisit || 0).getTime();
+      if (sortBy === "Oldest First") return new Date(a.firstVisit || 0).getTime() - new Date(b.firstVisit || 0).getTime();
+      if (sortBy === "Highest Spender") return (b.totalSpent ?? 0) - (a.totalSpent ?? 0);
+      if (sortBy === "Lowest Spender") return (a.totalSpent ?? 0) - (b.totalSpent ?? 0);
+      if (sortBy === "Most Orders") return (b.orders ?? 0) - (a.orders ?? 0);
+      if (sortBy === "Least Orders") return (a.orders ?? 0) - (b.orders ?? 0);
+      return 0;
+    });
+
+  const totalFiltered = filteredAndSorted.length;
+  const totalPages = Math.ceil(totalFiltered / rowsPerPage) || 1;
+  const paginatedData = filteredAndSorted.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [typeFilters, sortBy]);
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-        <ReportKpiCard icon={<Users size={20} />} title="Retention Rate" value="42%" inc="12" />
-        <ReportKpiCard icon={<Users size={20} />} title="Returning Customers" value="842" inc="18" />
-        <ReportKpiCard icon={<Users size={20} />} title="New Customers" value="356" inc="-8" />
-        <ReportKpiCard icon={<ShoppingBag size={20} />} title="Total Orders" value="2,156" inc="15" />
-        <ReportKpiCard icon={<Tag size={20} />} title="Total Revenue" value="₹ 18,72,450" inc="16" />
+        <ReportKpiCard title="Retention Rate" value={`${retentionRate}%`} trend={stats.activeOffersIncrease || 0} sub="vs previous period" />
+        <ReportKpiCard title="Returning Customers" value={returningCustomers} trend={stats.followersIncrease || 0} sub="vs previous period" />
+        <ReportKpiCard title="New Customers" value={newCustomers} trend={stats.profileViewsIncrease || 0} sub="vs previous period" />
+        <ReportKpiCard title="Total Orders" value={totalOrders} trend={stats.conversionRateIncrease || 0} sub="vs previous period" />
+        <ReportKpiCard title="Total Revenue" value={`₹ ${(totalRevenue || 0).toLocaleString('en-IN')}`} trend={stats.revenueIncrease || 0} sub="vs previous period" />
       </div>
 
       <div className="bg-white rounded-[16px] shadow-sm border border-gray-100 overflow-hidden">
-        <TableToolbar placeholder="Search by customer ID or name..." />
-        <div className="overflow-x-auto">
+        <TableToolbar 
+          placeholder="Search customers..." 
+          showTypeFilter={true} typeFilters={typeFilters} setTypeFilters={setTypeFilters} availableTypes={availableTypes}
+          showSort={true} sortBy={sortBy} setSortBy={setSortBy} sortOptions={sortOptions}
+          showColumns={true} visibleColumns={visibleColumns} setVisibleColumns={setVisibleColumns} allColumns={allColumns}
+        />
+        <div className="overflow-x-auto min-h-[300px]">
           <table className="w-full text-left text-sm whitespace-nowrap">
             <thead>
               <tr className="border-b border-gray-100 bg-white">
-                <th className="py-4 px-6 text-[10px] font-bold text-gray-500 uppercase tracking-wider w-12">#</th>
-                <th className="py-4 px-6 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Customer ID</th>
-                <th className="py-4 px-6 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Customer Name</th>
-                <th className="py-4 px-6 text-[10px] font-bold text-gray-500 uppercase tracking-wider">First Visit</th>
-                <th className="py-4 px-6 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Last Visit</th>
-                <th className="py-4 px-6 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Orders</th>
-                <th className="py-4 px-6 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Total Spent</th>
-                <th className="py-4 px-6 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Retention Status</th>
-                <th className="py-4 px-6 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Last Order Date</th>
-                <th className="py-4 px-6 text-[10px] font-bold text-gray-500 uppercase tracking-wider w-24">Actions</th>
+                <th className="py-4 px-6 text-[10px] font-bold text-gray-500 uppercase tracking-wider w-16">#</th>
+                {visibleColumns.includes("Customer ID") && <th className="py-4 px-6 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Customer ID</th>}
+                {visibleColumns.includes("Name") && <th className="py-4 px-6 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Name</th>}
+                {visibleColumns.includes("Status") && <th className="py-4 px-6 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Status</th>}
+                {visibleColumns.includes("Total Orders") && <th className="py-4 px-6 text-[10px] font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1">Total Orders <ArrowUpDown size={12}/></th>}
+                {visibleColumns.includes("Total Spent") && <th className="py-4 px-6 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Total Spent</th>}
+                {visibleColumns.includes("First Visit") && <th className="py-4 px-6 text-[10px] font-bold text-gray-500 uppercase tracking-wider">First Visit</th>}
+                {visibleColumns.includes("Last Visit") && <th className="py-4 px-6 text-[10px] font-bold text-gray-500 uppercase tracking-wider">Last Visit</th>}
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {tableData.map(row => (
-                <tr key={row.id} className="hover:bg-gray-50/50">
-                  <td className="py-4 px-6 text-gray-500">{row.id}</td>
-                  <td className="py-4 px-6 font-semibold text-gray-900">{row.cId}</td>
-                  <td className="py-4 px-6 text-gray-600">{row.name}</td>
-                  <td className="py-4 px-6 text-gray-500">{row.first}</td>
-                  <td className="py-4 px-6 text-gray-500">{row.last}</td>
-                  <td className="py-4 px-6 text-gray-600">{row.orders}</td>
-                  <td className="py-4 px-6 text-gray-600">{row.spent}</td>
-                  <td className="py-4 px-6">
-                    <span className={`px-2.5 py-1 text-[10px] font-bold rounded-full ${
-                      row.status === 'Returning' ? 'bg-[#ECFDF5] text-[#10B981]' : 
-                      row.status === 'At Risk' ? 'bg-orange-50 text-orange-600' : 'bg-blue-50 text-blue-600'
-                    }`}>
+              {paginatedData.map((row, idx) => (
+                <tr key={row.cId || idx} className="hover:bg-gray-50/50 transition-colors">
+                  <td className="py-4 px-6 text-gray-500">{(currentPage - 1) * rowsPerPage + idx + 1}</td>
+                  {visibleColumns.includes("Customer ID") && <td className="py-4 px-6 font-medium text-gray-500">{row.cId}</td>}
+                  {visibleColumns.includes("Name") && <td className="py-4 px-6 font-semibold text-gray-900">{row.name}</td>}
+                  {visibleColumns.includes("Status") && <td className="py-4 px-6">
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${row.status === 'New' ? 'bg-[#ECFDF5] text-[#10B981]' : row.status === 'Returning' ? 'bg-blue-50 text-blue-600' : 'bg-red-50 text-red-600'}`}>
                       {row.status}
                     </span>
-                  </td>
-                  <td className="py-4 px-6 text-gray-500">{row.last}</td>
-                  <td className="py-4 px-6 flex items-center gap-3">
-                    <button className="bg-[#ECFDF5] text-[#10B981] font-semibold text-[11px] px-3 py-1 rounded">View</button>
-                    <button className="text-gray-400 hover:text-gray-600"><MoreVertical size={16} /></button>
-                  </td>
+                  </td>}
+                  {visibleColumns.includes("Total Orders") && <td className="py-4 px-6 font-bold text-gray-900">{row.orders}</td>}
+                  {visibleColumns.includes("Total Spent") && <td className="py-4 px-6 font-semibold text-gray-900\">₹ {(row.totalSpent || 0).toLocaleString('en-IN')}</td>}
+                  {visibleColumns.includes("First Visit") && <td className="py-4 px-6 text-gray-500">{new Date(row.firstVisit).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</td>}
+                  {visibleColumns.includes("Last Visit") && <td className="py-4 px-6 text-gray-500">{new Date(row.lastVisit).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</td>}
                 </tr>
               ))}
+              {filteredAndSorted.length === 0 && (
+                <tr>
+                  <td colSpan={8} className="py-8 text-center text-gray-500">No customers found.</td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
-        <TablePagination start={1} end={10} total={1198} />
+        <TablePagination 
+          currentPage={currentPage} 
+          totalPages={totalPages} 
+          total={totalFiltered} 
+          onPageChange={setCurrentPage} 
+          rowsPerPage={rowsPerPage} 
+        />
       </div>
     </div>
   );
 }
 
-/* =========================================
-   UTILITY COMPONENTS
-========================================= */
-
-function ReportKpiCard({ icon, title, value, sub, inc, valueColor="text-gray-900" }) {
+function ReportKpiCard({ icon, title, value, sub, trend = null, valueColor = "text-gray-900" }) {
+  const isPositive = trend >= 0;
   return (
-    <div className="bg-white rounded-[16px] p-6 shadow-sm border border-gray-100 flex flex-col justify-between">
+    <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col hover:shadow-md transition-shadow">
       <div className="flex items-center gap-3 mb-4">
-        <div className="w-10 h-10 rounded-full bg-[#ECFDF5] text-[#10B981] flex items-center justify-center shrink-0">
-          {icon}
-        </div>
-        <h3 className="text-[13px] font-bold text-gray-500">{title}</h3>
+        {icon && <div className="p-2.5 bg-gray-50 text-gray-600 rounded-xl">{icon}</div>}
+        <h3 className="text-[13px] font-semibold text-gray-500 uppercase tracking-wider">{title}</h3>
       </div>
-      <div>
-        <div className={`text-[28px] font-bold leading-none mb-2 ${valueColor}`}>{value}</div>
-        {inc ? (
-          <div className="flex items-center gap-2">
-            <span className="text-[11px] text-gray-400 font-medium">vs last 30 days</span>
-            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${Number(inc) > 0 ? 'bg-[#ECFDF5] text-[#10B981]' : 'bg-red-50 text-red-500'}`}>
-              {Number(inc) > 0 ? '↑' : '↓'} {Math.abs(Number(inc))}%
-            </span>
+      <div className="mt-auto flex items-end justify-between">
+        <div>
+          <p className={`text-3xl font-bold ${valueColor}`}>{value}</p>
+          {sub && <p className="text-xs text-gray-400 font-medium mt-1.5">{sub}</p>}
+        </div>
+        {trend !== null && (
+          <div className={`flex items-center gap-1 text-[13px] font-bold px-2 py-1 rounded-md ${isPositive ? 'text-[#10B981] bg-[#10B981]/10' : 'text-red-500 bg-red-50'}`}>
+            {isPositive ? <TrendingUp size={14}/> : <TrendingDown size={14}/>} {Math.abs(trend)}%
           </div>
-        ) : sub ? (
-          <div className="text-[11px] text-gray-400 font-medium">{sub}</div>
-        ) : null}
+        )}
       </div>
     </div>
   );
 }
 
-function TableToolbar({ placeholder }) {
+function TableToolbar({ placeholder, showTypeFilter = false, typeFilters = [], setTypeFilters = () => {}, availableTypes = [], showSort = false, sortBy = "", setSortBy = () => {}, sortOptions = [], showColumns = false, visibleColumns = [], setVisibleColumns = () => {}, allColumns = [] }) {
+  const [isTypeOpen, setIsTypeOpen] = useState(false);
+  const [isSortOpen, setIsSortOpen] = useState(false);
+  const [isColumnsOpen, setIsColumnsOpen] = useState(false);
+
   return (
     <div className="flex flex-col md:flex-row md:items-center justify-between p-4 border-b border-gray-100 gap-4">
       <div className="relative w-full md:w-96">
@@ -330,38 +597,127 @@ function TableToolbar({ placeholder }) {
         />
       </div>
       <div className="flex items-center gap-3">
-        <button className="flex items-center gap-2 border border-gray-200 rounded-lg px-4 py-2 text-sm text-gray-600 font-medium hover:bg-gray-50">
-          <Filter size={16} /> Filter <ChevronDown size={14} className="ml-1" />
-        </button>
-        <button className="flex items-center gap-2 border border-gray-200 rounded-lg px-4 py-2 text-sm text-gray-600 font-medium hover:bg-gray-50">
-          <ArrowUpDown size={16} /> Sort by <ChevronDown size={14} className="ml-1" />
-        </button>
-        <button className="flex items-center gap-2 border border-gray-200 rounded-lg px-4 py-2 text-sm text-gray-600 font-medium hover:bg-gray-50">
-          <LayoutGrid size={16} /> Columns <ChevronDown size={14} className="ml-1" />
-        </button>
+        {showTypeFilter && (
+          <div className="relative">
+            <button 
+              onClick={() => setIsTypeOpen(!isTypeOpen)}
+              className="flex items-center gap-2 border border-gray-200 rounded-lg px-4 py-2 text-sm text-gray-600 font-medium hover:bg-gray-50"
+            >
+              <Filter size={16} /> {typeFilters.length === 0 ? 'Filter Type' : typeFilters.length === 1 ? typeFilters[0] : `${typeFilters.length} Types`} <ChevronDown size={14} className="ml-1" />
+            </button>
+            {isTypeOpen && (
+              <div className="absolute left-0 mt-2 w-64 max-h-80 overflow-y-auto bg-white rounded-lg shadow-lg border border-gray-100 py-2 z-10" onMouseLeave={() => setIsTypeOpen(false)}>
+                {availableTypes.map(t => {
+                  const isChecked = typeFilters.includes(t);
+                  return (
+                    <label key={t} className="flex items-center gap-2 px-4 py-1.5 text-sm cursor-pointer hover:bg-gray-50">
+                      <input 
+                        type="checkbox" 
+                        checked={isChecked}
+                        onChange={() => {
+                          if (isChecked) {
+                            setTypeFilters(typeFilters.filter(f => f !== t));
+                          } else {
+                            setTypeFilters([...typeFilters, t]);
+                          }
+                        }}
+                        className="rounded border-gray-300 text-[#10B981] focus:ring-[#10B981]"
+                      />
+                      <span className="text-gray-700">{t}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
+        {showSort && (
+          <div className="relative">
+            <button 
+              onClick={() => setIsSortOpen(!isSortOpen)}
+              className="flex items-center gap-2 border border-gray-200 rounded-lg px-4 py-2 text-sm text-gray-600 font-medium hover:bg-gray-50"
+            >
+              <ArrowUpDown size={16} /> Sort: {sortBy} <ChevronDown size={14} className="ml-1" />
+            </button>
+            {isSortOpen && (
+              <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-2 z-10" onMouseLeave={() => setIsSortOpen(false)}>
+                {sortOptions.map(opt => (
+                  <button 
+                    key={opt}
+                    onClick={() => { setSortBy(opt); setIsSortOpen(false); }}
+                    className={`w-full text-left px-4 py-2 text-sm ${sortBy === opt ? 'bg-gray-50 text-[#10B981] font-semibold' : 'text-gray-700 hover:bg-gray-50'}`}
+                  >
+                    {opt}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {showColumns && (
+          <div className="relative">
+            <button 
+              onClick={() => setIsColumnsOpen(!isColumnsOpen)}
+              className="flex items-center gap-2 border border-gray-200 rounded-lg px-4 py-2 text-sm text-gray-600 font-medium hover:bg-gray-50"
+            >
+              <LayoutGrid size={16} /> Columns <ChevronDown size={14} className="ml-1" />
+            </button>
+            {isColumnsOpen && (
+              <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-2 z-10" onMouseLeave={() => setIsColumnsOpen(false)}>
+                {allColumns.map(col => {
+                  const isChecked = visibleColumns.includes(col);
+                  return (
+                    <label key={col} className="flex items-center gap-2 px-4 py-1.5 text-sm cursor-pointer hover:bg-gray-50">
+                      <input 
+                        type="checkbox" 
+                        checked={isChecked}
+                        onChange={() => {
+                          if (isChecked) {
+                            setVisibleColumns(visibleColumns.filter(c => c !== col));
+                          } else {
+                            setVisibleColumns([...visibleColumns, col]);
+                          }
+                        }}
+                        className="rounded border-gray-300 text-[#10B981] focus:ring-[#10B981]"
+                      />
+                      <span className="text-gray-700">{col}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
-function TablePagination({ start, end, total }) {
+function TablePagination({ currentPage, totalPages, total, onPageChange, rowsPerPage }) {
+  const start = (currentPage - 1) * rowsPerPage + 1;
+  const end = Math.min(currentPage * rowsPerPage, total);
+
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between p-4 border-t border-gray-100 gap-4">
-      <span className="text-sm text-gray-500">Showing {start} to {end} of {total.toLocaleString()} entries</span>
-      <div className="flex items-center gap-4">
-        <div className="flex items-center gap-1">
-          <button className="px-3 py-1 text-sm text-gray-400 flex items-center gap-1" disabled><ChevronLeft size={16}/> Previous</button>
-          <button className="w-8 h-8 rounded bg-[#10B981] text-white text-sm font-bold flex items-center justify-center">1</button>
-          <button className="w-8 h-8 rounded hover:bg-gray-50 text-gray-600 text-sm font-bold flex items-center justify-center">2</button>
-          <button className="w-8 h-8 rounded hover:bg-gray-50 text-gray-600 text-sm font-bold flex items-center justify-center">3</button>
-          <button className="w-8 h-8 rounded hover:bg-gray-50 text-gray-600 text-sm font-bold flex items-center justify-center">4</button>
-          <button className="w-8 h-8 rounded hover:bg-gray-50 text-gray-600 text-sm font-bold flex items-center justify-center">5</button>
-          <span className="text-gray-400 mx-1">...</span>
-          <button className="w-8 h-8 rounded hover:bg-gray-50 text-gray-600 text-sm font-bold flex items-center justify-center">{Math.ceil(total/10)}</button>
-          <button className="px-3 py-1 text-sm text-gray-600 flex items-center gap-1 hover:text-gray-900">Next <ChevronDown size={16} className="-rotate-90"/></button>
-        </div>
-        <button className="flex items-center gap-2 border border-gray-200 rounded px-3 py-1.5 text-sm text-gray-600 font-medium hover:bg-gray-50">
-          10 per page <ChevronDown size={14} className="ml-1" />
+    <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between bg-gray-50/50">
+      <p className="text-sm text-gray-500 font-medium">
+        Showing <span className="text-gray-900">{total === 0 ? 0 : start}</span> to <span className="text-gray-900">{end}</span> of <span className="text-gray-900">{total}</span> results
+      </p>
+      <div className="flex items-center gap-2">
+        <button 
+          onClick={() => onPageChange(Math.max(1, currentPage - 1))}
+          disabled={currentPage === 1}
+          className="px-3 py-1.5 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+        >
+          Previous
+        </button>
+        <button 
+          onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
+          disabled={currentPage === totalPages || totalPages === 0}
+          className="px-3 py-1.5 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+        >
+          Next
         </button>
       </div>
     </div>

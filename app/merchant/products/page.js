@@ -262,7 +262,7 @@ export default function MerchantProductsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#ececec] text-[#1b1b1b]" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
+    <div className="min-h-screen bg-[#FAFAFA] text-[#1b1b1b]" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
       <MerchantNavbar activeKey="products" />
 
       <main className="w-full px-8 lg:px-10 py-6">
@@ -410,18 +410,9 @@ export default function MerchantProductsPage() {
                         })()}
                       </td>
                       <td className="px-4 py-3 text-[11px]">
-                        <button
-                          onClick={() => router.push(`/merchant/products/details?id=${item.id}`)}
-                          className="inline-flex items-center gap-1 rounded-[6px] border border-[#e5b54e] bg-[#fff7e2] px-3 py-1 text-[#b77905] font-semibold"
-                        >
-                          <Eye size={12} /> View
-                        </button>
+                        <button onClick={() => router.push(`/merchant/products/details?id=${item.id}`)} className="text-[#1f6fb3] font-semibold">View</button>
                         <span className="mx-2 text-[#cfcfcf]">/</span>
-                        <button onClick={() => requestDeleteProduct(item)} className="text-[#ef4d4d] font-semibold">
-                          <span className="inline-flex items-center gap-1 rounded-[6px] border border-[#f0c6c6] bg-[#fff0f0] px-3 py-1 text-[#d63f3f] font-semibold">
-                            <Trash2 size={12} /> Delete
-                          </span>
-                        </button>
+                        <button onClick={() => requestDeleteProduct(item)} className="text-[#ef4d4d] font-semibold">Delete</button>
                       </td>
                     </tr>
                   ))}

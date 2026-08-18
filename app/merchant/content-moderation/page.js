@@ -144,11 +144,11 @@ export default function MerchantContentModerationPage() {
     }
   };
 
-  if (loading || !user) return <div className="min-h-screen bg-[#f3f4f6]" />;
+  if (loading || !user) return <div className="min-h-screen bg-[#FAFAFA]" />;
   if (user.accountType !== "merchant") return null;
 
   return (
-    <div className="min-h-screen bg-[#f1f2f4] text-[#111827] flex" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
+    <div className="min-h-screen bg-[#FAFAFA] text-[#111827] flex" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
       <aside className="w-[250px] bg-[#f8f9fb] border-r border-[#e4e6eb] px-3.5 py-4 hidden lg:flex lg:flex-col">
         <button
           type="button"

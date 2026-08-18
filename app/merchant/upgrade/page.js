@@ -37,11 +37,11 @@ export default function MerchantUpgradePage() {
       .finally(() => setLoadingPlans(false));
   }, []);
 
-  if (loading || !user || loadingPlans) return <div className="min-h-screen bg-[#ececec]" />;
+  if (loading || !user || loadingPlans) return <div className="min-h-screen bg-[#FAFAFA]" />;
   if (user.accountType !== "merchant") return null;
 
   return (
-    <div className="min-h-screen bg-[#f3f3f3] text-[#1b1b1b]" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
+    <div className="min-h-screen bg-[#FAFAFA] text-[#1b1b1b]" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
       <MerchantNavbar activeKey="upgrade" />
 
       <main className="w-full px-8 py-10 lg:px-10">

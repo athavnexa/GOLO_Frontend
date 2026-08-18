@@ -160,14 +160,14 @@ function CheckoutPageContent() {
   }, [loading, user, router]);
 
   if (loading || !user || loadingPlan) return (
-    <div className="min-h-screen bg-[#F9FAFB] flex items-center justify-center">
+    <div className="min-h-screen bg-[#FAFAFA] flex items-center justify-center">
       <Loader2 className="animate-spin text-[#157a4f] w-8 h-8" />
     </div>
   );
   if (user.accountType !== "merchant") return null;
 
   return (
-    <div className="min-h-screen bg-[#F9FAFB] text-[#1b1b1b]" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
+    <div className="min-h-screen bg-[#FAFAFA] text-[#1b1b1b]" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
       <MerchantNavbar activeKey="upgrade" />
 
       <main className="w-full px-8 py-10 lg:px-10">
@@ -328,7 +328,7 @@ function CheckoutPageContent() {
 
 export default function CheckoutPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#F9FAFB]" />}>
+    <Suspense fallback={<div className="min-h-screen bg-[#FAFAFA]" />}>
       <CheckoutPageContent />
     </Suspense>
   );

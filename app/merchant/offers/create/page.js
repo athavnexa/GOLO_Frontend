@@ -531,13 +531,13 @@ export default function CreateMerchantOfferPage() {
   };
 
   if (loading || !user) {
-    return <div className="min-h-screen bg-[#ececec]" />;
+    return <div className="min-h-screen bg-[#FAFAFA]" />;
   }
 
   if (user.accountType !== "merchant") return null;
 
   return (
-    <div className="min-h-screen bg-[#ececec] text-[#1b1b1b]" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
+    <div className="min-h-screen bg-[#FAFAFA] text-[#1b1b1b]" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
       <MerchantNavbar activeKey="offers" />
 
       <main className="w-full px-4 md:px-8 lg:px-10 py-6">

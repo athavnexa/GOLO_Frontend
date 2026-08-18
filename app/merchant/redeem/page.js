@@ -335,11 +335,11 @@ export default function MerchantQRScannerPage() {
   };
 
   if (authLoading) {
-    return <div className="min-h-screen bg-[#ececec]" />;
+    return <div className="min-h-screen bg-[#FAFAFA]" />;
   }
 
   return (
-    <div className="min-h-screen bg-[#ececec]">
+    <div className="min-h-screen bg-[#FAFAFA]">
       <style>{`
         @media (max-width: 767px) {
           #qr-reader,

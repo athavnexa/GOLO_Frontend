@@ -10,5 +10,5 @@ export default function MerchantSettingsRedirectPage() {
     router.replace("/merchant/profile?tab=settings");
   }, [router]);
 
-  return <div className="min-h-screen bg-[#ececec]" />;
+  return <div className="min-h-screen bg-[#FAFAFA]" />;
 }

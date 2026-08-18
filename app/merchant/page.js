@@ -105,7 +105,7 @@ export default function MerchantLandingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white text-[#1e2228] font-sans antialiased">
+    <div className="min-h-screen bg-[#FAFAFA] text-[#1e2228] font-sans antialiased">
 
       {/* ===== MERCHANT INVITE POPUP MODAL ===== */}
       <AnimatePresence>

@@ -1744,6 +1744,8 @@ export async function deleteMyOfferPromotion(promotionId) {
     }
 }
 
+
+
 /**
  * Save merchant offer template in backend cache (Redis)
  */
@@ -1932,4 +1934,24 @@ export async function submitPlatformReview(payload) {
         method: 'POST',
         body: JSON.stringify(payload),
     });
+}
+
+// ============================================================
+// PRODUCT VIEWS
+// ============================================================
+
+/**
+ * Log an authentic product page view
+ * @param {string} productId 
+ */
+export async function logProductView(productId) {
+    if (!productId) return;
+    try {
+        return await apiClient(`/merchant/products/public/item/${productId}/view`, {
+            method: 'POST',
+        });
+    } catch (error) {
+        // Silently fail view logging so it doesn't interrupt UX
+        console.warn('Failed to log product view:', error);
+    }
 }

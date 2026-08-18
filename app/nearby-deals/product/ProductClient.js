@@ -25,6 +25,7 @@ import {
   toggleWishlist,
   getWishlistIds,
   getAdWishlistCount,
+  logProductView,
 } from "../../lib/api";
 
 function isLocalImageUri(src) {
@@ -133,7 +134,15 @@ function ProductDetailContent() {
   const { isAuthenticated } = useAuth();
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [isTogglingWishlist, setIsTogglingWishlist] = useState(false);
-  const [wishlistCount, setWishlistCount] = useState(null);
+  const [adWishlistCount, setAdWishlistCount] = useState(null);
+
+  // Track page view once per load
+  useEffect(() => {
+    if (productId) {
+      logProductView(productId);
+    }
+  }, [productId]);
+
   const [isOpeningOffer, setIsOpeningOffer] = useState(false);
   const [offerPopup, setOfferPopup] = useState(null);
 
