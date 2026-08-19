@@ -537,7 +537,7 @@ export default function CreateMerchantOfferPage() {
   if (user.accountType !== "merchant") return null;
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] text-[#1b1b1b]" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
+    <div className="min-h-screen bg-[#FAFAFA] text-[#1b1b1b]" style={{ fontFamily: "var(--font-poppins), system-ui, sans-serif" }}>
       <MerchantNavbar activeKey="offers" />
 
       <main className="w-full px-4 md:px-8 lg:px-10 py-6">
@@ -1168,3 +1168,4 @@ export default function CreateMerchantOfferPage() {
     </div>
   );
 }
+

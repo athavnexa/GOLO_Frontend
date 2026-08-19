@@ -163,7 +163,7 @@ export default function MerchantBannersPage() {
   if (user.accountType !== "merchant") return null;
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] text-[#1b1b1b]" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
+    <div className="min-h-screen bg-[#FAFAFA] text-[#1b1b1b]" style={{ fontFamily: "var(--font-poppins), system-ui, sans-serif" }}>
       <MerchantNavbar activeKey="banners" />
 
       <main className="w-full px-8 lg:px-10 py-6">
@@ -175,31 +175,37 @@ export default function MerchantBannersPage() {
             </p>
           </section>
 
-          <section className="flex gap-2 md:grid md:grid-cols-3 md:gap-5">
-            <div className="flex-1 rounded-[12px] border border-[#e2e2e2] bg-white px-2 py-3 flex min-w-0 items-center justify-between md:px-4 md:py-4">
-              <div>
-                <p className="text-[9px] text-[#666] md:text-[11px]">Total Banners</p>
-                <p className="text-[22px] font-semibold leading-none mt-1 md:text-[34px]">{summary.total}</p>
+          <section className="flex flex-col gap-4 md:grid md:grid-cols-3">
+            <div className="bg-white rounded-[16px] p-5 shadow-sm border border-gray-100 flex flex-col justify-between relative overflow-hidden h-32">
+              <div className="flex justify-between items-start">
+                <h3 className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Total Banners</h3>
+                <div className="w-7 h-7 rounded-full bg-[#fef5e2] text-[#efb02e] flex items-center justify-center">
+                  <Megaphone size={14} />
+                </div>
               </div>
-              <div className="h-10 w-10 rounded-full bg-[#fef5e2] text-[#efb02e] flex items-center justify-center">
-                <Megaphone size={17} />
+              <div>
+                <div className="text-[28px] font-bold text-gray-900 leading-none">{summary.total}</div>
               </div>
             </div>
 
-            <div className="flex-1 rounded-[12px] border border-[#e2e2e2] bg-white px-2 py-3 flex min-w-0 items-center justify-between md:px-4 md:py-4">
-              <div>
-                <p className="text-[9px] text-[#666] md:text-[11px]">Active Promotions</p>
-                <p className="text-[22px] font-semibold leading-none mt-1 md:text-[34px]">{summary.active}</p>
+            <div className="bg-white rounded-[16px] p-5 shadow-sm border border-gray-100 flex flex-col justify-between relative overflow-hidden h-32">
+              <div className="flex justify-between items-start">
+                <h3 className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Active Promotions</h3>
+                <div className="w-7 h-7 rounded-full bg-[#ecf8f0] text-[#2cb56e] flex items-center justify-center text-[16px]">◎</div>
               </div>
-              <div className="h-10 w-10 rounded-full bg-[#ecf8f0] text-[#2cb56e] flex items-center justify-center text-[16px]">◎</div>
+              <div>
+                <div className="text-[28px] font-bold text-gray-900 leading-none">{summary.active}</div>
+              </div>
             </div>
 
-            <div className="flex-1 rounded-[12px] border border-[#e2e2e2] bg-white px-2 py-3 flex min-w-0 items-center justify-between md:px-4 md:py-4">
-              <div>
-                <p className="text-[9px] text-[#666] md:text-[11px]">Promotion Spend</p>
-                <p className="text-[16px] font-semibold leading-none mt-1 md:text-[34px]">Rs. {Number(summary.spend).toFixed(2)}</p>
+            <div className="bg-white rounded-[16px] p-5 shadow-sm border border-gray-100 flex flex-col justify-between relative overflow-hidden h-32">
+              <div className="flex justify-between items-start">
+                <h3 className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Promotion Spend</h3>
+                <div className="w-7 h-7 rounded-full bg-[#f4f4f1] text-[#f0aa19] flex items-center justify-center text-[20px]">Rs</div>
               </div>
-              <div className="h-10 w-10 rounded-full bg-[#f4f4f1] text-[#f0aa19] flex items-center justify-center text-[20px]">Rs</div>
+              <div>
+                <div className="text-[28px] font-bold text-gray-900 leading-none">Rs. {Number(summary.spend).toFixed(2)}</div>
+              </div>
             </div>
           </section>
 
@@ -371,3 +377,4 @@ export default function MerchantBannersPage() {
     </div>
   );
 }
+

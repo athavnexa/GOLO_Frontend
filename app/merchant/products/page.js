@@ -262,7 +262,7 @@ export default function MerchantProductsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] text-[#1b1b1b]" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
+    <div className="min-h-screen bg-[#FAFAFA] text-[#1b1b1b]" style={{ fontFamily: "var(--font-poppins), system-ui, sans-serif" }}>
       <MerchantNavbar activeKey="products" />
 
       <main className="w-full px-8 lg:px-10 py-6">
@@ -274,34 +274,40 @@ export default function MerchantProductsPage() {
             </p>
           </section>
 
-          <section className="flex gap-2 md:grid md:grid-cols-3 md:gap-5">
-            <div className="flex-1 rounded-[12px] border border-[#e2e2e2] bg-white px-2 py-3 flex min-w-0 items-center justify-between md:px-4 md:py-4">
-              <div>
-                <p className="text-[9px] text-[#666] md:text-[11px]">Total Products</p>
-                <p className="text-[22px] font-semibold leading-none mt-1 md:text-[34px]">{stats.totalProducts || 0}</p>
+          <section className="flex flex-col gap-4 md:grid md:grid-cols-3">
+            <div className="bg-white rounded-[16px] p-5 shadow-sm border border-gray-100 flex flex-col justify-between relative overflow-hidden h-32">
+              <div className="flex justify-between items-start">
+                <h3 className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Total Products</h3>
+                <div className="w-7 h-7 rounded-full bg-[#f4f4f1] text-[#2cb56e] flex items-center justify-center">
+                  <Package size={14} />
+                </div>
               </div>
-              <div className="hidden h-10 w-10 rounded-full bg-[#f4f4f1] text-[#2cb56e] items-center justify-center sm:flex">
-                <Package size={18} />
+              <div>
+                <div className="text-[28px] font-bold text-gray-900 leading-none">{stats.totalProducts || 0}</div>
               </div>
             </div>
 
-            <div className="flex-1 rounded-[12px] border border-[#e2e2e2] bg-white px-2 py-3 flex min-w-0 items-center justify-between md:px-4 md:py-4">
-              <div>
-                <p className="text-[9px] text-[#666] md:text-[11px]">Inventory Value</p>
-                <p className="text-[16px] font-semibold leading-none mt-1 md:text-[34px]">{inventoryValueLabel}</p>
+            <div className="bg-white rounded-[16px] p-5 shadow-sm border border-gray-100 flex flex-col justify-between relative overflow-hidden h-32">
+              <div className="flex justify-between items-start">
+                <h3 className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Inventory Value</h3>
+                <div className="w-7 h-7 rounded-full bg-[#f4f4f1] text-[#e2a112] flex items-center justify-center">
+                  <Wallet size={14} />
+                </div>
               </div>
-              <div className="hidden h-10 w-10 rounded-full bg-[#f4f4f1] text-[#e2a112] items-center justify-center sm:flex">
-                <Wallet size={18} />
+              <div>
+                <div className="text-[28px] font-bold text-gray-900 leading-none">{inventoryValueLabel}</div>
               </div>
             </div>
 
-            <div className="flex-1 rounded-[12px] border border-[#e2e2e2] bg-white px-2 py-3 flex min-w-0 items-center justify-between md:px-4 md:py-4">
-              <div>
-                <p className="text-[9px] text-[#666] md:text-[11px]">Out Of Stock</p>
-                <p className="text-[22px] font-semibold leading-none mt-1 md:text-[34px]">{stats.outOfStockProducts || 0}</p>
+            <div className="bg-white rounded-[16px] p-5 shadow-sm border border-gray-100 flex flex-col justify-between relative overflow-hidden h-32">
+              <div className="flex justify-between items-start">
+                <h3 className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Out Of Stock</h3>
+                <div className="w-7 h-7 rounded-full bg-[#f7eef0] text-[#f27f9f] flex items-center justify-center">
+                  <Package size={14} />
+                </div>
               </div>
-              <div className="hidden h-10 w-10 rounded-full bg-[#f7eef0] text-[#f27f9f] items-center justify-center sm:flex">
-                <Package size={18} />
+              <div>
+                <div className="text-[28px] font-bold text-gray-900 leading-none">{stats.outOfStockProducts || 0}</div>
               </div>
             </div>
           </section>
@@ -647,3 +653,4 @@ export default function MerchantProductsPage() {
     </div>
   );
 }
+

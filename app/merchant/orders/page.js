@@ -226,38 +226,52 @@ function MerchantOrdersPageContent() {
   if (user.accountType !== "merchant") return null;
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] text-[#1b1b1b]" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
+    <div className="min-h-screen bg-[#FAFAFA] text-[#1b1b1b]" style={{ fontFamily: "var(--font-poppins), system-ui, sans-serif" }}>
       <MerchantNavbar activeKey="orders" />
 
       <main className="w-full px-4 py-4 lg:px-10 lg:py-6">
         <div className="mx-auto w-full max-w-[1400px] space-y-4 lg:space-y-5">
-          <section className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-5 items-start">
-            <div>
-              <h1 className="text-[32px] font-semibold leading-none text-[#1e1e1e] lg:text-[42px]">Orders</h1>
-              <p className="mt-3 text-[13px] text-[#6f6f6f] max-w-[420px]">
-                Manage your store's daily activity, process incoming requests, and track your revenue growth.
-              </p>
+          <section>
+            <h1 className="text-[32px] font-semibold leading-none text-[#1e1e1e] lg:text-[42px]">Orders</h1>
+            <p className="mt-3 text-[13px] text-[#6f6f6f] max-w-[500px]">
+              Manage your store's daily activity, process incoming requests, and track your order metrics.
+            </p>
+          </section>
+
+          <section className="flex flex-col gap-4 md:grid md:grid-cols-3">
+            <div className="bg-white rounded-[16px] p-5 shadow-sm border border-gray-100 flex flex-col justify-between relative overflow-hidden h-32">
+              <div className="flex justify-between items-start">
+                <h3 className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Total Orders</h3>
+                <div className="w-7 h-7 rounded-full bg-[#f4f4f1] text-[#2cb56e] flex items-center justify-center">
+                  <ShoppingBag size={14} />
+                </div>
+              </div>
+              <div>
+                <div className="text-[28px] font-bold text-gray-900 leading-none">{stats.totalOrders || 0}</div>
+              </div>
             </div>
 
-            <div className="rounded-[12px] bg-[#dff3e4] border border-[#cfe7d5] px-4 py-4 shadow-sm lg:px-5">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-[12px] font-semibold text-[#2f6140]">Today's Orders</p>
-                  <p className="text-[10px] text-[#6f8f79] mt-0.5">Performance summary</p>
+            <div className="bg-white rounded-[16px] p-5 shadow-sm border border-gray-100 flex flex-col justify-between relative overflow-hidden h-32">
+              <div className="flex justify-between items-start">
+                <h3 className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Completed Orders</h3>
+                <div className="w-7 h-7 rounded-full bg-[#eefaf2] text-[#2f9e58] flex items-center justify-center">
+                  <ShoppingBag size={14} />
                 </div>
-                <span className="rounded-full bg-[#2f8f55] px-2 py-0.5 text-[10px] font-semibold text-white">Live</span>
               </div>
+              <div>
+                <div className="text-[28px] font-bold text-gray-900 leading-none">{stats.completedOrders || 0}</div>
+              </div>
+            </div>
 
-              <div className="mt-4 flex items-end gap-4 lg:mt-5 lg:gap-6">
-                <div>
-                  <p className="text-[34px] leading-none font-semibold text-[#1d2b21] lg:text-[44px]">{stats.todayOrders || 0}</p>
-                  <p className="text-[10px] uppercase tracking-[0.12em] text-[#6f8f79] mt-1">Orders ↗</p>
+            <div className="bg-white rounded-[16px] p-5 shadow-sm border border-gray-100 flex flex-col justify-between relative overflow-hidden h-32">
+              <div className="flex justify-between items-start">
+                <h3 className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Rejected Orders</h3>
+                <div className="w-7 h-7 rounded-full bg-[#f7eef0] text-[#f27f9f] flex items-center justify-center">
+                  <ShoppingBag size={14} />
                 </div>
-                <div className="h-10 w-px bg-[#c9e0cf]" />
-                <div>
-                  <p className="text-[24px] leading-none font-semibold text-[#1d2b21] lg:text-[32px]">₹{stats.totalRevenue || 0}</p>
-                  <p className="text-[10px] uppercase tracking-[0.12em] text-[#6f8f79] mt-1">Revenue ↗</p>
-                </div>
+              </div>
+              <div>
+                <div className="text-[28px] font-bold text-gray-900 leading-none">{stats.rejectedOrders || 0}</div>
               </div>
             </div>
           </section>
@@ -433,3 +447,4 @@ export default function MerchantOrdersPage() {
     </Suspense>
   );
 }
+

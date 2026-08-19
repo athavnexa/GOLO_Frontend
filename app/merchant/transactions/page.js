@@ -24,7 +24,7 @@ export default function TransactionsPage() {
   const [search, setSearch] = useState("");
   
   return (
-    <div className="min-h-screen bg-[#FAFAFA] text-[#1b1b1b]" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
+    <div className="min-h-screen bg-[#FAFAFA] text-[#1b1b1b]" style={{ fontFamily: "var(--font-poppins), system-ui, sans-serif" }}>
       <MerchantNavbar activeKey="" />
       
       <main className="w-full px-8 lg:px-10 py-8">
@@ -238,3 +238,4 @@ export default function TransactionsPage() {
     </div>
   );
 }
+

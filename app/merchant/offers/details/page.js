@@ -333,7 +333,7 @@ function MerchantOfferDetailsContent() {
   if (user.accountType !== "merchant") return null;
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] text-[#1b1b1b]" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
+    <div className="min-h-screen bg-[#FAFAFA] text-[#1b1b1b]" style={{ fontFamily: "var(--font-poppins), system-ui, sans-serif" }}>
       <MerchantNavbar activeKey="offers" />
 
       <main className="w-full px-8 py-6 lg:px-10">
@@ -631,3 +631,4 @@ function MerchantOfferDetailsContent() {
     </div>
   );
 }
+

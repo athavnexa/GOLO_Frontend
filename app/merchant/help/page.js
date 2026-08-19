@@ -146,7 +146,7 @@ export default function MerchantHelpPage() {
     .filter((category) => category.items.length > 0);
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] text-[#1b1b1b]" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
+    <div className="min-h-screen bg-[#FAFAFA] text-[#1b1b1b]" style={{ fontFamily: "var(--font-poppins), system-ui, sans-serif" }}>
       <MerchantNavbar activeKey="help" />
 
       {/* Tab Navigation */}
@@ -385,3 +385,4 @@ export default function MerchantHelpPage() {
     </div>
   );
 }
+

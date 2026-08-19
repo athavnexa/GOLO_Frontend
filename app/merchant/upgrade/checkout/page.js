@@ -167,7 +167,7 @@ function CheckoutPageContent() {
   if (user.accountType !== "merchant") return null;
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] text-[#1b1b1b]" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
+    <div className="min-h-screen bg-[#FAFAFA] text-[#1b1b1b]" style={{ fontFamily: "var(--font-poppins), system-ui, sans-serif" }}>
       <MerchantNavbar activeKey="upgrade" />
 
       <main className="w-full px-8 py-10 lg:px-10">
@@ -333,3 +333,4 @@ export default function CheckoutPage() {
     </Suspense>
   );
 }
+
