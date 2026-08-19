@@ -360,7 +360,10 @@ function MerchantDashboardContent() {
               <div className="border border-gray-200 rounded-xl p-5 bg-white overflow-hidden">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-bold">Recent Orders</h3>
-                  <button className="text-[13px] font-bold text-[#157A4F] flex items-center gap-1 hover:underline">
+                  <button 
+                    className="text-[13px] font-bold text-[#157A4F] flex items-center gap-1 hover:underline"
+                    onClick={() => router.push('/merchant/orders')}
+                  >
                     View All Orders <ArrowRight size={14} />
                   </button>
                 </div>

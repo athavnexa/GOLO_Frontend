@@ -13,7 +13,7 @@ const FALLBACK_AVATAR = "/images/place2.avif";
 function getSafeAvatarSrc(src) {
   const value = String(src || "").trim();
   if (!value) return FALLBACK_AVATAR;
-  if (value.startsWith("file:") || value.startsWith("blob:")) return FALLBACK_AVATAR;
+  if (value.startsWith("file:") || value.startsWith("blob:") || value.startsWith("data:")) return FALLBACK_AVATAR;
   return value;
 }
 

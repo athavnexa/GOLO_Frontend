@@ -1310,64 +1310,7 @@ function NearbyDealDetailsContent() {
           </div>
         </section>
 
-        {/* Recommended Section */}
-        {relatedOffers.length > 0 && (
-          <section className="mb-12">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-[#1f2329]">
-                Recommended for you
-              </h2>
-              <p
-                className="text-[#4a5fc1] text-sm font-semibold cursor-pointer hover:underline"
-                onClick={() => router.push('/nearby-deals')}
-              >
-                Browse all deals →
-              </p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {relatedOffers.slice(0, 4).map((item) => (
-                <div
-                  key={item.offerId}
-                  onClick={() =>
-                    router.push(
-                      `/nearby-deals/deal?offerId=${item.offerId}`
-                    )
-                  }
-                  className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md cursor-pointer transition"
-                >
-                  <div className="relative h-40 bg-[#f0f0f0] overflow-hidden">
-                    <Image
-                      src={item?.imageUrl || "/images/deal2.avif"}
-                      alt={item?.title || "Deal"}
-                      fill
-                      className="object-cover hover:scale-105 transition"
-                    />
-                    <span className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs font-bold">
-                      SOLD OUT
-                    </span>
-                  </div>
-                  <div className="p-3">
-                    <p className="font-bold text-[#1f2329] text-sm mb-1">
-                      {item?.title}
-                    </p>
-                    <p className="text-[#666] text-xs mb-2">
-                      {item?.merchant?.name}
-                    </p>
-                    <div className="flex items-center justify-between">
-                      <span className="text-lg font-bold text-[#e7a91d]">
-                        Rs.
-                          {computeStartingPrice(item?.selectedProducts || [], item?.displayPrice || item?.totalPrice)}
-                      </span>
-                      <span className="text-[#999] text-xs">
-                        Rs.{item?.totalPrice}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
+
       </div>
 
       <Footer />
