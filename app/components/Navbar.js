@@ -1016,11 +1016,6 @@ function NavbarContent({
   }, []);
 
   const openMobileLocationPicker = () => {
-    if (!isAuthenticated) {
-      setShowAuthPrompt(true);
-      return;
-    }
-
     const currentQuery =
       typeof window !== "undefined" ? window.location.search : "";
     const redirectPath = `${pathname}${currentQuery}`;
@@ -1145,12 +1140,8 @@ function NavbarContent({
                 value={searchQuery}
                 onChange={(e) => handleSearchInputChange(e.target.value)}
                 onKeyDown={handleSearch}
-                onFocus={() => {
-                  if (!isAuthenticated) setShowAuthPrompt(true);
-                }}
                 placeholder="Search listings..."
                 className="flex-1 outline-none text-sm bg-transparent text-black placeholder-gray-500 focus:outline-none"
-                readOnly={!isAuthenticated}
               />
 
               <button
@@ -1188,15 +1179,10 @@ function NavbarContent({
                   onChange={(e) => handleLocationChange(e.target.value)}
                   onKeyDown={handleSearch}
                   onFocus={() => {
-                    if (!isAuthenticated) {
-                      setShowAuthPrompt(true);
-                      return;
-                    }
                     setShowSuggestions(true);
                   }}
                   placeholder="Location"
                   className="w-full min-w-0 outline-none text-sm font-semibold bg-transparent text-[#1f2933] placeholder-gray-500 focus:outline-none"
-                  readOnly={!isAuthenticated}
                 />
 
                 {location ? (
@@ -1217,10 +1203,6 @@ function NavbarContent({
                   size={14}
                   className="ml-1 shrink-0 text-gray-400"
                   onClick={() => {
-                    if (!isAuthenticated) {
-                      setShowAuthPrompt(true);
-                      return;
-                    }
                     setShowSuggestions((prev) => !prev);
                   }}
                 />
@@ -1623,12 +1605,8 @@ function NavbarContent({
                 value={searchQuery}
                 onChange={(e) => handleSearchInputChange(e.target.value)}
                 onKeyDown={handleSearch}
-                onFocus={() => {
-                  if (!isAuthenticated) setShowAuthPrompt(true);
-                }}
                 placeholder="Search for services,"
                 className="min-w-0 flex-1 bg-transparent text-[15px] font-medium text-[#1f2933] outline-none placeholder:text-[#85878b]"
-                readOnly={!isAuthenticated}
               />
               <button
                 type="button"

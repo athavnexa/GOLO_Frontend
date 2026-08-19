@@ -858,12 +858,6 @@ function NearbyDealsPageContent() {
   const openDealDetails = (deal) => {
     const targetUrl = `/nearby-deals/deal?offerId=${deal.offerId}`;
 
-    if (!isAuthenticated) {
-      setAuthRedirectTo(targetUrl);
-      setShowAuthPrompt(true);
-      return;
-    }
-
     if (typeof window !== "undefined") {
       try {
         sessionStorage.setItem(
@@ -1073,7 +1067,6 @@ function NearbyDealsPageContent() {
                       </option>
                     ))}
                   </select>
-                  <ChevronDown size={12} />
                 </button>
               </div>
             </div>

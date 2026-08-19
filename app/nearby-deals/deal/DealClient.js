@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useVoucher } from "../../context/VoucherContext";
+import AuthRequiredModal from "../../components/AuthRequiredModal";
 import {
   getNearbyOfferDetails,
   getNearbyOffers,
@@ -224,6 +225,7 @@ function NearbyDealDetailsContent() {
   const [isLiked, setIsLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(0);
   const [likeLoading, setLikeLoading] = useState(false);
+  const [showAuthPrompt, setShowAuthPrompt] = useState(false);
   const [liveStockByProductId, setLiveStockByProductId] = useState({});
 
   const offerId = searchParams.get("offerId") || "";
@@ -283,7 +285,7 @@ function NearbyDealDetailsContent() {
   // Handle like/unlike
   const handleToggleLike = async () => {
     if (!user) {
-      router.push(`/login?redirect=/nearby-deals/deal?offerId=${offerId}`);
+      setShowAuthPrompt(true);
       return;
     }
 
@@ -613,7 +615,7 @@ function NearbyDealDetailsContent() {
     }
 
     if (!user) {
-      router.push(`/login?redirect=/nearby-deals/deal?offerId=${offerId}`);
+      setShowAuthPrompt(true);
       return;
     }
 
@@ -659,6 +661,15 @@ function NearbyDealDetailsContent() {
 
   return (
     <main className="relative z-10 min-h-screen bg-transparent">
+      {showAuthPrompt && (
+        <AuthRequiredModal
+          isOpen={showAuthPrompt}
+          onClose={() => setShowAuthPrompt(false)}
+          title="Login Required"
+          description="Please log in or register to claim this offer or add to wishlist."
+          redirectTo={`/nearby-deals/deal?offerId=${offerId}`}
+        />
+      )}
       <Navbar />
 
       <div className="relative z-10 mx-auto max-w-[1260px] px-4 lg:px-6 pt-10 md:pt-14 pb-4 lg:pb-6">

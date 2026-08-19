@@ -219,7 +219,7 @@ function MerchantOrdersPageContent() {
     return () => clearTimeout(timer);
   }, [highlightOrderId, orders]);
 
-  if (loading || !user || pageLoading) {
+  if (loading || !user) {
     return <div className="min-h-screen bg-[#FAFAFA]" />;
   }
 
@@ -315,8 +315,22 @@ function MerchantOrdersPageContent() {
             </div>
 
             <div className="mt-4 space-y-3">
-              {paginatedOrders.map((order) => {
-                const isHighlighted = highlightOrderId && (
+              {pageLoading ? (
+                <div className="flex h-32 items-center justify-center rounded-[10px] border border-[#ececec] bg-white shadow-sm">
+                  <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#157a4f] border-t-transparent" />
+                </div>
+              ) : loadError ? (
+                <div className="rounded-[10px] border border-red-200 bg-red-50 p-4 text-center text-[13px] text-red-600">
+                  {loadError}
+                </div>
+              ) : filteredOrders.length === 0 ? (
+                <div className="rounded-[10px] border border-[#ececec] bg-white px-4 py-12 text-center text-[13px] text-[#7a7a7a]">
+                  <ShoppingBag size={28} className="mx-auto mb-2 text-[#cccccc]" />
+                  No orders in this tab yet.
+                </div>
+              ) : (
+                paginatedOrders.map((order) => {
+                  const isHighlighted = highlightOrderId && (
                   order._id === highlightOrderId ||
                   order.id === highlightOrderId ||
                   order.id === `#${highlightOrderId}` ||
@@ -382,16 +396,10 @@ function MerchantOrdersPageContent() {
                   </div>
                 </article>
                 );
-              })}
+              }))}
             </div>
 
-            {filteredOrders.length === 0 && (
-              <div className="mt-4 rounded-[10px] border border-[#ececec] bg-white px-4 py-6 text-center text-[12px] text-[#7a7a7a]">
-                No orders in this tab yet.
-              </div>
-            )}
-
-            {totalPages > 1 && (
+            {totalPages > 1 && !pageLoading && !loadError && (
               <div className="mt-6 flex items-center justify-between border-t border-[#e5e5e5] pt-4">
                 <button
                   onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
