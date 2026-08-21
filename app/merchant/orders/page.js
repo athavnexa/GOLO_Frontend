@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useState, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Bell, Download, Plus, ShoppingBag, Star, User, ChevronLeft, ChevronRight } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import MerchantNavbar from "../MerchantNavbar";
@@ -17,11 +17,17 @@ function getSafeAvatarSrc(src) {
   return value;
 }
 
-function MerchantOrdersPageContent() {
+export default function MerchantOrdersPage() {
    const router = useRouter();
-   const searchParams = useSearchParams();
    const { user, loading, logout } = useAuth();
-   const highlightOrderId = searchParams.get("highlight") || "";
+   const [highlightOrderId, setHighlightOrderId] = useState("");
+
+   useEffect(() => {
+     if (typeof window !== "undefined") {
+       const params = new URLSearchParams(window.location.search);
+       setHighlightOrderId(params.get("highlight") || "");
+     }
+   }, []);
 
   const handleMerchantLogout = async () => {
     await logout();
@@ -142,16 +148,19 @@ function MerchantOrdersPageContent() {
       try {
         setPageLoading(true);
         setLoadError("");
-        let ordersRes;
+        const [ordersRes, statsRes] = await Promise.all([
+          activeTab === "completed" 
+            ? getMerchantRedemptionHistory({ page: 1, limit: 30 }) 
+            : getMerchantOrders({ status: activeTab === "all" ? "all" : activeTab, page: 1, limit: 30 }),
+          getMerchantOrderStats()
+        ]);
+
         if (activeTab === "completed") {
-          ordersRes = await getMerchantRedemptionHistory({ page: 1, limit: 30 });
           setOrders((ordersRes?.data || []).map(formatVoucherForUi));
         } else {
-          ordersRes = await getMerchantOrders({ status: activeTab === "all" ? "all" : activeTab, page: 1, limit: 30 });
           setOrders((ordersRes?.data || []).map(formatOrderForUi));
         }
         
-        const statsRes = await getMerchantOrderStats();
         setStats(statsRes?.data || { todayOrders: 0, totalRevenue: 0 });
       } catch (err) {
         setOrders([]);
@@ -446,13 +455,5 @@ function MerchantOrdersPageContent() {
       </footer>
 </div>
    );
-}
-
-export default function MerchantOrdersPage() {
-  return (
-    <Suspense fallback={<div className="min-h-screen bg-[#FAFAFA]" />}>
-      <MerchantOrdersPageContent />
-    </Suspense>
-  );
 }
 

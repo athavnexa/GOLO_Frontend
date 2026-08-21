@@ -898,6 +898,7 @@ async function fetchAbsoluteJson(url) {
 }
 
 export async function getNearbyOffers({
+    merchantId,
     lat,
     lng,
     radiusKm = 5,
@@ -915,6 +916,7 @@ export async function getNearbyOffers({
     _t,  // cache buster (ignored by backend, just varies cache key)
   } = {}) {
     const params = new URLSearchParams();
+    if (merchantId) params.set('merchantId', String(merchantId));
     if (typeof lat === 'number' && !Number.isNaN(lat)) params.set('lat', String(lat));
     if (typeof lng === 'number' && !Number.isNaN(lng)) params.set('lng', String(lng));
     if (radiusKm) params.set('radiusKm', String(radiusKm));
@@ -996,7 +998,15 @@ export async function getPublicMerchantStoreLocation(merchantId) {
   }
 
 export async function getPublicMerchantReviewStats(merchantId) {
-  return apiClient(`/reviews/merchant/${encodeURIComponent(merchantId)}/public-stats`);
+    return apiClient(`/reviews/merchant/${merchantId}/stats`);
+}
+
+export async function searchMerchants(query, { page = 1, limit = 10 } = {}) {
+    return apiClient(`/merchant/public/search?q=${encodeURIComponent(query)}&page=${page}&limit=${limit}`);
+}
+
+export async function searchProducts(query, { page = 1, limit = 10 } = {}) {
+    return apiClient(`/merchant/products/public/search/global?q=${encodeURIComponent(query)}&page=${page}&limit=${limit}`);
 }
 
 export async function getPublicMerchantProducts(merchantId, { page = 1, limit = 10, search = '' } = {}) {
@@ -1954,4 +1964,9 @@ export async function logProductView(productId) {
         // Silently fail view logging so it doesn't interrupt UX
         console.warn('Failed to log product view:', error);
     }
+}
+
+// ==================== UNIFIED SEARCH ====================
+export async function unifiedSearch(query, { type = 'all', page = 1, limit = 15 } = {}) {
+    return apiClient(`/search/unified?q=${encodeURIComponent(query)}&type=${type}&page=${page}&limit=${limit}`);
 }

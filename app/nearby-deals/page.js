@@ -9,7 +9,8 @@ import Navbar from "../components/Navbar";
 import CategoryBar from "../components/CategoryBar";
 import Footer from "../components/Footer";
 import AuthRequiredModal from "../components/AuthRequiredModal";
-import { getNearbyOffers } from "../lib/api";
+import { MerchantSearchCard, ProductSearchCard } from "../components/SearchCards";
+import { getNearbyOffers, searchMerchants, searchProducts, unifiedSearch } from "../lib/api";
 
 function OfferCardMedia({ imageUrl, videoUrl, title }) {
   const [showVideo, setShowVideo] = useState(false);
@@ -390,6 +391,14 @@ function NearbyDealsPageContent() {
     "Free Gift Offer": false,
   });
   const [rawOffers, setRawOffers] = useState([]);
+  const [merchantResults, setMerchantResults] = useState([]);
+  const [productResults, setProductResults] = useState([]);
+  const [merchantPage, setMerchantPage] = useState(1);
+  const [productPage, setProductPage] = useState(1);
+  const [offerPage, setOfferPage] = useState(1);
+  const [hasMoreMerchants, setHasMoreMerchants] = useState(true);
+  const [hasMoreProducts, setHasMoreProducts] = useState(true);
+  const [hasMoreOffers, setHasMoreOffers] = useState(true);
   const [loadingOffers, setLoadingOffers] = useState(false);
   const [error, setError] = useState("");
   const [showAuthPrompt, setShowAuthPrompt] = useState(false);
@@ -683,6 +692,42 @@ function NearbyDealsPageContent() {
       } finally {
         if (fetchSeq !== nearbyFetchSeqRef.current) return;
         setLoadingOffers(false);
+        
+        if (query) {
+          try {
+            setMerchantPage(1);
+            setProductPage(1);
+            setOfferPage(1);
+            const res = await unifiedSearch(query, { type: 'all', limit: 15, page: 1 });
+            if (fetchSeq !== nearbyFetchSeqRef.current) return;
+            
+            const unifiedMerchants = res?.data?.merchants || [];
+            const unifiedProducts = res?.data?.products || [];
+            const unifiedOffers = res?.data?.offers || [];
+            
+            setMerchantResults(unifiedMerchants);
+            setProductResults(unifiedProducts);
+            
+            setHasMoreMerchants(unifiedMerchants.length === 15);
+            setHasMoreProducts(unifiedProducts.length === 15);
+            setHasMoreOffers(unifiedOffers.length === 15);
+            
+            // Merge unified offers into rawOffers (avoiding duplicates)
+            setRawOffers((prev) => {
+              const existingIds = new Set(prev.map(o => o.offerId || o._id));
+              const newOffers = unifiedOffers.map(normalizeNearbyOffer).filter(o => !existingIds.has(o.offerId || o._id));
+              return [...prev, ...newOffers];
+            });
+          } catch (err) {
+            console.error("Failed to load unified search", err);
+          }
+        } else {
+          setMerchantResults([]);
+          setProductResults([]);
+          setHasMoreMerchants(false);
+          setHasMoreProducts(false);
+          setHasMoreOffers(false);
+        }
       }
     };
 
@@ -1102,6 +1147,9 @@ function NearbyDealsPageContent() {
               <p className="mb-3 text-[12px] text-red-600">{error}</p>
             ) : null}
 
+            {query && !loadingOffers && (
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Offers matching "{query}"</h2>
+            )}
             <div
               className={
                 activeView === "list"
@@ -1126,94 +1174,55 @@ function NearbyDealsPageContent() {
                       key={deal.offerId}
                       className="group flex flex-col md:flex-row overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-[#157A4F] hover:shadow-lg"
                     >
-                      {/* Left side: Image/Media container */}
                       <div className="relative h-48 md:h-auto md:w-[35%] shrink-0 overflow-hidden bg-gray-100">
                         <OfferCardMedia
                           imageUrl={deal.imageUrl}
                           videoUrl={deal.videoUrl}
                           title={deal.title}
                         />
-                        {/* Badge 1: Limited Time */}
                         <span className="absolute left-3 top-3 rounded-full bg-[#157A4F] px-3 py-1 text-[11px] font-bold text-white shadow-sm">
-                          Limited Time
+                          {deal.category || "Special"}
                         </span>
-                        {/* Badge 2: Nearby */}
-                        <span className="absolute left-3 top-10 rounded-full bg-white/95 px-2.5 py-0.5 text-[9px] font-semibold text-gray-700 shadow-sm">
-                          Nearby
+                        <span className="absolute left-3 top-10 rounded-md bg-white/95 px-2 py-0.5 text-[9px] font-semibold text-gray-700 shadow-sm">
+                          {formatDistance(deal.distanceKm)}
                         </span>
-                        {/* Heart Icon / Wishlist */}
-                        <button className="absolute right-3 top-3 rounded-full bg-white p-1.5 shadow-md hover:bg-gray-100 transition-colors">
-                          <Heart size={16} className="text-gray-600" />
-                        </button>
+                        <span
+                          className={`absolute right-3 top-3 rounded-full px-3 py-1 text-[11px] font-bold shadow-sm ${getDaysRemainingText(deal.endsAt) === "Expired" ? "bg-red-500 text-white" : "bg-white/95 text-[#157A4F]"}`}
+                        >
+                          {getDaysRemainingText(deal.endsAt) || "N/A"}
+                        </span>
                       </div>
-
-                      {/* Right side: Content container */}
                       <div className="p-4 md:p-6 flex flex-col flex-grow min-w-0">
-                        {/* Merchant Info and Time Remaining */}
-                        <div className="flex items-center justify-between gap-4 mb-2">
-                          <div className="flex items-center gap-2">
-                            {/* Merchant Logo placeholder */}
-                            <div className="w-8 h-8 rounded-full bg-[#157A4F]/10 flex items-center justify-center text-sm font-bold text-[#157A4F]">
-                              {deal.merchant?.name ? deal.merchant.name.charAt(0) : 'M'}
-                            </div>
-                            <span className="font-semibold text-gray-900 text-sm">{deal.merchant?.name || "Merchant"}</span>
-                          </div>
-                          {/* Days Left Pill */}
-                          <span className="inline-flex items-center gap-1 bg-[#D1E7DD] text-[#0F5132] px-2.5 py-0.5 rounded-full text-xs font-semibold">
-                            <Clock size={12} />
-                            {getDaysRemainingText(deal.endsAt) || "N/A"}
+                        <div className="flex flex-wrap items-center gap-2 mb-2">
+                          <span className="inline-flex items-center gap-1 bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider">
+                            <Tag size={10} />
+                            {deal.category || "Offer"}
                           </span>
                         </div>
-
-                        {/* Offer Title */}
-                        <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-2 leading-snug">
+                        <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-2 leading-snug line-clamp-2">
                           {deal.title}
                         </h2>
-
-                        {/* Meta Stats: Rating, Distance, Category */}
                         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-500 mb-3">
-                          <span className="flex items-center gap-1 font-semibold text-yellow-600">
-                            <Star size={14} fill="currentColor" className="text-yellow-500" />
-                            {Number(deal.merchant?.rating ?? deal.merchant?.averageRating ?? deal.rating ?? 4.2).toFixed(1)}
+                          <span className="flex items-center gap-1 font-semibold text-gray-900">
+                            {deal.merchant?.name || "Merchant"}
                           </span>
                           <span>•</span>
                           <span className="flex items-center gap-1">
-                            <MapPin size={12} />
-                            {formatDistance(deal.distanceKm)}
-                          </span>
-                          <span>•</span>
-                          <span className="flex items-center gap-1">
-                            <Tag size={12} />
-                            {deal.category || "Special"}
+                            <MapPin size={12} className="shrink-0" />
+                            <span className="truncate">{deal.merchant?.address || "Location not specified"}</span>
                           </span>
                         </div>
-
-                        {/* Short Description */}
-                        <p className="text-sm text-gray-600 line-clamp-2 mb-4 leading-relaxed">
-                          {deal.description || "Enjoy special offers and rewards near you."}
+                        <p className="mt-1 text-[10px] text-gray-400 mb-4">
+                          Valid: {formatDate(deal.startsAt)} - {formatDate(deal.endsAt)}
                         </p>
-
-                        {/* Address info */}
-                        <div className="flex items-center gap-1.5 text-xs text-gray-500 mb-4">
-                          <MapPin size={12} className="shrink-0" />
-                          <span className="truncate">{deal.merchant?.address || "Location not specified"}</span>
-                        </div>
-
-                        {/* Bottom row: Pricing, valid date, CTA */}
-                        <div className="mt-auto border-t border-gray-100 pt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div className="mt-auto pt-4 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                           <div className="flex items-center gap-3">
-                            {/* Valid Date */}
-                            <span className="flex items-center gap-1 text-xs text-gray-500">
-                              <Calendar size={12} />
-                              Valid till {formatDate(deal.endsAt)}
-                            </span>
-                            {/* Save Pill */}
-                            <span className="bg-[#E2F0D9] text-[#385723] px-2.5 py-0.5 rounded-full text-xs font-semibold">
-                              Save up to {deal.discountPercentage || "20"}%
-                            </span>
+                            {toNumber(deal.discountPercent, 0) > 0 && (
+                              <span className="bg-[#E2F0D9] text-[#385723] px-2.5 py-0.5 rounded-full text-xs font-semibold">
+                                Save {deal.discountPercent}%
+                              </span>
+                            )}
                           </div>
-
-                          {/* Pricing & CTA */}
                           <div className="flex items-center justify-between sm:justify-end gap-4">
                             <span className="text-2xl font-extrabold text-gray-900">
                               ₹{toNumber(deal.displayPrice, 0).toLocaleString("en-IN")}
@@ -1260,25 +1269,7 @@ function NearbyDealsPageContent() {
                           {deal.merchant?.name || "Merchant"}
                         </p>
                         <p className="mt-2 text-[11px] text-gray-500 line-clamp-1 flex items-center gap-1">
-                          <svg
-                            className="w-3 h-3"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                            />
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                            />
-                          </svg>
+                          <MapPin size={12} />
                           {deal.merchant?.address || "Location not specified"}
                         </p>
                         <p className="mt-1 text-[10px] text-gray-400">
@@ -1301,6 +1292,99 @@ function NearbyDealsPageContent() {
                 ))
               )}
             </div>
+            {query && hasMoreOffers && (
+              <div className="mt-6 text-center">
+                <button 
+                  onClick={async () => {
+                    const nextPage = offerPage + 1;
+                    const res = await unifiedSearch(query, { type: 'offers', limit: 15, page: nextPage });
+                    const newOffers = (res?.data?.offers || []).map(normalizeNearbyOffer);
+                    setRawOffers(prev => {
+                      const existingIds = new Set(prev.map(o => o.offerId || o._id));
+                      const filtered = newOffers.filter(o => !existingIds.has(o.offerId || o._id));
+                      return [...prev, ...filtered];
+                    });
+                    setHasMoreOffers(newOffers.length === 15);
+                    setOfferPage(nextPage);
+                  }}
+                  className="px-6 py-2 rounded-full border border-[#157A4F] text-[#157A4F] font-bold text-sm hover:bg-[#157A4F] hover:text-white transition-colors"
+                >
+                  Load More Offers
+                </button>
+              </div>
+            )}
+
+            {query && !loadingOffers && (
+              <div className="mt-12 mb-12">
+                <h2 className="text-xl font-bold text-gray-900 mb-4">Stores matching "{query}"</h2>
+                {merchantResults.length === 0 ? (
+                  <div className="rounded-xl border border-gray-200 bg-white p-6 text-center text-sm text-gray-500">
+                    No stores found matching "{query}".
+                  </div>
+                ) : (
+                  <>
+                    <div className={activeView === "list" ? "space-y-4" : "grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4"}>
+                      {merchantResults.map((merchant) => (
+                        <MerchantSearchCard key={merchant.merchantId} merchant={merchant} view={activeView} />
+                      ))}
+                    </div>
+                    {hasMoreMerchants && (
+                      <div className="mt-6 text-center">
+                        <button 
+                          onClick={async () => {
+                            const nextPage = merchantPage + 1;
+                            const res = await unifiedSearch(query, { type: 'merchants', limit: 15, page: nextPage });
+                            const newMerchants = res?.data?.merchants || [];
+                            setMerchantResults(prev => [...prev, ...newMerchants]);
+                            setHasMoreMerchants(newMerchants.length === 15);
+                            setMerchantPage(nextPage);
+                          }}
+                          className="px-6 py-2 rounded-full border border-[#157A4F] text-[#157A4F] font-bold text-sm hover:bg-[#157A4F] hover:text-white transition-colors"
+                        >
+                          Load More Stores
+                        </button>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
+
+            {query && !loadingOffers && (
+              <div className="mb-12">
+                <h2 className="text-xl font-bold text-gray-900 mb-4">Products matching "{query}"</h2>
+                {productResults.length === 0 ? (
+                  <div className="rounded-xl border border-gray-200 bg-white p-6 text-center text-sm text-gray-500">
+                    No products found matching "{query}".
+                  </div>
+                ) : (
+                  <>
+                    <div className={activeView === "list" ? "space-y-4" : "grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4"}>
+                      {productResults.map((product) => (
+                        <ProductSearchCard key={product._id} product={product} view={activeView} />
+                      ))}
+                    </div>
+                    {hasMoreProducts && (
+                      <div className="mt-6 text-center">
+                        <button 
+                          onClick={async () => {
+                            const nextPage = productPage + 1;
+                            const res = await unifiedSearch(query, { type: 'products', limit: 15, page: nextPage });
+                            const newProducts = res?.data?.products || [];
+                            setProductResults(prev => [...prev, ...newProducts]);
+                            setHasMoreProducts(newProducts.length === 15);
+                            setProductPage(nextPage);
+                          }}
+                          className="px-6 py-2 rounded-full border border-[#157A4F] text-[#157A4F] font-bold text-sm hover:bg-[#157A4F] hover:text-white transition-colors"
+                        >
+                          Load More Products
+                        </button>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </section>

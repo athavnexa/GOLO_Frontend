@@ -51,20 +51,21 @@ export default function MerchantAnalyticsPage() {
   const perfs = analytics?.offersPerformance || [];
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] text-[#111827] font-poppins pb-16">
+    <div className="min-h-screen bg-[#FAFAFA] text-[#1b1b1b] pb-16" style={{ fontFamily: "var(--font-poppins), system-ui, sans-serif" }}>
       <MerchantNavbar activeKey="analytics" />
 
-      <main className="max-w-[1400px] mx-auto px-4 lg:px-8 xl:px-12 py-8">
+      <main className="w-full px-4 py-4 lg:px-10 lg:py-6">
+        <div className="mx-auto w-full max-w-[1400px]">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-8">
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold text-gray-900">Analytics Overview</h1>
-              <span className="flex items-center gap-1.5 bg-[#ECFDF5] text-[#10B981] px-2.5 py-0.5 rounded-full text-xs font-semibold border border-[#D1FAE5]">
+              <h1 className="text-[32px] font-semibold leading-none text-[#1e1e1e] lg:text-[42px]">Analytics</h1>
+              <span className="flex items-center gap-1.5 bg-[#ECFDF5] text-[#10B981] px-2.5 py-0.5 rounded-full text-[11px] font-bold border border-[#D1FAE5]">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]"></span> Live Data
               </span>
             </div>
-            <p className="text-sm text-gray-500 mt-1">Track and analyze your business performance in real-time.</p>
+            <p className="mt-3 text-[13px] text-[#6f6f6f] max-w-[500px]">Track and analyze your business performance in real-time.</p>
           </div>
           <div className="flex items-center gap-3">
             <Link href="/merchant/analytics/report" className="flex items-center gap-2 border border-gray-900 rounded-lg px-4 py-2 bg-white text-sm text-gray-900 font-bold hover:bg-gray-50 shadow-sm transition-colors">
@@ -150,6 +151,7 @@ export default function MerchantAnalyticsPage() {
 
         {/* Footer Actions Removed */}
 
+        </div>
       </main>
 
       {/* Bottom Banner */}

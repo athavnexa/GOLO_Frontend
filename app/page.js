@@ -379,6 +379,8 @@ function HomeContent() {
   const { user, loading, getUserAccountType } = useAuth();
   const selectedLocation = searchParams.get("location") || "";
   const selectedQuery = searchParams.get("q") || "";
+  const lat = searchParams.get("lat") || "";
+  const lng = searchParams.get("lng") || "";
 
   useEffect(() => {
     if (!loading && user) {
@@ -398,6 +400,8 @@ function HomeContent() {
         const response = await getHomepageRecommendations({
             location: selectedLocation || undefined,
             q: selectedQuery || undefined,
+            lat: lat || undefined,
+            lng: lng || undefined,
         });
 
         if (cancelled) return;
@@ -442,7 +446,7 @@ function HomeContent() {
     return () => {
       cancelled = true;
     };
-  }, [selectedLocation, selectedQuery]);
+  }, [selectedLocation, selectedQuery, lat, lng]);
 
   const handleShopClick = (item) => {
     if (!item?.merchantId || String(item.merchantId).startsWith("shop-")) return;

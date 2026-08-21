@@ -339,7 +339,7 @@ export default function MerchantQRScannerPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA]">
+    <div className="min-h-screen bg-[#FAFAFA] text-[#1b1b1b]" style={{ fontFamily: "var(--font-poppins), system-ui, sans-serif" }}>
       <style>{`
         @media (max-width: 767px) {
           #qr-reader,

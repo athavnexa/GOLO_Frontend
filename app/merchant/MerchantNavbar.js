@@ -167,7 +167,28 @@ export default function MerchantNavbar({ activeKey = "dashboard" }) {
                   notifications.map((n) => (
                     <div
                       key={n._id}
-                      onClick={() => handleMarkRead(n._id)}
+                      onClick={() => {
+                        handleMarkRead(n._id);
+                        setIsNotificationOpen(false);
+                        
+                        let targetUrl = '/merchant/dashboard'; // Default fallback
+                        
+                        const isOfferNotif = ['order_placed', 'order_accepted', 'order_rejected', 'new_offer', 'expiring_offer'].includes(n.type);
+                        const isAdNotif = ['wishlist_add', 'wishlist_remove'].includes(n.type);
+                        const referenceId = n.offerId || n.adId;
+
+                        if (isOfferNotif && referenceId && referenceId !== 'order') {
+                          targetUrl = `/merchant/offers/details?id=${referenceId}`;
+                        } else if (isAdNotif && n.adId) {
+                          targetUrl = `/product/${n.adId}`;
+                        } else if (n.adId && !isOfferNotif) {
+                          targetUrl = `/product/${n.adId}`;
+                        } else if (n.offerId) {
+                          targetUrl = `/merchant/offers/details?id=${n.offerId}`;
+                        }
+                        
+                        router.push(targetUrl);
+                      }}
                       className={`px-4 py-3 border-b border-[#f5f5f5] cursor-pointer hover:bg-[#f9f9f9] ${n.read ? "" : "bg-[#f0faf4]"}`}
                     >
                       <div className="flex-1 min-w-0">

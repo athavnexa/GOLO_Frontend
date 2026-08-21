@@ -10,6 +10,7 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   Package,
+  ShoppingBag,
   IndianRupee,
   Users,
   Tag,
@@ -150,7 +151,7 @@ function MerchantDashboardContent() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] text-[#111827] font-poppins">
+    <div className="min-h-screen bg-[#FAFAFA] text-[#1b1b1b]" style={{ fontFamily: "var(--font-poppins), system-ui, sans-serif" }}>
       <MerchantNavbar activeKey="dashboard" />
 
       <main className="w-full px-4 py-6 lg:px-8 xl:px-12">
@@ -161,12 +162,16 @@ function MerchantDashboardContent() {
           {/* Header Section */}
           <section className="mt-4 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-100 pb-6">
             <div className="flex items-start gap-4">
-              <div className="flex-shrink-0 w-16 h-16 rounded-full border-2 border-[#F59E0B] flex items-center justify-center text-[#F59E0B] text-xl font-bold bg-orange-50">
-                {initials}
+              <div className="flex-shrink-0 w-20 h-20 rounded-full border-2 border-[#F59E0B] flex items-center justify-center text-[#F59E0B] text-2xl font-bold bg-orange-50 relative overflow-hidden">
+                {merchantProfile?.profilePhoto ? (
+                  <Image src={merchantProfile.profilePhoto} alt={shopName} fill style={{ objectFit: "cover" }} />
+                ) : (
+                  initials
+                )}
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-[#111827]">{shopName}</h1>
-                <div className="flex items-center gap-2 mt-1">
+                <h1 className="text-[32px] font-semibold leading-none text-[#1e1e1e] lg:text-[42px]">{shopName}</h1>
+                <div className="flex items-center gap-2 mt-3">
                   <span className="px-2 py-0.5 bg-[#DCFCE7] text-[#157A4F] text-[11px] font-bold rounded">Open</span>
                   <span className="text-[12px] text-gray-500">Last updated {Math.floor((new Date() - lastUpdated) / 60000)} min ago</span>
                 </div>
@@ -193,41 +198,70 @@ function MerchantDashboardContent() {
           </section>
 
           {/* Stats Grid */}
-          <section className="mt-6 grid grid-cols-2 md:grid-cols-5 gap-0 border border-gray-200 rounded-lg overflow-hidden bg-white">
-            <div className="p-4 border-b md:border-b-0 md:border-r border-gray-200">
-              <div className="flex items-center gap-2 text-gray-500 mb-1">
-                <Calendar size={14} className="text-[#157A4F]" />
-                <span className="text-[12px] font-medium">Total Orders</span>
+          <section className="mt-6 flex flex-col gap-4 md:grid md:grid-cols-5">
+            {/* Total Orders */}
+            <div className="bg-white rounded-[16px] p-5 shadow-sm border border-gray-100 flex flex-col justify-between relative overflow-hidden h-32">
+              <div className="flex justify-between items-start">
+                <h3 className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Total Orders</h3>
+                <div className="w-7 h-7 rounded-full bg-[#f4f4f1] text-[#2cb56e] flex items-center justify-center">
+                  <ShoppingBag size={14} />
+                </div>
               </div>
-              <p className="text-2xl font-bold">{totalOrders}</p>
+              <div>
+                <div className="text-[28px] font-bold text-gray-900 leading-none">{totalOrders}</div>
+              </div>
             </div>
-            <div className="p-4 border-b md:border-b-0 md:border-r border-gray-200">
-              <div className="flex items-center gap-2 text-gray-500 mb-1">
-                <IndianRupee size={14} className="text-[#157A4F]" />
-                <span className="text-[12px] font-medium">Revenue</span>
+
+            {/* Revenue */}
+            <div className="bg-white rounded-[16px] p-5 shadow-sm border border-gray-100 flex flex-col justify-between relative overflow-hidden h-32">
+              <div className="flex justify-between items-start">
+                <h3 className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Revenue</h3>
+                <div className="w-7 h-7 rounded-full bg-[#eefaf2] text-[#2f9e58] flex items-center justify-center">
+                  <IndianRupee size={14} />
+                </div>
               </div>
-              <p className="text-2xl font-bold">{revenue}</p>
+              <div>
+                <div className="text-[28px] font-bold text-gray-900 leading-none">{revenue}</div>
+              </div>
             </div>
-            <div className="p-4 border-b md:border-b-0 md:border-r border-gray-200">
-              <div className="flex items-center gap-2 text-gray-500 mb-1">
-                <Users size={14} className="text-[#3B82F6]" />
-                <span className="text-[12px] font-medium">Customers</span>
+
+            {/* Customers */}
+            <div className="bg-white rounded-[16px] p-5 shadow-sm border border-gray-100 flex flex-col justify-between relative overflow-hidden h-32">
+              <div className="flex justify-between items-start">
+                <h3 className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Customers</h3>
+                <div className="w-7 h-7 rounded-full bg-[#eff6ff] text-[#3B82F6] flex items-center justify-center">
+                  <Users size={14} />
+                </div>
               </div>
-              <p className="text-2xl font-bold">{customers}</p>
+              <div>
+                <div className="text-[28px] font-bold text-gray-900 leading-none">{customers}</div>
+              </div>
             </div>
-            <div className="p-4 border-r md:border-b-0 border-gray-200">
-              <div className="flex items-center gap-2 text-gray-500 mb-1">
-                <Tag size={14} className="text-[#157A4F]" />
-                <span className="text-[12px] font-medium">Active Offers</span>
+
+            {/* Active Offers */}
+            <div className="bg-white rounded-[16px] p-5 shadow-sm border border-gray-100 flex flex-col justify-between relative overflow-hidden h-32">
+              <div className="flex justify-between items-start">
+                <h3 className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Active Offers</h3>
+                <div className="w-7 h-7 rounded-full bg-[#fcf5e3] text-[#f59e0b] flex items-center justify-center">
+                  <Tag size={14} />
+                </div>
               </div>
-              <p className="text-2xl font-bold">{activeOffers}</p>
+              <div>
+                <div className="text-[28px] font-bold text-gray-900 leading-none">{activeOffers}</div>
+              </div>
             </div>
-            <div className="p-4">
-              <div className="flex items-center gap-2 text-gray-500 mb-1">
-                <Heart size={14} className="text-[#EF4444]" />
-                <span className="text-[12px] font-medium">Followers</span>
+
+            {/* Followers */}
+            <div className="bg-white rounded-[16px] p-5 shadow-sm border border-gray-100 flex flex-col justify-between relative overflow-hidden h-32">
+              <div className="flex justify-between items-start">
+                <h3 className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Followers</h3>
+                <div className="w-7 h-7 rounded-full bg-[#fdf2f2] text-[#ef4444] flex items-center justify-center">
+                  <Heart size={14} />
+                </div>
               </div>
-              <p className="text-2xl font-bold">{followers}</p>
+              <div>
+                <div className="text-[28px] font-bold text-gray-900 leading-none">{followers}</div>
+              </div>
             </div>
           </section>
 
@@ -477,10 +511,14 @@ function MerchantDashboardContent() {
                     Open Shop <ArrowRight size={14} className="text-gray-400" />
                   </button>
                 </div>
-                <div className="absolute right-[-20px] top-0 bottom-0 w-1/2 flex items-center justify-end">
-                  <div className="w-full h-full relative">
-                    <div className="w-full h-full bg-[#f3ba3b] rounded-l-3xl shadow-lg flex items-center justify-center text-white/50 text-[10px] font-bold">Preview</div>
-                  </div>
+                <div className="absolute right-0 top-0 bottom-0 w-[45%] overflow-hidden rounded-l-3xl shadow-[-10px_0_15px_-3px_rgba(0,0,0,0.1)]">
+                  <Image 
+                    src="/images/merchant_shop_storefront.png" 
+                    alt="Store Preview" 
+                    fill 
+                    style={{ objectFit: "cover" }} 
+                    className="opacity-90"
+                  />
                 </div>
               </div>
 

@@ -1332,7 +1332,24 @@ function NavbarContent({
                               onClick={() => {
                                 if (!notif.read) handleMarkRead(notif._id);
                                 setShowNotifications(false);
-                                router.push('/profile/notifications');
+                                
+                                let targetUrl = '/profile/notifications';
+                                
+                                const isOfferNotif = ['order_placed', 'order_accepted', 'order_rejected', 'new_offer', 'expiring_offer'].includes(notif.type);
+                                const isAdNotif = ['wishlist_add', 'wishlist_remove'].includes(notif.type);
+                                const referenceId = notif.offerId || notif.adId;
+
+                                if (isOfferNotif && referenceId && referenceId !== 'order') {
+                                  targetUrl = `/nearby-deals/deal?offerId=${referenceId}`;
+                                } else if (isAdNotif && notif.adId) {
+                                  targetUrl = `/product/${notif.adId}`;
+                                } else if (notif.adId && !isOfferNotif) {
+                                  targetUrl = `/product/${notif.adId}`;
+                                } else if (notif.offerId) {
+                                  targetUrl = `/nearby-deals/deal?offerId=${notif.offerId}`;
+                                }
+                                
+                                router.push(targetUrl);
                               }}
                               className={`flex items-start gap-2.5 px-3.5 py-2.5 border-b border-gray-50 transition cursor-pointer sm:gap-3 sm:px-4 sm:py-3 ${
                                 notif.read

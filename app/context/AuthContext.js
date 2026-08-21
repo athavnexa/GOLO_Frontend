@@ -25,6 +25,7 @@ export function AuthProvider({ children }) {
         if (savedUser) {
             try {
                 setUser(JSON.parse(savedUser));
+                setLoading(false); // Instantly unblock the UI with cached user
             } catch {
                 localStorage.removeItem("user");
             }
@@ -162,6 +163,9 @@ export function AuthProvider({ children }) {
         clearStoredAuthTokens();
         localStorage.removeItem("user");
         setUser(null);
+        window.location.href = "/";
+        // Hang the promise forever so calling components don't execute their own redirects
+        await new Promise(() => {});
     }, []);
 
     const refreshProfile = useCallback(async () => {
