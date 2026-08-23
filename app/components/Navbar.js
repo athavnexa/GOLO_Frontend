@@ -118,9 +118,21 @@ function NavbarContent({
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Sync with URL search params
+  useEffect(() => {
+    const q = searchParams.get("q");
+    if (q !== null && q !== undefined) {
+      setSearchQuery(q);
+      if (setExternalSearchQuery) setExternalSearchQuery(q);
+    } else {
+      setSearchQuery("");
+      if (setExternalSearchQuery) setExternalSearchQuery("");
+    }
+  }, [searchParams]);
+
   // Sync with external prop if it changes
   useEffect(() => {
-    if (externalSearchQuery !== undefined) {
+    if (externalSearchQuery !== undefined && externalSearchQuery !== "") {
       setSearchQuery(externalSearchQuery);
     }
   }, [externalSearchQuery]);
@@ -613,18 +625,18 @@ function NavbarContent({
     }
   };
 
+
   const clearSearchAndShowLocationOffers = () => {
     handleSearchChange("");
     setShowSuggestions(false);
 
-    const fallbackLocation = location || currentLocationLabel || "";
-    const fallbackCoordinates =
-      currentLocationCoordinates &&
-      (!fallbackLocation || fallbackLocation === currentLocationLabel)
-        ? currentLocationCoordinates
-        : null;
+    // Always prefer the detected current location label + coordinates when clearing search.
+    // The user is saying "show me everything nearby" — use their live GPS coordinates.
+    const fallbackLocation = currentLocationLabel || location || "";
+    const fallbackCoordinates = currentLocationCoordinates || null;
 
-    if (!location && currentLocationLabel) {
+    if (currentLocationLabel) {
+      hasManualLocationRef.current = false;
       setLocation(currentLocationLabel);
     }
 

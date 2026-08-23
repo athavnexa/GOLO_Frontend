@@ -24,6 +24,7 @@ function normalizeStatus(status) {
     expired: "Expired",
     upcoming: "Upcoming",
     deleted: "Deleted",
+    paused: "Paused",
   };
   return map[status] || status;
 }
@@ -35,6 +36,8 @@ function parseDateValue(value) {
 }
 
 function getBannerDisplayStatus(row) {
+  if (row?.pausedAt) return "paused";
+  
   const rawStatus = String(row?.status || "").trim().toLowerCase();
   if (rawStatus === "deleted") return "deleted";
   if (rawStatus === "rejected") return "rejected";
@@ -281,9 +284,11 @@ export default function MerchantBannersPage() {
                                   ? "bg-[#eef2ff] text-[#4338ca]"
                                   : displayStatus === "deleted"
                                     ? "bg-[#fef2f2] text-[#ef4444]"
-                                    : displayStatus === "pending_payment"
-                                      ? "bg-[#fff8e6] text-[#d97706]"
-                                      : "bg-[#f3f4f6] text-[#4b5563]"
+                                    : displayStatus === "paused"
+                                      ? "bg-[#fef3c7] text-[#b45309]"
+                                      : displayStatus === "pending_payment"
+                                        ? "bg-[#fff8e6] text-[#d97706]"
+                                        : "bg-[#f3f4f6] text-[#4b5563]"
                         }`}
                         >
                           {displayStatus === "pending_payment" ? "Pending Payment" : normalizeStatus(displayStatus)}

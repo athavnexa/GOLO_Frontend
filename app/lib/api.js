@@ -218,6 +218,7 @@ export async function apiClient(endpoint, options = {}) {
         ...options,
         headers,
         credentials: 'include',
+        cache: 'no-store',
     };
 
     let response;
@@ -447,6 +448,10 @@ export async function verifyPasswordChangeOTP(otp) {
         method: 'POST',
         body: JSON.stringify({ otp }),
     });
+}
+
+export async function getLoyaltyHistory() {
+    return apiClient('/vouchers/loyalty-history');
 }
 
 export async function changePasswordWithOTP(otp, newPassword) {
@@ -990,15 +995,18 @@ export async function getNearbyOfferDetails(offerId) {
 // ============================================================
 
 export async function getPublicMerchantProfile(merchantId) {
+    if (!merchantId) return null;
     return apiClient(`/merchant/public/${merchantId}/profile`);
 }
 
 export async function getPublicMerchantStoreLocation(merchantId) {
-    return apiClient(`/merchant/public/${encodeURIComponent(merchantId)}/store-location`);
-  }
+    if (!merchantId) return null;
+    return apiClient(`/merchant/public/${merchantId}/store-location`);
+}
 
 export async function getPublicMerchantReviewStats(merchantId) {
-    return apiClient(`/reviews/merchant/${merchantId}/stats`);
+    if (!merchantId) return null;
+    return apiClient(`/reviews/merchant/${merchantId}/public-stats`);
 }
 
 export async function searchMerchants(query, { page = 1, limit = 10 } = {}) {

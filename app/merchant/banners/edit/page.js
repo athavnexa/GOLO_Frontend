@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ArrowLeft, Save, Sparkles, Trash2 } from "lucide-react";
+import { ArrowLeft, Save, Sparkles, Trash2, Pause, Play } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
 import MerchantNavbar from "../../MerchantNavbar";
 import { getMyBannerPromotions, updateMyBannerPromotion, deleteBannerPromotion } from "../../../lib/api";
@@ -88,6 +88,7 @@ function MerchantBannerEditContent() {
     endDate: "",
     description: "",
     targetCities: [],
+    isPaused: false,
   });
 
   const [isDeleting, setIsDeleting] = useState(false);
@@ -153,6 +154,27 @@ function MerchantBannerEditContent() {
     }
   };
 
+  const handleTogglePause = async () => {
+    if (!formData.id) return;
+
+    try {
+      setIsSaving(true);
+      setFetchError("");
+      setSaveMessage("");
+
+      const action = formData.isPaused ? "resume" : "pause";
+      await updateMyBannerPromotion(formData.id, { action });
+      
+      setSaveMessage(formData.isPaused ? "Banner resumed successfully. The end date has been extended." : "Banner paused successfully.");
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
+    } catch (error) {
+      setFetchError(error?.data?.message || error?.message || "Failed to change banner status");
+      setIsSaving(false);
+    }
+  };
+
   useEffect(() => {
     if (!loading && !user) {
       router.replace("/login?redirect=/merchant/banners/edit");
@@ -193,6 +215,7 @@ function MerchantBannerEditContent() {
           endDate: toDateInputValue(banner.endDate),
           description: banner.description || "",
           targetCities: banner.targetCities || [],
+          isPaused: !!banner.pausedAt,
         });
       } catch (error) {
         setFetchError(error?.message || "Failed to load banner");
@@ -281,12 +304,12 @@ function MerchantBannerEditContent() {
                         <p className="mt-2 text-[11px] text-[#667085]">Select a local image to replace the current banner artwork.</p>
                       </label>
                       <label className="text-[12px] font-semibold text-[#374151]">
-                        Start date
-                        <input type="date" value={formData.startDate} onChange={(event) => handleInputChange("startDate", event.target.value)} className="mt-2 h-11 w-full rounded-[12px] border border-[#d7dce4] bg-white px-3 text-[13px] outline-none" />
+                        Start date (Locked)
+                        <input type="date" value={formData.startDate} disabled className="mt-2 h-11 w-full rounded-[12px] border border-[#d7dce4] bg-gray-50 px-3 text-[13px] text-gray-500 outline-none cursor-not-allowed" />
                       </label>
                       <label className="text-[12px] font-semibold text-[#374151]">
-                        End date
-                        <input type="date" value={formData.endDate} onChange={(event) => handleInputChange("endDate", event.target.value)} className="mt-2 h-11 w-full rounded-[12px] border border-[#d7dce4] bg-white px-3 text-[13px] outline-none" />
+                        End date (Locked)
+                        <input type="date" value={formData.endDate} disabled className="mt-2 h-11 w-full rounded-[12px] border border-[#d7dce4] bg-gray-50 px-3 text-[13px] text-gray-500 outline-none cursor-not-allowed" />
                       </label>
                       <div className="text-[12px] font-semibold text-[#374151] md:col-span-2 pt-2">
                         Target Locations
@@ -333,22 +356,19 @@ function MerchantBannerEditContent() {
                     </div>
                   </div>
 
-                  <div className="rounded-[20px] border border-[#edf0f4] bg-white p-5 flex flex-col gap-4">
-                    <p className="text-[13px] text-gray-500">
-                      If you no longer want this banner to be active, you can delete it.
-                    </p>
-                    <button 
-                      onClick={() => setShowDeleteModal(true)} 
-                      disabled={isDeleting || isSaving}
-                      className="w-fit rounded-[12px] bg-red-500 px-5 py-2.5 text-[13px] font-semibold text-white shadow-sm transition hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-70"
-                    >
-                      {isDeleting ? "Deleting..." : "Delete Banner"}
-                    </button>
-                  </div>
-
                   <div className="flex flex-wrap gap-3">
                     <button onClick={handleSave} disabled={isSaving} className="inline-flex items-center gap-2 rounded-[12px] bg-[#157a4f] px-5 py-3 text-[13px] font-semibold text-white shadow-sm transition hover:bg-[#12653e] disabled:cursor-not-allowed disabled:opacity-70">
                       <Save size={14} /> {isSaving ? "Saving..." : "Save Banner"}
+                    </button>
+                    <button onClick={handleTogglePause} disabled={isSaving} className="inline-flex items-center gap-2 rounded-[12px] bg-[#ff9800] px-5 py-3 text-[13px] font-semibold text-white shadow-sm transition hover:bg-[#e68a00] disabled:cursor-not-allowed disabled:opacity-70">
+                      {formData.isPaused ? <Play size={14} /> : <Pause size={14} />} {formData.isPaused ? "Resume Banner" : "Pause Banner"}
+                    </button>
+                    <button 
+                      onClick={() => setShowDeleteModal(true)} 
+                      disabled={isDeleting || isSaving}
+                      className="inline-flex items-center gap-2 rounded-[12px] bg-red-500 px-5 py-3 text-[13px] font-semibold text-white shadow-sm transition hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-70"
+                    >
+                      <Trash2 size={14} /> {isDeleting ? "Deleting..." : "Delete Banner"}
                     </button>
                     <button onClick={() => router.push("/merchant/banners")} className="rounded-[12px] border border-[#d7dce4] bg-white px-5 py-3 text-[13px] font-semibold text-[#374151]">Cancel</button>
                   </div>

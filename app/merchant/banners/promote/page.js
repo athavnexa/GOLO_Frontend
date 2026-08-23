@@ -69,8 +69,18 @@ export default function PromoteBannerPage() {
   const { user, loading } = useAuth();
 
   const [bannerTitle, setBannerTitle] = useState("");
-  const [bannerCategory, setBannerCategory] = useState("Fashion");
+  const [bannerCategory, setBannerCategory] = useState("");
+  const [subCategory, setSubCategory] = useState("");
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [selectedDates, setSelectedDates] = useState([]);
+
+  useEffect(() => {
+    if (user && !bannerCategory) {
+      const merchantCat = user?.merchantProfile?.storeCategory || user?.merchantProfile?.businessCategory || user?.storeCategory || user?.category || "Uncategorized";
+      setBannerCategory(merchantCat);
+    }
+  }, [user, bannerCategory]);
   
   // New: Coverage scale (Town, City, District)
   const [coverageScale, setCoverageScale] = useState(null);
@@ -205,6 +215,7 @@ export default function PromoteBannerPage() {
       const payload = {
         bannerTitle,
         bannerCategory,
+        subCategory,
         imageUrl: finalImageUrl,
         selectedDates: selectedDates,
         targetCities,
@@ -299,15 +310,21 @@ export default function PromoteBannerPage() {
 
                   <div>
                     <label className="block text-[13px] font-semibold text-[#2a2a2a] mb-2">Banner Category</label>
-                    <select
+                    <input
                       value={bannerCategory}
-                      onChange={(e) => setBannerCategory(e.target.value)}
+                      readOnly
+                      className="h-10 w-full rounded-[8px] border border-[#dddddd] bg-[#f5f5f5] px-3 text-[12px] text-[#5a5a5a] outline-none cursor-not-allowed"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[13px] font-semibold text-[#2a2a2a] mb-2">Sub Category (Optional)</label>
+                    <input
+                      value={subCategory}
+                      onChange={(e) => setSubCategory(e.target.value)}
+                      placeholder="If different, specify category here"
                       className="h-10 w-full rounded-[8px] border border-[#dddddd] bg-white px-3 text-[12px] text-[#2f2f2f] outline-none focus:border-[#2f9e58]"
-                    >
-                      {bannerCategories.map((item) => (
-                        <option key={item} value={item}>{item}</option>
-                      ))}
-                    </select>
+                    />
                   </div>
 
                   <div className="bg-white border border-[#e8e4db] rounded-2xl p-6">
@@ -326,9 +343,6 @@ export default function PromoteBannerPage() {
                               checked={coverageScale === scale} 
                               onChange={() => {
                                 setCoverageScale(scale);
-                                setTargetCities([]);
-                                setTargetLocations([]);
-                                setTargetDailyRates([]);
                                 setCityInput("");
                               }}
                               className="hidden" 
@@ -556,7 +570,10 @@ export default function PromoteBannerPage() {
               </div>
 
               <button
-                onClick={handleSubmitBanner}
+                onClick={() => {
+                  setAgreedToTerms(false);
+                  setIsConfirmModalOpen(true);
+                }}
                 disabled={submitting}
                 className="mt-6 h-10 w-full rounded-[8px] bg-[#2f9e58] disabled:bg-[#9fcfad] text-white text-[13px] font-semibold inline-flex items-center justify-center"
               >
@@ -590,6 +607,49 @@ export default function PromoteBannerPage() {
         message={moderationWarningInfo.message}
         restrictedUntil={moderationWarningInfo.restrictedUntil}
       />
+
+      {isConfirmModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+            <h3 className="mb-4 text-xl font-bold text-gray-900">Confirm Your Submission</h3>
+            <p className="mb-4 text-sm text-gray-600 leading-relaxed">
+              Please check the uploaded banner and selected dates carefully. The dates cannot be changed once submitted, and the banner image can only be updated once during its active period. Ensure all information is accurate before proceeding.
+            </p>
+            
+            <label className="mb-6 flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={agreedToTerms}
+                onChange={(e) => setAgreedToTerms(e.target.checked)}
+                className="mt-1 h-4 w-4 rounded border-gray-300 text-[#2f9e58] focus:ring-[#2f9e58]"
+              />
+              <span className="text-sm font-medium text-gray-800">
+                I agree that the above banner and dates are correct and not changeable.
+              </span>
+            </label>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setIsConfirmModalOpen(false)}
+                className="flex-1 rounded-xl border border-gray-300 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  if (!agreedToTerms) return;
+                  setIsConfirmModalOpen(false);
+                  handleSubmitBanner();
+                }}
+                disabled={!agreedToTerms}
+                className="flex-1 rounded-xl bg-[#2f9e58] py-3 text-sm font-semibold text-white disabled:bg-[#9fcfad] hover:bg-[#268047] transition-colors"
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <footer className="bg-[#e8ad2f] border-t border-[#d49b22] text-[#1b1b1b] px-4 py-4 lg:bg-[#f0b330] lg:px-8 lg:py-7 mt-4 lg:mt-6">
         <div className="max-w-[1500px] mx-auto flex flex-col lg:flex-row gap-8 lg:gap-12 items-start justify-between">

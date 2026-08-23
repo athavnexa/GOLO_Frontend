@@ -19,7 +19,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { useAuth } from "../context/AuthContext";
 import { useRoleProtection, LoadingScreen } from "../components/RoleBasedRedirect";
-import { getProfile, getMyAds, updateProfile, getUserDealStatistics } from "../lib/api";
+import { getProfile, getMyAds, updateProfile, getUserDealStatistics, getLoyaltyHistory } from "../lib/api";
 import { reverseGeocode } from "../services/leafletService";
 
 function getRenderableImageSrc(src) {
@@ -59,6 +59,11 @@ export default function ProfilePage() {
   const [savingEdit, setSavingEdit] = useState(false);
   const [editError, setEditError] = useState("");
   const [editSuccess, setEditSuccess] = useState("");
+  
+  const [showLoyaltyModal, setShowLoyaltyModal] = useState(false);
+  const [loyaltyHistory, setLoyaltyHistory] = useState([]);
+  const [loadingLoyalty, setLoadingLoyalty] = useState(false);
+
   const [avatarPreview, setAvatarPreview] = useState("");
   const [editForm, setEditForm] = useState({
     name: "",
@@ -386,6 +391,21 @@ export default function ProfilePage() {
     }
   };
 
+  const handleOpenLoyaltyModal = async () => {
+    setShowLoyaltyModal(true);
+    setLoadingLoyalty(true);
+    try {
+      const res = await getLoyaltyHistory();
+      if (res.success) {
+        setLoyaltyHistory(res.data || []);
+      }
+    } catch (e) {
+      console.error("Failed to fetch loyalty history", e);
+    } finally {
+      setLoadingLoyalty(false);
+    }
+  };
+
   return (
     <>
       <Navbar />
@@ -437,7 +457,10 @@ export default function ProfilePage() {
 
               <div className="mt-5 pt-5 border-t border-[#efefef]">
                 <div className="grid grid-cols-2 xl:grid-cols-4 gap-3">
-                  <div className="rounded-[10px] border border-[#d8d8d8] bg-[#f8f8f8] px-5 py-5 min-h-[90px] shadow-[0_1px_0_rgba(0,0,0,0.03)]">
+                  <div 
+                    onClick={handleOpenLoyaltyModal}
+                    className="rounded-[10px] border border-[#d8d8d8] bg-[#f8f8f8] px-5 py-5 min-h-[90px] shadow-[0_1px_0_rgba(0,0,0,0.03)] cursor-pointer hover:bg-white hover:border-[#157a4f] hover:shadow-sm transition-all"
+                  >
                     <div className="flex items-center gap-3">
                       <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#157a4f] text-white shrink-0">
                         <Star size={14} />
@@ -706,6 +729,74 @@ export default function ProfilePage() {
                 className="h-11 min-w-[170px] rounded-xl bg-[#157a4f] text-white text-[15px] font-semibold shadow-md hover:bg-[#10613f] transition disabled:opacity-70"
               >
                 {savingEdit ? "Saving..." : "Save Changes"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showLoyaltyModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl max-h-[85vh] flex flex-col">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-4 mb-4">
+              <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                <Star className="text-[#157a4f]" size={20} /> Loyalty Points History
+              </h3>
+              <button
+                onClick={() => setShowLoyaltyModal(false)}
+                className="text-gray-400 hover:text-gray-600 transition"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div className="overflow-y-auto pr-2 custom-scrollbar flex-1">
+              {loadingLoyalty ? (
+                <div className="flex justify-center items-center py-12">
+                  <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#157a4f] border-t-transparent" />
+                </div>
+              ) : loyaltyHistory.length > 0 ? (
+                <ul className="space-y-3">
+                  {loyaltyHistory.map((item) => (
+                    <li key={item.id} className="rounded-xl border border-gray-100 bg-gray-50/50 p-4 hover:border-gray-200 transition">
+                      <div className="flex justify-between items-start gap-3">
+                        <div>
+                          <p className="font-semibold text-gray-900">{item.storeName}</p>
+                          <p className="text-sm text-gray-600 mt-0.5">{item.offerName}</p>
+                          <p className="text-xs text-gray-400 mt-2">
+                            {new Date(item.date).toLocaleDateString("en-GB", {
+                              day: "2-digit",
+                              month: "short",
+                              year: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </p>
+                        </div>
+                        <div className="shrink-0 flex items-center gap-1.5 bg-[#e8f5e9] text-[#157a4f] font-bold px-3 py-1.5 rounded-lg text-sm">
+                          <Plus size={14} /> {item.points}
+                        </div>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <div className="text-center py-12 px-4">
+                  <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <Star className="text-gray-300" size={28} />
+                  </div>
+                  <p className="text-gray-500 font-medium">No loyalty points earned yet.</p>
+                  <p className="text-sm text-gray-400 mt-1">Claim and redeem offers to start earning!</p>
+                </div>
+              )}
+            </div>
+            
+            <div className="pt-4 mt-auto border-t border-gray-100">
+              <button
+                onClick={() => setShowLoyaltyModal(false)}
+                className="w-full rounded-xl bg-gray-100 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-200 transition"
+              >
+                Close
               </button>
             </div>
           </div>

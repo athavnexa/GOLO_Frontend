@@ -391,6 +391,7 @@ function NearbyDealsPageContent() {
     "Free Gift Offer": false,
   });
   const [rawOffers, setRawOffers] = useState([]);
+  const [displayLimit, setDisplayLimit] = useState(16);
   const [merchantResults, setMerchantResults] = useState([]);
   const [productResults, setProductResults] = useState([]);
   const [merchantPage, setMerchantPage] = useState(1);
@@ -471,8 +472,27 @@ function NearbyDealsPageContent() {
     }
   }, [location]);
 
+  // 1) Initialize from global storage first to prevent "0 offers" blink
   useEffect(() => {
-    if (typeof window === "undefined" || !("geolocation" in navigator)) {
+    if (typeof window === "undefined") return;
+    try {
+      const stored = localStorage.getItem("golo_current_location");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed?.coordinates?.lat && parsed?.coordinates?.lng) {
+          setUserCoordinates(parsed.coordinates);
+        }
+      }
+    } catch (e) {}
+  }, []);
+
+  // 2) Keep coordinates fresh via geolocation watch
+  useEffect(() => {
+    if (
+      typeof window === "undefined" ||
+      !navigator.geolocation ||
+      !navigator.geolocation.watchPosition
+    ) {
       setLocationStatus("unavailable");
       setLocationError("Location services are not available in this browser.");
       return;
@@ -563,6 +583,8 @@ function NearbyDealsPageContent() {
       setLoadingOffers(true);
       setError("");
 
+      let finalOffers = [];
+
       const resolvedLat =
         typeof userCoordinates?.lat === "number" &&
         !Number.isNaN(userCoordinates.lat)
@@ -579,26 +601,22 @@ function NearbyDealsPageContent() {
       const hasManualCoordinates =
         manualLatitude !== null && manualLongitude !== null;
       const hasLocationQuery = Boolean(String(location || "").trim());
-      // When a location string is provided (e.g. "Pune"), do not use live GPS coords,
-      // otherwise results get mixed with the current device location.
-      const fetchLat = hasLocationQuery
-        ? hasManualCoordinates
-          ? manualLatitude
-          : undefined
-        : hasManualCoordinates
-          ? manualLatitude
-          : resolvedLat;
-      const fetchLng = hasLocationQuery
-        ? hasManualCoordinates
-          ? manualLongitude
-          : undefined
-        : hasManualCoordinates
-          ? manualLongitude
-          : resolvedLng;
+
+      // Priority: manual coordinates from URL > live GPS coordinates > nothing.
+      // Always prefer real coordinates over text-only filtering.
+      const fetchLat = hasManualCoordinates
+        ? manualLatitude
+        : resolvedLat;
+      const fetchLng = hasManualCoordinates
+        ? manualLongitude
+        : resolvedLng;
       const hasCoordinateSearch =
         typeof fetchLat === "number" && typeof fetchLng === "number";
+      // Only pass the location string for text-based filtering when we have
+      // NO coordinates at all. When we have coordinates, the radius filter
+      // is far more reliable than text matching.
       const locationForRequest =
-        hasLocationQuery && !hasManualCoordinates ? location : "";
+        hasLocationQuery && !hasCoordinateSearch ? location : "";
 
       try {
         const response = await getNearbyOffers({
@@ -642,14 +660,8 @@ function NearbyDealsPageContent() {
           strictRows.length === 0
         ) {
           if (fetchSeq !== nearbyFetchSeqRef.current) return;
-          setRawOffers([]);
-          setLoadingOffers(false);
-          return;
-        }
-
-        // Graceful fallback: if strict geofence returns empty, show relevant offers
-        // instead of a blank state (helps when merchant coords are incomplete/inaccurate).
-        if (
+          finalOffers = [];
+        } else if (
           strictRows.length === 0 &&
           fetchLat !== undefined &&
           fetchLng !== undefined &&
@@ -677,58 +689,66 @@ function NearbyDealsPageContent() {
           const fallbackRows = Array.isArray(fallbackResponse?.data)
             ? fallbackResponse.data.map(normalizeNearbyOffer)
             : [];
-          setRawOffers(fallbackRows);
+          finalOffers = fallbackRows;
         } else {
           if (fetchSeq !== nearbyFetchSeqRef.current) return;
-          setRawOffers(strictRows);
+          finalOffers = strictRows;
         }
       } catch (err) {
         if (fetchSeq !== nearbyFetchSeqRef.current) return;
-        setError(err?.message || "Failed to load nearby offers.");
-        // For explicit location searches, never keep stale nearby results.
+        console.error("getNearbyOffers failed:", err);
+        // Do NOT set error here, because unifiedSearch might still succeed and provide results!
         if (String(location || "").trim()) {
-          setRawOffers([]);
-        }
-      } finally {
-        if (fetchSeq !== nearbyFetchSeqRef.current) return;
-        setLoadingOffers(false);
-        
-        if (query) {
-          try {
-            setMerchantPage(1);
-            setProductPage(1);
-            setOfferPage(1);
-            const res = await unifiedSearch(query, { type: 'all', limit: 15, page: 1 });
-            if (fetchSeq !== nearbyFetchSeqRef.current) return;
-            
-            const unifiedMerchants = res?.data?.merchants || [];
-            const unifiedProducts = res?.data?.products || [];
-            const unifiedOffers = res?.data?.offers || [];
-            
-            setMerchantResults(unifiedMerchants);
-            setProductResults(unifiedProducts);
-            
-            setHasMoreMerchants(unifiedMerchants.length === 15);
-            setHasMoreProducts(unifiedProducts.length === 15);
-            setHasMoreOffers(unifiedOffers.length === 15);
-            
-            // Merge unified offers into rawOffers (avoiding duplicates)
-            setRawOffers((prev) => {
-              const existingIds = new Set(prev.map(o => o.offerId || o._id));
-              const newOffers = unifiedOffers.map(normalizeNearbyOffer).filter(o => !existingIds.has(o.offerId || o._id));
-              return [...prev, ...newOffers];
-            });
-          } catch (err) {
-            console.error("Failed to load unified search", err);
-          }
-        } else {
-          setMerchantResults([]);
-          setProductResults([]);
-          setHasMoreMerchants(false);
-          setHasMoreProducts(false);
-          setHasMoreOffers(false);
+          finalOffers = [];
         }
       }
+      
+      if (query) {
+        try {
+          setMerchantPage(1);
+          setProductPage(1);
+          setOfferPage(1);
+          const res = await unifiedSearch(query, { type: 'all', limit: 16, page: 1 });
+          if (fetchSeq !== nearbyFetchSeqRef.current) return;
+          
+          const unifiedMerchants = res?.data?.merchants || [];
+          const unifiedProducts = res?.data?.products || [];
+          const unifiedOffers = res?.data?.offers || [];
+          
+          setMerchantResults(unifiedMerchants);
+          setProductResults(unifiedProducts);
+          
+          setHasMoreMerchants(unifiedMerchants.length === 16);
+          setHasMoreProducts(unifiedProducts.length === 16);
+          setHasMoreOffers(unifiedOffers.length === 16);
+          
+          const newOffers = unifiedOffers.map(normalizeNearbyOffer);
+          const existingIds = new Set(finalOffers.map((o) => o.offerId || o.requestId || o._id));
+          const uniqueNewOffers = newOffers.filter((o) => {
+            const id = o.offerId || o.requestId || o._id;
+            return id ? !existingIds.has(id) : true;
+          });
+          
+          finalOffers = [...finalOffers, ...uniqueNewOffers];
+        } catch (err) {
+          console.error("Failed to load unified search", err);
+          if (finalOffers.length === 0) {
+            setError("Search failed to load results. Please try again.");
+          }
+        }
+      } else {
+        setMerchantResults([]);
+        setProductResults([]);
+        setHasMoreMerchants(false);
+        setHasMoreProducts(false);
+        setHasMoreOffers(false);
+      }
+
+      setDisplayLimit(16);
+      
+      // Force React to recognize a new array reference
+      setRawOffers([...finalOffers]);
+      setLoadingOffers(false);
     };
 
     loadNearbyOffers();
@@ -748,51 +768,32 @@ function NearbyDealsPageContent() {
     activeNowOnly,
   ]);
 
-  const filteredDeals = useMemo(() => {
+  const filteredDeals = (() => {
     const rows = rawOffers.filter((row) => {
-      // Respect activeNowOnly toggle: when enabled, hide offers outside visibility window.
-      if (activeNowOnly && !row?.isActiveNow) {
+      if (activeNowOnly && row?.isActiveNow !== undefined && !row.isActiveNow) {
         return false;
       }
-
       if (topDiscountOnly && toNumber(row?.discountPercent, 0) < 30) {
         return false;
       }
-
       if (selectedTypeLabels.length > 0) {
-        const typeMatched = selectedTypeLabels.some((typeLabel) =>
-          matchOfferType(row, typeLabel),
-        );
-        if (!typeMatched) {
-          return false;
-        }
+        const typeMatched = selectedTypeLabels.some((typeLabel) => matchOfferType(row, typeLabel));
+        if (!typeMatched) return false;
       }
-
-      // Exclude expired offers from nearby/category listings. Expired deals
-      // should only appear in the user's `My Deals` view when they have
-      // previously claimed or redeemed them.
-      const expiryCandidates =
-        row?.endsAt ||
-        row?.expiresAt ||
-        row?.expiry ||
-        row?.expires_at ||
-        row?.endDate;
+      const expiryCandidates = row?.endsAt || row?.expiresAt || row?.expiry || row?.expires_at || row?.endDate;
       if (expiryCandidates) {
         const ts = new Date(expiryCandidates).getTime();
-        if (!Number.isNaN(ts) && ts <= Date.now()) {
+        if (!Number.isNaN(ts) && ts < Date.now() - 86400000) {
           return false;
         }
       }
-
       return true;
     });
 
     const sortedRows = [...rows];
 
     if (sortBy === "price_asc") {
-      sortedRows.sort(
-        (a, b) => toNumber(a?.displayPrice, 0) - toNumber(b?.displayPrice, 0),
-      );
+      sortedRows.sort((a, b) => toNumber(a?.displayPrice, 0) - toNumber(b?.displayPrice, 0));
     } else if (sortBy === "price_desc") {
       sortedRows.sort(
         (a, b) => toNumber(b?.displayPrice, 0) - toNumber(a?.displayPrice, 0),
@@ -822,30 +823,33 @@ function NearbyDealsPageContent() {
       });
     }
 
-    if (!location) {
+    if (!location || location === "Current Location" || location === "Your Location" || location === "Detecting location...") {
       return sortedRows;
     }
 
     if (manualLatitude !== null && manualLongitude !== null) {
-      return sortedRows.filter((row) => isWithinRadius(row, distanceRadius));
+      return sortedRows.filter((row) => {
+        // Only filter by radius if we have distanceKm. Keyword search results lack this, so allow them.
+        if (typeof row?.distanceKm !== 'number') return true; 
+        return isWithinRadius(row, distanceRadius);
+      });
     }
 
-    // When user provided a location string, only include offers whose merchant
-    // store location/address contains that location. Use a normalized, punctuation-
-    // insensitive match so queries like "Kolhapur, Maharashtra, India" match
-    // stored addresses such as "Kolhapur District, Maharashtra, India".
-    return sortedRows.filter((row) => offerMatchesLocation(row, location));
-  }, [
-    rawOffers,
-    activeNowOnly,
-    topDiscountOnly,
-    selectedTypeLabels,
-    location,
-    sortBy,
-    distanceRadius,
-    manualLatitude,
-    manualLongitude,
-  ]);
+    // If we reach here, we check the location string against the address,
+    // BUT if the row has distanceKm, it was already fetched via GPS radius, so we just use that!
+    return sortedRows.filter((row) => {
+      // If the row was fetched geographically (has distanceKm), we just check the radius.
+      if (typeof row?.distanceKm === 'number') {
+        return isWithinRadius(row, distanceRadius);
+      }
+      
+      // If we don't have merchant details (like from unifiedSearch), allow it
+      if (!row?.merchant?.address && !row?.merchant?.city && !row?.merchant?.name) {
+        return true; 
+      }
+      return offerMatchesLocation(row, location);
+    });
+  })();
 
   const summary = useMemo(() => {
     const total = filteredDeals.length;
@@ -1161,17 +1165,19 @@ function NearbyDealsPageContent() {
                 <NearbyDealsSkeleton view={activeView} />
               ) : filteredDeals.length === 0 ? (
                 <div className="col-span-full rounded-xl border border-gray-200 bg-white p-6 text-center text-sm text-gray-500">
-                  {location ? (
+                  {query ? (
+                    <>No deals found matching "{query}".</>
+                  ) : location ? (
                     <>No deals found for "{location}".</>
                   ) : (
                     <>No offers found for the selected filters.</>
                   )}
                 </div>
               ) : (
-                filteredDeals.map((deal) => (
+                filteredDeals.slice(0, displayLimit).map((deal, index) => (
                   activeView === "list" ? (
                     <article
-                      key={deal.offerId}
+                      key={deal.offerId || deal._id || deal.requestId || index}
                       className="group flex flex-col md:flex-row overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-[#157A4F] hover:shadow-lg"
                     >
                       <div className="relative h-48 md:h-auto md:w-[35%] shrink-0 overflow-hidden bg-gray-100">
@@ -1240,7 +1246,7 @@ function NearbyDealsPageContent() {
                     </article>
                   ) : (
                     <article
-                      key={deal.offerId}
+                      key={deal.offerId || deal._id || deal.requestId || index}
                       className="group flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-[#157A4F] hover:shadow-lg"
                     >
                       <div className="relative h-44 w-full overflow-hidden bg-gray-100 sm:h-36">
@@ -1292,20 +1298,25 @@ function NearbyDealsPageContent() {
                 ))
               )}
             </div>
-            {query && hasMoreOffers && (
+            {(filteredDeals.length > displayLimit || (query && hasMoreOffers)) && (
               <div className="mt-6 text-center">
                 <button 
                   onClick={async () => {
-                    const nextPage = offerPage + 1;
-                    const res = await unifiedSearch(query, { type: 'offers', limit: 15, page: nextPage });
-                    const newOffers = (res?.data?.offers || []).map(normalizeNearbyOffer);
-                    setRawOffers(prev => {
-                      const existingIds = new Set(prev.map(o => o.offerId || o._id));
-                      const filtered = newOffers.filter(o => !existingIds.has(o.offerId || o._id));
-                      return [...prev, ...filtered];
-                    });
-                    setHasMoreOffers(newOffers.length === 15);
-                    setOfferPage(nextPage);
+                    if (filteredDeals.length > displayLimit) {
+                      setDisplayLimit(prev => prev + 16);
+                    } else if (query && hasMoreOffers) {
+                      const nextPage = offerPage + 1;
+                      const res = await unifiedSearch(query, { type: 'offers', limit: 16, page: nextPage });
+                      const newOffers = (res?.data?.offers || []).map(normalizeNearbyOffer);
+                      setRawOffers(prev => {
+                        const existingIds = new Set(prev.map(o => o.offerId || o._id));
+                        const filtered = newOffers.filter(o => !existingIds.has(o.offerId || o._id));
+                        return [...prev, ...filtered];
+                      });
+                      setDisplayLimit(prev => prev + 16);
+                      setHasMoreOffers(newOffers.length === 16);
+                      setOfferPage(nextPage);
+                    }
                   }}
                   className="px-6 py-2 rounded-full border border-[#157A4F] text-[#157A4F] font-bold text-sm hover:bg-[#157A4F] hover:text-white transition-colors"
                 >
@@ -1325,7 +1336,7 @@ function NearbyDealsPageContent() {
                   <>
                     <div className={activeView === "list" ? "space-y-4" : "grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4"}>
                       {merchantResults.map((merchant) => (
-                        <MerchantSearchCard key={merchant.merchantId} merchant={merchant} view={activeView} />
+                        <MerchantSearchCard key={merchant._id || merchant.merchantId} merchant={merchant} view={activeView} />
                       ))}
                     </div>
                     {hasMoreMerchants && (
@@ -1333,10 +1344,10 @@ function NearbyDealsPageContent() {
                         <button 
                           onClick={async () => {
                             const nextPage = merchantPage + 1;
-                            const res = await unifiedSearch(query, { type: 'merchants', limit: 15, page: nextPage });
+                            const res = await unifiedSearch(query, { type: 'merchants', limit: 16, page: nextPage });
                             const newMerchants = res?.data?.merchants || [];
                             setMerchantResults(prev => [...prev, ...newMerchants]);
-                            setHasMoreMerchants(newMerchants.length === 15);
+                            setHasMoreMerchants(newMerchants.length === 16);
                             setMerchantPage(nextPage);
                           }}
                           className="px-6 py-2 rounded-full border border-[#157A4F] text-[#157A4F] font-bold text-sm hover:bg-[#157A4F] hover:text-white transition-colors"
@@ -1369,10 +1380,10 @@ function NearbyDealsPageContent() {
                         <button 
                           onClick={async () => {
                             const nextPage = productPage + 1;
-                            const res = await unifiedSearch(query, { type: 'products', limit: 15, page: nextPage });
+                            const res = await unifiedSearch(query, { type: 'products', limit: 16, page: nextPage });
                             const newProducts = res?.data?.products || [];
                             setProductResults(prev => [...prev, ...newProducts]);
-                            setHasMoreProducts(newProducts.length === 15);
+                            setHasMoreProducts(newProducts.length === 16);
                             setProductPage(nextPage);
                           }}
                           className="px-6 py-2 rounded-full border border-[#157A4F] text-[#157A4F] font-bold text-sm hover:bg-[#157A4F] hover:text-white transition-colors"
