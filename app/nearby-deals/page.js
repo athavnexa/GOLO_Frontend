@@ -723,13 +723,15 @@ function NearbyDealsPageContent() {
           setHasMoreOffers(unifiedOffers.length === 16);
           
           const newOffers = unifiedOffers.map(normalizeNearbyOffer);
-          const existingIds = new Set(finalOffers.map((o) => o.offerId || o.requestId || o._id));
-          const uniqueNewOffers = newOffers.filter((o) => {
+          const combinedOffers = [...finalOffers, ...newOffers];
+          const seenIds = new Set();
+          finalOffers = combinedOffers.filter((o) => {
             const id = o.offerId || o.requestId || o._id;
-            return id ? !existingIds.has(id) : true;
+            if (!id) return true;
+            if (seenIds.has(id)) return false;
+            seenIds.add(id);
+            return true;
           });
-          
-          finalOffers = [...finalOffers, ...uniqueNewOffers];
         } catch (err) {
           console.error("Failed to load unified search", err);
           if (finalOffers.length === 0) {
@@ -1174,10 +1176,11 @@ function NearbyDealsPageContent() {
                   )}
                 </div>
               ) : (
-                filteredDeals.slice(0, displayLimit).map((deal, index) => (
-                  activeView === "list" ? (
+                filteredDeals.slice(0, displayLimit).map((deal, index) => {
+                  const uniqueKey = `${deal.offerId || deal._id || deal.requestId || index}-${index}`;
+                  return activeView === "list" ? (
                     <article
-                      key={deal.offerId || deal._id || deal.requestId || index}
+                      key={uniqueKey}
                       className="group flex flex-col md:flex-row overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-[#157A4F] hover:shadow-lg"
                     >
                       <div className="relative h-48 md:h-auto md:w-[35%] shrink-0 overflow-hidden bg-gray-100">
@@ -1246,7 +1249,7 @@ function NearbyDealsPageContent() {
                     </article>
                   ) : (
                     <article
-                      key={deal.offerId || deal._id || deal.requestId || index}
+                      key={uniqueKey}
                       className="group flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-[#157A4F] hover:shadow-lg"
                     >
                       <div className="relative h-44 w-full overflow-hidden bg-gray-100 sm:h-36">
@@ -1294,8 +1297,8 @@ function NearbyDealsPageContent() {
                         </button>
                       </div>
                     </article>
-                  )
-                ))
+                  );
+                })
               )}
             </div>
             {(filteredDeals.length > displayLimit || (query && hasMoreOffers)) && (
@@ -1309,9 +1312,15 @@ function NearbyDealsPageContent() {
                       const res = await unifiedSearch(query, { type: 'offers', limit: 16, page: nextPage });
                       const newOffers = (res?.data?.offers || []).map(normalizeNearbyOffer);
                       setRawOffers(prev => {
-                        const existingIds = new Set(prev.map(o => o.offerId || o._id));
-                        const filtered = newOffers.filter(o => !existingIds.has(o.offerId || o._id));
-                        return [...prev, ...filtered];
+                        const combined = [...prev, ...newOffers];
+                        const seenIds = new Set();
+                        return combined.filter((o) => {
+                          const id = o.offerId || o.requestId || o._id;
+                          if (!id) return true;
+                          if (seenIds.has(id)) return false;
+                          seenIds.add(id);
+                          return true;
+                        });
                       });
                       setDisplayLimit(prev => prev + 16);
                       setHasMoreOffers(newOffers.length === 16);
@@ -1335,8 +1344,8 @@ function NearbyDealsPageContent() {
                 ) : (
                   <>
                     <div className={activeView === "list" ? "space-y-4" : "grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4"}>
-                      {merchantResults.map((merchant) => (
-                        <MerchantSearchCard key={merchant._id || merchant.merchantId} merchant={merchant} view={activeView} />
+                      {merchantResults.map((merchant, idx) => (
+                        <MerchantSearchCard key={`${merchant._id || merchant.merchantId}-${idx}`} merchant={merchant} view={activeView} />
                       ))}
                     </div>
                     {hasMoreMerchants && (
@@ -1346,7 +1355,17 @@ function NearbyDealsPageContent() {
                             const nextPage = merchantPage + 1;
                             const res = await unifiedSearch(query, { type: 'merchants', limit: 16, page: nextPage });
                             const newMerchants = res?.data?.merchants || [];
-                            setMerchantResults(prev => [...prev, ...newMerchants]);
+                            setMerchantResults(prev => {
+                              const combined = [...prev, ...newMerchants];
+                              const seen = new Set();
+                              return combined.filter(m => {
+                                const id = m._id || m.merchantId;
+                                if (!id) return true;
+                                if (seen.has(id)) return false;
+                                seen.add(id);
+                                return true;
+                              });
+                            });
                             setHasMoreMerchants(newMerchants.length === 16);
                             setMerchantPage(nextPage);
                           }}
@@ -1371,8 +1390,8 @@ function NearbyDealsPageContent() {
                 ) : (
                   <>
                     <div className={activeView === "list" ? "space-y-4" : "grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4"}>
-                      {productResults.map((product) => (
-                        <ProductSearchCard key={product._id} product={product} view={activeView} />
+                      {productResults.map((product, idx) => (
+                        <ProductSearchCard key={`${product._id}-${idx}`} product={product} view={activeView} />
                       ))}
                     </div>
                     {hasMoreProducts && (
@@ -1382,7 +1401,17 @@ function NearbyDealsPageContent() {
                             const nextPage = productPage + 1;
                             const res = await unifiedSearch(query, { type: 'products', limit: 16, page: nextPage });
                             const newProducts = res?.data?.products || [];
-                            setProductResults(prev => [...prev, ...newProducts]);
+                            setProductResults(prev => {
+                              const combined = [...prev, ...newProducts];
+                              const seen = new Set();
+                              return combined.filter(p => {
+                                const id = p._id;
+                                if (!id) return true;
+                                if (seen.has(id)) return false;
+                                seen.add(id);
+                                return true;
+                              });
+                            });
                             setHasMoreProducts(newProducts.length === 16);
                             setProductPage(nextPage);
                           }}

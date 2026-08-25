@@ -159,6 +159,7 @@ function ChatsPageContent() {
 
   useEffect(() => {
     selectedConversationIdRef.current = selectedConversationId;
+    joinSelectedConversationRoom();
   }, [selectedConversationId]);
 
   useEffect(() => {
@@ -748,12 +749,15 @@ function ChatsPageContent() {
       });
 
       socket.on("new_message", (incoming) => {
+        console.log("[SOCKET] Received new_message:", incoming);
         if (incoming.conversationId === selectedConversationIdRef.current) {
           setMessages((prev) => {
             const exists = prev.some((item) => item.id === incoming.id);
             if (exists) return prev;
             return [...prev, incoming];
           });
+        } else {
+          console.log("[SOCKET] new_message ignored. selectedConversationIdRef:", selectedConversationIdRef.current, "incoming.conversationId:", incoming.conversationId);
         }
 
         setConversations((prev) =>
@@ -781,8 +785,24 @@ function ChatsPageContent() {
       });
 
       socket.on("conversation_updated", (event) => {
-        setConversations((prev) =>
-          prev
+        console.log("[SOCKET] Received conversation_updated:", event);
+        setConversations((prev) => {
+          const exists = prev.some((c) => c.id === event.conversationId);
+          if (!exists) {
+            // New conversation not in list, fetch updated conversations list
+            setTimeout(() => {
+              import("../lib/api").then(({ getMyConversations }) => {
+                getMyConversations().then(res => {
+                  if (res?.data) {
+                    setConversations(res.data);
+                  }
+                }).catch(err => console.error("Failed to fetch new conversation:", err));
+              });
+            }, 0);
+            return prev;
+          }
+          
+          return prev
             .map((conversation) =>
               conversation.id === event.conversationId
                 ? {
@@ -801,8 +821,8 @@ function ChatsPageContent() {
                   }
                 : conversation
             )
-            .sort((a, b) => new Date(b.lastMessageAt) - new Date(a.lastMessageAt))
-        );
+            .sort((a, b) => new Date(b.lastMessageAt) - new Date(a.lastMessageAt));
+        });
 
         if (event.conversationId === selectedConversationIdRef.current && event.message) {
           setMessages((prev) => {

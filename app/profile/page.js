@@ -737,7 +737,7 @@ export default function ProfilePage() {
 
       {showLoyaltyModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl max-h-[85vh] flex flex-col">
+          <div className="w-full max-w-4xl rounded-2xl bg-white p-6 shadow-xl max-h-[85vh] flex flex-col">
             <div className="flex items-center justify-between border-b border-gray-100 pb-4 mb-4">
               <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
                 <Star className="text-[#157a4f]" size={20} /> Loyalty Points History
@@ -756,30 +756,46 @@ export default function ProfilePage() {
                   <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#157a4f] border-t-transparent" />
                 </div>
               ) : loyaltyHistory.length > 0 ? (
-                <ul className="space-y-3">
-                  {loyaltyHistory.map((item) => (
-                    <li key={item.id} className="rounded-xl border border-gray-100 bg-gray-50/50 p-4 hover:border-gray-200 transition">
-                      <div className="flex justify-between items-start gap-3">
-                        <div>
-                          <p className="font-semibold text-gray-900">{item.storeName}</p>
-                          <p className="text-sm text-gray-600 mt-0.5">{item.offerName}</p>
-                          <p className="text-xs text-gray-400 mt-2">
-                            {new Date(item.date).toLocaleDateString("en-GB", {
-                              day: "2-digit",
-                              month: "short",
-                              year: "numeric",
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
-                          </p>
-                        </div>
-                        <div className="shrink-0 flex items-center gap-1.5 bg-[#e8f5e9] text-[#157a4f] font-bold px-3 py-1.5 rounded-lg text-sm">
-                          <Plus size={14} /> {item.points}
-                        </div>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
+                <div className="overflow-hidden rounded-xl border border-gray-100 shadow-sm">
+                  <div className="overflow-x-auto custom-scrollbar">
+                    <table className="w-full text-left text-sm min-w-[500px]">
+                      <thead className="bg-gray-50 text-gray-500 font-semibold text-[11px] uppercase tracking-wider">
+                        <tr>
+                          <th className="px-4 py-3 border-b border-gray-100 w-1/4">Date</th>
+                          <th className="px-4 py-3 border-b border-gray-100 w-1/4">Store</th>
+                          <th className="px-4 py-3 border-b border-gray-100 w-1/3">Offer</th>
+                          <th className="px-4 py-3 border-b border-gray-100 w-1/6 text-right">Points</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100 bg-white">
+                        {loyaltyHistory.map((item) => (
+                          <tr key={item.id} className="hover:bg-gray-50/50 transition">
+                            <td className="px-4 py-3 text-gray-500 text-xs whitespace-nowrap">
+                              {new Date(item.date).toLocaleDateString("en-GB", {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
+                            </td>
+                            <td className="px-4 py-3 font-semibold text-gray-900 break-words">
+                              {item.storeName}
+                            </td>
+                            <td className="px-4 py-3 text-gray-600 break-words">
+                              {item.offerName}
+                            </td>
+                            <td className="px-4 py-3 text-right whitespace-nowrap">
+                              <span className="inline-flex items-center gap-1 font-bold text-[#157a4f] bg-[#e8f5e9] px-2 py-1 rounded-md text-xs">
+                                <Plus size={12} /> {item.points}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
               ) : (
                 <div className="text-center py-12 px-4">
                   <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3">
