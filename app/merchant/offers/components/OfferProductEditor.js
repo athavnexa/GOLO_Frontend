@@ -78,10 +78,14 @@ export default function OfferProductEditor({ value = [], onChange }) {
   }, []);
 
   const filteredInventory = useMemo(() => {
-    const needle = productSearch.trim().toLowerCase();
-    if (!needle) return inventoryProducts;
+    const activeProducts = inventoryProducts.filter(
+      (row) => row?.isActive !== false
+    );
 
-    return inventoryProducts.filter((row) =>
+    const needle = productSearch.trim().toLowerCase();
+    if (!needle) return activeProducts;
+
+    return activeProducts.filter((row) =>
       String(row?.name || "").toLowerCase().includes(needle),
     );
   }, [inventoryProducts, productSearch]);

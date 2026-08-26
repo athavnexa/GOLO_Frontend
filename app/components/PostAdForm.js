@@ -349,7 +349,7 @@ export default function PostAdForm({
     setUploadedImages((initialAd.images || []).map((url) => ({ url })));
     setPrimaryContact(initialAd.primaryContact || initialAd.contactInfo?.phone || "");
     setSelectedCategory(categoryObj);
-    setSelectedSub(derivedSub || null);
+    setSelectedSub(derivedSub || (categoryObj?.sub?.length > 0 ? categoryObj.sub[0] : null));
     setSelectedDates(Array.isArray(initialAd.selectedDates) ? initialAd.selectedDates.map(parseDateValue).filter(Boolean) : []);
     setTemplateId(initialAd.templateId || 1);
     setMobilePrice(String(initialAd.mobileData?.price ?? categoryData.price ?? initialAd.price ?? ""));
@@ -539,6 +539,7 @@ export default function PostAdForm({
   useEffect(() => {
     if (!initialAd && selectedCategory === null && categories.length > 0) {
       setSelectedCategory(categories[0]);
+      setSelectedSub(categories[0]?.sub?.length > 0 ? categories[0].sub[0] : null);
     }
   }, [initialAd, selectedCategory]);
 
@@ -1321,7 +1322,7 @@ export default function PostAdForm({
                   key={index}
                   onClick={() => {
                     setSelectedCategory(cat);
-                    setSelectedSub(null);
+                    setSelectedSub(cat.sub?.length > 0 ? cat.sub[0] : null);
                   }}
                   className={`flex h-[104px] w-[92px] flex-shrink-0 snap-start cursor-pointer flex-col items-center justify-center rounded-xl border transition-all duration-300 sm:h-[160px] sm:w-[130px] sm:rounded-2xl
                   ${isActive
