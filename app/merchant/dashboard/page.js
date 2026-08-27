@@ -97,8 +97,7 @@ function MerchantDashboardContent() {
 
   if (loading || !user) return <div className="min-h-screen bg-[#FAFAFA]" />;
 
-  const shopName = merchantProfile?.shopName || merchantProfile?.storeName || user?.shopName || "Mahalakshmi Chembers";
-  const initials = shopName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || "MC";
+  const shopName = merchantProfile?.shopName || merchantProfile?.storeName || user?.shopName || "My Store";
 
   const getGraphData = () => {
     const data = summary?.performanceGraph?.[graphPeriod] || [];
@@ -163,11 +162,7 @@ function MerchantDashboardContent() {
           <section className="mt-4 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-100 pb-6">
             <div className="flex items-start gap-4">
               <div className="flex-shrink-0 w-20 h-20 rounded-full border-2 border-[#F59E0B] flex items-center justify-center text-[#F59E0B] text-2xl font-bold bg-orange-50 relative overflow-hidden">
-                {merchantProfile?.profilePhoto ? (
-                  <Image src={merchantProfile.profilePhoto} alt={shopName} fill style={{ objectFit: "cover" }} />
-                ) : (
-                  initials
-                )}
+                  <Image src={merchantProfile?.profilePhoto || "/images/default-user-avatar.jpg"} alt={shopName} fill style={{ objectFit: "cover" }} />
               </div>
               <div>
                 <h1 className="text-[32px] font-semibold leading-none text-[#1e1e1e] lg:text-[42px]">{shopName}</h1>
@@ -347,9 +342,9 @@ function MerchantDashboardContent() {
               <div className="border border-gray-200 rounded-xl p-5 bg-white overflow-hidden">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-bold">Top Performing Offers</h3>
-                  <button className="text-[13px] font-bold text-[#157A4F] flex items-center gap-1 hover:underline">
+                  <Link href="/merchant/offers" className="text-[13px] font-bold text-[#157A4F] flex items-center gap-1 hover:underline">
                     View All Offers <ArrowRight size={14} />
-                  </button>
+                  </Link>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-sm whitespace-nowrap">
@@ -449,7 +444,7 @@ function MerchantDashboardContent() {
                       <span className="text-sm font-medium text-gray-600">Today's Orders</span>
                     </div>
                     <div className="text-right flex items-center gap-2">
-                      <p className="text-sm font-bold">{summary?.todayActivity?.todayOrders ?? 145}</p> <span className="text-[#10B981] text-[11px] font-semibold flex items-center">↑ 12%</span>
+                      <p className="text-sm font-bold">{summary?.todayActivity?.todayOrders ?? 0}</p>
                     </div>
                   </div>
                   <div className="flex items-center justify-between">
@@ -458,7 +453,7 @@ function MerchantDashboardContent() {
                       <span className="text-sm font-medium text-gray-600">Revenue</span>
                     </div>
                     <div className="text-right flex items-center gap-2">
-                      <p className="text-sm font-bold">₹{summary?.todayActivity?.todayRevenue?.toLocaleString('en-IN') ?? "18,240"}</p> <span className="text-[#10B981] text-[11px] font-semibold flex items-center">↑ 8%</span>
+                      <p className="text-sm font-bold">₹{summary?.todayActivity?.todayRevenue?.toLocaleString('en-IN') ?? 0}</p>
                     </div>
                   </div>
                   <div className="flex items-center justify-between">
@@ -467,7 +462,7 @@ function MerchantDashboardContent() {
                       <span className="text-sm font-medium text-gray-600">Redeemed Coupons</span>
                     </div>
                     <div className="text-right flex items-center gap-2">
-                      <p className="text-sm font-bold">{summary?.todayActivity?.todayRedemptions ?? 58}</p> <span className="text-[#10B981] text-[11px] font-semibold flex items-center">↑ 18%</span>
+                      <p className="text-sm font-bold">{summary?.todayActivity?.todayRedemptions ?? 0}</p>
                     </div>
                   </div>
                   <div className="flex items-center justify-between">
@@ -476,7 +471,7 @@ function MerchantDashboardContent() {
                       <span className="text-sm font-medium text-gray-600">Visitors</span>
                     </div>
                     <div className="text-right flex items-center gap-2">
-                      <p className="text-sm font-bold">{summary?.todayActivity?.todayVisitors ?? 423}</p> <span className="text-[#10B981] text-[11px] font-semibold flex items-center">↑ 9%</span>
+                      <p className="text-sm font-bold">{summary?.todayActivity?.todayVisitors ?? 0}</p>
                     </div>
                   </div>
                   <div className="flex items-center justify-between">
@@ -485,7 +480,7 @@ function MerchantDashboardContent() {
                       <span className="text-sm font-medium text-gray-600">Conversion Rate</span>
                     </div>
                     <div className="text-right flex items-center gap-2">
-                      <p className="text-sm font-bold">{summary?.todayActivity?.todayConversionRate ?? "4.8"}%</p> <span className="text-[#10B981] text-[11px] font-semibold flex items-center">↑ 1.2%</span>
+                      <p className="text-sm font-bold">{summary?.todayActivity?.todayConversionRate ?? 0}%</p>
                     </div>
                   </div>
                   <div className="flex items-center justify-between">
@@ -494,7 +489,7 @@ function MerchantDashboardContent() {
                       <span className="text-sm font-medium text-gray-600">Average Order Value</span>
                     </div>
                     <div className="text-right flex items-center gap-2">
-                      <p className="text-sm font-bold">₹{summary?.todayActivity?.todayAvgOrderValue ?? "426"}</p> <span className="text-[#10B981] text-[11px] font-semibold flex items-center">↑ 6%</span>
+                      <p className="text-sm font-bold">₹{summary?.todayActivity?.todayAvgOrderValue ?? 0}</p>
                     </div>
                   </div>
                 </div>
@@ -507,9 +502,11 @@ function MerchantDashboardContent() {
                   <p className="text-xs text-[#B45309] mt-1 mb-4 leading-relaxed font-medium">
                     See exactly how customers see your store.
                   </p>
-                  <button className="bg-white text-[13px] font-bold text-gray-700 px-4 py-2 rounded-full shadow-sm flex items-center gap-2 hover:bg-gray-50 transition-colors">
-                    Open Shop <ArrowRight size={14} className="text-gray-400" />
-                  </button>
+                  <Link href="/">
+                    <button className="bg-white text-[13px] font-bold text-gray-700 px-4 py-2 rounded-full shadow-sm flex items-center gap-2 hover:bg-gray-50 transition-colors">
+                      Open Shop <ArrowRight size={14} className="text-gray-400" />
+                    </button>
+                  </Link>
                 </div>
                 <div className="absolute right-0 top-0 bottom-0 w-[45%] overflow-hidden rounded-l-3xl shadow-[-10px_0_15px_-3px_rgba(0,0,0,0.1)]">
                   <Image 

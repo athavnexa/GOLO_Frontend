@@ -87,32 +87,32 @@ export default function MerchantAnalyticsPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 lg:gap-6 mb-8">
           <KpiCard 
             title="TOTAL OFFERS" 
-            value={s.activeOffers ?? 120} 
-            increase={s.activeOffersIncrease ?? 15} 
+            value={s.activeOffers ?? 0} 
+            increase={s.activeOffersIncrease ?? 0} 
             icon={<Tag size={16} />} 
           />
           <KpiCard 
             title="FOLLOWING CUSTOMERS" 
-            value={(s.followers ?? 2436).toLocaleString()} 
-            increase={s.followersIncrease ?? 18} 
+            value={(s.followers ?? 0).toLocaleString()} 
+            increase={s.followersIncrease ?? 0} 
             icon={<Users size={16} />} 
           />
           <KpiCard 
             title="MERCHANT PROFILE VIEWS" 
-            value={(s.profileViews ?? 5842).toLocaleString()} 
-            increase={s.profileViewsIncrease ?? 13} 
+            value={(s.profileViews ?? 0).toLocaleString()} 
+            increase={s.profileViewsIncrease ?? 0} 
             icon={<Eye size={16} />} 
           />
           <KpiCard 
             title="CONVERSION RATE" 
-            value={`${s.conversionRate ?? 4.32}%`} 
-            increase={s.conversionRateIncrease ?? 9} 
+            value={`${s.conversionRate ?? 0}%`} 
+            increase={s.conversionRateIncrease ?? 0} 
             icon={<TrendingUp size={16} />} 
           />
           <KpiCard 
             title="TOTAL REVENUE" 
-            value={`₹${(s.revenue ?? 124850).toLocaleString('en-IN')}`} 
-            increase={s.revenueIncrease ?? 21} 
+            value={`₹${(s.revenue ?? 0).toLocaleString('en-IN')}`} 
+            increase={s.revenueIncrease ?? 0} 
             icon={<CreditCard size={16} />} 
           />
         </div>
@@ -216,15 +216,22 @@ function BarChartWidget({ title, icon, data, dataKey, color }) {
   const colors = [color, "#EC4899", "#8B5CF6", "#F59E0B"]; // Used for the dots
   
   // Aggregate trends across all offers for the chart
-  const fullTrend = Array.from({ length: 12 }).map((_, i) => 
-    chartOffers.reduce((sum, o) => sum + (o[dataKey]?.trend?.[i] || 0), 0)
-  );
-
+  const filterKey = filter.toLowerCase();
+  
   let numBars = 12;
   if (filter === "Weekly") numBars = 7;
   else if (filter === "Monthly") numBars = 4;
 
-  const aggregatedTrend = fullTrend.slice(12 - numBars);
+  const aggregatedTrend = Array.from({ length: numBars }).map((_, i) => 
+    chartOffers.reduce((sum, o) => {
+      // Fallback for legacy data format (single array instead of nested)
+      const trendData = o[dataKey]?.trend;
+      if (Array.isArray(trendData)) {
+        return sum + (trendData[12 - numBars + i] || 0);
+      }
+      return sum + (trendData?.[filterKey]?.[i] || 0);
+    }, 0)
+  );
 
   // Calculate dynamic max height for bars
   const maxValRaw = Math.max(...aggregatedTrend, 4);
@@ -334,9 +341,9 @@ function AgeGenderWidget({ data, totalCustomers }) {
   const total = totalCount > 0 ? totalCount : baseTotal;
   
   // If we have no demographic data but we have customers, we will distribute them deterministically or show 0
-  const maleCount = totalCount > 0 ? maleRaw : Math.round(baseTotal * 0.58);
-  const femaleCount = totalCount > 0 ? femaleRaw : Math.round(baseTotal * 0.39);
-  const otherCount = totalCount > 0 ? otherRaw : Math.max(0, baseTotal - maleCount - femaleCount);
+  const maleCount = totalCount > 0 ? maleRaw : 0;
+  const femaleCount = totalCount > 0 ? femaleRaw : 0;
+  const otherCount = totalCount > 0 ? otherRaw : 0;
 
   const male = total > 0 ? Math.round((maleCount / total) * 100) : 0;
   const female = total > 0 ? Math.round((femaleCount / total) * 100) : 0;
@@ -405,14 +412,20 @@ function DeviceWidget({ data, totalCustomers }) {
   const mobile = typeof platforms.Mobile === 'number' ? platforms.Mobile : 0;
   const desktop = typeof platforms.Desktop === 'number' ? platforms.Desktop : 0;
   const tablet = typeof platforms.Tablet === 'number' ? platforms.Tablet : 0;
-  const other = typeof platforms.Other === 'number' ? platforms.Other : Math.max(0, 100 - mobile - desktop - tablet);
-
-  const totalRaw = totalCustomers || 0;
   
-  const mobileRaw = Math.round((mobile / 100) * totalRaw);
-  const desktopRaw = Math.round((desktop / 100) * totalRaw);
-  const tabletRaw = Math.round((tablet / 100) * totalRaw);
-  const otherRaw = Math.max(0, totalRaw - mobileRaw - desktopRaw - tabletRaw);
+  const sum = mobile + desktop + tablet;
+  const hasData = sum > 0;
+
+  const other = typeof platforms.Other === 'number' 
+    ? platforms.Other 
+    : (hasData ? Math.max(0, 100 - sum) : 0);
+
+  const totalRaw = hasData ? (totalCustomers || 0) : 0;
+  
+  const mobileRaw = hasData ? Math.round((mobile / 100) * totalRaw) : 0;
+  const desktopRaw = hasData ? Math.round((desktop / 100) * totalRaw) : 0;
+  const tabletRaw = hasData ? Math.round((tablet / 100) * totalRaw) : 0;
+  const otherRaw = hasData ? Math.max(0, totalRaw - mobileRaw - desktopRaw - tabletRaw) : 0;
 
   return (
     <div className="bg-white rounded-[16px] p-6 shadow-sm border border-gray-100 h-72 flex flex-col">
@@ -468,16 +481,8 @@ function LocationWidget({ data, totalCustomers }) {
       count: `(${loc.count.toLocaleString()})`
     }));
   } else {
-    // If no data, render deterministic distribution using real totalCustomers
-    const pMumbai = 28, pPune = 18, pBangalore = 15, pDelhi = 12, pHyderabad = 8, pOthers = 19;
-    locations = [
-      { name: "Mumbai", percent: pMumbai, count: `(${Math.round((pMumbai/100) * baseTotal).toLocaleString()})` },
-      { name: "Pune", percent: pPune, count: `(${Math.round((pPune/100) * baseTotal).toLocaleString()})` },
-      { name: "Bangalore", percent: pBangalore, count: `(${Math.round((pBangalore/100) * baseTotal).toLocaleString()})` },
-      { name: "Delhi", percent: pDelhi, count: `(${Math.round((pDelhi/100) * baseTotal).toLocaleString()})` },
-      { name: "Hyderabad", percent: pHyderabad, count: `(${Math.round((pHyderabad/100) * baseTotal).toLocaleString()})` },
-      { name: "Others", percent: pOthers, count: `(${Math.round((pOthers/100) * baseTotal).toLocaleString()})` }
-    ];
+    // If no data, show empty state or just 0
+    locations = [];
   }
 
   return (

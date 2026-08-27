@@ -669,7 +669,7 @@ export default function MerchantOffersPage() {
                       </button>
                     </div>
                     <input
-                      type="number" min="0" onKeyDown={(e) => { if (e.key === '-') e.preventDefault(); }}
+                      type="number" onKeyDown={(e) => { if (e.key === '-') e.preventDefault(); }}
                       min="1"
                       max="50"
                       value={formData.loyaltyPointsPerPurchase}

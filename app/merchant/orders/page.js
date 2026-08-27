@@ -8,7 +8,7 @@ import { useAuth } from "../../context/AuthContext";
 import MerchantNavbar from "../MerchantNavbar";
 import { getMerchantOrders, getMerchantOrderStats, updateMerchantOrderStatus, getMerchantRedemptionHistory } from "../../lib/api";
 
-const FALLBACK_AVATAR = "/images/place2.avif";
+const FALLBACK_AVATAR = "/images/default-user-avatar.jpg";
 
 function getSafeAvatarSrc(src) {
   const value = String(src || "").trim();
@@ -72,7 +72,7 @@ export default function MerchantOrdersPage() {
     const raw = String(order.status || "pending").toLowerCase();
     const isPending = raw === "pending";
 
-    const statusLabel = isPending ? "New" : (raw ? raw.charAt(0).toUpperCase() + raw.slice(1) : "Order");
+    const statusLabel = raw === 'redeemed' || raw === 'completed' ? 'Redeemed' : (isPending ? "New" : (raw ? raw.charAt(0).toUpperCase() + raw.slice(1) : "Order"));
 
     let action = "";
     let actionTone = "muted";
@@ -85,7 +85,7 @@ export default function MerchantOrdersPage() {
     } else if (raw === 'rejected') {
       action = 'Rejected';
       actionTone = 'muted';
-    } else if (raw === 'completed') {
+    } else if (raw === 'completed' || raw === 'redeemed') {
       action = 'Completed';
       actionTone = 'muted';
     } else {
@@ -97,49 +97,24 @@ export default function MerchantOrdersPage() {
       _id: order._id,
       id: `#${order.orderNumber || String(order._id || "").slice(-6)}`,
       statusLabel,
-      amount: `₹${order.amount || 0}`,
-      items: `${order.itemsCount || 1} items`,
-      time: `Purchased ${date.toLocaleTimeString()}`,
+      amount: order.offerTitle || "Special Offer",
+      items: `₹${order.amount || 0}`,
+      time: `Purchased ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}`,
       date: date.toLocaleDateString(),
       customer: order.customerName || "Customer",
-        customerPhone: order.customerPhone || null,
+      customerPhone: order.customerPhone || null,
       customerType: "Customer",
       avatar: getSafeAvatarSrc(order.customerAvatar),
-      fulfillmentStatus: isPending ? "pending" : raw,
+      fulfillmentStatus: isPending ? "pending" : (raw === 'redeemed' ? 'completed' : raw),
       action,
       actionTone,
     };
   };
 
-  const formatVoucherForUi = (voucher) => {
-    const date = new Date(voucher.redeemedAt || voucher.createdAt || Date.now());
-    
-    return {
-      _id: voucher._id,
-      id: `#${voucher.voucherId || String(voucher._id || "").slice(-6)}`,
-      statusLabel: "Redeemed",
-      amount: voucher.offerTitle || "Special Offer",
-      items: "1 Deal",
-      time: `Redeemed ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}`,
-      date: date.toLocaleDateString(),
-      customer: voucher.userName || "Customer",
-      customerPhone: voucher.userPhone || null,
-      customerType: "Customer",
-      avatar: getSafeAvatarSrc(voucher.userAvatar),
-      fulfillmentStatus: "completed",
-      action: "Completed",
-      actionTone: "muted",
-    };
-  };
-
   const loadOrders = async (statusValue = activeTab) => {
-    if (statusValue === "completed") {
-      const response = await getMerchantRedemptionHistory({ page: 1, limit: 30 });
-      setOrders((response?.data || []).map(formatVoucherForUi));
-    } else {
-      const response = await getMerchantOrders({ status: statusValue === "all" ? "all" : statusValue, page: 1, limit: 30 });
-      setOrders((response?.data || []).map(formatOrderForUi));
-    }
+    // Treat 'completed' as standard order status
+    const response = await getMerchantOrders({ status: statusValue === "all" ? "all" : statusValue, page: 1, limit: 30 });
+    setOrders((response?.data || []).map(formatOrderForUi));
   };
 
   useEffect(() => {
@@ -149,17 +124,11 @@ export default function MerchantOrdersPage() {
         setPageLoading(true);
         setLoadError("");
         const [ordersRes, statsRes] = await Promise.all([
-          activeTab === "completed" 
-            ? getMerchantRedemptionHistory({ page: 1, limit: 30 }) 
-            : getMerchantOrders({ status: activeTab === "all" ? "all" : activeTab, page: 1, limit: 30 }),
+          getMerchantOrders({ status: activeTab === "all" ? "all" : activeTab, page: 1, limit: 30 }),
           getMerchantOrderStats()
         ]);
 
-        if (activeTab === "completed") {
-          setOrders((ordersRes?.data || []).map(formatVoucherForUi));
-        } else {
-          setOrders((ordersRes?.data || []).map(formatOrderForUi));
-        }
+        setOrders((ordersRes?.data || []).map(formatOrderForUi));
         
         setStats(statsRes?.data || { todayOrders: 0, totalRevenue: 0 });
       } catch (err) {
@@ -180,13 +149,8 @@ export default function MerchantOrdersPage() {
 
     const interval = setInterval(async () => {
       try {
-        if (activeTab === "completed") {
-          const ordersRes = await getMerchantRedemptionHistory({ page: 1, limit: 30 });
-          setOrders((ordersRes?.data || []).map(formatVoucherForUi));
-        } else {
-          const ordersRes = await getMerchantOrders({ status: activeTab === "all" ? "all" : activeTab, page: 1, limit: 30 });
-          setOrders((ordersRes?.data || []).map(formatOrderForUi));
-        }
+        const ordersRes = await getMerchantOrders({ status: activeTab === "all" ? "all" : activeTab, page: 1, limit: 30 });
+        setOrders((ordersRes?.data || []).map(formatOrderForUi));
       } catch (err) {
         // silent refresh failure
       }

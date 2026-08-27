@@ -5,7 +5,7 @@ import Link from "next/link";
 import { MapPin, Tag, Star, Package, ArrowRight } from "lucide-react";
 
 export function MerchantSearchCard({ merchant, view = "grid" }) {
-  const profilePic = merchant?.profilePic || merchant?.shopPhoto || merchant?.profilePhoto || "/images/deal1.jpg";
+  const profilePic = merchant?.profilePic || merchant?.shopPhoto || merchant?.profilePhoto || "/images/default-user-avatar.jpg";
   const storeName = merchant?.storeName || merchant?.name || "Merchant";
   const category = merchant?.storeCategory || merchant?.category || "Store";
   const address = merchant?.storeLocation || merchant?.address || merchant?.city || "Location not specified";

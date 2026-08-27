@@ -159,7 +159,6 @@ export default function ProfilePage() {
   }
 
   const displayUser = profile || user;
-  const initials = displayUser?.name?.charAt(0)?.toUpperCase() || "A";
   const profileLocationText =
     displayUser?.profile?.city || displayUser?.profile?.state
       ? `${displayUser?.profile?.city || ""}${displayUser?.profile?.city && displayUser?.profile?.state ? ", " : ""}${displayUser?.profile?.state || ""}`
@@ -429,8 +428,8 @@ export default function ProfilePage() {
                       className="h-[84px] w-[84px] shrink-0 rounded-full object-cover shadow-sm"
                     />
                   ) : (
-                    <div className="relative flex h-[84px] w-[84px] shrink-0 items-center justify-center rounded-full bg-[#e6b03f] text-4xl font-medium text-white shadow-sm">
-                      {initials}
+                    <div className="relative flex h-[84px] w-[84px] shrink-0 items-center justify-center rounded-full bg-[#f3f4f6] text-4xl font-medium text-white shadow-sm overflow-hidden border border-gray-200">
+                      <img src="/images/default-user-avatar.jpg" alt="Default Avatar" className="w-full h-full object-cover" />
                       <span className="absolute right-1 bottom-1 w-5 h-5 rounded-full bg-[#157a4f] border-2 border-white flex items-center justify-center text-[10px] text-white">
                         <User size={10} />
                       </span>

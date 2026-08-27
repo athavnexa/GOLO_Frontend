@@ -188,19 +188,7 @@ function NearbyStoreContent() {
             .filter(Boolean)
         );
 
-        const offersRes = await getNearbyOffers({ limit: 100 });
-        const allOffers = extractOffers(offersRes);
-        const merchantOffers = allOffers.filter((offer) => {
-          const offerMerchantId = normalizeId(
-            offer?.merchant?.merchantId ||
-              offer?.merchant?.userId ||
-              offer?.merchantId ||
-              offer?.merchant?._id ||
-              offer?.merchant?.id ||
-              offer?.userId,
-          );
-          return acceptedMerchantIds.has(offerMerchantId);
-        });
+        const merchantOffers = extractOffers(merchantOffersRes);
         setOffers(merchantOffers);
 
         const firstOfferMerchant = merchantOffers[0]?.merchant || null;
@@ -367,7 +355,7 @@ function NearbyStoreContent() {
     products.find((item) => item?.image || item?.imageUrl)?.image ||
     products.find((item) => item?.image || item?.imageUrl)?.imageUrl ||
     merchant?.profilePhoto ||
-    "/images/place2.avif";
+    "/images/default-user-avatar.jpg";
 
   const storeCategory = merchant?.profile?.category || merchant?.merchantProfile?.storeCategory || merchant?.category || "Store";
   const storeSubCategory = merchant?.profile?.subCategory || merchant?.merchantProfile?.storeSubCategory || merchant?.subCategory || "";

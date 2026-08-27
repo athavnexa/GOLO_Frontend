@@ -135,6 +135,7 @@ function MerchantProfileContent({ user, logout, router, initialTab = "Profile Se
     email: "",
     shopName: "",
     storeCategory: "",
+    storeSubCategory: "",
     location: "",
   });
   const [initialFormData, setInitialFormData] = useState(null);
@@ -231,6 +232,11 @@ function MerchantProfileContent({ user, logout, router, initialTab = "Profile Se
               merchantData.storeCategory ||
               user?.merchantProfile?.storeCategory ||
               user?.storeCategory ||
+              "",
+            storeSubCategory:
+              merchantData.storeSubCategory ||
+              user?.merchantProfile?.storeSubCategory ||
+              user?.storeSubCategory ||
               "",
             location: merchantData.storeLocation || "",
           };
@@ -652,9 +658,7 @@ function MerchantProfileContent({ user, logout, router, initialTab = "Profile Se
                           {merchantPhotoSrc ? (
                             <img src={merchantPhotoSrc} alt="Merchant profile" className="h-full w-full object-cover" />
                           ) : (
-                            <div className="flex h-full w-full items-center justify-center bg-[#f4f4f5] text-[#9ca3af]">
-                              <User size={40} />
-                            </div>
+                            <img src="/images/default-user-avatar.jpg" alt="Default Avatar" className="h-full w-full object-cover" />
                           )}
                         </div>
 
@@ -774,6 +778,20 @@ function MerchantProfileContent({ user, logout, router, initialTab = "Profile Se
                           ))}
                         </select>
                       </div>
+
+                      {formData.storeSubCategory && (
+                        <div>
+                          <label className="mb-2.5 block text-[12px] font-bold uppercase tracking-[0.12em] text-[#30343c]">
+                            Store Subcategory
+                          </label>
+                          <input
+                            value={formData.storeSubCategory}
+                            disabled={true}
+                            className="h-11 w-full rounded-[12px] border border-[#d7dce3] bg-[#fafafa] px-4 text-[14px] text-[#20232b] outline-none"
+                          />
+                          <p className="mt-1 text-[11px] text-[#888]">Selected during registration.</p>
+                        </div>
+                      )}
 
                       <div>
                         <label className="mb-2.5 flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.12em] text-[#30343c]">

@@ -235,7 +235,7 @@ export default function CreateMerchantOfferPage() {
            setMerchantStoreCategory(profileData?.storeCategory || '');
            
            if (profileData) {
-             const activePlan = await getMerchantActivePlan(profileData);
+             const activePlan = await getMerchantActivePlan(profileData?.merchantProfile || profileData);
              if (activePlan && activePlan.features?.offers?.maxDurationDays) {
                setMaxOfferDurationDays(activePlan.features.offers.maxDurationDays);
              }
@@ -611,7 +611,7 @@ export default function CreateMerchantOfferPage() {
                     <label className="mb-1 block text-[12px] font-semibold text-[#555]">Promotion Expiry</label>
                     <input
                       value={formData.promotionExpiryText ?? ''}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, promotionExpiryText: e.target.value }))}
+                      disabled={true} readOnly={true}
                       className="h-10 w-full rounded-[8px] border border-[#dedede] bg-white px-3 text-[13px] outline-none"
                       placeholder="Offer ends in 30 days"
                     />
@@ -745,7 +745,7 @@ export default function CreateMerchantOfferPage() {
                   <div>
                     <label className="mb-1 block text-[12px] font-semibold text-[#555]">Points rewarded to user after redemption <span className="text-[#ef4d4d]">*</span></label>
                     <input
-                      type="number" min="0" onKeyDown={(e) => { if (e.key === '-') e.preventDefault(); }}
+                      type="number" onKeyDown={(e) => { if (e.key === '-') e.preventDefault(); }}
                       min="1"
                       max="50"
                       value={formData.loyaltyPointsPerPurchase}
@@ -838,7 +838,7 @@ export default function CreateMerchantOfferPage() {
                             <div className="mt-2 flex items-center gap-2">
                               <span className="text-[11px] text-[#777]">Offer Price</span>
                               <input
-                                type="number" min="0" onKeyDown={(e) => { if (e.key === '-') e.preventDefault(); }}
+                                type="number" onKeyDown={(e) => { if (e.key === '-') e.preventDefault(); }}
                                 min="0"
                                 value={item.offerPrice ?? ''}
                                 onChange={(e) => updateSelectedOfferPrice(item.productId, e.target.value)}

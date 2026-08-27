@@ -27,7 +27,7 @@ function OfferCardMedia({ imageUrl, videoUrl, title }) {
   }, [showVideo, videoUrl]);
 
   return (
-    <div className="relative w-full h-full bg-black flex items-center justify-center">
+    <div className="absolute inset-0 bg-black flex items-center justify-center">
       {showVideo && videoUrl ? (
         <video
           ref={videoRef}

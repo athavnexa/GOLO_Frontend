@@ -297,6 +297,7 @@ function NavbarContent({
   const handleLocationChange = (val) => {
     hasManualLocationRef.current = true;
     hasCurrentLocationAccessRef.current = false;
+    // eslint-disable-next-line
     globalManualLocation = val;
     setLocation(val);
     setShowSuggestions(true);
@@ -1415,20 +1416,11 @@ function NavbarContent({
                         className="w-9 h-9 rounded-full flex items-center justify-center shadow-md hover:scale-105 transition bg-white overflow-hidden"
                         style={{ color: "#157A4F" }}
                       >
-                        {user?.avatarUrl ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={user.avatarUrl}
-                            alt={user?.name || "Profile"}
-                            className="h-full w-full object-cover"
-                          />
-                        ) : user?.name ? (
-                          <span className="text-sm font-bold">
-                            {user.name.charAt(0).toUpperCase()}
-                          </span>
-                        ) : (
-                          <User size={18} />
-                        )}
+                        <img
+                          src={user?.avatarUrl || "/images/default-user-avatar.jpg"}
+                          alt={user?.name || "Profile"}
+                          className="h-full w-full object-cover"
+                        />
                       </div>
                     </div>
                     <ChevronDown
