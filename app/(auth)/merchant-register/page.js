@@ -178,7 +178,7 @@ export default function MerchantRegisterPage() {
       
       setIsLoading(true);
       try {
-        await validateMerchantStep({ step: 1, email: storeEmail, phone: contactNumber });
+        await validateMerchantStep({ step: 1, accountType: "merchant", email: storeEmail, phone: contactNumber });
         setCurrentStep(2);
       } catch (err) {
         setError(err?.data?.message || err?.message || "Validation failed.");

@@ -527,7 +527,11 @@ function ClaimedOfferContent() {
     selectedVoucher?.description ||
     "";
   const resolvedOfferPrice = Number(
-    offerDetails?.displayPrice ??
+    offerDetails?.selectedProducts?.[0]?.offerPrice ??
+      offerDetails?.offerPrice ??
+      selectedVoucher?.selectedProducts?.[0]?.offerPrice ??
+      selectedVoucher?.offerPrice ??
+      offerDetails?.displayPrice ??
       offerDetails?.totalPrice ??
       selectedVoucher?.displayPrice ??
       selectedVoucher?.totalPrice ??
@@ -535,7 +539,8 @@ function ClaimedOfferContent() {
       0,
   );
   const resolvedOriginalPrice = Number(
-    offerDetails?.totalPrice ??
+    offerDetails?.selectedProducts?.[0]?.originalPrice ??
+      offerDetails?.totalPrice ??
       selectedVoucher?.totalPrice ??
       selectedVoucher?.originalPrice ??
       0,
@@ -552,9 +557,15 @@ function ClaimedOfferContent() {
     pickLiveImage(
       merchantProfile?.profilePhoto,
       merchantProfile?.merchantProfile?.profilePhoto,
-      offerDetails?.merchant?.profilePhoto,
+      offerDetails?.merchant?.profilePhoto
+    ) || "/images/default-user-avatar.png";
+
+  const resolvedMerchantBanner =
+    pickLiveImage(
+      merchantProfile?.shopPhoto,
+      merchantProfile?.merchantProfile?.shopPhoto,
       offerDetails?.merchant?.shopPhoto
-    ) || "/images/place2.avif";
+    ) || "/images/merchant_shop_storefront.png";
   const selectedProductOfferImage = pickLiveImageFromProducts(offerDetails?.selectedProducts);
   const resolvedOfferImage =
     pickLiveImage(
@@ -565,9 +576,8 @@ function ClaimedOfferContent() {
       selectedVoucher?.selectedProducts?.[0]?.imageUrl,
       selectedVoucher?.selectedProducts?.[0]?.image,
       selectedVoucher?.image,
-      selectedVoucher?.productImage,
-      merchantProfile?.shopPhoto
-    ) || resolvedMerchantAvatar || "/images/place2.avif";
+      selectedVoucher?.productImage
+    ) || resolvedMerchantBanner;
 
   return (
     <main className="min-h-screen bg-[#f3f3f3]">
@@ -689,7 +699,7 @@ function ClaimedOfferContent() {
               </div>
 
               <div className="mt-4 overflow-hidden rounded-[10px] border border-[#e4e7eb]">
-                <Image src={resolvedOfferImage} alt={resolvedOfferTitle} width={420} height={240} className="h-[110px] w-full object-cover" unoptimized />
+                <Image src={resolvedMerchantBanner} alt={`${resolvedMerchantName} Banner`} width={420} height={240} className="h-[110px] w-full object-cover" unoptimized />
               </div>
 
               <button
@@ -730,47 +740,6 @@ function ClaimedOfferContent() {
               </button>
             </aside>
 
-            {/* SHARE SECTION */}
-            <aside className="rounded-[12px] border border-[#d8dce3] bg-white p-4 shadow-[0_4px_14px_rgba(16,24,40,0.04)]">
-              <p className="text-[13px] font-bold text-[#1f2329]">Share with Friend</p>
-              <div className="mt-3 flex gap-2">
-                <input
-                  type="email"
-                  value={shareEmail}
-                  onChange={(e) => setShareEmail(e.target.value)}
-                  placeholder="friend@email.com"
-                  className="flex-1 rounded-[8px] border border-[#d6dbe2] px-3 py-2 text-[12px] placeholder-gray-400 focus:border-[#1e9a5c] focus:outline-none"
-                />
-                <button
-                  onClick={handleShareOffer}
-                  disabled={isSharing}
-                  className="rounded-[8px] bg-[#1e9a5c] px-4 py-2 text-[12px] font-semibold text-white hover:bg-[#187f4c] disabled:opacity-60"
-                >
-                  {isSharing ? "..." : "Send"}
-                </button>
-              </div>
-              {shareMessage && (
-                <p className={`mt-2 text-[11px] ${shareMessage.includes("✓") ? "text-green-600" : "text-red-600"}`}>
-                  {shareMessage}
-                </p>
-              )}
-              <p className="mt-2 text-[11px] leading-5 text-[#66707b]">
-                Your friend will receive the voucher link and can claim for themselves.
-              </p>
-            </aside>
-
-            <aside className="rounded-[12px] border border-[#d8dce3] bg-[#f1f3f6] p-4 shadow-[0_4px_14px_rgba(16,24,40,0.04)]">
-              <p className="text-[13px] font-bold text-[#1f2329]">Need help with redemption?</p>
-              <p className="mt-2 text-[11px] leading-5 text-[#66707b]">
-                If you encounter any issues at the store, please contact our 24/7 support team.
-              </p>
-              <button
-                onClick={() => window.open("mailto:support@golo.local?subject=Need%20help%20with%20voucher%20redemption", "_self")}
-                className="mt-3 inline-flex items-center gap-1 text-[12px] font-semibold text-[#1e9a5c]"
-              >
-                <CircleHelp size={13} /> Visit Help Center
-              </button>
-            </aside>
           </div>
         </section>
 
