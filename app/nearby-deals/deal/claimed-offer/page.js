@@ -3,10 +3,10 @@
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
-import { CircleHelp, Download, MapPin, Share2, Star, Ticket, Copy, Check } from "lucide-react";
+import { CircleHelp, Download, MapPin, Share2, Star, Ticket, Copy, Check, ArrowLeft, Phone } from "lucide-react";
 import { useVoucher } from "../../../context/VoucherContext";
 import { useAuth } from "../../../context/AuthContext";
-import { getNearbyOfferDetails, getPublicMerchantProfile, getPublicVoucherStatus, submitOfferReview } from "../../../lib/api";
+import { getNearbyOfferDetails, getPublicMerchantProfile, getPublicMerchantReviewStats, getPublicVoucherStatus, submitOfferReview } from "../../../lib/api";
 import Navbar from "../../../components/Navbar";
 import Footer from "../../../components/Footer";
 
@@ -57,6 +57,7 @@ function formatExpiryLabel(voucher) {
   const claimedAt = voucher?.claimedAt ? new Date(voucher.claimedAt).getTime() : Date.now();
   const expiresAt = claimedAt + validityHours * 60 * 60 * 1000;
   const local = new Date(expiresAt);
+
   if (Number.isNaN(local.getTime())) return "Today, 8:45 PM";
 
   const now = new Date();
@@ -233,7 +234,11 @@ function ClaimedOfferContent() {
   }, [voucherId, selectedVoucher?.status, fetchVoucherDetails, setSelectedVoucher]);
 
   useEffect(() => {
-    const merchantId = selectedVoucher?.merchantId;
+    let merchantId =
+      selectedVoucher?.merchantId ||
+      selectedVoucher?.merchant?._id ||
+      selectedVoucher?.merchant?.userId ||
+      selectedVoucher?.merchant?.merchantId;
     const offerId = selectedVoucher?.offerId;
 
     if (!merchantId && !offerId) {
@@ -246,15 +251,73 @@ function ClaimedOfferContent() {
 
     (async () => {
       try {
-        const [profileRes, offerRes] = await Promise.allSettled([
-          merchantId ? getPublicMerchantProfile(String(merchantId)) : Promise.resolve(null),
-          offerId ? getNearbyOfferDetails(String(offerId)) : Promise.resolve(null),
-        ]);
+        let offerData = null;
+        if (offerId) {
+          try {
+            const offerRes = await getNearbyOfferDetails(String(offerId));
+            if (offerRes?.data || offerRes) {
+              offerData = offerRes.data || offerRes;
+              if (!merchantId) {
+                merchantId =
+                  offerData?.merchantId ||
+                  offerData?.merchant?._id ||
+                  offerData?.merchant?.userId ||
+                  offerData?.merchant?.merchantId;
+              }
+            }
+          } catch (e) {
+            console.error("Failed to load offer details:", e);
+          }
+        }
+
+        let profileData = null;
+        let reviewStatsData = null;
+
+        if (merchantId) {
+          try {
+            const [profileRes, statsRes] = await Promise.allSettled([
+              getPublicMerchantProfile(String(merchantId)),
+              getPublicMerchantReviewStats(String(merchantId)),
+            ]);
+
+            if (profileRes.status === "fulfilled" && profileRes.value?.data) {
+              profileData = profileRes.value.data;
+            }
+            if (statsRes.status === "fulfilled" && statsRes.value?.data) {
+              reviewStatsData = statsRes.value.data?.stats || statsRes.value.data;
+            }
+          } catch (e) {
+            console.error("Failed to load merchant profile/stats:", e);
+          }
+        }
 
         if (!active) return;
 
-        setMerchantProfile(profileRes.status === "fulfilled" ? profileRes.value?.data || null : null);
-        setOfferDetails(offerRes.status === "fulfilled" ? offerRes.value?.data || null : null);
+        if (profileData) {
+          setMerchantProfile({
+            ...profileData,
+            averageRating:
+              reviewStatsData?.averageRating ??
+              profileData?.averageRating ??
+              profileData?.rating ??
+              0,
+            totalReviews:
+              reviewStatsData?.totalReviews ??
+              profileData?.totalReviews ??
+              profileData?.reviewCount ??
+              0,
+            storeLocation:
+              profileData?.storeLocation ||
+              profileData?.merchantProfile?.storeLocation ||
+              profileData?.profile?.address ||
+              profileData?.address ||
+              "",
+          });
+        } else {
+          setMerchantProfile(null);
+        }
+
+        setOfferDetails(offerData);
       } catch {
         if (!active) return;
         setMerchantProfile(null);
@@ -265,7 +328,7 @@ function ClaimedOfferContent() {
     return () => {
       active = false;
     };
-  }, [selectedVoucher?.merchantId, selectedVoucher?.offerId]);
+  }, [selectedVoucher?.merchantId, selectedVoucher?.offerId, selectedVoucher?.merchant]);
 
   const handleDownloadQR = async () => {
     try {
@@ -545,13 +608,39 @@ function ClaimedOfferContent() {
       selectedVoucher?.originalPrice ??
       0,
   );
-  const resolvedMerchantRating = Number(merchantProfile?.averageRating ?? 0);
-  const resolvedMerchantReviews = Number(merchantProfile?.totalReviews ?? 0);
+  const resolvedMerchantRating = Number(
+    merchantProfile?.averageRating ??
+    merchantProfile?.rating ??
+    offerDetails?.merchant?.rating ??
+    0
+  );
+  const resolvedMerchantReviews = Number(
+    merchantProfile?.totalReviews ??
+    merchantProfile?.reviewCount ??
+    offerDetails?.merchant?.totalReviews ??
+    0
+  );
   const resolvedMerchantLocation =
-    merchantProfile?.profile?.address ||
+    merchantProfile?.storeLocation ||
     merchantProfile?.merchantProfile?.storeLocation ||
+    merchantProfile?.profile?.address ||
+    merchantProfile?.address ||
+    offerDetails?.merchant?.storeLocation ||
     offerDetails?.merchant?.address ||
+    offerDetails?.storeLocation ||
     selectedVoucher?.merchantLocation ||
+    selectedVoucher?.storeLocation ||
+    "";
+  const resolvedMerchantPhone =
+    merchantProfile?.contactNumber ||
+    merchantProfile?.phone ||
+    merchantProfile?.profile?.phone ||
+    merchantProfile?.merchantProfile?.contactNumber ||
+    merchantProfile?.merchantProfile?.phone ||
+    offerDetails?.merchant?.contactNumber ||
+    offerDetails?.merchant?.phone ||
+    selectedVoucher?.merchantPhone ||
+    selectedVoucher?.contactNumber ||
     "";
   const resolvedMerchantAvatar =
     pickLiveImage(
@@ -584,10 +673,15 @@ function ClaimedOfferContent() {
       <Navbar />
 
       <div className="mx-auto max-w-[1260px] px-6 pt-24 relative z-20">
-        <p className="text-[11px] text-[#7a7a7a]">Deals <span className="mx-1">›</span> <span className="font-medium">Claimed Offer</span></p>
-        <h1 className="mt-3 text-[44px] font-bold leading-none text-[#1e2228] tracking-[-0.02em]">{resolvedOfferTitle}</h1>
+        <button
+          onClick={() => router.back()}
+          className="inline-flex items-center gap-1.5 text-[12px] font-medium text-[#555] hover:text-[#1e9a5c] transition-colors mb-1"
+        >
+          <ArrowLeft size={14} /> Back
+        </button>
+        <h1 className="mt-2 text-[44px] font-bold leading-none text-[#1e2228] tracking-[-0.02em]">{resolvedOfferTitle}</h1>
 
-        <section className="mt-6 grid gap-4 lg:grid-cols-[1.82fr_0.86fr]">
+        <section className="mt-6 grid gap-4 lg:grid-cols-[1.82fr_0.86fr] items-start">
           <div className="overflow-hidden rounded-[12px] border border-[#d8dce3] bg-white shadow-[0_6px_18px_rgba(16,24,40,0.06)]">
             <div className="flex items-center gap-3 border-b border-[#e6e9ed] px-4 py-3">
               <div className="h-14 w-14 overflow-hidden rounded-[8px] border border-[#d9dde2]">
@@ -685,7 +779,7 @@ function ClaimedOfferContent() {
             </div>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-3 sticky top-[104px]">
             <aside className="rounded-[12px] border border-[#d8dce3] bg-white p-4 shadow-[0_4px_14px_rgba(16,24,40,0.05)]">
               <div className="flex items-start gap-3">
                 <div className="h-12 w-12 shrink-0 aspect-square overflow-hidden rounded-full border border-[#d8dce3]">
@@ -725,19 +819,10 @@ function ClaimedOfferContent() {
                 View Store
               </button>
 
-              <button
-                onClick={() => {
-                  const sellerId = selectedVoucher?.merchantId;
-                  if (sellerId) {
-                    router.push(`/chats?sellerId=${sellerId}`);
-                    return;
-                  }
-                  alert("Merchant contact is unavailable for this voucher.");
-                }}
-                className="mt-2 h-10 w-full rounded-[8px] border border-[#d6dbe2] bg-white text-[12px] font-semibold text-[#5e6772] transition-colors hover:bg-[#f8f9fb]"
-              >
-                Contact Merchant
-              </button>
+              <div className="mt-2.5 flex items-center justify-center gap-2 h-10 w-full rounded-[8px] border border-[#e2e6eb] bg-[#f8f9fb] px-3 text-[12px] font-semibold text-[#555e69] select-text">
+                <Phone size={13} className="text-[#1e9a5c] shrink-0" />
+                <span className="truncate">Contact: {resolvedMerchantPhone || "Not available"}</span>
+              </div>
             </aside>
 
           </div>

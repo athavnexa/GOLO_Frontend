@@ -4,13 +4,6 @@ import { AuthProvider } from "./context/AuthContext";
 import { VoucherProvider } from "./context/VoucherContext";
 import GlobalAppBanner from "./components/GlobalAppBanner";
 import PlatformReviewModal from "./components/PlatformReviewModal";
-import { Poppins } from "next/font/google";
-
-const poppins = Poppins({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-poppins",
-});
 
 export const metadata = {
   title: {
@@ -59,7 +52,15 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`relative isolate bg-[#f3f3f3] ${poppins.variable} font-sans`}>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body className="relative isolate bg-[#f3f3f3] font-sans">
         <AuthProvider>
           <VoucherProvider>
             <main className="relative z-10 min-h-screen bg-[#f3f3f3]">{children}</main>

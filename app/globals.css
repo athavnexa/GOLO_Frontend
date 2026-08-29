@@ -5,8 +5,13 @@
 
 /* Theme variables will be loaded via CSS cascade */
 
+:root {
+  --font-poppins: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
 body {
   background: #f3f3f3;
+  font-family: var(--font-poppins);
 }
 /* ============================= */
 /* THEME VARIABLES (EDIT ONLY THIS TO CHANGE THEME) */

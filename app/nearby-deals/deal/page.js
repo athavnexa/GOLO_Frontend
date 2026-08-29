@@ -34,19 +34,29 @@ export async function generateMetadata(props) {
       imageUrl = getAbsoluteUrl(offer.imageUrl);
     } else if (offer?.offerImage) {
       imageUrl = getAbsoluteUrl(offer.offerImage);
+    } else if (offer?.selectedProducts?.[0]?.imageUrl) {
+      imageUrl = getAbsoluteUrl(offer.selectedProducts[0].imageUrl);
+    } else if (offer?.selectedProducts?.[0]?.image) {
+      imageUrl = getAbsoluteUrl(offer.selectedProducts[0].image);
+    } else if (offer?.merchant?.shopPhoto) {
+      imageUrl = getAbsoluteUrl(offer.merchant.shopPhoto);
     }
-    
+
     // Force jpeg for WhatsApp compatibility
     if (imageUrl.includes("res.cloudinary.com")) {
       imageUrl = imageUrl.replace(/\.(webp|avif|png|heic)$/i, ".jpg");
     }
 
+    const offerUrl = `https://www.golo.com/nearby-deals/deal?offerId=${encodeURIComponent(offerId)}`;
+
     return {
       title: `${title} | GOLO`,
       description,
       openGraph: {
-        title,
+        title: `Checkout this offer: ${title}`,
         description,
+        url: offerUrl,
+        siteName: "GOLO",
         images: [
           {
             url: imageUrl,
@@ -60,7 +70,7 @@ export async function generateMetadata(props) {
       },
       twitter: {
         card: "summary_large_image",
-        title,
+        title: `Checkout this offer: ${title}`,
         description,
         images: [imageUrl],
       }

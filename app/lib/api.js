@@ -553,8 +553,10 @@ export async function getAdById(adId) {
     return apiClient(`/ads/${adId}`);
 }
 
-export async function getAdsByCategory(category, { page = 1, limit = 10 } = {}) {
+export async function getAdsByCategory(category, { page = 1, limit = 10, sortBy, sortOrder } = {}) {
     const params = new URLSearchParams({ page, limit });
+    if (sortBy) params.append('sortBy', sortBy);
+    if (sortOrder) params.append('sortOrder', sortOrder);
     return apiClient(`/ads/category/${encodeURIComponent(category)}?${params}`);
 }
 
@@ -1978,3 +1980,28 @@ export async function logProductView(productId) {
 export async function unifiedSearch(query, { type = 'all', page = 1, limit = 15 } = {}) {
     return apiClient(`/search/unified?q=${encodeURIComponent(query)}&type=${type}&page=${page}&limit=${limit}`);
 }
+
+// ==================== ACCOUNT DELETION ====================
+
+/**
+ * Permanently delete user account
+ * @param {{ reason: string, customReason?: string, confirmation: string }} payload
+ */
+export async function deleteUserAccount(payload) {
+    return apiClient('/users/account', {
+        method: 'DELETE',
+        body: JSON.stringify(payload),
+    });
+}
+
+/**
+ * Permanently delete merchant account & all store data
+ * @param {{ reason: string, customReason?: string, confirmation: string }} payload
+ */
+export async function deleteMerchantAccount(payload) {
+    return apiClient('/merchant/account', {
+        method: 'DELETE',
+        body: JSON.stringify(payload),
+    });
+}
+

@@ -14,6 +14,13 @@ import {
   CalendarDays,
   Store,
   MapPin,
+  Trash2,
+  AlertTriangle,
+  AlertCircle,
+  ShieldAlert,
+  CheckCircle2,
+  ArrowLeft,
+  X,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import MerchantNavbar from "../MerchantNavbar";
@@ -29,6 +36,7 @@ import {
   updateMerchantProfile,
   changePassword,
   getMerchantLoyaltyLeaderboard,
+  deleteMerchantAccount,
 } from "../../lib/api";
 
 const MERCHANT_CATEGORIES = [
@@ -160,6 +168,26 @@ function MerchantProfileContent({ user, logout, router, initialTab = "Profile Se
   const [settingsLoading, setSettingsLoading] = useState(false);
   const [loyaltyPage, setLoyaltyPage] = useState(1);
   const LOYALTY_PAGE_SIZE = 15;
+
+  // Delete Account State
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteStep, setDeleteStep] = useState(1); // 1: Initial Warning, 2: Select Reason, 3: Impact Confirmation, 4: Enter Keyword, 5: Success
+  const [deleteReason, setDeleteReason] = useState("");
+  const [customDeleteReason, setCustomDeleteReason] = useState("");
+  const [deleteKeyword, setDeleteKeyword] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
+  const [deleteSuccessMsg, setDeleteSuccessMsg] = useState("");
+
+  const MERCHANT_DELETE_REASONS = [
+    "Closing my business / store permanently",
+    "Not receiving enough customers or sales from the platform",
+    "Platform fees or business costs are too high",
+    "Switching to another platform or marketing channel",
+    "Too difficult or time-consuming to manage store & offers",
+    "Temporary hiatus / taking a break",
+    "Other",
+  ];
 
   const merchantDisplayName = formData.username || user?.name || "Merchant";
   const merchantEmail = formData.email || user?.email || "No email available";
@@ -862,6 +890,39 @@ function MerchantProfileContent({ user, logout, router, initialTab = "Profile Se
                           className="h-11 w-full rounded-[12px] border border-[#d7dce3] bg-white px-4 text-[14px] text-[#20232b] outline-none transition focus:border-[#ff922d] disabled:bg-[#fafafa]"
                         />
                       </div>
+
+                      {/* Account & Store Actions */}
+                      <div className="mt-8 pt-6 border-t border-[#f0f0f0]">
+                        <div className="rounded-[16px] border border-[#e5e7eb] bg-[#f9fafb] p-5 hover:border-[#d1d5db] transition">
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div>
+                              <div className="flex items-center gap-2 text-[#1f2937] font-bold text-[14px]">
+                                <Store size={16} className="text-[#6b7280]" />
+                                Account & Store Actions
+                              </div>
+                              <p className="text-[12px] text-[#6b7280] mt-1">
+                                Permanently close this store profile, products, and merchant account.
+                              </p>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setDeleteStep(1);
+                                setDeleteReason("");
+                                setCustomDeleteReason("");
+                                setDeleteKeyword("");
+                                setDeleteError("");
+                                setDeleteSuccessMsg("");
+                                setShowDeleteModal(true);
+                              }}
+                              className="h-10 px-5 rounded-[10px] border border-[#fca5a5] bg-white text-[#dc2626] text-[13px] font-semibold hover:bg-[#fef2f2] hover:border-[#f87171] transition flex items-center justify-center gap-2 shrink-0 shadow-sm self-start sm:self-auto"
+                            >
+                              <Trash2 size={14} className="text-[#dc2626]" />
+                              Delete Account
+                            </button>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </section>
                 </div>
@@ -941,6 +1002,306 @@ function MerchantProfileContent({ user, logout, router, initialTab = "Profile Se
               >
                 Logout
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Merchant Account Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-[10030] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="w-full max-w-[540px] rounded-2xl bg-white shadow-2xl overflow-hidden border border-[#fecaca] flex flex-col animate-in fade-in zoom-in-95 duration-200">
+            {/* Modal Header */}
+            <div className="bg-[#fff1f2] border-b border-[#ffe4e6] px-6 py-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-full bg-[#fecdd3] text-[#e11d48] flex items-center justify-center shrink-0">
+                  <Trash2 size={20} />
+                </div>
+                <div>
+                  <h3 className="text-[17px] font-bold text-[#881337]">Delete Merchant Account</h3>
+                  <p className="text-[11px] text-[#9f1239]">
+                    {deleteStep === 1 && "Step 1 of 4: Important Data Warning"}
+                    {deleteStep === 2 && "Step 2 of 4: Select Reason"}
+                    {deleteStep === 3 && "Step 3 of 4: Store Data Deletion Impact"}
+                    {deleteStep === 4 && "Step 4 of 4: Confirmation Keyword"}
+                    {deleteStep === 5 && "Merchant Account Deleted"}
+                  </p>
+                </div>
+              </div>
+              {deleteStep !== 5 && (
+                <button
+                  disabled={isDeleting}
+                  onClick={() => setShowDeleteModal(false)}
+                  className="h-8 w-8 rounded-full bg-white/80 text-[#9f1239] flex items-center justify-center hover:bg-white transition"
+                >
+                  <X size={16} />
+                </button>
+              )}
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6">
+              {/* STEP 1: INITIAL DATA WARNING */}
+              {deleteStep === 1 && (
+                <div>
+                  <div className="rounded-xl bg-[#fef2f2] border border-[#fecaca] p-4 mb-5">
+                    <div className="flex items-start gap-3">
+                      <ShieldAlert size={22} className="text-[#dc2626] shrink-0 mt-0.5" />
+                      <div>
+                        <h4 className="text-[15px] font-bold text-[#991b1b]">
+                          Important Data Warning
+                        </h4>
+                        <p className="text-[13px] text-[#b91c1c] mt-1.5 leading-relaxed">
+                          Deleting your merchant account will permanently remove your store information, products and offers. This information will no longer be available.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <p className="text-[13px] font-semibold text-[#374151] mb-5">
+                    Are you sure you want to continue?
+                  </p>
+
+                  <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
+                    <button
+                      type="button"
+                      onClick={() => setShowDeleteModal(false)}
+                      className="h-10 px-4 rounded-xl border border-[#d1d5db] text-sm font-semibold text-[#4b5563] hover:bg-gray-50 transition"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setDeleteStep(2)}
+                      className="h-10 px-5 rounded-xl bg-[#dc2626] text-white text-sm font-semibold hover:bg-[#b91c1c] transition shadow-sm"
+                    >
+                      I Understand, Continue
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* STEP 2: SELECT REASON */}
+              {deleteStep === 2 && (
+                <div>
+                  <p className="text-[14px] font-semibold text-[#1f2937] mb-1">
+                    Please select the reason for deleting your account:
+                  </p>
+                  <p className="text-[12px] text-[#6b7280] mb-4">
+                    Your feedback helps us understand how we can improve the platform for businesses:
+                  </p>
+
+                  <div className="space-y-2 mb-4 max-h-[250px] overflow-y-auto pr-1">
+                    {MERCHANT_DELETE_REASONS.map((r) => (
+                      <label
+                        key={r}
+                        className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition text-[13px] ${
+                          deleteReason === r
+                            ? "border-[#e11d48] bg-[#fff1f2] font-semibold text-[#9f1239]"
+                            : "border-[#e5e7eb] bg-[#f9fafb] text-[#374151] hover:bg-gray-100"
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="merchantDeleteReason"
+                          checked={deleteReason === r}
+                          onChange={() => setDeleteReason(r)}
+                          className="h-4 w-4 text-[#e11d48] focus:ring-[#e11d48] accent-[#e11d48]"
+                        />
+                        <span>{r}</span>
+                      </label>
+                    ))}
+                  </div>
+
+                  {deleteReason === "Other" && (
+                    <div className="mb-4">
+                      <textarea
+                        value={customDeleteReason}
+                        onChange={(e) => setCustomDeleteReason(e.target.value)}
+                        placeholder="Please tell us more details..."
+                        rows={3}
+                        className="w-full rounded-xl border border-[#d1d5db] p-3 text-[13px] text-[#1f2937] outline-none focus:border-[#e11d48] resize-none"
+                      />
+                    </div>
+                  )}
+
+                  {deleteError && (
+                    <p className="text-[12px] font-semibold text-[#dc2626] mb-3 flex items-center gap-1.5">
+                      <AlertCircle size={14} /> {deleteError}
+                    </p>
+                  )}
+
+                  <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                    <button
+                      type="button"
+                      onClick={() => setDeleteStep(1)}
+                      className="h-10 px-4 rounded-xl border border-[#d1d5db] text-sm font-semibold text-[#4b5563] hover:bg-gray-50 transition flex items-center gap-1.5"
+                    >
+                      <ArrowLeft size={14} /> Back
+                    </button>
+                    <button
+                      type="button"
+                      disabled={!deleteReason || (deleteReason === "Other" && !customDeleteReason.trim())}
+                      onClick={() => {
+                        setDeleteError("");
+                        setDeleteStep(3);
+                      }}
+                      className="h-10 px-5 rounded-xl bg-[#e11d48] text-white text-sm font-semibold hover:bg-[#be123c] transition disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+                    >
+                      Continue
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* STEP 3: DELETION CONFIRMATION & STORE DATA REMOVAL */}
+              {deleteStep === 3 && (
+                <div>
+                  <div className="rounded-xl bg-[#fef2f2] border border-[#fecaca] p-4 mb-4">
+                    <h4 className="text-[14px] font-bold text-[#991b1b] flex items-center gap-2">
+                      <AlertTriangle size={18} />
+                      Store & Listing Data Will Be Wiped
+                    </h4>
+                    <p className="text-[12px] text-[#b91c1c] mt-1 leading-relaxed">
+                      Confirming will completely remove your merchant presence across all GOLO platforms:
+                    </p>
+
+                    <ul className="mt-3 space-y-1.5 text-[12px] text-[#7f1d1d] pl-5 list-disc">
+                      <li><strong>{shopDisplayName}</strong> storefront & profile will be removed</li>
+                      <li>All listed products, inventory items, and pricing</li>
+                      <li>All active deals, promotions, and banner advertisements</li>
+                      <li>Customer reviews, merchant ratings, and follower links</li>
+                      <li>Pending voucher redemptions and store analytics history</li>
+                    </ul>
+                  </div>
+
+                  <p className="text-[13px] font-semibold text-[#374151] mb-4">
+                    Are you sure you want to permanently delete your merchant account?
+                  </p>
+
+                  <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                    <button
+                      type="button"
+                      onClick={() => setDeleteStep(2)}
+                      className="h-10 px-4 rounded-xl border border-[#d1d5db] text-sm font-semibold text-[#4b5563] hover:bg-gray-50 transition flex items-center gap-1.5"
+                    >
+                      <ArrowLeft size={14} /> Back
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setDeleteStep(4)}
+                      className="h-10 px-5 rounded-xl bg-[#dc2626] text-white text-sm font-semibold hover:bg-[#b91c1c] transition shadow-sm"
+                    >
+                      Proceed to Final Step
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* STEP 4: TYPE DELETE KEYWORD */}
+              {deleteStep === 4 && (
+                <div>
+                  <p className="text-[13px] text-[#374151] mb-2 leading-relaxed">
+                    To authorize deletion of <strong>{shopDisplayName}</strong>, please type <span className="font-bold text-[#dc2626] bg-[#fee2e2] px-1.5 py-0.5 rounded font-mono">DELETE</span> in the box below:
+                  </p>
+
+                  <div className="my-4">
+                    <input
+                      type="text"
+                      value={deleteKeyword}
+                      onChange={(e) => {
+                        setDeleteKeyword(e.target.value);
+                        setDeleteError("");
+                      }}
+                      placeholder="Type DELETE to confirm"
+                      className="w-full h-11 px-4 rounded-xl border-2 border-[#d1d5db] font-mono text-[15px] font-bold text-[#111827] outline-none focus:border-[#dc2626] transition tracking-wider uppercase"
+                    />
+                  </div>
+
+                  {deleteError && (
+                    <div className="mb-4 p-3 rounded-xl bg-[#fef2f2] border border-[#fecaca] text-[12px] font-semibold text-[#b91c1c] flex items-center gap-2">
+                      <AlertCircle size={15} />
+                      <span>{deleteError}</span>
+                    </div>
+                  )}
+
+                  <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                    <button
+                      type="button"
+                      disabled={isDeleting}
+                      onClick={() => setDeleteStep(3)}
+                      className="h-10 px-4 rounded-xl border border-[#d1d5db] text-sm font-semibold text-[#4b5563] hover:bg-gray-50 transition flex items-center gap-1.5 disabled:opacity-50"
+                    >
+                      <ArrowLeft size={14} /> Back
+                    </button>
+                    <button
+                      type="button"
+                      disabled={deleteKeyword !== "DELETE" || isDeleting}
+                      onClick={async () => {
+                        if (deleteKeyword !== "DELETE") {
+                          setDeleteError("Please type DELETE exactly to confirm.");
+                          return;
+                        }
+
+                        setIsDeleting(true);
+                        setDeleteError("");
+
+                        try {
+                          const res = await deleteMerchantAccount({
+                            reason: deleteReason,
+                            customReason: customDeleteReason,
+                            confirmation: "DELETE",
+                          });
+
+                          if (res?.success || res) {
+                            setDeleteSuccessMsg(res?.message || "Your merchant account has been permanently deleted.");
+                            setDeleteStep(5);
+                            setTimeout(async () => {
+                              await logout();
+                              router.push("/merchant-login");
+                            }, 3000);
+                          } else {
+                            setDeleteError(res?.message || "Failed to delete account. Please try again.");
+                          }
+                        } catch (err) {
+                          console.error("Merchant account deletion failed:", err);
+                          setDeleteError(err?.response?.data?.message || err?.message || "Failed to delete merchant account. Please try again.");
+                        } finally {
+                          setIsDeleting(false);
+                        }
+                      }}
+                      className="h-10 px-5 rounded-xl bg-[#dc2626] text-white text-sm font-semibold hover:bg-[#b91c1c] transition disabled:opacity-40 disabled:cursor-not-allowed shadow-md flex items-center gap-2"
+                    >
+                      {isDeleting ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          <span>Deleting Store...</span>
+                        </>
+                      ) : (
+                        <span>Confirm Delete</span>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* STEP 5: COMPLETION */}
+              {deleteStep === 5 && (
+                <div className="text-center py-6">
+                  <div className="w-16 h-16 rounded-full bg-[#dcfce7] text-[#15803d] flex items-center justify-center mx-auto mb-4 animate-bounce">
+                    <CheckCircle2 size={36} />
+                  </div>
+                  <h4 className="text-[20px] font-bold text-[#1f2937] mb-2">
+                    Merchant Account Deleted
+                  </h4>
+                  <p className="text-[13px] text-[#4b5563] max-w-sm mx-auto mb-6">
+                    {deleteSuccessMsg || "Your merchant account and store data have been permanently removed."}
+                  </p>
+                  <p className="text-[12px] text-[#9ca3af]">
+                    Redirecting to merchant login...
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>

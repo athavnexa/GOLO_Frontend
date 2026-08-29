@@ -14,12 +14,18 @@ import {
   Plus,
   Pencil,
   X,
+  Trash2,
+  AlertTriangle,
+  AlertCircle,
+  ShieldAlert,
+  CheckCircle2,
+  ArrowLeft,
 } from "lucide-react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { useAuth } from "../context/AuthContext";
 import { useRoleProtection, LoadingScreen } from "../components/RoleBasedRedirect";
-import { getProfile, getMyAds, updateProfile, getUserDealStatistics, getLoyaltyHistory } from "../lib/api";
+import { getProfile, getMyAds, updateProfile, getUserDealStatistics, getLoyaltyHistory, deleteUserAccount } from "../lib/api";
 import { reverseGeocode } from "../services/leafletService";
 
 function getRenderableImageSrc(src) {
@@ -46,7 +52,7 @@ function getRenderableImageSrc(src) {
 }
 
 export default function ProfilePage() {
-  const { user, isAuthenticated, refreshProfile } = useAuth();
+  const { user, isAuthenticated, refreshProfile, logout } = useAuth();
   const router = useRouter();
   const { isLoading, isAuthorized } = useRoleProtection("user");
   const [profile, setProfile] = useState(null);
@@ -75,6 +81,25 @@ export default function ProfilePage() {
   const [gpsLocation, setGpsLocation] = useState("");
   const [gpsLoading, setGpsLoading] = useState(false);
   const avatarInputRef = useRef(null);
+
+  // Delete Account State
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteStep, setDeleteStep] = useState(1); // 1: Reason, 2: Warning, 3: Keyword confirmation, 4: Success
+  const [deleteReason, setDeleteReason] = useState("");
+  const [customDeleteReason, setCustomDeleteReason] = useState("");
+  const [deleteKeyword, setDeleteKeyword] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
+  const [deleteSuccessMsg, setDeleteSuccessMsg] = useState("");
+
+  const USER_DELETE_REASONS = [
+    "I no longer use GOLO",
+    "Privacy and data security concerns",
+    "Too many emails or notifications",
+    "Created another / duplicate account",
+    "Found a better alternative",
+    "Other",
+  ];
 
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -552,6 +577,33 @@ export default function ProfilePage() {
                 <div className="mt-10 border-t border-[#efefef] pt-3 text-xs text-[#8f8f8f] text-center">
                   Your chosen interests allow us to personalize your experience with nearby services and offers.
                 </div>
+
+                {/* Account Management: Delete Account */}
+                <div className="mt-6 border-t border-[#f0f0f0] pt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#f9fafb] p-3.5 rounded-xl border border-[#e5e7eb] hover:border-[#d1d5db] transition">
+                  <div>
+                    <p className="text-[13px] font-bold text-[#1f2937] flex items-center gap-1.5">
+                      <User size={14} className="text-[#6b7280]" /> Account Settings
+                    </p>
+                    <p className="text-[11px] text-[#6b7280] mt-0.5">
+                      Permanently remove your personal profile and account data
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setDeleteStep(1);
+                      setDeleteReason("");
+                      setCustomDeleteReason("");
+                      setDeleteKeyword("");
+                      setDeleteError("");
+                      setDeleteSuccessMsg("");
+                      setShowDeleteModal(true);
+                    }}
+                    className="h-9 px-4 rounded-lg border border-[#fca5a5] bg-white text-[#dc2626] text-xs font-semibold hover:bg-[#fef2f2] hover:border-[#f87171] transition flex items-center justify-center gap-1.5 shrink-0 shadow-sm self-start sm:self-auto"
+                  >
+                    <Trash2 size={13} className="text-[#dc2626]" />
+                    Delete Account
+                  </button>
+                </div>
               </div>
 
               <div className="rounded-[12px] border border-[#ececec] bg-white px-3 md:px-4 py-3 shadow-sm">
@@ -813,6 +865,268 @@ export default function ProfilePage() {
               >
                 Close
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Account Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-[10030] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="w-full max-w-[520px] rounded-2xl bg-white shadow-2xl overflow-hidden border border-[#fecaca] flex flex-col animate-in fade-in zoom-in-95 duration-200">
+            {/* Modal Header */}
+            <div className="bg-[#fff1f2] border-b border-[#ffe4e6] px-6 py-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-full bg-[#fecdd3] text-[#e11d48] flex items-center justify-center shrink-0">
+                  <Trash2 size={20} />
+                </div>
+                <div>
+                  <h3 className="text-[17px] font-bold text-[#881337]">Delete Your Account</h3>
+                  <p className="text-[11px] text-[#9f1239]">
+                    {deleteStep === 1 && "Step 1 of 3: Reason for leaving"}
+                    {deleteStep === 2 && "Step 2 of 3: Permanent deletion warning"}
+                    {deleteStep === 3 && "Step 3 of 3: Confirmation keyword"}
+                    {deleteStep === 4 && "Account Deletion Complete"}
+                  </p>
+                </div>
+              </div>
+              {deleteStep !== 4 && (
+                <button
+                  disabled={isDeleting}
+                  onClick={() => setShowDeleteModal(false)}
+                  className="h-8 w-8 rounded-full bg-white/80 text-[#9f1239] flex items-center justify-center hover:bg-white transition"
+                >
+                  <X size={16} />
+                </button>
+              )}
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6">
+              {/* STEP 1: SELECT REASON */}
+              {deleteStep === 1 && (
+                <div>
+                  <p className="text-[14px] font-semibold text-[#1f2937] mb-1">
+                    We're sorry to see you go!
+                  </p>
+                  <p className="text-[12px] text-[#6b7280] mb-4">
+                    Please let us know why you are deleting your account to help us improve:
+                  </p>
+
+                  <div className="space-y-2 mb-4 max-h-[260px] overflow-y-auto pr-1">
+                    {USER_DELETE_REASONS.map((r) => (
+                      <label
+                        key={r}
+                        className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition text-[13px] ${
+                          deleteReason === r
+                            ? "border-[#e11d48] bg-[#fff1f2] font-semibold text-[#9f1239]"
+                            : "border-[#e5e7eb] bg-[#f9fafb] text-[#374151] hover:bg-gray-100"
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="userDeleteReason"
+                          checked={deleteReason === r}
+                          onChange={() => setDeleteReason(r)}
+                          className="h-4 w-4 text-[#e11d48] focus:ring-[#e11d48] accent-[#e11d48]"
+                        />
+                        <span>{r}</span>
+                      </label>
+                    ))}
+                  </div>
+
+                  {deleteReason === "Other" && (
+                    <div className="mb-4">
+                      <textarea
+                        value={customDeleteReason}
+                        onChange={(e) => setCustomDeleteReason(e.target.value)}
+                        placeholder="Please tell us more details..."
+                        rows={3}
+                        className="w-full rounded-xl border border-[#d1d5db] p-3 text-[13px] text-[#1f2937] outline-none focus:border-[#e11d48] resize-none"
+                      />
+                    </div>
+                  )}
+
+                  {deleteError && (
+                    <p className="text-[12px] font-semibold text-[#dc2626] mb-3 flex items-center gap-1.5">
+                      <AlertCircle size={14} /> {deleteError}
+                    </p>
+                  )}
+
+                  <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
+                    <button
+                      type="button"
+                      onClick={() => setShowDeleteModal(false)}
+                      className="h-10 px-4 rounded-xl border border-[#d1d5db] text-sm font-semibold text-[#4b5563] hover:bg-gray-50 transition"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      disabled={!deleteReason || (deleteReason === "Other" && !customDeleteReason.trim())}
+                      onClick={() => {
+                        setDeleteError("");
+                        setDeleteStep(2);
+                      }}
+                      className="h-10 px-5 rounded-xl bg-[#e11d48] text-white text-sm font-semibold hover:bg-[#be123c] transition disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+                    >
+                      Continue
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* STEP 2: WARNING & DATA IMPACT */}
+              {deleteStep === 2 && (
+                <div>
+                  <div className="rounded-xl bg-[#fef2f2] border border-[#fecaca] p-4 mb-4">
+                    <div className="flex items-start gap-3">
+                      <ShieldAlert size={20} className="text-[#dc2626] shrink-0 mt-0.5" />
+                      <div>
+                        <h4 className="text-[14px] font-bold text-[#991b1b]">
+                          Permanent Deletion Warning
+                        </h4>
+                        <p className="text-[12px] text-[#b91c1c] mt-1 leading-relaxed">
+                          This action is irreversible. Once confirmed, all your data will be permanently wiped from GOLO databases:
+                        </p>
+                      </div>
+                    </div>
+
+                    <ul className="mt-3 space-y-1.5 text-[12px] text-[#7f1d1d] pl-7 list-disc">
+                      <li>Your user profile, name, phone, and email records</li>
+                      <li>All claimed vouchers and active deal redemptions</li>
+                      <li>All accumulated loyalty points and tier milestones</li>
+                      <li>Your saved favorites, wishlist items, and preferences</li>
+                    </ul>
+                  </div>
+
+                  <p className="text-[13px] font-semibold text-[#374151] mb-4">
+                    Are you sure you want to proceed with permanently deleting your account?
+                  </p>
+
+                  <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                    <button
+                      type="button"
+                      onClick={() => setDeleteStep(1)}
+                      className="h-10 px-4 rounded-xl border border-[#d1d5db] text-sm font-semibold text-[#4b5563] hover:bg-gray-50 transition flex items-center gap-1.5"
+                    >
+                      <ArrowLeft size={14} /> Back
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setDeleteStep(3)}
+                      className="h-10 px-5 rounded-xl bg-[#dc2626] text-white text-sm font-semibold hover:bg-[#b91c1c] transition shadow-sm"
+                    >
+                      I Understand, Continue
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* STEP 3: TYPE DELETE KEYWORD */}
+              {deleteStep === 3 && (
+                <div>
+                  <p className="text-[13px] text-[#374151] mb-2 leading-relaxed">
+                    To prevent accidental deletion, please type <span className="font-bold text-[#dc2626] bg-[#fee2e2] px-1.5 py-0.5 rounded font-mono">DELETE</span> in the confirmation field below:
+                  </p>
+
+                  <div className="my-4">
+                    <input
+                      type="text"
+                      value={deleteKeyword}
+                      onChange={(e) => {
+                        setDeleteKeyword(e.target.value);
+                        setDeleteError("");
+                      }}
+                      placeholder="Type DELETE to confirm"
+                      className="w-full h-11 px-4 rounded-xl border-2 border-[#d1d5db] font-mono text-[15px] font-bold text-[#111827] outline-none focus:border-[#dc2626] transition tracking-wider uppercase"
+                    />
+                  </div>
+
+                  {deleteError && (
+                    <div className="mb-4 p-3 rounded-xl bg-[#fef2f2] border border-[#fecaca] text-[12px] font-semibold text-[#b91c1c] flex items-center gap-2">
+                      <AlertCircle size={15} />
+                      <span>{deleteError}</span>
+                    </div>
+                  )}
+
+                  <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                    <button
+                      type="button"
+                      disabled={isDeleting}
+                      onClick={() => setDeleteStep(2)}
+                      className="h-10 px-4 rounded-xl border border-[#d1d5db] text-sm font-semibold text-[#4b5563] hover:bg-gray-50 transition flex items-center gap-1.5 disabled:opacity-50"
+                    >
+                      <ArrowLeft size={14} /> Back
+                    </button>
+                    <button
+                      type="button"
+                      disabled={deleteKeyword !== "DELETE" || isDeleting}
+                      onClick={async () => {
+                        if (deleteKeyword !== "DELETE") {
+                          setDeleteError("Please type DELETE exactly to confirm.");
+                          return;
+                        }
+
+                        setIsDeleting(true);
+                        setDeleteError("");
+
+                        try {
+                          const res = await deleteUserAccount({
+                            reason: deleteReason,
+                            customReason: customDeleteReason,
+                            confirmation: "DELETE",
+                          });
+
+                          if (res?.success || res) {
+                            setDeleteSuccessMsg(res?.message || "Your account has been permanently deleted.");
+                            setDeleteStep(4);
+                            setTimeout(async () => {
+                              await logout();
+                              router.push("/login");
+                            }, 3000);
+                          } else {
+                            setDeleteError(res?.message || "Failed to delete account. Please try again.");
+                          }
+                        } catch (err) {
+                          console.error("Account deletion failed:", err);
+                          setDeleteError(err?.response?.data?.message || err?.message || "Failed to delete account. Please try again.");
+                        } finally {
+                          setIsDeleting(false);
+                        }
+                      }}
+                      className="h-10 px-5 rounded-xl bg-[#dc2626] text-white text-sm font-semibold hover:bg-[#b91c1c] transition disabled:opacity-40 disabled:cursor-not-allowed shadow-md flex items-center gap-2"
+                    >
+                      {isDeleting ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          <span>Deleting Account...</span>
+                        </>
+                      ) : (
+                        <span>Confirm Delete</span>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* STEP 4: COMPLETION */}
+              {deleteStep === 4 && (
+                <div className="text-center py-6">
+                  <div className="w-16 h-16 rounded-full bg-[#dcfce7] text-[#15803d] flex items-center justify-center mx-auto mb-4 animate-bounce">
+                    <CheckCircle2 size={36} />
+                  </div>
+                  <h4 className="text-[20px] font-bold text-[#1f2937] mb-2">
+                    Account Deleted Successfully
+                  </h4>
+                  <p className="text-[13px] text-[#4b5563] max-w-sm mx-auto mb-6">
+                    {deleteSuccessMsg || "Your account and all associated data have been permanently removed."}
+                  </p>
+                  <p className="text-[12px] text-[#9ca3af]">
+                    Redirecting to homepage...
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>

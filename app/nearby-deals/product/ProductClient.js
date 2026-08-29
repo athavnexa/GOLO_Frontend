@@ -22,6 +22,7 @@ import {
   getNearbyOffers,
   getPublicMerchantProductById,
   getPublicMerchantProfile,
+  getPublicMerchantReviewStats,
   toggleWishlist,
   getWishlistIds,
   getAdWishlistCount,
@@ -246,13 +247,37 @@ function ProductDetailContent() {
       }
 
       try {
-        const merchantRes = await getPublicMerchantProfile(merchantId);
-        if (!cancelled && merchantRes?.data) {
-          setMerchant(merchantRes.data);
+        const [merchantRes, reviewRes] = await Promise.allSettled([
+          getPublicMerchantProfile(merchantId),
+          getPublicMerchantReviewStats(merchantId),
+        ]);
+
+        if (!cancelled) {
+          if (merchantRes.status === "fulfilled" && merchantRes.value?.data) {
+            const profileData = merchantRes.value.data;
+            const reviewStats =
+              reviewRes.status === "fulfilled"
+                ? reviewRes.value?.data?.stats || reviewRes.value?.data
+                : null;
+
+            setMerchant({
+              ...profileData,
+              averageRating:
+                reviewStats?.averageRating ||
+                profileData?.averageRating ||
+                profileData?.rating ||
+                0,
+              totalReviews:
+                reviewStats?.totalReviews !== undefined
+                  ? reviewStats.totalReviews
+                  : profileData?.totalReviews ||
+                    profileData?.reviewCount ||
+                    0,
+            });
+          }
         }
       } catch (err) {
         console.error("Failed to fetch merchant data:", err);
-        // Don't set error state here, merchant info is supplementary
       }
     }
 
@@ -716,15 +741,15 @@ function ProductDetailContent() {
                           <Star
                             key={i}
                             size={14}
-                            className={i < Math.round(merchantRating) ? "text-[#f4ba34]" : "text-[#d6dbe2]"}
-                            fill={i < Math.round(merchantRating) ? "#f4ba34" : "none"}
+                            className={merchantRating > 0 && i < Math.round(merchantRating) ? "text-[#f4ba34]" : "text-[#d6dbe2]"}
+                            fill={merchantRating > 0 && i < Math.round(merchantRating) ? "#f4ba34" : "none"}
                           />
                         ))}
                       </div>
-                      <span className="text-sm text-[#666]">
-                        {merchantRating > 0
+                      <span className="text-sm font-medium text-[#666]">
+                        {merchantReviewCount > 0
                           ? `${merchantRating.toFixed(1)} (${merchantReviewCount} review${merchantReviewCount === 1 ? "" : "s"})`
-                          : "Rating unavailable"}
+                          : `${merchantRating.toFixed(1)} (0 Reviews)`}
                       </span>
                     </div>
                   </div>
@@ -774,42 +799,38 @@ function ProductDetailContent() {
           </section>
         )}
 
-        <section className="bg-white rounded-2xl p-4 sm:p-6 mb-8">
-          <h2 className="text-2xl font-bold text-[#1f2329] mb-6">Product Details</h2>
-          <div className="grid md:grid-cols-2 gap-6">
+        <section className="bg-white rounded-2xl p-6 sm:p-8 mb-8 border border-[#e5e7eb] shadow-sm">
+          <div className="mb-6 pb-4 border-b border-[#f0f2f5] flex items-center justify-between">
             <div>
-              <h3 className="font-bold text-[#1f2329] mb-3">Product Information</h3>
-              <div className="space-y-2 text-sm">
-                <div className="flex flex-col gap-1 sm:flex-row sm:justify-between">
-                  <span className="text-[#666]">Name:</span>
-                  <span className="font-medium text-[#1f2329]">{productName}</span>
-                </div>
-                <div className="flex flex-col gap-1 sm:flex-row sm:justify-between">
-                  <span className="text-[#666]">Category:</span>
-                  <span className="font-medium text-[#1f2329]">{product?.category || "General"}</span>
-                </div>
-                <div className="flex flex-col gap-1 sm:flex-row sm:justify-between">
-                  <span className="text-[#666]">Price:</span>
-                  <span className="font-medium text-[#157a4f]">Rs.{productPrice.toLocaleString("en-IN")}</span>
-                </div>
-                <div className="flex flex-col gap-1 sm:flex-row sm:justify-between">
-                  <span className="text-[#666]">Stock:</span>
-                  <span className="font-medium text-[#1f2329]">{safeStock}</span>
-                </div>
-              </div>
+              <h2 className="text-2xl font-bold text-[#1f2329]">Product Details</h2>
+              <p className="text-sm text-[#66707b] mt-1">Comprehensive information and availability for this item</p>
+            </div>
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-[#e8f6ef] text-[#157a4f]">
+              Verified Product
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="rounded-xl border border-[#eceff3] bg-[#fbfcfd] p-4 transition hover:border-[#d0d7de] hover:bg-white shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
+              <span className="text-xs font-semibold uppercase tracking-wider text-[#8c96a3]">Product Name</span>
+              <p className="text-base font-bold text-[#1f2329] mt-2 truncate" title={productName}>{productName}</p>
             </div>
 
-            <div>
-              <h3 className="font-bold text-[#1f2329] mb-3">Additional Features</h3>
-              <div className="space-y-2 text-sm text-[#666]">
-                {dynamicSpecs.length > 0 ? (
-                  dynamicSpecs.map((spec) => (
-                    <p key={spec.label}>• {spec.label}: {String(spec.value)}</p>
-                  ))
-                ) : (
-                  <p>• Additional specifications are not provided by merchant.</p>
-                )}
-              </div>
+            <div className="rounded-xl border border-[#eceff3] bg-[#fbfcfd] p-4 transition hover:border-[#d0d7de] hover:bg-white shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
+              <span className="text-xs font-semibold uppercase tracking-wider text-[#8c96a3]">Category</span>
+              <p className="text-base font-bold text-[#1f2329] mt-2">{product?.category || "General"}</p>
+            </div>
+
+            <div className="rounded-xl border border-[#eceff3] bg-[#fbfcfd] p-4 transition hover:border-[#d0d7de] hover:bg-white shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
+              <span className="text-xs font-semibold uppercase tracking-wider text-[#8c96a3]">Offer Price</span>
+              <p className="text-base font-bold text-[#157a4f] mt-2">Rs.{productPrice.toLocaleString("en-IN")}</p>
+            </div>
+
+            <div className="rounded-xl border border-[#eceff3] bg-[#fbfcfd] p-4 transition hover:border-[#d0d7de] hover:bg-white shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
+              <span className="text-xs font-semibold uppercase tracking-wider text-[#8c96a3]">In Stock</span>
+              <p className="text-base font-bold text-[#1f2329] mt-2">
+                {safeStock > 0 ? `${safeStock} Units` : "Out of stock"}
+              </p>
             </div>
           </div>
         </section>

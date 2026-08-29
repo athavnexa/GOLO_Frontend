@@ -208,8 +208,6 @@ function CategoryPageContent() {
         setError("");
         try {
             const shouldApplySubFilter = Boolean(subFromUrl);
-            const resolvedLat = (lat || location) ? (lat ? parseFloat(lat) : null) : gpsLocation?.lat;
-            const resolvedLng = (lng || location) ? (lng ? parseFloat(lng) : null) : gpsLocation?.lng;
             let response;
 
             if (location || q) {
@@ -225,21 +223,20 @@ function CategoryPageContent() {
                     page: shouldApplySubFilter ? 1 : page,
                     limit: shouldApplySubFilter ? 300 : LIMIT,
                 });
-            } else if (resolvedLat && resolvedLng) {
-                // No explicit location — default to GPS location boundary search using searchAds
-                response = await searchAds({
-                    q,
-                    category: categoryName,
-                    location,
-                    lat: resolvedLat,
-                    lng: resolvedLng,
-                    sortBy,
-                    sortOrder,
-                    page: shouldApplySubFilter ? 1 : page,
-                    limit: shouldApplySubFilter ? 300 : LIMIT,
-                });
+                // If search returned empty and it was just a loose location/query, fallback to category
+                if ((!response?.success || !(response.data?.ads?.length || response.data?.length)) && !q) {
+                    const fallbackRes = await getAdsByCategory(categoryName, {
+                        page: shouldApplySubFilter ? 1 : page,
+                        limit: shouldApplySubFilter ? 300 : LIMIT,
+                        sortBy,
+                        sortOrder,
+                    });
+                    if (fallbackRes?.success && (fallbackRes.data?.ads?.length || fallbackRes.data?.length)) {
+                        response = fallbackRes;
+                    }
+                }
             } else {
-                // No GPS available — fall back to category listing
+                // Normal category browsing — fetch all ads in this category
                 response = await getAdsByCategory(categoryName, {
                     page: shouldApplySubFilter ? 1 : page,
                     limit: shouldApplySubFilter ? 300 : LIMIT,
@@ -247,9 +244,11 @@ function CategoryPageContent() {
                     sortOrder,
                 });
             }
-            if (response.success) {
-                setAds(response.data?.ads || response.data || []);
-                setTotal(response.data?.total || response.total || 0);
+
+            if (response?.success) {
+                const adsList = response.data?.ads || response.data || [];
+                setAds(Array.isArray(adsList) ? adsList : []);
+                setTotal(response.data?.total || response.total || (Array.isArray(adsList) ? adsList.length : 0));
             } else {
                 setError("Could not load ads.");
             }

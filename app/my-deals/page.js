@@ -92,6 +92,8 @@ export default function MyDeals() {
   const { myVouchers, fetchMyVouchers, loading: voucherLoading } = useVoucher();
   const [activeTab, setActiveTab] = useState("All Deals");
   const [filteredDeals, setFilteredDeals] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortBy, setSortBy] = useState("newest");
   const stats = useDealStats(myVouchers);
 
   useEffect(() => {
@@ -106,10 +108,10 @@ export default function MyDeals() {
       return;
     }
 
-    let filtered = myVouchers;
+    let filtered = [...myVouchers];
 
     if (activeTab === "Claimed") {
-      filtered = myVouchers.filter((v) => {
+      filtered = filtered.filter((v) => {
         // Show active/claimed vouchers OR vouchers not yet expired
         if (v.status === "active" || v.status === "claimed") return true;
         const expiryTs = new Date(
@@ -124,9 +126,9 @@ export default function MyDeals() {
         return false;
       });
     } else if (activeTab === "Redeemed") {
-      filtered = myVouchers.filter((v) => v.status === "redeemed");
+      filtered = filtered.filter((v) => v.status === "redeemed");
     } else if (activeTab === "Expired") {
-      filtered = myVouchers.filter((v) => {
+      filtered = filtered.filter((v) => {
         // Show expired vouchers OR vouchers past their expiry date
         if (v.status === "expired") return true;
         const expiryTs = new Date(
@@ -141,7 +143,7 @@ export default function MyDeals() {
       });
     } else {
       // All Deals - exclude expired vouchers
-      filtered = myVouchers.filter((v) => {
+      filtered = filtered.filter((v) => {
         // Exclude if status is expired
         if (v.status === "expired") return false;
         // Exclude if past expiry date
@@ -158,8 +160,25 @@ export default function MyDeals() {
       });
     }
 
+    // Search filter
+    if (searchTerm.trim()) {
+      const q = searchTerm.toLowerCase();
+      filtered = filtered.filter((deal) => {
+        const merchant = String(deal.merchantName || "").toLowerCase();
+        const title = String(deal.offerTitle || deal.title || "").toLowerCase();
+        return merchant.includes(q) || title.includes(q);
+      });
+    }
+
+    // Sorting
+    filtered.sort((a, b) => {
+      const dateA = new Date(a.claimedAt || a.createdAt || a.expiresAt || 0).getTime();
+      const dateB = new Date(b.claimedAt || b.createdAt || b.expiresAt || 0).getTime();
+      return sortBy === "oldest" ? dateA - dateB : dateB - dateA;
+    });
+
     setFilteredDeals(filtered);
-  }, [activeTab, myVouchers]);
+  }, [activeTab, myVouchers, searchTerm, sortBy]);
 
   if (user && user.accountType === "merchant") {
     router.replace("/merchant/dashboard");
@@ -183,11 +202,6 @@ export default function MyDeals() {
                     Track and manage your active savings and past redemptions.
                   </p>
                 </div>
-
-                <button className="inline-flex items-center gap-2 h-9 px-3 rounded-lg border border-[#efcdbf] text-[12px] font-medium text-[#7b583f] bg-white shadow-sm self-start md:self-auto">
-                  <Tag size={14} />
-                  Discovery View
-                </button>
               </div>
 
               <div className="mt-6 grid grid-cols-2 xl:grid-cols-4 gap-3">
@@ -230,15 +244,31 @@ export default function MyDeals() {
                     ))}
                   </div>
 
-                  <div className="flex items-center gap-2">
-                    <div className="hidden md:flex items-center h-9 px-3 rounded-lg border border-[#e5e5e5] bg-[#fbfbfb] text-[#959595] text-[12px] min-w-[230px]">
-                      <Search size={13} className="mr-2 text-[#a6a6a6]" />
-                      <span>Filter by merchant...</span>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <div className="flex items-center h-9 px-3 rounded-lg border border-[#e5e5e5] bg-[#fbfbfb] text-[12px] min-w-[200px] sm:min-w-[240px] focus-within:border-[#1f8c55] focus-within:bg-white transition">
+                      <Search size={13} className="mr-2 text-[#a6a6a6] shrink-0" />
+                      <input
+                        type="text"
+                        placeholder="Filter by merchant or deal..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="bg-transparent outline-none text-[#333] placeholder-[#959595] w-full text-[12px]"
+                      />
                     </div>
-                    <button className="h-9 px-3 rounded-lg border border-[#e5e5e5] bg-[#fbfbfb] text-[#666] text-[12px] inline-flex items-center gap-2">
-                      <ArrowUpDown size={13} />
-                      Newest First
-                    </button>
+
+                    <div className="relative inline-flex items-center">
+                      <ArrowUpDown size={13} className="absolute left-3 text-[#666] pointer-events-none" />
+                      <select
+                        value={sortBy}
+                        onChange={(e) => setSortBy(e.target.value)}
+                        aria-label="Sort deals"
+                        className="h-9 pl-8 pr-7 rounded-lg border border-[#e5e5e5] bg-[#fbfbfb] text-[#555] text-[12px] font-medium outline-none cursor-pointer appearance-none hover:bg-white transition"
+                      >
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                      </select>
+                      <ChevronRight size={12} className="absolute right-2.5 text-[#888] rotate-90 pointer-events-none" />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -381,7 +411,7 @@ export default function MyDeals() {
               </div>
             </main>
 
-            <aside className="w-full lg:w-[270px] lg:shrink-0 space-y-4">
+            <aside className="w-full lg:w-[270px] lg:shrink-0 space-y-4 sticky top-[104px] h-fit">
               <section className="rounded-[12px] border border-[#ececec] bg-white px-4 py-4 shadow-sm">
                 <h2 className="text-[14px] font-semibold text-[#222]">
                   Quick Tips
@@ -396,43 +426,6 @@ export default function MyDeals() {
                     </li>
                   ))}
                 </ul>
-                <Link
-                  href="#"
-                  className="mt-4 inline-flex items-center gap-1 text-[12px] font-medium text-[#2f84ff] hover:underline"
-                >
-                  Full Redemption Policy
-                  <ChevronRight size={13} />
-                </Link>
-              </section>
-
-
-
-              <section className="rounded-[12px] border border-[#e8e8e8] bg-white shadow-sm overflow-hidden">
-                <div className="relative h-[205px]">
-                  <Image
-                    src="/images/place2.avif"
-                    alt="Signature Wellness Day"
-                    fill
-                    className="object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/12 to-transparent" />
-                  <div className="absolute top-3 left-3">
-                    <span className="rounded-full bg-[#ff6c91] px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.14em] text-white shadow-sm">
-                      Featured
-                    </span>
-                  </div>
-                  <div className="absolute left-3 right-3 bottom-3 text-white">
-                    <h3 className="text-[16px] font-semibold leading-tight">
-                      Signature Wellness Day
-                    </h3>
-                    <p className="mt-1 text-[12px] text-white/90">
-                      Special price Rs. 1,200
-                    </p>
-                    <button className="mt-3 h-9 w-full rounded-md bg-[#f3b12a] text-white text-[12px] font-semibold">
-                      Claim Now
-                    </button>
-                  </div>
-                </div>
               </section>
             </aside>
           </div>
