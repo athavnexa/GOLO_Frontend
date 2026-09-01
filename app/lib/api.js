@@ -626,6 +626,28 @@ export async function getAdWishlistCount(adId) {
     return apiClient(`/ads/wishlist-count/${adId}`);
 }
 
+export async function trackAdView(adId) {
+    if (!adId) return;
+    try {
+        return await apiClient(`/ads/${adId}/view`, {
+            method: 'POST',
+        });
+    } catch (e) {
+        console.warn('[Analytics] Failed to track ad view:', e);
+    }
+}
+
+export async function trackAdContactClick(adId) {
+    if (!adId) return;
+    try {
+        return await apiClient(`/ads/${adId}/click`, {
+            method: 'POST',
+        });
+    } catch (e) {
+        console.warn('[Analytics] Failed to track contact click:', e);
+    }
+}
+
 export async function getMyAnalytics() {
     return apiClient('/ads/analytics/my');
 }

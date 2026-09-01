@@ -215,10 +215,18 @@ export default function MerchantNavbar({ activeKey = "dashboard" }) {
               setShowProfileDropdown(!showProfileDropdown);
               setShowNotifDropdown(false);
             }}
-            className="h-10 w-10 min-w-[2.5rem] shrink-0 rounded-full bg-white shadow-md hover:scale-105 transition flex items-center justify-center"
+            className="h-10 w-10 min-w-[2.5rem] shrink-0 rounded-full bg-white shadow-md hover:scale-105 transition flex items-center justify-center overflow-hidden border border-gray-200"
             aria-label="Profile menu"
           >
-            <User size={18} style={{ color: "#157a4f" }} />
+            {user?.profilePhoto || user?.shopPhoto || user?.avatarUrl ? (
+              <img
+                src={user?.profilePhoto || user?.shopPhoto || user?.avatarUrl}
+                alt={user?.shopName || user?.name || "Merchant"}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <User size={18} style={{ color: "#157a4f" }} />
+            )}
           </button>
 
           {showProfileDropdown && (

@@ -6,7 +6,7 @@ import Image from "next/image";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import CategoryBar from "../../components/CategoryBar";
-import { getAdsByCategory, searchAds, getNearbyAds } from "../../lib/api";
+import { getAdsByCategory, searchAds, getNearbyAds, trackAdView, trackAdContactClick } from "../../lib/api";
 import { useAuth } from "../../context/AuthContext";
 import AuthRequiredModal from "../../components/AuthRequiredModal";
 
@@ -498,9 +498,17 @@ function MultiImageAd({ ad, className, isAuthenticated, onRequireAuth }) {
         }
     }, [current, media]);
 
+    const handleCardClick = () => {
+        const targetId = ad.adId || ad._id;
+        if (targetId) {
+            trackAdView(targetId);
+            router.push(`/product/${targetId}`);
+        }
+    };
+
     return (
         <div
-            onClick={() => router.push(`/product/${ad._id || ad.adId}`)}
+            onClick={handleCardClick}
             className={`relative rounded-3xl overflow-hidden group cursor-pointer shadow-sm hover:shadow-2xl transition ${className}`}
         >
             {media.map((item, index) => {
@@ -547,6 +555,7 @@ function MultiImageAd({ ad, className, isAuthenticated, onRequireAuth }) {
                                 onRequireAuth("Please log in or register to chat with the seller.");
                                 return;
                             }
+                            trackAdContactClick(ad.adId || ad._id);
                             router.push(`/chats?adId=${ad.adId || ad._id}&sellerId=${ad.userId || ''}`);
                         }}
                         className={`px-4 py-2 text-sm rounded-xl ${chatButtonClass}`}
@@ -560,6 +569,7 @@ function MultiImageAd({ ad, className, isAuthenticated, onRequireAuth }) {
                                 onRequireAuth("Please log in or register to call the seller.");
                                 return;
                             }
+                            trackAdContactClick(ad.adId || ad._id);
                             router.push(`/chats?adId=${ad.adId || ad._id}&sellerId=${ad.userId || ''}&autoCall=1`);
                         }}
                         className={`px-4 py-2 text-sm rounded-xl ${callButtonClass}`}
@@ -630,9 +640,17 @@ function SingleImageAd({ ad, className, isAuthenticated, onRequireAuth }) {
         }
     }, [current, media]);
 
+    const handleCardClick = () => {
+        const targetId = ad.adId || ad._id;
+        if (targetId) {
+            trackAdView(targetId);
+            router.push(`/product/${targetId}`);
+        }
+    };
+
     return (
         <div
-            onClick={() => router.push(`/product/${ad._id || ad.adId}`)}
+            onClick={handleCardClick}
             className={`relative rounded-3xl overflow-hidden group cursor-pointer shadow-sm hover:shadow-xl transition ${className}`}
         >
             {media.map((item, index) => {
@@ -678,6 +696,7 @@ function SingleImageAd({ ad, className, isAuthenticated, onRequireAuth }) {
                                 onRequireAuth("Please log in or register to chat with the seller.");
                                 return;
                             }
+                            trackAdContactClick(ad.adId || ad._id);
                             router.push(`/chats?adId=${ad.adId || ad._id}&sellerId=${ad.userId || ''}`);
                         }}
                         className={`flex-1 py-2 text-xs rounded-lg ${chatButtonClass}`}
@@ -691,6 +710,7 @@ function SingleImageAd({ ad, className, isAuthenticated, onRequireAuth }) {
                                 onRequireAuth("Please log in or register to call the seller.");
                                 return;
                             }
+                            trackAdContactClick(ad.adId || ad._id);
                             router.push(`/chats?adId=${ad.adId || ad._id}&sellerId=${ad.userId || ''}&autoCall=1`);
                         }}
                         className={`flex-1 py-2 text-xs rounded-lg ${callButtonClass}`}
@@ -707,9 +727,17 @@ function TextAd({ ad, className, isAuthenticated, onRequireAuth }) {
     const router = useRouter();
     const displayPrice = getDisplayPrice(ad);
 
+    const handleCardClick = () => {
+        const targetId = ad.adId || ad._id;
+        if (targetId) {
+            trackAdView(targetId);
+            router.push(`/product/${targetId}`);
+        }
+    };
+
     return (
         <div
-            onClick={() => router.push(`/product/${ad._id || ad.adId}`)}
+            onClick={handleCardClick}
             className={`bg-white rounded-3xl p-6 shadow-sm hover:shadow-xl transition cursor-pointer flex flex-col justify-between ${className}`}
         >
             <div>
@@ -727,6 +755,7 @@ function TextAd({ ad, className, isAuthenticated, onRequireAuth }) {
                             onRequireAuth("Please log in or register to chat with the seller.");
                             return;
                         }
+                        trackAdContactClick(ad.adId || ad._id);
                         router.push(`/chats?adId=${ad.adId || ad._id}&sellerId=${ad.userId || ''}`);
                     }}
                     className={`flex-1 py-2 text-xs rounded-lg ${chatButtonClass}`}
@@ -740,6 +769,7 @@ function TextAd({ ad, className, isAuthenticated, onRequireAuth }) {
                             onRequireAuth("Please log in or register to call the seller.");
                             return;
                         }
+                        trackAdContactClick(ad.adId || ad._id);
                         router.push(`/chats?adId=${ad.adId || ad._id}&sellerId=${ad.userId || ''}&autoCall=1`);
                     }}
                     className={`flex-1 py-2 text-xs rounded-lg ${callButtonClass}`}

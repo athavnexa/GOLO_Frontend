@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { deleteAd } from "../lib/api";
+import { deleteAd, trackAdView } from "../lib/api";
 import { useState } from "react";
 import { Eye, Edit2, Trash2, Loader2 } from "lucide-react";
 
@@ -100,7 +100,7 @@ export default function AdCard({ ad, onDelete, onEdit }) {
     >
       {/* Image — only for template 1 or 2 */}
       {templateId !== 3 && (
-        <Link href={`/product/${linkId}`} style={{ display: "block" }}>
+        <Link href={`/product/${linkId}`} onClick={() => trackAdView(apiId)} style={{ display: "block" }}>
           <div style={{ height: "180px", background: "#f3f4f6", overflow: "hidden" }}>
             {primaryImage ? (
               <img

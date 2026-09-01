@@ -310,13 +310,6 @@ export default function AdAnalyticsPage() {
       ? "Decent saves — keep it up."
       : "Better photos can boost saves.";
 
-  const uniqueCopy =
-    parseInt(uniqueRate) >= 80
-      ? "Strong unique reach — great spread!"
-      : parseInt(uniqueRate) >= 50
-      ? "Good reach across new users."
-      : "Some users revisiting your ad.";
-
   return (
     <>
       <Navbar />
@@ -442,20 +435,14 @@ export default function AdAnalyticsPage() {
                 </div>
 
                 {/* ── Metric Cards ── */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {/* ── Metric Cards ── */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <MetricCard
                     icon={Eye}
                     label="Ad Card Clicks"
                     value={views.toLocaleString()}
                     accent="#3B82F6"
                     sub="Total views"
-                  />
-                  <MetricCard
-                    icon={Users}
-                    label="Unique Visitors"
-                    value={unique.toLocaleString()}
-                    accent="#8B5CF6"
-                    sub={`${uniqueRate}% unique rate`}
                   />
                   <MetricCard
                     icon={MousePointerClick}
@@ -469,7 +456,7 @@ export default function AdAnalyticsPage() {
                     label="Wishlist Saves"
                     value={wishlist.toLocaleString()}
                     accent="#EF4444"
-                    sub={`${wishlistRate}% of viewers`}
+                    sub={`Wishlist rate ${wishlistRate}%`}
                   />
                 </div>
 
@@ -485,13 +472,12 @@ export default function AdAnalyticsPage() {
                     </div>
                     <div className="flex flex-col gap-5">
                       <FunnelBar label="Ad Card Clicks" value={views} max={views} color="#3B82F6" icon={Eye} />
-                      <FunnelBar label="Unique Visitors" value={unique} max={views} color="#8B5CF6" icon={Users} />
                       <FunnelBar label="Contact Clicks" value={clicks} max={views} color="#F5B849" icon={MousePointerClick} />
                       <FunnelBar label="Wishlist Saves" value={wishlist} max={views} color="#EF4444" icon={Heart} />
                     </div>
                     <div className="mt-5 pt-4 border-t border-gray-100 flex items-center justify-between">
-                      <span className="text-xs text-gray-400">Estimated bounce rate</span>
-                      <span className="text-xs font-bold text-gray-600">{bounceRate}%</span>
+                      <span className="text-xs text-gray-400">Total interactions</span>
+                      <span className="text-xs font-bold text-gray-600">{(clicks + wishlist).toLocaleString()}</span>
                     </div>
                   </div>
 
@@ -503,20 +489,13 @@ export default function AdAnalyticsPage() {
                       </div>
                       <h3 className="text-base font-semibold text-black">Performance Rates</h3>
                     </div>
-                    <div className="grid grid-cols-3 gap-3">
+                    <div className="grid grid-cols-2 gap-4">
                       <RingCard
                         value={clicks}
                         max={views}
                         label="Click-Through Rate"
                         color="#F5B849"
                         display={`${ctr}%`}
-                      />
-                      <RingCard
-                        value={unique}
-                        max={views}
-                        label="Unique Visitor Rate"
-                        color="#8B5CF6"
-                        display={`${uniqueRate}%`}
                       />
                       <RingCard
                         value={wishlist}
@@ -584,7 +563,7 @@ export default function AdAnalyticsPage() {
                   </div>
 
                   {/* Pills */}
-                  <div className="bg-white p-5 grid sm:grid-cols-3 gap-4">
+                  <div className="bg-white p-5 grid sm:grid-cols-2 gap-4">
                     <InsightPill
                       title="Click-Through Rate"
                       value={`${ctr}%`}
@@ -596,12 +575,6 @@ export default function AdAnalyticsPage() {
                       value={`${wishlistRate}%`}
                       note={wishlistCopy}
                       color="#EF4444"
-                    />
-                    <InsightPill
-                      title="Unique Reach"
-                      value={`${uniqueRate}%`}
-                      note={uniqueCopy}
-                      color="#8B5CF6"
                     />
                   </div>
                 </div>

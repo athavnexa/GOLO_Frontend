@@ -20,6 +20,7 @@ import {
   ShieldAlert,
   CheckCircle2,
   ArrowLeft,
+  Camera,
 } from "lucide-react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -446,20 +447,30 @@ export default function ProfilePage() {
             <div className="rounded-[12px] border border-[#ececec] bg-white px-3 md:px-4 py-3 shadow-sm">
               <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
                 <div className="flex min-w-0 items-start gap-4">
-                  {profilePhotoSrc ? (
-                    <img
-                      src={profilePhotoSrc}
-                      alt={displayUser?.name || "Profile"}
-                      className="h-[84px] w-[84px] shrink-0 rounded-full object-cover shadow-sm"
-                    />
-                  ) : (
-                    <div className="relative flex h-[84px] w-[84px] shrink-0 items-center justify-center rounded-full bg-[#f3f4f6] text-4xl font-medium text-white shadow-sm overflow-hidden border border-gray-200">
-                      <img src="/images/default-user-avatar.jpg" alt="Default Avatar" className="w-full h-full object-cover" />
-                      <span className="absolute right-1 bottom-1 w-5 h-5 rounded-full bg-[#157a4f] border-2 border-white flex items-center justify-center text-[10px] text-white">
-                        <User size={10} />
-                      </span>
+                  <div
+                    onClick={openEditModal}
+                    className="relative group cursor-pointer shrink-0"
+                    title="Click to change profile picture"
+                  >
+                    {profilePhotoSrc ? (
+                      <img
+                        src={profilePhotoSrc}
+                        alt={displayUser?.name || "Profile"}
+                        className="h-[84px] w-[84px] shrink-0 rounded-full object-cover shadow-sm border-2 border-white ring-2 ring-gray-100 group-hover:ring-[#157a4f] transition-all"
+                      />
+                    ) : (
+                      <div className="relative flex h-[84px] w-[84px] shrink-0 items-center justify-center rounded-full bg-[#f3f4f6] text-4xl font-medium text-white shadow-sm overflow-hidden border border-gray-200 group-hover:ring-2 group-hover:ring-[#157a4f] transition-all">
+                        <img src="/images/default-user-avatar.jpg" alt="Default Avatar" className="w-full h-full object-cover" />
+                        <span className="absolute right-1 bottom-1 w-5 h-5 rounded-full bg-[#157a4f] border-2 border-white flex items-center justify-center text-[10px] text-white">
+                          <User size={10} />
+                        </span>
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white text-[10px] font-bold gap-0.5">
+                      <Camera size={18} />
+                      <span>Edit</span>
                     </div>
-                  )}
+                  </div>
                   <div>
                     <h1 className="text-[34px] leading-none font-semibold text-[#1f1f1f]">{displayUser?.name || "Kaustubh Khamkar"}</h1>
                     <div className="mt-2 space-y-1 text-[13px] text-[#6f6f6f]">

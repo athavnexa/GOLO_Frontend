@@ -51,7 +51,6 @@ const mainCategories = [
 ];
 
 const extraCategories = [
-  "Lost & Found",
   "Service",
   "Personal",
   "Pets",

@@ -640,9 +640,7 @@ export default function AnalyticsPage() {
     { icon: Package, label: "Total Ads", value: summary.totalAds ?? 0, accent: "#157A4F" },
     { icon: TrendingUp, label: "Active Ads", value: summary.activeAds ?? 0, accent: "#22C55E" },
     { icon: Eye, label: "Ad Card Clicks", value: (summary.totalViews ?? 0).toLocaleString(), accent: "#3B82F6" },
-    { icon: Users, label: "Unique Visitors", value: (summary.uniqueVisitors ?? 0).toLocaleString(), accent: "#8B5CF6" },
     { icon: MousePointerClick, label: "Contact Clicks", value: (summary.totalContactClicks ?? 0).toLocaleString(), accent: "#F5B849" },
-    { icon: Heart, label: "Wishlist Saves", value: (summary.totalWishlistSaves ?? 0).toLocaleString(), accent: "#EF4444" },
   ];
 
   return (
@@ -706,7 +704,7 @@ export default function AnalyticsPage() {
             {!loading && !error && (
               <>
                 {/* Summary Cards */}
-                <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                   {CARDS.map((card) => (
                     <SummaryCard key={card.label} {...card} />
                   ))}

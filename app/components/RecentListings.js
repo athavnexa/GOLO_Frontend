@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useEffect, useState, useRef, Suspense } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
-import { getAllAds, getNearbyAds, searchAds } from "../lib/api";
+import { getAllAds, getNearbyAds, searchAds, trackAdView, trackAdContactClick } from "../lib/api";
 import { useAuth } from "../context/AuthContext";
 import AuthRequiredModal from "./AuthRequiredModal";
 import { normalizeAppPath } from "../lib/path";
@@ -436,11 +436,17 @@ function MultiImageAd({ ad, className, isAuthenticated, onRequireAuth }) {
         return () => clearInterval(interval);
     }, [images.length]);
 
+    const handleCardClick = () => {
+        const targetId = ad.adId || ad._id;
+        if (targetId) {
+            trackAdView(targetId);
+            router.push(`/product/${targetId}`);
+        }
+    };
+
     return (
         <div
-            onClick={() => {
-                router.push(`/product/${ad._id || ad.adId}`);
-            }}
+            onClick={handleCardClick}
             className={`relative rounded-3xl overflow-hidden group cursor-pointer shadow-sm hover:shadow-2xl transition ${className}`}
             data-colspan={getColSpanFromClass(ad.col)}
             data-rowspan={getRowSpanFromClass(ad.row)}
@@ -474,6 +480,7 @@ function MultiImageAd({ ad, className, isAuthenticated, onRequireAuth }) {
                                 onRequireAuth();
                                 return;
                             }
+                            trackAdContactClick(ad.adId || ad._id);
                             router.push(`/chats?adId=${ad.adId || ad._id}&sellerId=${ad.userId || ''}`);
                         }}
                         className={`px-4 py-2 text-sm rounded-xl ${chatButtonClass}`}
@@ -487,6 +494,7 @@ function MultiImageAd({ ad, className, isAuthenticated, onRequireAuth }) {
                                 onRequireAuth();
                                 return;
                             }
+                            trackAdContactClick(ad.adId || ad._id);
                             router.push(`/chats?adId=${ad.adId || ad._id}&sellerId=${ad.userId || ''}&autoCall=1`);
                         }}
                         className={`px-4 py-2 text-sm rounded-xl ${callButtonClass}`}
@@ -513,11 +521,17 @@ function SingleImageAd({ ad, className, isAuthenticated, onRequireAuth }) {
     const router = useRouter();
     const image = ad.images && ad.images[0] ? getSafeImageSrc(ad.images[0]) : "/images/placeholder.webp";
 
+    const handleCardClick = () => {
+        const targetId = ad.adId || ad._id;
+        if (targetId) {
+            trackAdView(targetId);
+            router.push(`/product/${targetId}`);
+        }
+    };
+
     return (
         <div
-            onClick={() => {
-                router.push(`/product/${ad._id || ad.adId}`);
-            }}
+            onClick={handleCardClick}
             className={`relative rounded-3xl overflow-hidden group cursor-pointer shadow-sm hover:shadow-xl transition ${className}`}
             data-colspan={getColSpanFromClass(ad.col)}
             data-rowspan={getRowSpanFromClass(ad.row)}
@@ -546,6 +560,7 @@ function SingleImageAd({ ad, className, isAuthenticated, onRequireAuth }) {
                                 onRequireAuth();
                                 return;
                             }
+                            trackAdContactClick(ad.adId || ad._id);
                             router.push(`/chats?adId=${ad.adId || ad._id}&sellerId=${ad.userId || ''}`);
                         }}
                         className={`flex-1 py-2 text-xs rounded-lg ${chatButtonClass}`}
@@ -559,6 +574,7 @@ function SingleImageAd({ ad, className, isAuthenticated, onRequireAuth }) {
                                 onRequireAuth();
                                 return;
                             }
+                            trackAdContactClick(ad.adId || ad._id);
                             router.push(`/chats?adId=${ad.adId || ad._id}&sellerId=${ad.userId || ''}&autoCall=1`);
                         }}
                         className={`flex-1 py-2 text-xs rounded-lg ${callButtonClass}`}
@@ -574,11 +590,17 @@ function SingleImageAd({ ad, className, isAuthenticated, onRequireAuth }) {
 function TextAd({ ad, className, isAuthenticated, onRequireAuth }) {
     const router = useRouter();
 
+    const handleCardClick = () => {
+        const targetId = ad.adId || ad._id;
+        if (targetId) {
+            trackAdView(targetId);
+            router.push(`/product/${targetId}`);
+        }
+    };
+
     return (
         <div
-            onClick={() => {
-                router.push(`/product/${ad._id || ad.adId}`);
-            }}
+            onClick={handleCardClick}
             className={`bg-white rounded-3xl p-6 shadow-sm hover:shadow-xl transition cursor-pointer flex flex-col justify-between ${className}`}
             data-colspan={getColSpanFromClass(ad.col)}
             data-rowspan={getRowSpanFromClass(ad.row)}
@@ -598,6 +620,7 @@ function TextAd({ ad, className, isAuthenticated, onRequireAuth }) {
                             onRequireAuth();
                             return;
                         }
+                        trackAdContactClick(ad.adId || ad._id);
                         router.push(`/chats?adId=${ad.adId || ad._id}&sellerId=${ad.userId || ''}`);
                     }}
                     className={`flex-1 py-2 text-xs rounded-lg ${chatButtonClass}`}
@@ -611,6 +634,7 @@ function TextAd({ ad, className, isAuthenticated, onRequireAuth }) {
                             onRequireAuth();
                             return;
                         }
+                        trackAdContactClick(ad.adId || ad._id);
                         router.push(`/chats?adId=${ad.adId || ad._id}&sellerId=${ad.userId || ''}&autoCall=1`);
                     }}
                     className={`flex-1 py-2 text-xs rounded-lg ${callButtonClass}`}

@@ -1413,11 +1413,11 @@ function NavbarContent({
                   >
                     <div className="relative w-9 h-9">
                       <div
-                        className="w-9 h-9 rounded-full flex items-center justify-center shadow-md hover:scale-105 transition bg-white overflow-hidden"
+                        className="w-9 h-9 rounded-full flex items-center justify-center shadow-md hover:scale-105 transition bg-white overflow-hidden border border-gray-200/60"
                         style={{ color: "#157A4F" }}
                       >
                         <img
-                          src={user?.avatarUrl || "/images/default-user-avatar.jpg"}
+                          src={user?.profilePhoto || user?.avatarUrl || user?.profile?.avatar || user?.avatar || "/images/default-user-avatar.jpg"}
                           alt={user?.name || "Profile"}
                           className="h-full w-full object-cover"
                         />
@@ -1431,12 +1431,21 @@ function NavbarContent({
 
                   {/* Profile Dropdown — surface-specific ordered links */}
                   {showProfileMenu && (
-                    <div className="absolute top-12 right-0 w-[calc(100vw-2rem)] max-w-56 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-[9999]">
-                      <div className="px-4 py-2 border-b border-gray-100">
-                        <p className="text-sm font-semibold text-gray-800">
-                          {user?.name}
-                        </p>
-                        <p className="text-xs text-gray-500">{user?.email}</p>
+                    <div className="absolute top-12 right-0 w-[calc(100vw-2rem)] max-w-64 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-[9999]">
+                      <div className="px-4 py-2.5 border-b border-gray-100 flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-100 shrink-0 border border-gray-200">
+                          <img
+                            src={user?.profilePhoto || user?.avatarUrl || user?.profile?.avatar || user?.avatar || "/images/default-user-avatar.jpg"}
+                            alt={user?.name || "Profile"}
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-semibold text-gray-800 truncate">
+                            {user?.name || "User"}
+                          </p>
+                          <p className="text-xs text-gray-500 truncate">{user?.email}</p>
+                        </div>
                       </div>
 
                       {isGolocalSurface ? (

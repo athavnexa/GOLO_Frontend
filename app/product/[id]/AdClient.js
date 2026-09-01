@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Navbar from "./../../components/Navbar";
 import Footer from "./../../components/Footer";
-import { getAdById, toggleWishlist, getWishlistIds, getAdWishlistCount, getUserById } from "../../lib/api";
+import { getAdById, toggleWishlist, getWishlistIds, getAdWishlistCount, getUserById, trackAdView, trackAdContactClick } from "../../lib/api";
 import { useAuth } from "../../context/AuthContext";
 import {
 	Heart,
@@ -112,6 +112,7 @@ export default function ProductDetails({ params }) {
 			if (!silent) {
 				setLoading(true);
 				setError("");
+				trackAdView(adId);
 			}
 
 			try {
@@ -699,6 +700,7 @@ export default function ProductDetails({ params }) {
 												setShowAuthPrompt(true);
 												return;
 											}
+											trackAdContactClick(ad?.adId || ad?._id || adId);
 											router.push(`/chats?adId=${ad?.adId || ad?._id || adId}&sellerId=${sellerId}`);
 										}}
 										className="w-full mt-6 py-3 rounded-xl bg-[#157A4F] hover:bg-[#0f5c3a] text-white font-semibold flex items-center justify-center gap-2 transition"
@@ -714,6 +716,7 @@ export default function ProductDetails({ params }) {
 												setShowAuthPrompt(true);
 												return;
 											}
+											trackAdContactClick(ad?.adId || ad?._id || adId);
 											router.push(`/chats?adId=${ad?.adId || ad?._id || adId}&sellerId=${sellerId}&autoCall=1`);
 										}}
 										className="w-full mt-4 py-3 rounded-xl bg-[#F5B849] hover:bg-[#e0a837] text-white font-semibold flex items-center justify-center gap-2 transition"
