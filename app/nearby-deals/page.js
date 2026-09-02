@@ -204,8 +204,10 @@ function withResolvedDistance(row, latitude, longitude) {
 }
 
 function isWithinRadius(row, radiusKm) {
+  if (row?.distanceKm === null || row?.distanceKm === undefined) return true;
   const distanceKm = Number(row?.distanceKm);
-  return Number.isFinite(distanceKm) && distanceKm <= radiusKm;
+  if (!Number.isFinite(distanceKm)) return true;
+  return distanceKm <= radiusKm;
 }
 
 function normalizeLocationText(value) {
@@ -223,10 +225,24 @@ const LOCATION_ALIASES = {
     "karveer",
     "karveer taluka",
     "karvir taluka",
+    "rajarampuri",
+    "subhash road",
+    "subhash nagar",
+    "shastri nagar",
+    "shahupuri",
+    "tarabai park",
+    "laxmipuri",
+    "mangalwar peth",
+    "mangalwar",
+    "patil nursing home",
+    "shenda park",
+    "sykes extension",
+    "shivaji park",
+    "baba jarag nagar",
   ],
-  sangli: ["sangli"],
-  mumbai: ["mumbai", "bombay", "navi mumbai"],
-  pune: ["pune", "poona"],
+  sangli: ["sangli", "miraj", "kupwad", "vishrambag", "madhavnagar"],
+  mumbai: ["mumbai", "bombay", "navi mumbai", "thane", "andheri", "bandra", "borivali", "dadar"],
+  pune: ["pune", "poona", "pcmc", "pimpri", "chinchwad", "kothrud", "baner", "viman nagar", "hinjewadi", "fc road", "wakad", "hadapsar", "swargate", "camp"],
 };
 
 function getLocationCity(location) {
@@ -249,28 +265,64 @@ function getLocationCity(location) {
 }
 
 function offerMatchesLocation(row, location) {
-  const cityNorm = getLocationCity(location);
-  if (!cityNorm) return false;
+  if (!location) return true;
+  const fullLocNorm = normalizeLocationText(location);
+  if (
+    !fullLocNorm ||
+    fullLocNorm === "current location" ||
+    fullLocNorm === "your location" ||
+    fullLocNorm === "detecting location"
+  ) {
+    return true;
+  }
 
   const addressNorm = normalizeLocationText(
     [
       row?.merchant?.address,
+      row?.merchant?.storeLocation,
+      row?.merchant?.city,
       row?.merchant?.name,
+      row?.merchant?.storeName,
       row?.merchant?.category,
       row?.merchant?.subCategory,
+      row?.location,
+      row?.storeLocation,
     ]
       .filter(Boolean)
       .join(" "),
   );
-  if (!addressNorm) return false;
+  if (!addressNorm) return true;
 
-  if (addressNorm.includes(cityNorm)) return true;
+  // 1. Direct substring match
+  if (addressNorm.includes(fullLocNorm) || fullLocNorm.includes(addressNorm)) return true;
 
-  const aliases = LOCATION_ALIASES[cityNorm] || [];
-  return aliases.some((alias) => {
-    const aliasNorm = normalizeLocationText(alias);
-    return aliasNorm && addressNorm.includes(aliasNorm);
-  });
+  // 2. Recognized city / locality alias match
+  for (const [city, aliases] of Object.entries(LOCATION_ALIASES)) {
+    const candidates = [city, ...aliases].map(normalizeLocationText).filter(Boolean);
+    const hasCityInLoc = candidates.some((cand) => fullLocNorm.includes(cand));
+    const hasCityInAddr = candidates.some((cand) => addressNorm.includes(cand));
+    if (hasCityInLoc && hasCityInAddr) return true;
+  }
+
+  // 3. Segment matches (split by comma or pipe)
+  const segments = String(location)
+    .split(/[,|]+/)
+    .map(normalizeLocationText)
+    .filter((s) => s.length >= 3);
+
+  for (const seg of segments) {
+    if (addressNorm.includes(seg) || seg.includes(addressNorm)) {
+      return true;
+    }
+  }
+
+  // 4. Token overlap (meaningful words with length >= 4)
+  const tokens = fullLocNorm.split(/\s+/).filter((t) => t.length >= 4);
+  if (tokens.some((token) => addressNorm.includes(token))) {
+    return true;
+  }
+
+  return false;
 }
 
 function isManualLocationMatch(row, location) {
@@ -612,19 +664,15 @@ function NearbyDealsPageContent() {
         : resolvedLng;
       const hasCoordinateSearch =
         typeof fetchLat === "number" && typeof fetchLng === "number";
-      // Only pass the location string for text-based filtering when we have
-      // NO coordinates at all. When we have coordinates, the radius filter
-      // is far more reliable than text matching.
-      const locationForRequest =
-        hasLocationQuery && !hasCoordinateSearch ? location : "";
+      const locationForRequest = hasLocationQuery ? location : "";
 
       try {
         const response = await getNearbyOffers({
           lat: fetchLat,
           lng: fetchLng,
           radiusKm: distanceRadius,
-          location: locationForRequest,
-          q: query,
+          location: locationForRequest || undefined,
+          q: query || undefined,
           category: selectedCategory || undefined,
           sort: sortBy,
           maxPrice: priceRange < 5000 ? priceRange : undefined,
@@ -633,7 +681,7 @@ function NearbyDealsPageContent() {
           topDiscountOnly: topDiscountOnly,
           activeNowOnly: activeNowOnly,
           page: 1,
-          limit: 100,
+          limit: 50,
         });
 
         const primaryRows = Array.isArray(response?.data)
@@ -646,61 +694,15 @@ function NearbyDealsPageContent() {
           : primaryRows;
         const strictRows = hasCoordinateSearch
           ? distanceResolvedRows.filter((row) =>
-              isWithinRadius(row, distanceRadius),
+              isWithinRadius(row, distanceRadius) || offerMatchesLocation(row, location),
             )
           : distanceResolvedRows;
 
-        // If the user explicitly provided a location string and the backend
-        // returned no results for that location, do NOT fall back to other
-        // nearby offers — show an empty state instead. This prevents showing
-        // unrelated deals (e.g., Kolhapur) for a typed location like "Mumbai".
-        if (
-          hasLocationQuery &&
-          !hasCoordinateSearch &&
-          strictRows.length === 0
-        ) {
-          if (fetchSeq !== nearbyFetchSeqRef.current) return;
-          finalOffers = [];
-        } else if (
-          strictRows.length === 0 &&
-          fetchLat !== undefined &&
-          fetchLng !== undefined &&
-          !hasManualCoordinates &&
-          !hasLocationQuery
-        ) {
-          const fallbackResponse = await getNearbyOffers({
-            lat: undefined,
-            lng: undefined,
-            radiusKm: distanceRadius,
-            location: locationForRequest,
-            q: query,
-            category: selectedCategory || undefined,
-            sort: sortBy,
-            maxPrice: priceRange < 5000 ? priceRange : undefined,
-            applyPriceFilter: priceRange < 5000,
-            offerTypes: selectedTypeLabels.join(","),
-            topDiscountOnly: topDiscountOnly,
-            activeNowOnly: activeNowOnly,
-            page: 1,
-            limit: 100,
-          });
-
-          if (fetchSeq !== nearbyFetchSeqRef.current) return;
-          const fallbackRows = Array.isArray(fallbackResponse?.data)
-            ? fallbackResponse.data.map(normalizeNearbyOffer)
-            : [];
-          finalOffers = fallbackRows;
-        } else {
-          if (fetchSeq !== nearbyFetchSeqRef.current) return;
-          finalOffers = strictRows;
-        }
+        if (fetchSeq !== nearbyFetchSeqRef.current) return;
+        finalOffers = strictRows.length > 0 ? strictRows : primaryRows;
       } catch (err) {
         if (fetchSeq !== nearbyFetchSeqRef.current) return;
         console.error("getNearbyOffers failed:", err);
-        // Do NOT set error here, because unifiedSearch might still succeed and provide results!
-        if (String(location || "").trim()) {
-          finalOffers = [];
-        }
       }
       
       if (query) {
@@ -829,28 +831,17 @@ function NearbyDealsPageContent() {
       return sortedRows;
     }
 
-    if (manualLatitude !== null && manualLongitude !== null) {
-      return sortedRows.filter((row) => {
-        // Only filter by radius if we have distanceKm. Keyword search results lack this, so allow them.
-        if (typeof row?.distanceKm !== 'number') return true; 
-        return isWithinRadius(row, distanceRadius);
-      });
-    }
-
-    // If we reach here, we check the location string against the address,
-    // BUT if the row has distanceKm, it was already fetched via GPS radius, so we just use that!
-    return sortedRows.filter((row) => {
-      // If the row was fetched geographically (has distanceKm), we just check the radius.
-      if (typeof row?.distanceKm === 'number') {
-        return isWithinRadius(row, distanceRadius);
+    const matched = sortedRows.filter((row) => {
+      if (typeof row?.distanceKm === 'number' && isWithinRadius(row, distanceRadius)) {
+        return true;
       }
-      
-      // If we don't have merchant details (like from unifiedSearch), allow it
       if (!row?.merchant?.address && !row?.merchant?.city && !row?.merchant?.name) {
         return true; 
       }
       return offerMatchesLocation(row, location);
     });
+
+    return matched.length > 0 ? matched : sortedRows;
   })();
 
   const summary = useMemo(() => {

@@ -939,7 +939,7 @@ export async function getNearbyOffers({
     applyPriceFilter = false,
     offerTypes,
     topDiscountOnly = false,
-    activeNowOnly = true,
+    activeNowOnly = false,
     page = 1,
     limit = 20,
     _t,  // cache buster (ignored by backend, just varies cache key)
@@ -955,7 +955,8 @@ export async function getNearbyOffers({
     if (sort) params.set('sort', String(sort));
     if (offerTypes) params.set('offerTypes', String(offerTypes));
     if (topDiscountOnly) params.set('topDiscount', String(topDiscountOnly));
-    if (activeNowOnly === false) params.set('activeNow', 'false');
+    if (activeNowOnly) params.set('activeNow', 'true');
+    else params.set('activeNow', 'false');
     if (
         applyPriceFilter &&
         typeof maxPrice === 'number' &&

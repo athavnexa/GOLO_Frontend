@@ -3,249 +3,55 @@
 import Image from "next/image";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, MapPin, Clock, Store, Tag } from "lucide-react";
 import { useAuth } from "./context/AuthContext";
 import Navbar from "./components/Navbar";
 import CategoryBar from "./components/CategoryBar";
 import Hero from "./components/Hero";
 import Footer from "./components/Footer";
-import { getHomeSectionConfig, getNearbyOffers, getHomepageRecommendations } from "./lib/api";
+import { getHomepageRecommendations } from "./lib/api";
 
-const SHOP_FALLBACKS = [
-  {
-    id: "shop-1",
-    merchantId: "shop-1",
-    title: "Moon Cafe",
-    subtitle: "Get the latest smart watch with advanced health tracking.",
-    image: "/images/place1.jpg",
-    buttonLabel: "View Store",
-    type: "shop",
-  },
-  {
-    id: "shop-2",
-    merchantId: "shop-2",
-    title: "Luxury Spa Package",
-    subtitle: "Relax and rejuvenate with our exclusive spa treatments.",
-    image: "/images/deal2.jpg",
-    buttonLabel: "View Store",
-    type: "shop",
-  },
-  {
-    id: "shop-3",
-    merchantId: "shop-3",
-    title: "Fashion Apparel Sale",
-    subtitle: "Discover the latest trends in fashion wear.",
-    image: "/images/deal3.jpg",
-    buttonLabel: "View Store",
-    type: "shop",
-  },
-  {
-    id: "shop-4",
-    merchantId: "shop-4",
-    title: "Weekend Getaway",
-    subtitle: "Book your perfect weekend getaway at unbeatable prices.",
-    image: "/images/place4.jpg",
-    buttonLabel: "View Store",
-    type: "shop",
-  },
-];
-
-const DEAL_FALLBACKS = [
-  {
-    id: "deal-1",
-    offerId: "deal-1",
-    title: "Smart Watch Pro",
-    subtitle: "Get the latest smart watch with advanced health tracking.",
-    image: "/images/del1.webp",
-    badge: "50% OFF",
-    buttonLabel: "View Deal",
-    type: "deal",
-  },
-  {
-    id: "deal-2",
-    offerId: "deal-2",
-    title: "Luxury Spa Package",
-    subtitle: "Relax and rejuvenate with our exclusive spa treatments.",
-    image: "/images/deal2.jpg",
-    badge: "30% OFF",
-    buttonLabel: "View Deal",
-    type: "deal",
-  },
-  {
-    id: "deal-3",
-    offerId: "deal-3",
-    title: "Fashion Apparel Sale",
-    subtitle: "Discover the latest trends in fashion wear.",
-    image: "/images/deal3.jpg",
-    badge: "25% OFF",
-    buttonLabel: "View Deal",
-    type: "deal",
-  },
-  {
-    id: "deal-4",
-    offerId: "deal-4",
-    title: "Weekend Getaway",
-    subtitle: "Book your perfect weekend getaway at unbeatable prices.",
-    image: "/images/deal4.jpg",
-    badge: "40% OFF",
-    buttonLabel: "View Deal",
-    type: "deal",
-  },
-  {
-    id: "deal-5",
-    offerId: "deal-5",
-    title: "Smart TV",
-    subtitle: "Get the latest smart watch with advanced health tracking.",
-    image: "/images/tv.jpg",
-    badge: "50% OFF",
-    buttonLabel: "View Deal",
-    type: "deal",
-  },
-  {
-    id: "deal-6",
-    offerId: "deal-6",
-    title: "Bazaar Special",
-    subtitle: "Discover the latest trends in fashion wear.",
-    image: "/images/banner1.jpg",
-    badge: "25% OFF",
-    buttonLabel: "View Deal",
-    type: "deal",
-  },
-  {
-    id: "deal-7",
-    offerId: "deal-7",
-    title: "Movie Fair",
-    subtitle: "Get the latest smart watch with advanced health tracking.",
-    image: "/images/hero.jpg",
-    badge: "50% OFF",
-    buttonLabel: "View Deal",
-    type: "deal",
-  },
-  {
-    id: "deal-8",
-    offerId: "deal-8",
-    title: "Foodie Sale",
-    subtitle: "Relax and rejuvenate with our exclusive spa treatments.",
-    image: "/images/place2.avif",
-    badge: "30% OFF",
-    buttonLabel: "View Deal",
-    type: "deal",
-  },
-  {
-    id: "deal-9",
-    offerId: "deal-9",
-    title: "Sweet Day Sale",
-    subtitle: "Discover the latest trends in fashion wear.",
-    image: "/images/deal1.jpg",
-    badge: "25% OFF",
-    buttonLabel: "View Deal",
-    type: "deal",
-  },
-  {
-    id: "deal-10",
-    offerId: "deal-10",
-    title: "Weekend Special",
-    subtitle: "Book your perfect weekend getaway at unbeatable prices.",
-    image: "/images/place4.jpg",
-    badge: "40% OFF",
-    buttonLabel: "View Deal",
-    type: "deal",
-  },
-];
-
-function normalizeOffers(response) {
-  if (Array.isArray(response?.data)) return response.data;
-  if (Array.isArray(response?.data?.offers)) return response.data.offers;
-  if (Array.isArray(response?.offers)) return response.offers;
-  return [];
-}
-
-function buildShopCards(offers = []) {
-  const seen = new Set();
-  const shops = [];
-
-  offers.forEach((offer, index) => {
-    const merchantId = String(
-      offer?.merchant?.merchantId ||
-        offer?.merchantId ||
-        offer?.merchant?._id ||
-        offer?.merchant?.id ||
-        ""
-    ).trim();
-
-    if (!merchantId || seen.has(merchantId)) return;
-    seen.add(merchantId);
-
-    shops.push({
-      id: `shop-${merchantId}`,
-      merchantId,
-      title: offer?.merchant?.name || offer?.title || `Popular Shop ${index + 1}`,
-      subtitle:
-        offer?.description ||
-        offer?.merchant?.address ||
-        "Discover offers and products from this store.",
-      image:
-        offer?.merchant?.profilePhoto ||
-        offer?.imageUrl ||
-        offer?.images?.[0] ||
-        SHOP_FALLBACKS[index % SHOP_FALLBACKS.length].image,
-      buttonLabel: "View Store",
-      type: "shop",
-    });
-  });
-
-  return shops;
-}
-
-function buildDealCards(offers = []) {
-  return offers
-    .map((offer, index) => {
-      const offerId = String(offer?.offerId || offer?._id || offer?.id || "").trim();
-      if (!offerId) return null;
-
-      const discountPercent = Number(offer?.discountPercent || 0);
-      const fallback = DEAL_FALLBACKS[index % DEAL_FALLBACKS.length];
-
-      return {
-        id: `deal-${offerId}`,
-        offerId,
-        title: offer?.title || fallback.title,
-        subtitle:
-          offer?.description ||
-          offer?.merchant?.name ||
-          fallback.subtitle,
-        image:
-          offer?.imageUrl ||
-          offer?.images?.[0] ||
-          fallback.image,
-        badge:
-          discountPercent > 0
-            ? `${discountPercent}% OFF`
-            : fallback.badge,
-        buttonLabel: "View Deal",
-        type: "deal",
-      };
-    })
-    .filter(Boolean);
+function formatValidityText(endDate, fallbackText = "") {
+  if (!endDate) return fallbackText;
+  const end = new Date(endDate);
+  if (isNaN(end.getTime())) {
+    return typeof endDate === "string" ? endDate : fallbackText;
+  }
+  const now = new Date();
+  const diffMs = end.getTime() - now.getTime();
+  const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+  
+  if (diffDays < 0) return "Expired";
+  if (diffDays === 0) return "Ends Today";
+  if (diffDays === 1) return "Ends Tomorrow";
+  if (diffDays <= 7) return `Ends in ${diffDays} days`;
+  
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  return `Valid till ${end.getDate()} ${months[end.getMonth()]}`;
 }
 
 function SectionSkeleton({ title }) {
   return (
-    <section className="border-t border-[#bcc4cf] bg-[#f4f4f4] py-10">
+    <section className="border-t border-[#bcc4cf] bg-[#f4f4f4] py-7 sm:py-10">
       <div className="mx-auto max-w-[1260px] px-4 lg:px-6">
         <div className="mb-5 h-8 w-56 animate-pulse rounded-full bg-[#e2e8f0]" />
         <div className="flex gap-4 overflow-hidden pb-2">
           {Array.from({ length: 4 }).map((_, index) => (
             <article
               key={`${title}-skeleton-${index}`}
-              className="flex-none overflow-hidden rounded-[14px] border border-[#e2e8f0] bg-white shadow-[0_2px_12px_rgba(15,23,42,0.05)] w-[260px] min-w-[260px] max-w-[260px] sm:w-[280px] sm:min-w-[280px] sm:max-w-[280px] md:w-[240px] md:min-w-[240px] md:max-w-[240px] lg:w-[280px] lg:min-w-[280px] lg:max-w-[280px]"
+              className="flex-none overflow-hidden rounded-[14px] border border-[#e2e8f0] bg-white shadow-[0_2px_12px_rgba(15,23,42,0.05)] w-[260px] min-w-[260px] max-w-[260px] sm:w-[280px] sm:min-w-[280px] sm:max-w-[280px] md:w-[250px] md:min-w-[250px] md:max-w-[250px] lg:w-[280px] lg:min-w-[280px] lg:max-w-[280px] flex flex-col"
             >
-              <div className="relative h-[140px] sm:h-[190px] md:h-[160px] lg:h-[190px] w-full animate-pulse bg-[#dbe3ed]" />
-              <div className="flex min-h-[135px] sm:min-h-[170px] flex-col gap-4 bg-[#ffe1a3] p-3 sm:p-4">
-                <div className="h-5 sm:h-6 w-4/5 animate-pulse rounded-full bg-[#f4d77f]" />
-                <div className="h-3 sm:h-4 w-full animate-pulse rounded-full bg-[#f4d77f]" />
-                <div className="h-3 sm:h-4 w-5/6 animate-pulse rounded-full bg-[#f4d77f]" />
-                <div className="mt-auto h-9 sm:h-10 w-full animate-pulse rounded-[7px] bg-[#ffd16c]" />
+              <div className="relative h-[150px] sm:h-[180px] w-full animate-pulse bg-[#dbe3ed]" />
+              <div className="flex flex-1 flex-col justify-between bg-[#ffe1a3] p-3 sm:p-3.5 gap-2 min-h-[165px]">
+                <div className="space-y-2">
+                  <div className="h-5 w-4/5 animate-pulse rounded bg-[#f4d77f]" />
+                  <div className="h-3.5 w-3/5 animate-pulse rounded bg-[#f4d77f]" />
+                  <div className="h-3 w-1/2 animate-pulse rounded bg-[#f4d77f]" />
+                </div>
+                <div className="pt-2 border-t border-[#f0cf85] space-y-2">
+                  <div className="h-5 w-2/3 animate-pulse rounded bg-[#f4d77f]" />
+                  <div className="h-8.5 w-full animate-pulse rounded-[7px] bg-[#ffd16c]" />
+                </div>
               </div>
             </article>
           ))}
@@ -299,7 +105,7 @@ function SectionCarousel({ title, items, onItemClick }) {
             <button
               type="button"
               onClick={() => scrollByAmount(-1)}
-              className="absolute left-1 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-[#1f2937] shadow-[0_10px_30px_rgba(15,23,42,0.18)] sm:-left-5 sm:h-11 sm:w-11"
+              className="absolute left-1 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-[#1f2937] shadow-[0_10px_30px_rgba(15,23,42,0.18)] hover:bg-white transition sm:-left-5 sm:h-11 sm:w-11"
               aria-label={`Scroll ${title} left`}
             >
               <ChevronLeft size={22} />
@@ -310,7 +116,7 @@ function SectionCarousel({ title, items, onItemClick }) {
             <button
               type="button"
               onClick={() => scrollByAmount(1)}
-              className="absolute right-1 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-[#1f2937] shadow-[0_10px_30px_rgba(15,23,42,0.18)] sm:-right-5 sm:h-11 sm:w-11"
+              className="absolute right-1 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-[#1f2937] shadow-[0_10px_30px_rgba(15,23,42,0.18)] hover:bg-white transition sm:-right-5 sm:h-11 sm:w-11"
               aria-label={`Scroll ${title} right`}
             >
               <ChevronRight size={22} />
@@ -325,41 +131,94 @@ function SectionCarousel({ title, items, onItemClick }) {
             {items.map((item) => (
               <article
                 key={item.id}
-                className="flex-none snap-start overflow-hidden rounded-[14px] border border-[#e2e8f0] bg-white shadow-[0_2px_12px_rgba(15,23,42,0.05)] w-[260px] min-w-[260px] max-w-[260px] sm:w-[280px] sm:min-w-[280px] sm:max-w-[280px] md:w-[240px] md:min-w-[240px] md:max-w-[240px] lg:w-[280px] lg:min-w-[280px] lg:max-w-[280px]"
+                onClick={() => onItemClick(item)}
+                className="group cursor-pointer flex-none snap-start overflow-hidden rounded-[14px] border border-[#e2e8f0] bg-white shadow-[0_2px_12px_rgba(15,23,42,0.06)] hover:shadow-[0_8px_24px_rgba(15,23,42,0.12)] transition-all duration-300 w-[260px] min-w-[260px] max-w-[260px] sm:w-[280px] sm:min-w-[280px] sm:max-w-[280px] md:w-[250px] md:min-w-[250px] md:max-w-[250px] lg:w-[280px] lg:min-w-[280px] lg:max-w-[280px] flex flex-col"
               >
-                <div className="relative h-[140px] sm:h-[190px] md:h-[160px] lg:h-[190px] w-full overflow-hidden">
+                <div className="relative h-[150px] sm:h-[180px] w-full overflow-hidden bg-gray-100">
                   <Image
                     src={item.image}
                     alt={item.title}
                     fill
-                    className="object-cover"
+                    className="object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
                     unoptimized
                   />
-                  {item.type === "deal" && (
-                    <span className="absolute left-3 top-3 rounded-full bg-[#ff8c10] px-2 py-1 text-[10px] font-bold text-white">
+
+                  {item.badge && (
+                    <span className="absolute left-2.5 top-2.5 rounded-md bg-[#ff6b00] px-2 py-0.5 text-[10px] sm:text-[11px] font-bold text-white shadow-sm flex items-center gap-1">
+                      <Tag size={10} className="stroke-[2.5]" />
                       {item.badge}
                     </span>
                   )}
+
+                  {item.validityText && (
+                    <div className="absolute right-2.5 bottom-2.5 rounded-full bg-black/65 backdrop-blur-sm px-2 py-0.5 text-[9px] sm:text-[10px] font-medium text-white flex items-center gap-1 shadow-sm max-w-[80%] truncate">
+                      <Clock size={10} className="shrink-0 text-[#f5b849]" />
+                      <span className="truncate">{item.validityText}</span>
+                    </div>
+                  )}
                 </div>
 
-                <div className="flex min-h-[135px] sm:min-h-[170px] flex-col bg-[#ffe1a3] p-3 sm:p-4">
-                  <h3 className="line-clamp-2 min-h-[40px] sm:min-h-[56px] text-[15px] sm:text-[18px] font-semibold leading-5 sm:leading-7 text-[#30343c]">
-                    {item.title}
-                  </h3>
-                  <p className="mt-2 line-clamp-2 min-h-[36px] sm:min-h-[48px] text-[11px] sm:text-[12px] leading-4 sm:leading-5 text-[#7c8492]">
-                    {item.subtitle}
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => onItemClick(item)}
-                    className={`mt-auto h-9 sm:h-10 w-full rounded-[7px] text-[12px] sm:text-[13px] font-semibold text-white transition ${
-                      item.type === "shop"
-                        ? "bg-[#2f9d3c] hover:bg-[#278531]"
-                        : "bg-[#2f9d3c] hover:bg-[#278531]"
-                    }`}
-                  >
-                    {item.buttonLabel}
-                  </button>
+                <div className="flex flex-1 flex-col justify-between bg-[#ffe1a3] p-3 sm:p-3.5 gap-1.5 min-h-[165px]">
+                  <div>
+                    <h3
+                      title={item.title}
+                      className="line-clamp-1 text-[14px] sm:text-[16px] font-bold leading-tight text-[#222730] tracking-tight group-hover:text-[#157A4F] transition-colors"
+                    >
+                      {item.title}
+                    </h3>
+
+                    {item.merchantName && (
+                      <div className="flex items-center gap-1 text-[11px] sm:text-[12px] font-semibold text-[#5c4a1e] truncate mt-1">
+                        <Store size={12} className="shrink-0 text-[#8c7438]" />
+                        <span className="truncate">{item.merchantName}</span>
+                      </div>
+                    )}
+
+                    {item.location && (
+                      <div className="flex items-center gap-1 text-[10px] sm:text-[11px] text-[#786432] truncate mt-0.5">
+                        <MapPin size={11} className="shrink-0 text-[#d97706]" />
+                        <span className="truncate">{item.location}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="pt-1.5 border-t border-[#f0cf85]">
+                    <div className="flex items-baseline justify-between gap-1">
+                      {item.price !== null && item.price !== undefined && Number(item.price) > 0 ? (
+                        <div className="flex items-baseline gap-1.5 truncate">
+                          <span className="text-[15px] sm:text-[17px] font-extrabold text-[#157A4F]">
+                            ₹{Number(item.price).toLocaleString()}
+                          </span>
+                          {item.originalPrice && Number(item.originalPrice) > Number(item.price) && (
+                            <span className="text-[11px] sm:text-[12px] text-[#8c7438] line-through font-medium">
+                              ₹{Number(item.originalPrice).toLocaleString()}
+                            </span>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-[11px] sm:text-[12px] font-bold text-[#157A4F] truncate">
+                          {item.type === 'shop' ? 'Visit Store' : 'Special Offer'}
+                        </span>
+                      )}
+
+                      {item.discountPercent > 0 && (
+                        <span className="text-[10px] font-bold text-[#b45309] bg-[#fde68a] px-1.5 py-0.5 rounded shrink-0">
+                          {item.discountPercent}% OFF
+                        </span>
+                      )}
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onItemClick(item);
+                      }}
+                      className="mt-2 h-8 sm:h-9 w-full rounded-[7px] bg-[#2f9d3c] hover:bg-[#258330] active:scale-[0.99] text-[12px] sm:text-[13px] font-semibold text-white transition flex items-center justify-center gap-1 shadow-sm"
+                    >
+                      <span>{item.buttonLabel}</span>
+                    </button>
+                  </div>
                 </div>
               </article>
             ))}
@@ -409,23 +268,37 @@ function HomeContent() {
         if (Array.isArray(response)) {
             const mappedSections = response.map(section => ({
                 ...section,
-                items: section.products.map((p, index) => {
-                    const fallback = DEAL_FALLBACKS[index % DEAL_FALLBACKS.length];
+                items: (section.products || []).map((p, index) => {
+                    const isShop = p.type === 'shop';
+                    const merchantName = p.merchantName || p.merchant?.name || p.merchant?.storeName || (isShop ? p.title : "");
+                    const location = p.storeLocation || p.merchantLocation || p.location || p.city || p.merchant?.storeLocation || p.merchant?.city || "";
+                    const price = p.price !== undefined && p.price !== null && p.price !== "" ? Number(p.price) : null;
+                    const originalPrice = p.originalPrice !== undefined && p.originalPrice !== null && p.originalPrice !== "" ? Number(p.originalPrice) : null;
+                    const discountPercent = p.discountPercent !== undefined && Number(p.discountPercent) > 0 
+                      ? Number(p.discountPercent) 
+                      : (price && originalPrice && originalPrice > price ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0);
+                    const validityText = formatValidityText(p.endDate || p.validUntil || p.expiryDate || p.promotionExpiryText, "");
+
                     return {
-                        id: p.id,
-                        offerId: p.offerId,
-                        merchantId: p.merchantId,
-                        title: p.title || fallback.title,
-                        subtitle: p.merchantName || p.category || p.subtitle || fallback.subtitle,
-                        image: p.imageUrl || p.image || fallback.image,
-                        badge: p.discountPercent > 0 ? `${p.discountPercent}% OFF` : p.badge || fallback.badge,
-                        buttonLabel: p.type === 'shop' ? "View Store" : "View Deal",
+                        id: p.id || p.offerId || p.merchantId || `item-${index}`,
+                        offerId: p.offerId || p.id,
+                        merchantId: p.merchantId || p.merchant?.merchantId,
+                        title: p.title || "Special Offer",
+                        subtitle: p.description || p.subtitle || "",
+                        merchantName,
+                        location,
+                        price,
+                        originalPrice,
+                        discountPercent,
+                        validityText,
+                        image: p.imageUrl || p.image || (Array.isArray(p.images) && p.images[0]) || "/images/placeholder.webp",
+                        badge: discountPercent > 0 ? `${discountPercent}% OFF` : (p.promoTag || p.badge || ""),
+                        buttonLabel: isShop ? "View Store" : "View Deal",
                         type: p.type || 'deal'
                     };
                 })
             }));
             
-            // Only keep sections that actually have items
             setDynamicSections(mappedSections.filter(s => s.items.length > 0));
         } else {
             setDynamicSections([]);
@@ -449,12 +322,12 @@ function HomeContent() {
   }, [selectedLocation, selectedQuery, lat, lng]);
 
   const handleShopClick = (item) => {
-    if (!item?.merchantId || String(item.merchantId).startsWith("shop-")) return;
+    if (!item?.merchantId) return;
     router.push(`/nearby-deals/store?merchantId=${encodeURIComponent(item.merchantId)}`);
   };
 
   const handleDealClick = (item) => {
-    if (!item?.offerId || String(item.offerId).startsWith("deal-")) return;
+    if (!item?.offerId) return;
     router.push(`/nearby-deals/deal?offerId=${encodeURIComponent(item.offerId)}`);
   };
 

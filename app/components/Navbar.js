@@ -18,7 +18,8 @@ import {
   Briefcase,
   LayoutGrid,
   MessageSquare,
-  MoreVertical
+  MoreVertical,
+  Crosshair,
 } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
@@ -357,27 +358,37 @@ function NavbarContent({
       name: "Pune",
       displayName: "Pune, Maharashtra, India",
       address: "Pune, Maharashtra, India",
+      coordinates: { lat: 18.5204, lng: 73.8567 },
     },
     {
       name: "Mumbai",
       displayName: "Mumbai, Maharashtra, India",
       address: "Mumbai, Maharashtra, India",
+      coordinates: { lat: 19.076, lng: 72.8777 },
     },
     {
       name: "Kolhapur",
       displayName: "Kolhapur, Maharashtra, India",
       address: "Kolhapur, Maharashtra, India",
+      coordinates: { lat: 16.705, lng: 74.2433 },
     },
     {
       name: "Bangalore",
       displayName: "Bangalore, Karnataka, India",
       address: "Bangalore, Karnataka, India",
+      coordinates: { lat: 12.9716, lng: 77.5946 },
     },
-    { name: "Delhi", displayName: "Delhi, India", address: "Delhi, India" },
+    {
+      name: "Delhi",
+      displayName: "Delhi, India",
+      address: "Delhi, India",
+      coordinates: { lat: 28.6139, lng: 77.209 },
+    },
     {
       name: "Hyderabad",
       displayName: "Hyderabad, Telangana, India",
       address: "Hyderabad, Telangana, India",
+      coordinates: { lat: 17.385, lng: 78.4867 },
     },
   ];
 
@@ -457,11 +468,9 @@ function NavbarContent({
   }, []);
 
   useEffect(() => {
-    if (!showSuggestions || !isAuthenticated) {
+    if (!showSuggestions) {
       setLocationLoading(false);
-      if (!showSuggestions) {
-        setLocationSuggestions([]);
-      }
+      setLocationSuggestions([]);
       return;
     }
 
@@ -502,7 +511,7 @@ function NavbarContent({
       active = false;
       clearTimeout(timer);
     };
-  }, [location, showSuggestions, isAuthenticated]);
+  }, [location, showSuggestions]);
 
   // Fetch notifications for authenticated users
   const fetchNotifications = async () => {
@@ -1223,7 +1232,31 @@ function NavbarContent({
 
               {/* LOCATION DROPDOWN */}
               {showSuggestions && (
-                <div className="absolute top-14 left-0 w-full min-w-[260px] rounded-xl shadow-lg py-2 z-50 bg-white border border-gray-200">
+                <div className="absolute top-14 left-0 w-full min-w-[280px] rounded-xl shadow-xl py-1.5 z-50 bg-white border border-gray-200 overflow-hidden">
+                  {/* USE CURRENT LOCATION BUTTON (MODERN ORANGE) */}
+                  <div
+                    onClick={async () => {
+                      setShowSuggestions(false);
+                      setLocationLoading(true);
+                      hasManualLocationRef.current = false;
+                      globalManualLocation = "";
+                      await detectLiveLocation(true);
+                    }}
+                    className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-orange-50/80 border-b border-gray-100 transition-colors group"
+                  >
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-orange-100/80 text-[#ff7a1a] shrink-0 group-hover:scale-105 transition-transform">
+                      <Crosshair size={16} strokeWidth={2.5} />
+                    </div>
+                    <div className="flex flex-col min-w-0">
+                      <span className="text-[13px] font-bold text-[#ff7a1a] tracking-tight group-hover:text-orange-600 transition-colors">
+                        Use current location
+                      </span>
+                      <span className="text-[11px] text-gray-500">
+                        Using GPS
+                      </span>
+                    </div>
+                  </div>
+
                   {locationLoading ? (
                     <div className="px-4 py-3 text-sm text-gray-500">
                       Searching cities...

@@ -140,6 +140,7 @@ function ClaimedOfferContent() {
   }, [selectedVoucher]);
 
   const voucherId = searchParams.get("voucherId");
+  const urlOfferId = searchParams.get("offerId");
 
   // Check authentication
   useEffect(() => {
@@ -155,9 +156,10 @@ function ClaimedOfferContent() {
     }
 
     const selectedVoucherMatches =
-      selectedVoucher?._id === voucherId || selectedVoucher?.voucherId === voucherId;
+      (selectedVoucher?._id === voucherId || selectedVoucher?.voucherId === voucherId) &&
+      Boolean(selectedVoucher?.offerId);
 
-    // If we already have the voucher in context, use it
+    // If we already have the fully populated voucher in context, use it
     if (selectedVoucherMatches) {
       setVoucherAccessRestricted(false);
       return;
@@ -177,7 +179,7 @@ function ClaimedOfferContent() {
 
         console.error("Failed to fetch voucher:", err);
       });
-  }, [voucherId, user]);
+  }, [voucherId, user, selectedVoucher?.offerId]);
 
   useEffect(() => {
     if (!voucherId || selectedVoucher?.status === "redeemed") {
@@ -239,7 +241,7 @@ function ClaimedOfferContent() {
       selectedVoucher?.merchant?._id ||
       selectedVoucher?.merchant?.userId ||
       selectedVoucher?.merchant?.merchantId;
-    const offerId = selectedVoucher?.offerId;
+    const offerId = selectedVoucher?.offerId || urlOfferId;
 
     if (!merchantId && !offerId) {
       setMerchantProfile(null);
@@ -589,23 +591,33 @@ function ClaimedOfferContent() {
     offerDetails?.exampleUsage ||
     selectedVoucher?.description ||
     "";
+  const productOfferPriceSum = (
+    offerDetails?.selectedProducts || selectedVoucher?.selectedProducts || []
+  ).reduce((sum, p) => sum + (Number(p?.offerPrice) || 0), 0);
+
+  const productOriginalPriceSum = (
+    offerDetails?.selectedProducts || selectedVoucher?.selectedProducts || []
+  ).reduce((sum, p) => sum + (Number(p?.originalPrice) || 0), 0);
+
   const resolvedOfferPrice = Number(
-    offerDetails?.selectedProducts?.[0]?.offerPrice ??
-      offerDetails?.offerPrice ??
-      selectedVoucher?.selectedProducts?.[0]?.offerPrice ??
-      selectedVoucher?.offerPrice ??
+    (productOfferPriceSum > 0 ? productOfferPriceSum : null) ??
       offerDetails?.displayPrice ??
       offerDetails?.totalPrice ??
       selectedVoucher?.displayPrice ??
       selectedVoucher?.totalPrice ??
+      offerDetails?.offerPrice ??
+      selectedVoucher?.offerPrice ??
+      offerDetails?.selectedProducts?.[0]?.offerPrice ??
+      selectedVoucher?.selectedProducts?.[0]?.offerPrice ??
       selectedVoucher?.price ??
       0,
   );
   const resolvedOriginalPrice = Number(
-    offerDetails?.selectedProducts?.[0]?.originalPrice ??
+    (productOriginalPriceSum > 0 ? productOriginalPriceSum : null) ??
+      offerDetails?.originalPrice ??
+      selectedVoucher?.originalPrice ??
       offerDetails?.totalPrice ??
       selectedVoucher?.totalPrice ??
-      selectedVoucher?.originalPrice ??
       0,
   );
   const resolvedMerchantRating = Number(
@@ -647,7 +659,7 @@ function ClaimedOfferContent() {
       merchantProfile?.profilePhoto,
       merchantProfile?.merchantProfile?.profilePhoto,
       offerDetails?.merchant?.profilePhoto
-    ) || "/images/default-user-avatar.png";
+    ) || "/images/default-user-avatar.jpg";
 
   const resolvedMerchantBanner =
     pickLiveImage(
@@ -758,15 +770,30 @@ function ClaimedOfferContent() {
                   <Download size={14} /> {loading ? "Loading..." : "Download QR"}
                 </button>
                 <button
-                  onClick={() => {
-                    if (navigator.share) {
-                      navigator.share({
-                        title: "Check this offer!",
-                        text: `${resolvedOfferTitle} - Get ₹${resolvedOfferPrice}!`,
-                        url: window.location.href,
+                  onClick={async () => {
+                    const shareUrl = window.location.href;
+                    const shareText = `Check out this offer on GOLO!\n${resolvedOfferTitle} - Get ₹${resolvedOfferPrice} off!`;
+
+                    if (!navigator.share) {
+                      try {
+                        await navigator.clipboard.writeText(`${shareText}\n\nClaim here: ${shareUrl}`);
+                        alert("Link copied to clipboard!");
+                      } catch {
+                        alert("Share not supported on this browser.");
+                      }
+                      return;
+                    }
+
+                    try {
+                      await navigator.share({
+                        title: "GOLO Offer",
+                        text: shareText,
+                        url: shareUrl,
                       });
-                    } else {
-                      alert("Share feature not supported on this device");
+                    } catch (err) {
+                      if (err?.name !== "AbortError") {
+                        console.error("Share failed:", err);
+                      }
                     }
                   }}
                   className="inline-flex h-10 min-w-[112px] items-center justify-center gap-2 rounded-[8px] border border-[#d4d9df] bg-white px-6 text-[12px] font-semibold text-[#4b5563] transition-colors hover:bg-[#f8f9fb]"

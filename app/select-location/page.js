@@ -8,11 +8,12 @@ import { reverseGeocode, searchLocations } from "../services/leafletService";
 const CURRENT_LOCATION_STORAGE_KEY = "golo_current_location";
 
 const popularLocations = [
-  { name: "Kolhapur", displayName: "Kolhapur, Maharashtra, India", coordinates: { lat: 16.705, lng: 73.7308 } },
   { name: "Pune", displayName: "Pune, Maharashtra, India", coordinates: { lat: 18.5204, lng: 73.8567 } },
   { name: "Mumbai", displayName: "Mumbai, Maharashtra, India", coordinates: { lat: 19.076, lng: 72.8777 } },
-  { name: "Sangli", displayName: "Sangli, Maharashtra, India", coordinates: { lat: 16.8524, lng: 74.5815 } },
-  { name: "Ichalkaranji", displayName: "Ichalkaranji, Maharashtra, India", coordinates: { lat: 16.6987, lng: 74.4685 } },
+  { name: "Kolhapur", displayName: "Kolhapur, Maharashtra, India", coordinates: { lat: 16.705, lng: 74.2433 } },
+  { name: "Bangalore", displayName: "Bangalore, Karnataka, India", coordinates: { lat: 12.9716, lng: 77.5946 } },
+  { name: "Delhi", displayName: "Delhi, India", coordinates: { lat: 28.6139, lng: 77.209 } },
+  { name: "Hyderabad", displayName: "Hyderabad, Telangana, India", coordinates: { lat: 17.385, lng: 78.4867 } },
 ];
 
 function getReadableLocation(locationDetails) {

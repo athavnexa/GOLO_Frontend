@@ -634,7 +634,7 @@ function NearbyDealDetailsContent() {
       // Immediately set claimed state - don't wait for context update
       setIsClaimed(true);
       // Navigate to claimed offer page
-      router.push(`/nearby-deals/deal/claimed-offer?voucherId=${voucherId}`);
+      router.push(`/nearby-deals/deal/claimed-offer?voucherId=${voucherId}&offerId=${offerId}`);
     } catch (err) {
       const errorMsg = err?.data?.message || err?.message || "Failed to claim offer.";
       setClaimError(errorMsg);
@@ -871,7 +871,7 @@ function NearbyDealDetailsContent() {
         </section>
 
         {/* Selected Products & Details Section */}
-        <section className="mt-8 grid gap-6 lg:grid-cols-[1.75fr_1fr] items-start">
+        <section className="mt-8 mb-16 grid gap-6 lg:grid-cols-[1.75fr_1fr] items-start">
           <div className="space-y-6">
             <div className="rounded-2xl border border-[#e5e7eb] bg-white p-6 shadow-sm">
               <h2 className="text-[28px] font-bold text-[#1f2329]">
@@ -1041,19 +1041,11 @@ function NearbyDealDetailsContent() {
               </div>
             </div>
 
-            {offer?.merchant?.name && (
-              <p className="text-xs text-[#666] pt-2">
-                <span className="font-semibold text-[#1f2329]">
-                  {offer.merchant.name}
-                </span>{" "}
-                is dedicated to providing premium services and professional
-                care.
-              </p>
-            )}
+          
           </div>
 
           {/* Merchant Card Sidebar */}
-          <aside className="bg-white rounded-2xl p-6 h-fit border border-[#e5e7eb] sticky top-24 shadow-sm">
+          <aside className="bg-white rounded-2xl p-6 h-fit border border-[#e5e7eb] sticky top-[104px] shadow-sm">
             <div className="flex gap-3 mb-4">
               <div className="w-12 h-12 rounded-full overflow-hidden bg-[#f0f0f0] flex-shrink-0">
                 <SafeImage
