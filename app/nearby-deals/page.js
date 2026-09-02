@@ -482,6 +482,9 @@ function NearbyDealsPageContent() {
   const micPermissionGrantedRef = useRef(false);
   const lastLocationUpdateRef = useRef(0);
   const nearbyFetchSeqRef = useRef(0);
+  // Track the coordinates used in the last actual API fetch so we avoid
+  // re-fetching just because GPS ticked by a few metres.
+  const lastFetchedCoordsRef = useRef(null); // { lat, lng } of last API fetch
 
   const selectedTypeLabels = useMemo(
     () =>
@@ -619,8 +622,8 @@ function NearbyDealsPageContent() {
       handlePositionError,
       {
         enableHighAccuracy: false,
-        timeout: 10000,
-        maximumAge: 15000,
+        timeout: 4000,      // Reduced from 10 000 ms — show results fast, GPS is a bonus
+        maximumAge: 30000,  // Accept cached position up to 30s old
       },
     );
 
@@ -756,6 +759,7 @@ function NearbyDealsPageContent() {
     };
 
     loadNearbyOffers();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     distanceRadius,
     priceRange,
@@ -763,14 +767,62 @@ function NearbyDealsPageContent() {
     query,
     selectedCategory,
     sortBy,
-    userCoordinates?.lat,
-    userCoordinates?.lng,
+    // NOTE: userCoordinates intentionally NOT in deps.
+    // GPS is used only for initial coordinates and client-side re-sort.
+    // Putting it here would cause a double-fetch on every GPS update.
     manualLatitude,
     manualLongitude,
     selectedTypeLabels,
     topDiscountOnly,
     activeNowOnly,
   ]);
+
+  // When GPS coordinates arrive (or change significantly), re-sort the
+  // already-loaded results client-side instead of firing a full re-fetch.
+  // Only trigger a real re-fetch if the user moved > 2 km from last fetch.
+  useEffect(() => {
+    if (!userCoordinates) return;
+    const last = lastFetchedCoordsRef.current;
+    if (last) {
+      const dist = calculateDistanceKm(last.lat, last.lng, userCoordinates.lat, userCoordinates.lng);
+      if (dist < 2) {
+        // Small movement — just re-sort existing results in place, no re-fetch
+        setRawOffers((prev) =>
+          [...prev].map((row) => withResolvedDistance(row, userCoordinates.lat, userCoordinates.lng))
+        );
+        return;
+      }
+    }
+    // Large movement or first GPS lock — record coords and let the main effect re-fetch
+    lastFetchedCoordsRef.current = { lat: userCoordinates.lat, lng: userCoordinates.lng };
+    // Bump the sequence so any stale fetch is discarded
+    nearbyFetchSeqRef.current++;
+    setLoadingOffers(true);
+    setError("");
+    getNearbyOffers({
+      lat: userCoordinates.lat,
+      lng: userCoordinates.lng,
+      radiusKm: distanceRadius,
+      location: location || undefined,
+      q: query || undefined,
+      category: selectedCategory || undefined,
+      sort: sortBy,
+      maxPrice: priceRange < 5000 ? priceRange : undefined,
+      applyPriceFilter: priceRange < 5000,
+      offerTypes: selectedTypeLabels.join(","),
+      topDiscountOnly,
+      activeNowOnly,
+      page: 1,
+      limit: 50,
+    }).then((response) => {
+      const rows = Array.isArray(response?.data)
+        ? response.data.map(normalizeNearbyOffer).map((r) => withResolvedDistance(r, userCoordinates.lat, userCoordinates.lng))
+        : [];
+      setRawOffers((prev) => (rows.length > 0 ? rows : prev));
+      setLoadingOffers(false);
+    }).catch(() => setLoadingOffers(false));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userCoordinates?.lat, userCoordinates?.lng]);
 
   const filteredDeals = (() => {
     const rows = rawOffers.filter((row) => {
