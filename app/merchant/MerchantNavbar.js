@@ -192,9 +192,9 @@ export default function MerchantNavbar({ activeKey = "dashboard" }) {
                       className={`px-4 py-3 border-b border-[#f5f5f5] cursor-pointer hover:bg-[#f9f9f9] ${n.read ? "" : "bg-[#f0faf4]"}`}
                     >
                       <div className="flex-1 min-w-0">
-                        {n.title && (
+                        {(n.title || n.adTitle) && (
                           <h4 className="font-bold text-[12px] text-[#157a4f] mb-0.5">
-                            {n.title}
+                            {n.title || n.adTitle}
                           </h4>
                         )}
                         <p className="text-[12px] text-[#1e1e1e] leading-snug">{n.message}</p>

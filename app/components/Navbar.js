@@ -1407,9 +1407,9 @@ function NavbarContent({
                                 <Bell size={14} className="text-[#157A4F]" />
                               </div>
                               <div className="flex-1 min-w-0">
-                                  {notif.title && (
+                                  {(notif.title || notif.adTitle) && (
                                     <h4 className="font-bold text-[13px] text-[#157a4f] sm:text-sm mb-0.5">
-                                      {notif.title}
+                                      {notif.title || notif.adTitle}
                                     </h4>
                                   )}
                                   <p className="break-words text-[13px] leading-snug text-gray-800 sm:text-sm">
