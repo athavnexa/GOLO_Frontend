@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronDown, Download, Tag, ShoppingBag, Users, Search, Filter, ArrowUpDown, LayoutGrid, MoreVertical, Heart, TrendingUp, TrendingDown, Star, Calendar, Eye, Edit, Trash2 } from "lucide-react";
-import { getMerchantRealtimeAnalytics, deleteMyOfferPromotion, deleteMerchantProduct } from "../../../lib/api";
+import { getMerchantRealtimeAnalytics, deleteMyOfferPromotion, deleteMerchantProduct } from "../../../lib/api/merchant";;
 import { useRouter } from "next/navigation";
 import MerchantNavbar from "../../MerchantNavbar";
 

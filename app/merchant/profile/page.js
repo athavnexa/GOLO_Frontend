@@ -28,16 +28,9 @@ import MerchantPlanBanner from "../MerchantPlanBanner";
 import { useRoleProtection, LoadingScreen } from "../../components/RoleBasedRedirect";
 import LocationPicker from "../../components/LocationPicker";
 import StoreLocationMap from "../../components/StoreLocationMap";
-import {
-  updateMerchantStoreLocation,
-  getMerchantStoreLocation,
-  getMerchantProfile,
-  updateProfile,
-  updateMerchantProfile,
-  changePassword,
-  getMerchantLoyaltyLeaderboard,
-  deleteMerchantAccount,
-} from "../../lib/api";
+import { changePassword } from "../../lib/api/auth";
+import { updateProfile } from "../../lib/api/user";
+import { updateMerchantStoreLocation, getMerchantStoreLocation, getMerchantProfile, updateMerchantProfile, getMerchantLoyaltyLeaderboard, deleteMerchantAccount } from "../../lib/api/merchant";;
 
 const MERCHANT_CATEGORIES = [
   "Food & Restaurants",

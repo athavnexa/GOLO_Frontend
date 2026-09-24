@@ -9,13 +9,8 @@ import MerchantNavbar from "../../MerchantNavbar";
 import InappropriateImageModal from "../../../components/InappropriateImageModal";
 import PlanUpgradeModal from "../../../../components/PlanUpgradeModal";
 import ModerationWarningModal from "../../../../components/ModerationWarningModal";
- import {
-   getMerchantStoreLocation,
-   getMerchantProducts,
-   submitOfferPromotionRequest,
-   getProfile,
-   getMerchantActivePlan,
- } from "../../../lib/api";
+ import { getProfile } from "../../../lib/api/user";
+import { getMerchantStoreLocation, getMerchantProducts, submitOfferPromotionRequest, getMerchantActivePlan } from "../../../lib/api/merchant";;
 import { uploadToCloudinary } from "../../../services/cloudinaryConfig";
 
 const OFFER_CATEGORIES = [

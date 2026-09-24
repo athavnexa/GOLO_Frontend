@@ -202,7 +202,7 @@ export default function UserGuidePage() {
                             <span className="role-persona">Consumer / Shopper</span>
                         </div>
                         <div className="step-list">
-                            <div className="step-item"><span className="step-number">1</span><div className="step-content"><strong>Access Registration:</strong> Open the GOLO app or visit <code>/register</code> on the web.</div></div>
+                            <div className="step-item"><span className="step-number">1</span><div className="step-content"><strong>Access Registration:</strong> Open the GOLO app or visit the Registration page on the web.</div></div>
                             <div className="step-item"><span className="step-number">2</span><div className="step-content"><strong>Enter Details:</strong> Provide Full Legal Name, active Mobile Number, valid Email, and secure Password.</div></div>
                             <div className="step-item"><span className="step-number">3</span><div className="step-content"><strong>Mobile Verification:</strong> Request SMS OTP. A 6-digit verification passcode is delivered instantly.</div></div>
                             <div className="step-item"><span className="step-number">4</span><div className="step-content"><strong>Consent & Activate:</strong> Enter OTP, accept Terms & Privacy Policy, and activate the account.</div></div>
@@ -228,11 +228,11 @@ export default function UserGuidePage() {
                             <span className="role-persona">Retailer / Store Owner</span>
                         </div>
                         <div className="step-list">
-                            <div className="step-item"><span className="step-number">1</span><div className="step-content"><strong>Merchant Onboarding:</strong> Visit <code>/merchant-register</code> or select "Become a GOLO Merchant".</div></div>
+                            <div className="step-item"><span className="step-number">1</span><div className="step-content"><strong>Merchant Onboarding:</strong> Visit the Merchant Portal or select "Become a GOLO Merchant".</div></div>
                             <div className="step-item"><span className="step-number">2</span><div className="step-content"><strong>Business Profile:</strong> Enter Legal Business Name, Trade Name, Store Category, and Physical Address.</div></div>
                             <div className="step-item"><span className="step-number">3</span><div className="step-content"><strong>Statutory KYC:</strong> Upload GSTIN (or declaration), Business PAN, and Shop License / FSSAI.</div></div>
                             <div className="step-item"><span className="step-number">4</span><div className="step-content"><strong>Bank Details:</strong> Provide Account Number, IFSC, and Cancelled Cheque for automated payout settlements.</div></div>
-                            <div className="step-item"><span className="step-number">5</span><div className="step-content"><strong>Admin Approval:</strong> GOLO audits KYC within 24–48 hours to unlock the Merchant Console.</div></div>
+                            <div className="step-item"><span className="step-number">5</span><div className="step-content"><strong>Profile Verification:</strong> GOLO audits KYC within 24–48 hours to unlock the Merchant Console.</div></div>
                         </div>
                     </div>
                 </div>
@@ -251,7 +251,7 @@ export default function UserGuidePage() {
                             <span className="role-persona">Consumer / Shopper</span>
                         </div>
                         <ul className="bullet-list">
-                            <li className="bullet-item"><strong>Standard Password Login:</strong> Enter Mobile Number/Email and Password at <code>/login</code>.</li>
+                            <li className="bullet-item"><strong>Standard Password Login:</strong> Enter Mobile Number/Email and Password on the Login page.</li>
                             <li className="bullet-item"><strong>Passwordless OTP Login:</strong> Select "Login with OTP" for instant 6-digit SMS verification.</li>
                             <li className="bullet-item"><strong>Social Authentication:</strong> 1-tap Google or Apple ID sign-in on supported devices.</li>
                             <li className="bullet-item"><strong>Session Persistence:</strong> "Remember Me" maintains session token for 30 days on trusted devices.</li>
@@ -276,7 +276,7 @@ export default function UserGuidePage() {
                             <span className="role-persona">Retailer / Store Owner</span>
                         </div>
                         <ul className="bullet-list">
-                            <li className="bullet-item"><strong>Dedicated Merchant Console:</strong> Access via <code>/merchant-login</code> or the GOLO Merchant App.</li>
+                            <li className="bullet-item"><strong>Dedicated Merchant Console:</strong> Access via the Merchant Login page or the GOLO Merchant App.</li>
                             <li className="bullet-item"><strong>Two-Factor Authentication (2FA):</strong> Mandatory OTP on unrecognized devices or IP addresses.</li>
                             <li className="bullet-item"><strong>Role-Based Staff Access (RBAC):</strong> Restricted sub-accounts for billing cashiers (scanning only, no financial ledgers).</li>
                         </ul>
@@ -297,7 +297,7 @@ export default function UserGuidePage() {
                             <span className="role-persona">Consumer / Shopper</span>
                         </div>
                         <ul className="bullet-list">
-                            <li className="bullet-item"><strong>Profile Center:</strong> Open Profile from bottom navigation or top avatar (<code>/profile/[id]</code>).</li>
+                            <li className="bullet-item"><strong>Profile Center:</strong> Open Profile from bottom navigation or top avatar (or by clicking your profile name).</li>
                             <li className="bullet-item"><strong>Personal Information:</strong> Edit Full Name, Alternate Phone, Date of Birth, Gender, and Profile Avatar.</li>
                             <li className="bullet-item"><strong>Communication Channels:</strong> Toggle WhatsApp order updates, promotional SMS, and email newsletters.</li>
                         </ul>
@@ -830,7 +830,7 @@ export default function UserGuidePage() {
                             <span className="role-persona">Consumer / Shopper</span>
                         </div>
                         <div className="step-list">
-                            <div className="step-item"><span className="step-number">1</span><div className="step-content"><strong>Forgot Password:</strong> Tap "Forgot Password?" on <code>/login</code> screen.</div></div>
+                            <div className="step-item"><span className="step-number">1</span><div className="step-content"><strong>Forgot Password:</strong> Tap "Forgot Password?" on the Login screen.</div></div>
                             <div className="step-item"><span className="step-number">2</span><div className="step-content"><strong>Identifier:</strong> Enter registered Mobile Number or Email Address.</div></div>
                             <div className="step-item"><span className="step-number">3</span><div className="step-content"><strong>Verification:</strong> Receive 6-digit SMS OTP or secure password reset email link.</div></div>
                             <div className="step-item"><span className="step-number">4</span><div className="step-content"><strong>Set New Password:</strong> Enter and confirm new password. All prior sessions are logged out.</div></div>
@@ -854,7 +854,7 @@ export default function UserGuidePage() {
                             <span className="role-persona">Retailer / Store Owner</span>
                         </div>
                         <div className="step-list">
-                            <div className="step-item"><span className="step-number">1</span><div className="step-content"><strong>Store Recovery:</strong> Click "Forgot Store Password?" on <code>/merchant-login</code>.</div></div>
+                            <div className="step-item"><span className="step-number">1</span><div className="step-content"><strong>Store Recovery:</strong> Click "Forgot Store Password?" on the Merchant Login screen.</div></div>
                             <div className="step-item"><span className="step-number">2</span><div className="step-content"><strong>Business Check:</strong> Enter registered Merchant Business Email and Store ID.</div></div>
                             <div className="step-item"><span className="step-number">3</span><div className="step-content"><strong>Reset Token + 2FA:</strong> Time-limited token link (15 min validity) + mandatory 2FA mobile OTP.</div></div>
                             <div className="step-item"><span className="step-number">4</span><div className="step-content"><strong>Audit Logging:</strong> Create new strong password; security alert is dispatched to store owner.</div></div>
@@ -890,7 +890,7 @@ export default function UserGuidePage() {
                                 <td className="matrix-dimension">Registration & KYC</td>
                                 <td>Mobile/Email + SMS OTP</td>
                                 <td>Unified SSO + Locality Setup</td>
-                                <td>GSTIN, PAN, Bank KYC + Admin Review</td>
+                                <td>GSTIN, PAN, Bank KYC + Platform Verification</td>
                             </tr>
                             <tr>
                                 <td className="matrix-dimension">Authentication</td>
@@ -968,7 +968,7 @@ export default function UserGuidePage() {
                                 <td className="matrix-dimension">Account Exit</td>
                                 <td>Self-service temporary/permanent</td>
                                 <td>Pause ads or delete C2C profile</td>
-                                <td>Order/ledger clearance + admin handshake</td>
+                                <td>Order/ledger clearance + final settlement</td>
                             </tr>
                             <tr>
                                 <td className="matrix-dimension">Password Reset</td>

@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useEffect, useState, useRef, Suspense } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
-import { getAllAds, getNearbyAds, searchAds, trackAdView, trackAdContactClick } from "../lib/api";
+import { getAllAds, getNearbyAds, searchAds, trackAdView, trackAdContactClick } from "../lib/api/ads";;
 import { useAuth } from "../context/AuthContext";
 import AuthRequiredModal from "./AuthRequiredModal";
 import { normalizeAppPath } from "../lib/path";

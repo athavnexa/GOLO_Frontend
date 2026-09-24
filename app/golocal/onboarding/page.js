@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../../context/AuthContext";
-import { savePreferredCategories } from "../../lib/api";
+import { savePreferredCategories } from "../../lib/api/user";;
 import {
   Utensils,
   Home,

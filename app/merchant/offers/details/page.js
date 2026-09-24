@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Camera, Pencil, Sparkles, X } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
 import MerchantNavbar from "../../MerchantNavbar";
-import { getMyOfferPromotions, updateMyOfferPromotion } from "../../../lib/api";
+import { getMyOfferPromotions, updateMyOfferPromotion } from "../../../lib/api/merchant";;
 import { uploadToCloudinary } from "../../../services/cloudinaryConfig";
 import OfferProductEditor from "../components/OfferProductEditor";
 

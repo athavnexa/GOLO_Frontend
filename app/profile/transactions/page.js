@@ -6,7 +6,7 @@ import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import ProfileSidebar from '../../components/ProfileSidebar';
 import { useAuth } from '../../context/AuthContext';
-import { getMyPayments, openRazorpayCheckout } from '../../lib/api';
+import { getMyPayments, openRazorpayCheckout } from "../../lib/api/merchant";;
 
 const toDisplayStatus = (status) => {
   if (!status) return 'Created';

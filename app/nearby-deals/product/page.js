@@ -1,4 +1,4 @@
-import { getPublicMerchantProductById } from "../../lib/api";
+import { getPublicMerchantProductById } from "../../lib/api/merchant";;
 import ProductClient from "./ProductClient";
 
 export async function generateMetadata(props) {

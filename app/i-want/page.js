@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import { saveIWantPreference } from "../lib/api";
+import { saveIWantPreference } from "../lib/api/user";;
 
 export default function IWant() {
   const router = useRouter();

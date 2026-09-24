@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "../../../context/AuthContext";
 import MerchantNavbar from "../../MerchantNavbar";
 import { ArrowLeft, CheckCircle2, TrendingUp, Shield, Crown, Zap, Lock, Info, Loader2 } from "lucide-react";
-import { subscribeToPlan, getSubscriptionPlans } from "../../../lib/api";
+import { subscribeToPlan, getSubscriptionPlans } from "../../../lib/api/merchant";;
 
 const PLANS = {
   basic: {

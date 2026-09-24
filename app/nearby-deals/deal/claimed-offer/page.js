@@ -6,7 +6,8 @@ import { Suspense, useEffect, useState } from "react";
 import { CircleHelp, Download, MapPin, Share2, Star, Ticket, Copy, Check, ArrowLeft, Phone } from "lucide-react";
 import { useVoucher } from "../../../context/VoucherContext";
 import { useAuth } from "../../../context/AuthContext";
-import { getNearbyOfferDetails, getPublicMerchantProfile, getPublicMerchantReviewStats, getPublicVoucherStatus, submitOfferReview } from "../../../lib/api";
+import { getNearbyOfferDetails } from "../../../lib/api/ads";
+import { getPublicMerchantProfile, getPublicMerchantReviewStats, getPublicVoucherStatus, submitOfferReview } from "../../../lib/api/merchant";;
 import Navbar from "../../../components/Navbar";
 import Footer from "../../../components/Footer";
 

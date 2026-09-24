@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Circle, CircleCheck, Search, X } from "lucide-react";
-import { getMerchantProducts } from "../../../lib/api";
+import { getMerchantProducts } from "../../../lib/api/merchant";;
 
 function normalizeProducts(products = []) {
   return Array.isArray(products)

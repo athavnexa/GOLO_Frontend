@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Navbar from '../../../components/Navbar';
 import Footer from '../../../components/Footer';
 import ProfileSidebar from '../../../components/ProfileSidebar';
-import { getPaymentById } from '../../../lib/api';
+import { getPaymentById } from "../../../lib/api/merchant";;
 
 const toDisplayStatus = (status) => {
   if (!status) return 'Created';

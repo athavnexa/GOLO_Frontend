@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getTrendingSearches } from "../lib/api";
+import { getTrendingSearches } from "../lib/api/ads";;
 
 const fallbackTags = [
   "Vegan Restaurants",

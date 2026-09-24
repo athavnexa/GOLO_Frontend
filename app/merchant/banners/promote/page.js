@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CalendarDays, ChevronLeft, Upload, User } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
-import { submitBannerPromotionRequest } from "../../../lib/api";
+import { submitBannerPromotionRequest } from "../../../lib/api/merchant";;
 import { searchLocations } from "../../../services/leafletService";
 import MerchantNavbar from "../../MerchantNavbar";
 import InappropriateImageModal from "../../../components/InappropriateImageModal";

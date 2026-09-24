@@ -10,7 +10,7 @@ import {
   Copy,
   CircleHelp,
 } from 'lucide-react';
-import { submitReport } from '@/app/lib/api';
+import { submitReport } from "@/app/lib/api/merchant";;
 
 const REPORT_REASONS = [
   { value: 'spam', label: 'Spam or Misleading', icon: Megaphone },

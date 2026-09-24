@@ -5,7 +5,7 @@ import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, X, ImagePlus, Video } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
-import { createMerchantProduct, getMerchantProfile } from "../../../lib/api";
+import { createMerchantProduct, getMerchantProfile } from "../../../lib/api/merchant";;
 import MerchantNavbar from "../../MerchantNavbar";
 import InappropriateImageModal from "../../../components/InappropriateImageModal";
 import ImageLimitModal from "../../../components/ImageLimitModal";

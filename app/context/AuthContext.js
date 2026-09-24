@@ -1,16 +1,10 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, useCallback } from "react";
-import {
-    API_BASE_URL,
-    loginUser,
-    registerUser,
-    logoutUser,
-    getProfile,
-    updateMerchantStoreLocation,
-    setStoredAuthTokens,
-    clearStoredAuthTokens,
-} from "../lib/api";
+import { API_BASE_URL, setStoredAuthTokens, clearStoredAuthTokens } from "../lib/api/core";
+import { loginUser, registerUser, logoutUser } from "../lib/api/auth";
+import { getProfile } from "../lib/api/user";
+import { updateMerchantStoreLocation } from "../lib/api/merchant";;
 
 const AuthContext = createContext(null);
 

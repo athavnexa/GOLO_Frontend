@@ -7,15 +7,8 @@ import ChatWindow from "../components/ChatWindow";
 import Navbar from "../components/Navbar";
 import { useAuth } from "../context/AuthContext";
 import { useRoleProtection, LoadingScreen } from "../components/RoleBasedRedirect";
-import {
-  deleteConversation,
-  getConversationMessages,
-  getMyConversations,
-  sendConversationMessage,
-  startConversation,
-  uploadChatAttachment,
-} from "../lib/api";
-import { API_ORIGIN_URL, getStoredAccessToken } from "../lib/api";
+import { deleteConversation, getConversationMessages, getMyConversations, sendConversationMessage, startConversation, uploadChatAttachment } from "../lib/api/merchant";;
+import { API_ORIGIN_URL, getStoredAccessToken } from "../lib/api/core";;
 
 const API_BASE = "/api";
 const SOCKET_ORIGIN = API_ORIGIN_URL;

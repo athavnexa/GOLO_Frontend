@@ -26,7 +26,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { useAuth } from "../context/AuthContext";
 import { useRoleProtection, LoadingScreen } from "../components/RoleBasedRedirect";
-import { getProfile, getMyAds, updateProfile, getUserDealStatistics, getLoyaltyHistory, deleteUserAccount } from "../lib/api";
+import { getProfile, getMyAds, updateProfile, getUserDealStatistics, getLoyaltyHistory, deleteUserAccount } from "../lib/api/user";;
 import { reverseGeocode } from "../services/leafletService";
 
 function getRenderableImageSrc(src) {

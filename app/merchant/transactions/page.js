@@ -7,7 +7,7 @@ import {
   Search, Calendar, Download, Wallet, Receipt, Clock, AlertCircle, 
   ChevronRight, MessageSquare, HelpCircle, CreditCard, X, CheckCircle2, XCircle
 } from "lucide-react";
-import { getMyPayments, openRazorpayCheckout } from "../../lib/api";
+import { getMyPayments, openRazorpayCheckout } from "../../lib/api/merchant";;
 
 export default function TransactionsPage() {
   const [activeTab, setActiveTab] = useState("All Transactions");

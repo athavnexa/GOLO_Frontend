@@ -6,7 +6,7 @@ import { useAuth } from "../../context/AuthContext";
 import MerchantNavbar from "../MerchantNavbar";
 import { Crown, Check, Zap, TrendingUp, Headphones } from "lucide-react";
 
-import { getSubscriptionPlans } from "../../lib/api";
+import { getSubscriptionPlans } from "../../lib/api/merchant";;
 
 const getIconForPlan = (planName) => {
   const name = planName.toLowerCase();

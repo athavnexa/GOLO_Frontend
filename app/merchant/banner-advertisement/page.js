@@ -33,12 +33,7 @@ import {
   Monitor,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
-import {
-  deleteMyBannerPromotion,
-  getMyBannerPromotions,
-  submitBannerPromotionRequest,
-  updateMyBannerPromotion,
-} from "../../lib/api";
+import { deleteMyBannerPromotion, getMyBannerPromotions, submitBannerPromotionRequest, updateMyBannerPromotion } from "../../lib/api/merchant";;
 
 export default function MerchantBannerAdvertisementPage() {
   const router = useRouter();

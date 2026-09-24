@@ -6,7 +6,8 @@ import { useRouter } from "next/navigation";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import Recommended from "@/app/components/Recommended";
-import { getAdById, getMerchantProductById } from "../../lib/api";
+import { getAdById } from "../../lib/api/ads";
+import { getMerchantProductById } from "../../lib/api/merchant";;
 
 function MerchantProductSkeleton() {
   return (

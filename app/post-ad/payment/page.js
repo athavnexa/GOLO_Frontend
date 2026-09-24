@@ -4,7 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
-import { createAd, openRazorpayCheckout } from "../../lib/api";
+import { createAd } from "../../lib/api/ads";
+import { openRazorpayCheckout } from "../../lib/api/merchant";;
 import { useAuth } from "../../context/AuthContext";
 
 export default function PostAdPaymentPage() {

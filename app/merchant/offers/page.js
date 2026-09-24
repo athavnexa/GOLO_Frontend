@@ -7,12 +7,7 @@ import { useAuth } from "../../context/AuthContext";
 import MerchantNavbar from "../MerchantNavbar";
 import OfferProductEditor from "./components/OfferProductEditor";
 import { uploadToCloudinary, getCloudinaryConfig, isValidCloudinaryUrl } from "../../services/cloudinaryConfig";
-import {
-  deleteMyOfferPromotion,
-  getMyOfferPromotions,
-  updateMyOfferPromotion,
-  getMerchantProducts,
-} from "../../lib/api";
+import { deleteMyOfferPromotion, getMyOfferPromotions, updateMyOfferPromotion, getMerchantProducts } from "../../lib/api/merchant";;
 
 const OFFER_CATEGORIES = [
   "Special",

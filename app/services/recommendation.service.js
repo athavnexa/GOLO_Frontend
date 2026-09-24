@@ -1,4 +1,4 @@
-import { apiClient } from '../lib/api';
+import { apiClient } from "../lib/api/core";;
 
 /**
  * Service for interacting with the Recommendation Engine API.

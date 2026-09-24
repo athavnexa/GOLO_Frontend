@@ -1,19 +1,8 @@
 "use client";
 
 import { createContext, useContext, useState, useCallback } from "react";
-import {
-    claimOffer,
-    getMyVouchers,
-    getVoucherById,
-    redeemVoucher,
-    verifyVoucher,
-    generateVerificationCode,
-    downloadVoucherQR,
-    shareVoucher,
-    getMerchantPendingRedemptions,
-    getMerchantRedemptionHistory,
-    getMerchantOffers,
-} from "../lib/api";
+import { getMyVouchers, getVoucherById } from "../lib/api/user";
+import { claimOffer, redeemVoucher, verifyVoucher, generateVerificationCode, downloadVoucherQR, shareVoucher, getMerchantPendingRedemptions, getMerchantRedemptionHistory, getMerchantOffers } from "../lib/api/merchant";;
 
 const VoucherContext = createContext(null);
 

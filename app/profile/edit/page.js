@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import { useAuth } from "../../context/AuthContext";
-import { updateProfile, sendPasswordChangeOTP, verifyPasswordChangeOTP, changePasswordWithOTP } from "../../lib/api";
+import { sendPasswordChangeOTP, verifyPasswordChangeOTP, changePasswordWithOTP } from "../../lib/api/auth";
+import { updateProfile } from "../../lib/api/user";;
 
 export default function EditProfilePage() {
   const { user, isAuthenticated, loading: authLoading, refreshProfile } = useAuth();

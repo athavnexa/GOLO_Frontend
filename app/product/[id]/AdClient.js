@@ -6,7 +6,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Navbar from "./../../components/Navbar";
 import Footer from "./../../components/Footer";
-import { getAdById, toggleWishlist, getWishlistIds, getAdWishlistCount, getUserById, trackAdView, trackAdContactClick } from "../../lib/api";
+import { getAdById, trackAdView, trackAdContactClick } from "../../lib/api/ads";
+import { toggleWishlist, getWishlistIds, getAdWishlistCount, getUserById } from "../../lib/api/user";;
 import { useAuth } from "../../context/AuthContext";
 import {
 	Heart,

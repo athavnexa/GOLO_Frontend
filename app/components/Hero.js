@@ -5,7 +5,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { API_ORIGIN_URL, getActiveHomepageBanners } from "../lib/api";
+import { API_ORIGIN_URL } from "../lib/api/core";
+import { getActiveHomepageBanners } from "../lib/api/merchant";;
 
 const MAX_SLIDES = 10;
 

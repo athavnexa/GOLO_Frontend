@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
-import { getWalletBalance, getWalletTransactions } from "../../lib/api";
+import { getWalletBalance, getWalletTransactions } from "../../lib/api/merchant";;
 import { Clock, Search, ArrowUpRight, ArrowDownLeft, Wallet, Receipt, CreditCard, ChevronRight } from "lucide-react";
 import MerchantNavbar from "../MerchantNavbar";
 

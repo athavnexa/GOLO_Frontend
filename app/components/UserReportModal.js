@@ -10,7 +10,7 @@ import {
   CircleHelp,
 } from 'lucide-react';
 import { createPortal } from 'react-dom';
-import { submitUserReport } from '@/app/lib/api';
+import { submitUserReport } from "@/app/lib/api/merchant";;
 
 const USER_REPORT_REASONS = [
   { value: 'harassment', label: 'Harassment or Abuse', icon: UserX },

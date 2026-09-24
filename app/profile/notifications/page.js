@@ -5,7 +5,7 @@ import Footer from "../../components/Footer";
 import { Bell, CheckCircle2, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getNotifications, markNotificationRead, markAllNotificationsRead, clearAllNotifications } from "../../lib/api";
+import { getNotifications, markNotificationRead, markAllNotificationsRead, clearAllNotifications } from "../../lib/api/user";;
 
 export default function NotificationsPage() {
   const router = useRouter();

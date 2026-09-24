@@ -5,7 +5,7 @@ import { useEffect, useState, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Pencil, User, ImagePlus, Video, X } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
-import { getMerchantProductById, updateMerchantProduct } from "../../../lib/api";
+import { getMerchantProductById, updateMerchantProduct } from "../../../lib/api/merchant";;
 import ImageCarousel from "../../../components/ImageCarousel";
 import InappropriateImageModal from "../../../components/InappropriateImageModal";
 import MerchantNavbar from "../../MerchantNavbar";

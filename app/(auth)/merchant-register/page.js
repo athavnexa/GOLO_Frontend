@@ -7,7 +7,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "../../context/AuthContext";
 import LocationPicker from "../../components/LocationPicker";
-import { API_BASE_URL, validateMerchantStep } from "../../lib/api";
+import { API_BASE_URL } from "../../lib/api/core";
+import { validateMerchantStep } from "../../lib/api/auth";;
 import { uploadToCloudinary } from "../../services/cloudinaryConfig";
 
 const MERCHANT_CATEGORIES = [
@@ -126,6 +127,47 @@ export default function MerchantRegisterPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
+  // Load from cache on mount
+  useEffect(() => {
+    const cached = sessionStorage.getItem('merchantRegData');
+    if (cached) {
+      try {
+        const data = JSON.parse(cached);
+        if (data.currentStep && data.currentStep < 5) setCurrentStep(data.currentStep);
+        if (data.fullName) setFullName(data.fullName);
+        if (data.storeEmail) setStoreEmail(data.storeEmail);
+        if (data.contactNumber) setContactNumber(data.contactNumber);
+        if (data.storeName) setStoreName(data.storeName);
+        if (data.storeCategory) setStoreCategory(data.storeCategory);
+        if (data.storeSubCategory) setStoreSubCategory(data.storeSubCategory);
+        if (data.businessType) setBusinessType(data.businessType);
+        if (data.merchantRole) setMerchantRole(data.merchantRole);
+        if (data.yearsInBusiness) setYearsInBusiness(data.yearsInBusiness);
+        if (data.businessDescription) setBusinessDescription(data.businessDescription);
+        if (data.storeLocation) setStoreLocation(data.storeLocation);
+        if (data.storeCoordinates) setStoreCoordinates(data.storeCoordinates);
+        if (data.aadhaarNumber) setAadhaarNumber(data.aadhaarNumber);
+        if (data.panNumber) setPanNumber(data.panNumber);
+      } catch (e) {}
+    }
+  }, []);
+
+  // Save to cache on change
+  useEffect(() => {
+    if (currentStep < 5) {
+      const data = {
+        currentStep, fullName, storeEmail, contactNumber, storeName,
+        storeCategory, storeSubCategory, businessType, merchantRole,
+        yearsInBusiness, businessDescription, storeLocation, storeCoordinates,
+        aadhaarNumber, panNumber
+      };
+      sessionStorage.setItem('merchantRegData', JSON.stringify(data));
+    }
+  }, [currentStep, fullName, storeEmail, contactNumber, storeName,
+      storeCategory, storeSubCategory, businessType, merchantRole,
+      yearsInBusiness, businessDescription, storeLocation, storeCoordinates,
+      aadhaarNumber, panNumber]);
+
   const selectedCategory = MERCHANT_CATEGORIES.find((c) => c.name === storeCategory);
   const availableSubcategories = selectedCategory?.subcategories || [];
   const categoryLabel = useMemo(() => storeCategory || "Select category", [storeCategory]);
@@ -241,6 +283,17 @@ export default function MerchantRegisterPage() {
   const handleRegister = async () => {
     setError("");
     setSuccess("");
+
+    const aadhaarRegex = /^\d{12}$/;
+    if (!aadhaarRegex.test(aadhaarNumber)) {
+      setError("Please enter a valid 12-digit Aadhaar number.");
+      return;
+    }
+    const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/i;
+    if (!panRegex.test(panNumber)) {
+      setError("Please enter a valid PAN number (e.g., ABCDE1234F).");
+      return;
+    }
     
     setIsLoading(true);
     try {
@@ -290,6 +343,7 @@ export default function MerchantRegisterPage() {
         referralCode: referralResult?.valid ? referralCode : undefined,
       });
       setCurrentStep(5);
+      sessionStorage.removeItem('merchantRegData');
     } catch (err) {
       setError(err.data?.message || err.message || "Registration failed. Please try again.");
     } finally {
@@ -799,17 +853,17 @@ export default function MerchantRegisterPage() {
                     <div>
                       <label className="block text-[11px] font-semibold text-gray-700 mb-1.5">Aadhaar Number <span className="text-red-500">*</span></label>
                       <div className="relative">
-                        <input type="text" placeholder="0000 0000 0000" className="w-full pl-4 pr-10 py-2.5 bg-white border border-gray-200 rounded-full text-[12px] focus:outline-none focus:border-[#157A4F] focus:ring-1 focus:ring-[#157A4F] transition-all text-gray-800 placeholder-gray-400"
-                          value={aadhaarNumber} onChange={(e) => setAadhaarNumber(e.target.value)} />
-                        {aadhaarNumber.length >= 12 && <Check className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#157A4F]" size={16} />}
+                        <input type="text" placeholder="0000 0000 0000" maxLength={12} className="w-full pl-4 pr-10 py-2.5 bg-white border border-gray-200 rounded-full text-[12px] focus:outline-none focus:border-[#157A4F] focus:ring-1 focus:ring-[#157A4F] transition-all text-gray-800 placeholder-gray-400"
+                          value={aadhaarNumber} onChange={(e) => {setAadhaarNumber(e.target.value.replace(/\D/g, '')); setError("");}} />
+                        {aadhaarNumber.length === 12 && <Check className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#157A4F]" size={16} />}
                       </div>
                     </div>
                     <div>
                       <label className="block text-[11px] font-semibold text-gray-700 mb-1.5">PAN Number <span className="text-red-500">*</span></label>
                       <div className="relative">
-                        <input type="text" placeholder="ABCDE1234F" className="w-full pl-4 pr-10 py-2.5 bg-white border border-gray-200 rounded-full text-[12px] focus:outline-none focus:border-[#157A4F] focus:ring-1 focus:ring-[#157A4F] transition-all text-gray-800 uppercase placeholder-gray-400"
-                          value={panNumber} onChange={(e) => setPanNumber(e.target.value)} />
-                        {panNumber.length >= 10 && <Check className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#157A4F]" size={16} />}
+                        <input type="text" placeholder="ABCDE1234F" maxLength={10} className="w-full pl-4 pr-10 py-2.5 bg-white border border-gray-200 rounded-full text-[12px] focus:outline-none focus:border-[#157A4F] focus:ring-1 focus:ring-[#157A4F] transition-all text-gray-800 uppercase placeholder-gray-400"
+                          value={panNumber} onChange={(e) => {setPanNumber(e.target.value.toUpperCase()); setError("");}} />
+                        {/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/i.test(panNumber) && <Check className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#157A4F]" size={16} />}
                       </div>
                     </div>
                   </div>
@@ -950,19 +1004,7 @@ export default function MerchantRegisterPage() {
 
                 <hr className="border-gray-100 my-6" />
 
-                {/* Secure Data Processing & Terms */}
-                <div className="bg-[#F0FDF4] border border-[#bbf7d0] rounded-xl p-5 mb-6 flex gap-4">
-                  <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shrink-0 shadow-sm border border-green-100">
-                    <Lock size={18} className="text-[#157A4F]" />
-                  </div>
-                  <div>
-                    <h4 className="text-[13px] font-bold text-gray-900 mb-1">Secure Data Processing</h4>
-                    <p className="text-[11px] text-gray-600 leading-relaxed">
-                      Your documents are protected using AES-256 bank-grade encryption. Only the authorized GOLO Verification Team can access your private data.
-                      <span className="text-[#157A4F] font-semibold cursor-pointer hover:underline ml-1">Learn more about our security practices.</span>
-                    </p>
-                  </div>
-                </div>
+
 
                 <div className="space-y-3 mb-8 pl-1">
                   <label className="flex items-start gap-3 cursor-pointer group">

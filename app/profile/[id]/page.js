@@ -5,7 +5,7 @@ import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/app/components/Navbar";
 import Footer from "@/app/components/Footer";
-import { getUserById, getAdsByUser } from "@/app/lib/api";
+import { getUserById, getAdsByUser } from "@/app/lib/api/user";;
 import { Flag, MessageCircle, MapPin, Package, Mail } from "lucide-react";
 import UserReportModal from "@/app/components/UserReportModal";
 

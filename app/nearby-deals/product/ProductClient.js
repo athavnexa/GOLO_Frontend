@@ -17,17 +17,9 @@ import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import ImageCarousel from "../../components/ImageCarousel";
 import { useAuth } from "../../context/AuthContext";
-import {
-  getMerchantProductById,
-  getNearbyOffers,
-  getPublicMerchantProductById,
-  getPublicMerchantProfile,
-  getPublicMerchantReviewStats,
-  toggleWishlist,
-  getWishlistIds,
-  getAdWishlistCount,
-  logProductView,
-} from "../../lib/api";
+import { getNearbyOffers } from "../../lib/api/ads";
+import { toggleWishlist, getWishlistIds, getAdWishlistCount } from "../../lib/api/user";
+import { getMerchantProductById, getPublicMerchantProductById, getPublicMerchantProfile, getPublicMerchantReviewStats, logProductView } from "../../lib/api/merchant";;
 
 function isLocalImageUri(src) {
   return typeof src === "string" && (

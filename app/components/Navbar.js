@@ -24,11 +24,7 @@ import {
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
 import AuthRequiredModal from "./AuthRequiredModal";
-import {
-  getNotifications,
-  markNotificationRead,
-  markAllNotificationsRead,
-} from "../lib/api";
+import { getNotifications, markNotificationRead, markAllNotificationsRead } from "../lib/api/user";;
 import { normalizeAppPath } from "../lib/path";
 import { reverseGeocode, searchLocations } from "../services/leafletService";
 

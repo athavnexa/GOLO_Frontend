@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { User, Bell, X, CheckCheck, Crown, HelpCircle, LogOut, Settings, FileText, Gift } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
-import { getNotifications, markNotificationRead, markAllNotificationsRead } from "../lib/api";
+import { getNotifications, markNotificationRead, markAllNotificationsRead } from "../lib/api/user";;
 
 const navItems = [
   { key: "dashboard", label: "Overview", href: "/merchant/dashboard" },

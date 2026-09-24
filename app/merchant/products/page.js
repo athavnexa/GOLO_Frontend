@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Download, Eye, Package, Plus, Search, Trash2, User, Wallet } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useRoleProtection, LoadingScreen } from "../../components/RoleBasedRedirect";
-import { deleteMerchantProduct, getMerchantProducts, selectActiveProducts } from "../../lib/api";
+import { deleteMerchantProduct, getMerchantProducts, selectActiveProducts } from "../../lib/api/merchant";;
 import MerchantNavbar from "../MerchantNavbar";
 
 export default function MerchantProductsPage() {

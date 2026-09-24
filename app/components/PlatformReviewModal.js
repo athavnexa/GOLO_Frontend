@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Star, X } from "lucide-react";
-import { submitPlatformReview } from "../lib/api";
+import { submitPlatformReview } from "../lib/api/merchant";;
 
 export default function PlatformReviewModal() {
   const [isOpen, setIsOpen] = useState(false);

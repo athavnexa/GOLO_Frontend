@@ -7,7 +7,7 @@ import {
   ArrowLeft, Download, Check, Calendar, CreditCard, FileText, User, 
   Headset, AlertCircle, Clock
 } from "lucide-react";
-import { getPaymentById } from "../../../lib/api";
+import { getPaymentById } from "../../../lib/api/merchant";;
 import { useAuth } from "../../../context/AuthContext";
 
 export default function TransactionDetailsPage({ params }) {

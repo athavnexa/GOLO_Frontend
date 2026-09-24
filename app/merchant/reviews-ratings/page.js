@@ -27,7 +27,7 @@ import {
   CircleX,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
-import { getMerchantReviewStats, getMerchantReviews, updateMerchantReviewStatus } from "../../lib/api";
+import { getMerchantReviewStats, getMerchantReviews, updateMerchantReviewStatus } from "../../lib/api/merchant";;
 
 const statCards = [
   { label: "Total Reviews", value: "24,892", trend: "+12.5%", tone: "text-[#157A4F]", spark: "#157A4F", icon: MessageSquare },

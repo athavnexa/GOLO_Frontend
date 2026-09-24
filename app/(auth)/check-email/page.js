@@ -15,11 +15,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import {
-  resetForgotPassword,
-  sendForgotPasswordOTP,
-  verifyForgotPasswordOTP,
-} from "../../lib/api";
+import { resetForgotPassword, sendForgotPasswordOTP, verifyForgotPasswordOTP } from "../../lib/api/auth";;
 import styles from "./check-email.module.css";
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

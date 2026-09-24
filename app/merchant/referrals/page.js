@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
 import MerchantNavbar from "../MerchantNavbar";
-import { apiClient } from "../../lib/api";
+import { apiClient } from "../../lib/api/core";;
 import { 
   Users, 
   Gift, 

@@ -31,11 +31,7 @@ import {
 import { useAuth } from "../../context/AuthContext";
 import MerchantNavbar from "../MerchantNavbar";
 import MerchantPlanBanner from "../MerchantPlanBanner";
-import {
-  getMerchantDashboardSummary,
-  getMerchantProfile,
-  getMerchantRealtimeAnalytics,
-} from "../../lib/api";
+import { getMerchantDashboardSummary, getMerchantProfile, getMerchantRealtimeAnalytics } from "../../lib/api/merchant";;
 function timeAgo(dateString) {
   if (!dateString) return '';
   const date = new Date(dateString);

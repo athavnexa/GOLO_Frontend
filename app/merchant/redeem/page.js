@@ -6,7 +6,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useVoucher } from "../../context/VoucherContext";
 import { Html5Qrcode } from "html5-qrcode";
 import { Check, AlertCircle, Zap } from "lucide-react";
-import { verifyVoucherByCode, getMerchantRedemptionHistory } from "../../lib/api";
+import { verifyVoucherByCode, getMerchantRedemptionHistory } from "../../lib/api/merchant";;
 import MerchantNavbar from "../MerchantNavbar";
 
 export default function MerchantQRScannerPage() {

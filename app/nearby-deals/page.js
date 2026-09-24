@@ -10,7 +10,7 @@ import CategoryBar from "../components/CategoryBar";
 import Footer from "../components/Footer";
 import AuthRequiredModal from "../components/AuthRequiredModal";
 import { MerchantSearchCard, ProductSearchCard } from "../components/SearchCards";
-import { getNearbyOffers, searchMerchants, searchProducts, unifiedSearch } from "../lib/api";
+import { getNearbyOffers, searchMerchants, searchProducts, unifiedSearch } from "../lib/api/ads";;
 
 function OfferCardMedia({ imageUrl, videoUrl, title }) {
   const [showVideo, setShowVideo] = useState(false);

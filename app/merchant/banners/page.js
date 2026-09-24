@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Download, Megaphone, Plus, Search, User } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import MerchantNavbar from "../MerchantNavbar";
-import { getMyBannerPromotions, payForBannerPromotion } from "../../lib/api";
+import { getMyBannerPromotions, payForBannerPromotion } from "../../lib/api/merchant";;
 
 function formatDate(dateStr) {
   if (!dateStr) return "-";

@@ -19,7 +19,8 @@ const nextConfig = {
     root: FRONTEND_ROOT,
   },
   images: {
-    unoptimized: true,
+    loader: 'custom',
+    loaderFile: './app/lib/cloudinaryLoader.js',
     remotePatterns: [
       {
         protocol: 'https',

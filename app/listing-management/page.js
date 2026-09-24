@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { apiClient } from "../lib/api";
+import { apiClient } from "../lib/api/core";;
 
 export default function ListingManagementPage() {
   const [listings, setListings] = useState([]);

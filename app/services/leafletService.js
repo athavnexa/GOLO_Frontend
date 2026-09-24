@@ -3,7 +3,7 @@
  * Handles location search, reverse geocoding using OpenStreetMap Nominatim
  */
 
-import { API_BASE_URL } from '../lib/api';
+import { API_BASE_URL } from "../lib/api/core";;
 
 const NOMINATIM_API_BASE = "https://nominatim.openstreetmap.org";
 

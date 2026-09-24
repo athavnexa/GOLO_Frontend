@@ -4,7 +4,8 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
-import { getProfile, getNearbyOffers } from "../lib/api";
+import { getNearbyOffers } from "../lib/api/ads";
+import { getProfile } from "../lib/api/user";;
 
 // Maps backend-stored category labels → offer category filter strings
 // These must match what merchants set as their businessCategory/storeCategory

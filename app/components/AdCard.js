@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { deleteAd, cancelAd, trackAdView } from "../lib/api";
+import { deleteAd, cancelAd, trackAdView } from "../lib/api/ads";;
 import { useState } from "react";
 import { Eye, Edit2, Trash2, Loader2 } from "lucide-react";
 

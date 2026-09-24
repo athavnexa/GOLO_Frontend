@@ -6,7 +6,7 @@ import Image from "next/image";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import CategoryBar from "../../components/CategoryBar";
-import { getAdsByCategory, searchAds, getNearbyAds, trackAdView, trackAdContactClick } from "../../lib/api";
+import { getAdsByCategory, searchAds, getNearbyAds, trackAdView, trackAdContactClick } from "../../lib/api/ads";;
 import { useAuth } from "../../context/AuthContext";
 import AuthRequiredModal from "../../components/AuthRequiredModal";
 

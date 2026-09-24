@@ -9,7 +9,8 @@ import {
 	FacebookAuthProvider,
 } from "firebase/auth";
 import { firebaseAuth } from "../lib/firebase-client";
-import { socialAuthUser, setStoredAuthTokens } from "../lib/api";
+import { setStoredAuthTokens } from "../lib/api/core";
+import { socialAuthUser } from "../lib/api/auth";;
 
 const providerFactory = {
 	google: () => {

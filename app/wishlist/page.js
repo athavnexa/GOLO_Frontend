@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import ProfileSidebar from "../components/ProfileSidebar";
-import { getWishlistAds, toggleWishlist } from "../lib/api";
+import { getWishlistAds, toggleWishlist } from "../lib/api/user";;
 import { useAuth } from "../context/AuthContext";
 import { LoadingScreen } from "../components/RoleBasedRedirect";
 import { Loader2, Heart, Trash2 } from "lucide-react";

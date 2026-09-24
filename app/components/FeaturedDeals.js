@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { getFeaturedDeals } from "../lib/api";
+import { getFeaturedDeals } from "../lib/api/ads";;
 
 const fallbackDeals = [
   { img: "del1.webp", title: "Smart Watch Pro", discount: "30% OFF" },

@@ -9,7 +9,7 @@ import { useAuth } from "../../context/AuthContext";
 import SocialButtons from "../../components/SocialButtons";
 import LocationPicker from "../../components/LocationPicker";
 import StoreLocationMap from "../../components/StoreLocationMap";
-import { API_BASE_URL } from "../../lib/api";
+import { API_BASE_URL } from "../../lib/api/core";;
 
 const MERCHANT_CATEGORIES = [
   {

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { getPopularPlaces } from "../lib/api";
+import { getPopularPlaces } from "../lib/api/ads";;
 
 const fallbackPlaces = [
   { img: "place1.jpg", name: "Mahalakshmi Temple" },

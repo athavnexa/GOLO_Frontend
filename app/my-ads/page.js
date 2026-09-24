@@ -10,7 +10,8 @@ import PostAdForm from "../components/PostAdForm";
 import Link from "next/link";
 import { useAuth } from "../context/AuthContext";
 import { useRoleProtection, LoadingScreen } from "../components/RoleBasedRedirect";
-import { getMyAds, updateAd } from "../lib/api";
+import { updateAd } from "../lib/api/ads";
+import { getMyAds } from "../lib/api/user";;
 
 export default function MyAds() {
   const { isAuthenticated, user } = useAuth();

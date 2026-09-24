@@ -24,16 +24,9 @@ import {
 import { useAuth } from "../../context/AuthContext";
 import { useVoucher } from "../../context/VoucherContext";
 import AuthRequiredModal from "../../components/AuthRequiredModal";
-import {
-  getNearbyOfferDetails,
-  getNearbyOffers,
-  getOfferReviews,
-  getPublicMerchantProductById,
-  getPublicMerchantProducts,
-  toggleWishlist,
-  getAdWishlistCount,
-  getWishlistIds,
-} from "../../lib/api";
+import { getNearbyOfferDetails, getNearbyOffers } from "../../lib/api/ads";
+import { toggleWishlist, getAdWishlistCount, getWishlistIds } from "../../lib/api/user";
+import { getOfferReviews, getPublicMerchantProductById, getPublicMerchantProducts } from "../../lib/api/merchant";;
 import Navbar from "../../components/Navbar";
 import { reverseGeocode } from "../../services/leafletService";
 import Footer from "../../components/Footer";

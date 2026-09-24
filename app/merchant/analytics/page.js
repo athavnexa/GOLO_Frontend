@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../../context/AuthContext";
 import MerchantNavbar from "../MerchantNavbar";
-import { getMerchantRealtimeAnalytics } from "../../lib/api";
+import { getMerchantRealtimeAnalytics } from "../../lib/api/merchant";;
 import { RefreshCcw, Tag, Users, Eye, TrendingUp, CreditCard, ChevronDown, Smartphone } from "lucide-react";
 
 export default function MerchantAnalyticsPage() {

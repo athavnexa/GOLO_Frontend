@@ -8,7 +8,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import ProfileSidebar from "../components/ProfileSidebar";
 import { useAuth } from "../context/AuthContext";
-import { getMyAnalytics } from "../lib/api";
+import { getMyAnalytics } from "../lib/api/merchant";;
 import {
   Eye,
   Users,

@@ -1,0 +1,1213 @@
+import { apiClient, API_BASE_URL, API_ORIGIN_URL } from './core';
+export async function getUserReportStats() {
+    return apiClient('/users/admin/reports/stats');
+}
+
+/**
+ * Get real-time listing report stats (admin only)
+ */
+export async function getListingReportStats() {
+    return apiClient('/ads/reports/stats');
+}
+/**
+ * Submit a report for a user
+ */
+export async function submitUserReport(userId, reason, description) {
+    return apiClient(`/users/${userId}/report`, {
+        method: 'POST',
+        body: JSON.stringify({ reason, description }),
+    });
+}
+
+export const getSubscriptionPlans = async () => {
+  try {
+    return apiClient('/subscriptions/plans');
+  } catch (error) {
+    console.error('Failed to get subscription plans:', error);
+    throw error;
+  }
+};
+
+/**
+ * Subscribe a merchant to a specific plan (bypassing payment if testing)
+ */
+export const subscribeToPlan = async (planName, billingCycle) => {
+  try {
+    return apiClient('/subscriptions/subscribe', {
+      method: 'POST',
+      body: JSON.stringify({ planName, billingCycle }),
+    });
+  } catch (error) {
+    console.error('Failed to subscribe to plan:', error);
+    throw error;
+  }
+};
+
+/**
+ * Fetches the merchant's currently active subscription plan with full feature details.
+ * Pass the merchantProfile object (from getMerchantProfile) to cross-reference the planId.
+ */
+export const getMerchantActivePlan = async (merchantProfile) => {
+  try {
+    const plans = await apiClient('/subscriptions/plans');
+    const planList = Array.isArray(plans) ? plans : (plans?.data || plans?.plans || []);
+    const planId = merchantProfile?.subscription?.planId || 'Free Tier';
+
+    // Trial plan uses Premium features
+    const effectivePlanId =
+      merchantProfile?.subscription?.status === 'TRIAL' ? 'Premium' : planId;
+
+    const matched =
+      planList.find((p) => p.name === effectivePlanId) ||
+      planList.find((p) => p.name === 'Free Tier') ||
+      null;
+
+    return matched;
+  } catch (error) {
+    console.error('Failed to get merchant active plan:', error);
+    return null;
+  }
+};
+
+// ============================================================
+// Centralized API Layer Ã¢â‚¬â€ Choja Frontend Ã¢â€ â€™ ads-microservice
+// ============================================================
+
+// Canonical storage keys for auth tokens. Keep fallbacks for backward compatibility.
+const ACCESS_TOKEN_STORAGE_KEY = 'accessToken';
+const REFRESH_TOKEN_STORAGE_KEY = 'refreshToken';
+
+function normalizeBackendApiBaseUrl(rawValue) {
+    const trimmedValue = String(rawValue || '').trim();
+
+    if (!trimmedValue) {
+        return '';
+    }
+
+    const protocolMatches = [...trimmedValue.matchAll(/https?:\/\//g)];
+    let normalizedValue = trimmedValue;
+
+    if (protocolMatches.length > 1) {
+        normalizedValue = trimmedValue.slice(protocolMatches[protocolMatches.length - 1].index);
+    }
+
+    normalizedValue = normalizedValue.replace(/\/+$/, '');
+
+    return normalizedValue;
+}
+
+export async function getMerchantProfile() {
+    return apiClient('/users/merchant/profile');
+}
+
+export async function getWalletBalance() {
+    return apiClient('/wallets/balance');
+}
+
+export async function getWalletTransactions() {
+    return apiClient('/wallets/transactions');
+}
+
+export async function getMyAnalytics() {
+    return apiClient('/ads/analytics/my');
+}
+
+export async function promoteAd(adId, { promotionPackage, duration }) {
+    return apiClient(`/ads/${adId}/promote`, {
+        method: 'POST',
+        body: JSON.stringify({ package: promotionPackage, duration }),
+    });
+}
+
+function buildLegacyPromotionPayload(payload = {}) {
+    const {
+        loyaltyRewardEnabled,
+        loyaltyStarsToOffer,
+        loyaltyStarsPerPurchase,
+        loyaltyScorePerStar,
+        promotionExpiryText,
+        termsAndConditions,
+        exampleUsage,
+        selectedProducts,
+        promotionType,
+        ...legacyPayload
+    } = payload;
+
+    return legacyPayload;
+}
+
+function isNonWhitelistedPayloadError(error) {
+    const message = String(error?.data?.message || error?.message || '').toLowerCase();
+    return message.includes('should not exist');
+}
+
+const OFFER_PROMOTION_IDS_KEY = 'golo_offer_promotion_ids';
+
+function getPromotionRowId(row) {
+    return String(row?.requestId || row?._id || '');
+}
+
+function readTrackedOfferPromotionIds() {
+    if (typeof window === 'undefined') return new Set();
+
+    try {
+        const raw = localStorage.getItem(OFFER_PROMOTION_IDS_KEY);
+        const parsed = raw ? JSON.parse(raw) : [];
+        if (!Array.isArray(parsed)) return new Set();
+        return new Set(parsed.map((id) => String(id)));
+    } catch {
+        return new Set();
+    }
+}
+
+function writeTrackedOfferPromotionIds(idsSet) {
+    if (typeof window === 'undefined') return;
+
+    try {
+        localStorage.setItem(OFFER_PROMOTION_IDS_KEY, JSON.stringify(Array.from(idsSet)));
+    } catch {
+    }
+}
+
+function rememberOfferPromotionId(id) {
+    if (!id) return;
+    const ids = readTrackedOfferPromotionIds();
+    ids.add(String(id));
+    writeTrackedOfferPromotionIds(ids);
+}
+
+function forgetOfferPromotionId(id) {
+    if (!id) return;
+    const ids = readTrackedOfferPromotionIds();
+    ids.delete(String(id));
+    writeTrackedOfferPromotionIds(ids);
+}
+
+function isOfferRow(row, trackedOfferIds) {
+    if (row?.promotionType) {
+        return String(row.promotionType).toLowerCase() === 'offer';
+    }
+    return trackedOfferIds.has(getPromotionRowId(row));
+}
+
+export async function submitBannerPromotionRequest(payload) {
+    try {
+        return await apiClient('/banners/promotions/request', {
+            method: 'POST',
+            body: JSON.stringify(payload),
+        });
+    } catch (error) {
+        if (!isNonWhitelistedPayloadError(error)) {
+            throw error;
+        }
+
+        return apiClient('/banners/promotions/request', {
+            method: 'POST',
+            body: JSON.stringify(buildLegacyPromotionPayload(payload)),
+        });
+    }
+}
+
+export async function submitOfferPromotionRequest(payload) {
+    const enrichedPayload = { ...payload, promotionType: 'offer' };
+
+    // Primary: use the dedicated offers endpoint. Fallback to legacy banner
+    // promotions endpoint only if the primary route is unavailable (older backends).
+    try {
+        try {
+            const response = await apiClient('/offers/request', {
+                method: 'POST',
+                body: JSON.stringify(enrichedPayload),
+            });
+            rememberOfferPromotionId(getPromotionRowId(response?.data));
+            return response;
+        } catch (error) {
+            if (!isNonWhitelistedPayloadError(error)) {
+                throw error;
+            }
+
+            const response = await apiClient('/offers/request', {
+                method: 'POST',
+                body: JSON.stringify(buildLegacyPromotionPayload(enrichedPayload)),
+            });
+            rememberOfferPromotionId(getPromotionRowId(response?.data));
+            return response;
+        }
+    } catch (err) {
+        // If offers route truly doesn't exist (404), fall back to legacy banner promotions
+        if (err?.status === 404) {
+            const response = await apiClient('/banners/promotions/request', {
+                method: 'POST',
+                body: JSON.stringify(enrichedPayload),
+            });
+            rememberOfferPromotionId(getPromotionRowId(response?.data));
+            return response;
+        }
+
+        throw err;
+    }
+}
+
+export async function getMyBannerPromotions() {
+    const response = await apiClient('/banners/promotions/my?type=banner');
+    const rows = Array.isArray(response?.data) ? response.data : [];
+    const trackedOfferIds = readTrackedOfferPromotionIds();
+
+    return {
+        ...response,
+        data: rows.filter((row) => !isOfferRow(row, trackedOfferIds)),
+    };
+}
+
+export async function getMyOfferPromotions() {
+    let response;
+
+    try {
+        response = await apiClient('/offers/my', {
+            cache: 'no-store',
+        });
+    } catch {
+        response = await apiClient('/banners/promotions/my?type=offer');
+    }
+
+    const rows = Array.isArray(response?.data) ? response.data : [];
+
+    // Return server-provided offer rows directly. Client-side localStorage
+    // filtering hid offers on other devices (tracked IDs are device-local).
+    return {
+        ...response,
+        data: rows,
+    };
+}
+
+export async function payForBannerPromotion(requestId, paymentReference) {
+    return apiClient(`/banners/promotions/${requestId}/pay`, {
+        method: 'POST',
+        body: JSON.stringify({ paymentReference }),
+    });
+}
+
+export async function getActiveHomepageBanners(limit = 5, city = "", fullLocation = "") {
+    const query = new URLSearchParams({ limit });
+    if (city) query.append("city", city);
+    if (fullLocation) query.append("fullLocation", fullLocation);
+    return apiClient(`/banners/promotions/active?${query.toString()}`, {
+        cache: 'no-store',
+    });
+}
+
+export async function getHomeSectionConfig() {
+    return apiClient('/homepage-config', {
+        cache: 'no-store',
+    });
+}
+
+export async function getHomepageRecommendations(params = {}) {
+    const query = new URLSearchParams();
+    if (params.location) query.append("location", params.location);
+    if (params.lat) query.append("lat", params.lat);
+    if (params.lng) query.append("lng", params.lng);
+    
+    return apiClient(`/recommendations/homepage?${query.toString()}`, {
+        cache: 'no-store',
+    });
+}
+
+export async function getPublicMerchantProfile(merchantId) {
+    if (!merchantId) return null;
+    return apiClient(`/merchant/public/${merchantId}/profile`);
+}
+
+export async function getPublicMerchantStoreLocation(merchantId) {
+    if (!merchantId) return null;
+    return apiClient(`/merchant/public/${merchantId}/store-location`);
+}
+
+export async function getPublicMerchantReviewStats(merchantId) {
+    if (!merchantId) return null;
+    return apiClient(`/reviews/merchant/${merchantId}/public-stats`);
+}
+
+export async function getPublicMerchantProducts(merchantId, { page = 1, limit = 10, search = '' } = {}) {
+    const params = new URLSearchParams({ page, limit });
+    if (search) params.append('search', search);
+    return apiClient(`/merchant/products/public/${merchantId}?${params.toString()}`);
+}
+
+// ============================================================
+// VOUCHERS / REVIEWS
+// ============================================================
+
+export async function getPublicVoucherStatus(voucherId) {
+    return apiClient(`/vouchers/public/${voucherId}/status`);
+}
+
+export async function submitOfferReview(voucherId, payload) {
+    return apiClient(`/reviews/vouchers/${voucherId}`, {
+        method: 'POST',
+        body: JSON.stringify(payload),
+    });
+}
+
+/**
+ * Get public reviews for an offer
+ * @param {string} offerId - Offer ID
+ * @param {object} params - {page, limit}
+ */
+export async function getOfferReviews(offerId, { page = 1, limit = 10 } = {}) {
+    return apiClient(`/reviews/offers/${offerId}?page=${page}&limit=${limit}`, {
+        cache: 'no-store',
+    });
+}
+
+// ============================================================
+// PAYMENTS APIs
+// ============================================================
+
+export async function createPaymentOrder(payload) {
+    return apiClient('/payments/create-order', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+    });
+}
+
+export async function verifyPayment(payload) {
+    return apiClient('/payments/verify', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+    });
+}
+
+export async function markPaymentFailed(payload) {
+    return apiClient('/payments/fail', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+    });
+}
+
+export async function refundPayment(payload) {
+    return apiClient('/payments/refund', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+    });
+}
+
+export async function getMyPayments({ page = 1, limit = 10, status } = {}) {
+    const params = new URLSearchParams({ page, limit });
+    if (status) params.append('status', status);
+    return apiClient(`/payments/my?${params.toString()}`);
+}
+
+export async function getPaymentById(paymentId) {
+    return apiClient(`/payments/${paymentId}`);
+}
+
+function loadRazorpayScript() {
+    return new Promise((resolve) => {
+        if (typeof window === 'undefined') return resolve(false);
+        if (window.Razorpay) return resolve(true);
+
+        const script = document.createElement('script');
+        script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+        script.async = true;
+        script.onload = () => resolve(true);
+        script.onerror = () => resolve(false);
+        document.body.appendChild(script);
+    });
+}
+
+export async function openRazorpayCheckout({ amount, adId, description, notes, prefill }) {
+    const loaded = await loadRazorpayScript();
+    if (!loaded) {
+        throw new Error('Razorpay SDK failed to load. Please check your internet connection.');
+    }
+
+    const orderResponse = await createPaymentOrder({
+        amount,
+        currency: 'INR',
+        adId,
+        description,
+        notes,
+        idempotencyKey: `pay_${Date.now()}_${Math.floor(Math.random() * 10000)}`,
+    });
+
+    const orderData = orderResponse?.data;
+    const order = orderData?.order;
+    const keyId = orderData?.keyId;
+    const paymentRecord = orderData?.payment;
+
+    if (!order || !keyId) {
+        throw new Error('Invalid payment order response from server.');
+    }
+
+    return new Promise((resolve, reject) => {
+        const razorpay = new window.Razorpay({
+            key: keyId,
+            amount: order.amount,
+            currency: order.currency,
+            name: 'GOLO',
+            description: description || 'GOLO Payment',
+            order_id: order.id,
+            prefill: prefill || {},
+            notes: notes || {},
+            theme: {
+                color: '#157A4F',
+            },
+            handler: async (response) => {
+                try {
+                    const verifyRes = await verifyPayment({
+                        razorpayOrderId: response.razorpay_order_id,
+                        razorpayPaymentId: response.razorpay_payment_id,
+                        razorpaySignature: response.razorpay_signature,
+                    });
+                    resolve({
+                        success: true,
+                        order,
+                        paymentRecord,
+                        verification: verifyRes?.data,
+                    });
+                } catch (error) {
+                    reject(error);
+                }
+            },
+            modal: {
+                ondismiss: async () => {
+                    try {
+                        await markPaymentFailed({
+                            razorpayOrderId: order.id,
+                            failureDescription: 'Checkout closed by user',
+                        });
+                    } catch {
+                    }
+                    reject(new Error('Payment checkout was cancelled.'));
+                },
+            },
+        });
+
+        razorpay.on('payment.failed', async function (response) {
+            try {
+                await markPaymentFailed({
+                    razorpayOrderId: order.id,
+                    razorpayPaymentId: response?.error?.metadata?.payment_id,
+                    failureCode: response?.error?.code,
+                    failureDescription: response?.error?.description,
+                });
+            } catch {
+            }
+            reject(new Error(response?.error?.description || 'Payment failed.'));
+        });
+
+        razorpay.open();
+    });
+}
+
+// ============================================================
+// CHATS APIs
+// ============================================================
+
+export async function startConversation({ adId, sellerId }) {
+    return apiClient('/chats/start', {
+        method: 'POST',
+        body: JSON.stringify({ adId, sellerId }),
+    });
+}
+
+export async function getMyConversations() {
+    return apiClient('/chats/conversations');
+}
+
+export async function getConversationMessages(conversationId, { page = 1, limit = 50 } = {}) {
+    const params = new URLSearchParams({ page, limit });
+    return apiClient(`/chats/conversations/${conversationId}/messages?${params.toString()}`);
+}
+
+export async function sendConversationMessage(conversationId, text, adId, attachments = []) {
+    return apiClient(`/chats/conversations/${conversationId}/messages`, {
+        method: 'POST',
+        body: JSON.stringify({ text, adId, attachments }),
+    });
+}
+
+export async function uploadChatAttachment(file) {
+    if (!file) {
+        throw new Error('No file selected');
+    }
+
+    // Use the secure Cloudinary utility with environment variables
+    const { uploadToCloudinary } = await import('../../services/cloudinaryConfig');
+    return uploadToCloudinary(file);
+}
+
+export async function deleteConversation(conversationId) {
+    return apiClient(`/chats/conversations/${conversationId}`, {
+        method: 'DELETE',
+    });
+}
+
+export async function getCallHistory({ page = 1, limit = 100 } = {}) {
+    const params = new URLSearchParams({ page, limit });
+    return apiClient(`/calls/history?${params.toString()}`);
+}
+
+// ============================================================
+// MERCHANT PRODUCTS APIs
+// ============================================================
+
+export async function getMerchantProducts({ page = 1, limit = 10, search = '' } = {}) {
+    const params = new URLSearchParams({ page, limit });
+    if (search) params.append('search', search);
+    return apiClient(`/merchant/products?${params.toString()}`, { cache: 'no-store' });
+}
+
+export async function createMerchantProduct(payload) {
+    return apiClient('/merchant/products', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+    });
+}
+
+export async function getMerchantProductById(productId) {
+    return apiClient(`/merchant/products/${productId}`);
+}
+
+export async function getPublicMerchantProductById(productId) {
+    return apiClient(`/merchant/products/public/item/${productId}`);
+}
+
+export async function deleteMerchantProduct(productId) {
+    return apiClient(`/merchant/products/${productId}`, {
+        method: 'DELETE',
+    });
+}
+
+export async function selectActiveProducts(productIds) {
+    return apiClient('/merchant/products/select-active', {
+        method: 'POST',
+        body: JSON.stringify({ productIds }),
+    });
+}
+
+// ==================== AD REPORTING & MODERATION ====================
+
+/**
+ * Submit a report for an ad
+ */
+export async function submitReport(adId, reason, description) {
+    return apiClient(`/ads/${adId}/report`, {
+        method: 'POST',
+        body: JSON.stringify({ reason, description }),
+    });
+}
+
+/**
+ * Get all reports for a specific ad (admin only)
+ */
+export async function getAdReports(adId) {
+    return apiClient(`/ads/reports/${adId}`);
+}
+
+/**
+ * Get ALL reports queue (admin only) - shows all reports regardless of status
+ */
+export async function getAllReports() {
+    return apiClient('/ads/reports');
+}
+
+/**
+ * Update report status (admin only)
+ */
+export async function updateReportStatus(reportId, status, adminNotes) {
+    return apiClient(`/ads/reports/${reportId}/status`, {
+        method: 'PUT',
+        body: JSON.stringify({ status, adminNotes }),
+    });
+}
+
+/**
+ * Admin review decision on flagged ad (admin only)
+ */
+export async function reviewAd(adId, decision, adminNotes) {
+    return apiClient(`/ads/admin/${adId}/review`, {
+        method: 'POST',
+        body: JSON.stringify({ decision, adminNotes }),
+    });
+}
+
+/**
+ * Admin: Update any ad
+ */
+export async function adminUpdateAd(adId, updateData) {
+    return apiClient(`/ads/admin/${adId}`, {
+        method: 'PUT',
+        body: JSON.stringify(updateData),
+    });
+}
+
+/**
+ * Admin: Delete any ad
+ */
+export async function adminDeleteAd(adId) {
+    return apiClient(`/ads/admin/${adId}`, {
+        method: 'DELETE',
+    });
+}
+
+/**
+ * Admin: Get all ads
+ */
+export async function adminGetAllAds() {
+    return apiClient('/ads/admin/all');
+}
+
+/**
+ * Admin: Manage Users
+ */
+export async function adminGetAllUsers(page = 1, limit = 10) {
+    return apiClient(`/users/admin/users?page=${page}&limit=${limit}`);
+}
+
+export async function adminBanUser(userId, reason) {
+    return apiClient(`/users/admin/users/${userId}/ban`, {
+        method: 'POST',
+        body: JSON.stringify({ reason }),
+    });
+}
+
+export async function adminUnbanUser(userId) {
+    return apiClient(`/users/admin/users/${userId}/unban`, {
+        method: 'POST',
+    });
+}
+
+/**
+ * Admin: Stats & Logs
+ */
+export async function getAdminStats() {
+    return apiClient('/users/admin/stats');
+}
+
+export async function getAdminLogs(page = 1, limit = 50) {
+    return apiClient(`/admin/logs?page=${page}&limit=${limit}`);
+}
+
+// ============================================================
+// MERCHANT STORE LOCATION APIs
+// ============================================================
+
+/**
+ * Update merchant store location with coordinates
+ * @param {object} locationData - {address, latitude, longitude}
+ * @returns {Promise} - API response
+ */
+export async function updateMerchantStoreLocation(locationData) {
+    return apiClient('/merchant/store-location', {
+        method: 'PUT',
+        body: JSON.stringify({
+            address: locationData.address,
+            latitude: locationData.latitude,
+            longitude: locationData.longitude,
+        }),
+    });
+}
+
+/**
+ * Get merchant store location
+ * @returns {Promise} - Store location with coordinates
+ */
+export async function getMerchantStoreLocation() {
+    return apiClient('/merchant/store-location');
+}
+
+/**
+ * Update merchant profile information
+ * @param {Object} profileData - Merchant profile data to update
+ * @returns {Promise} - API response
+ */
+export async function updateMerchantProfile(profileData) {
+    return apiClient('/merchant/profile', {
+        method: 'PUT',
+        body: JSON.stringify(profileData),
+    });
+}
+
+// ============================================================
+// VOUCHER & REDEMPTION APIs
+// ============================================================
+
+/**
+ * Claim an offer and receive a voucher
+ * @param {string} offerId - The offer ID to claim
+ * @param {object} claimLocation - Optional current location captured at claim time
+ */
+export async function claimOffer(offerId, claimLocation = {}) {
+    return apiClient('/vouchers/claim', {
+        method: 'POST',
+        body: JSON.stringify({ offerId, ...claimLocation }),
+    });
+}
+
+/**
+ * Get user's claimed vouchers
+ * @param {object} params - {page, limit, status}
+ */
+export async function downloadVoucherQR(voucherId) {
+    return apiClient(`/vouchers/${voucherId}/download-qr`);
+}
+
+/**
+ * Share voucher with friend
+ * @param {string} voucherId - The voucher ID
+ * @param {string} friendEmail - Friend's email
+ */
+export async function shareVoucher(voucherId, friendEmail) {
+    return apiClient(`/vouchers/${voucherId}/share`, {
+        method: 'POST',
+        body: JSON.stringify({ friendEmail }),
+    });
+}
+
+/**
+ * Verify voucher using QR code without redeeming
+ * @param {string} voucherId - The voucher ID
+ * @param {string} qrCode - The QR code
+ */
+export async function verifyVoucher(voucherId, qrCode) {
+    return apiClient(`/vouchers/${voucherId}/verify`, {
+        method: 'POST',
+        body: JSON.stringify({ qrCode }),
+    });
+}
+
+/**
+ * Redeem voucher (merchant completes redemption)
+ * @param {string} voucherId - The voucher ID
+ * @param {object} verificationData - {qrCode, verificationCode}
+ */
+export async function redeemVoucher(voucherId, verificationData) {
+    return apiClient(`/vouchers/${voucherId}/redeem`, {
+        method: 'POST',
+        body: JSON.stringify(verificationData),
+    });
+}
+
+/**
+ * Generate verification code on-demand
+ * @param {string} voucherId - The voucher ID
+ */
+export async function generateVerificationCode(voucherId) {
+    return apiClient(`/vouchers/${voucherId}/generate-code`, {
+        method: 'POST',
+    });
+}
+
+/**
+ * Get merchant's pending redemptions
+ * @param {object} params - {page, limit, status}
+ */
+export async function getMerchantPendingRedemptions({ page = 1, limit = 20, status } = {}) {
+    let url = `/vouchers/merchant/pending?page=${page}&limit=${limit}`;
+    if (status) url += `&status=${status}`;
+    return apiClient(url);
+}
+
+/**
+ * Get merchant's redemption history
+ * @param {object} params - {page, limit}
+ */
+export async function getMerchantRedemptionHistory({ page = 1, limit = 20 } = {}) {
+    return apiClient(`/vouchers/merchant/history?page=${page}&limit=${limit}`);
+}
+
+/**
+ * Get merchant's active offers
+ * @param {object} params - {page, limit, status}
+ */
+export async function getMerchantOffers({ page = 1, limit = 20, status } = {}) {
+    let url = `/vouchers/merchant/offers?page=${page}&limit=${limit}`;
+    if (status) url += `&status=${status}`;
+    return apiClient(url);
+}
+
+// ============================================================
+// MERCHANT ANALYTICS & DASHBOARD APIs
+// ============================================================
+
+/**
+ * Get merchant dashboard summary
+ */
+export async function getMerchantDashboardSummary() {
+    return apiClient('/merchant-dashboard/summary');
+}
+
+/**
+ * Get merchant order statistics
+ */
+export async function getMerchantOrderStats() {
+    return apiClient('/orders/merchant/stats');
+}
+
+/**
+ * Get merchant realtime analytics payload for dashboard sections
+ */
+export async function getMerchantRealtimeAnalytics() {
+    return apiClient('/merchant-dashboard/analytics/realtime');
+}
+
+/**
+ * Get analytics device breakdown
+ * @param {string} dateRange - Time range for analytics (e.g., '7days', '30days')
+ */
+export async function getAnalyticsDeviceBreakdown(dateRange = '7days') {
+    return apiClient(`/analytics/device-breakdown?dateRange=${dateRange}`);
+}
+
+/**
+ * Get analytics top regions
+ * @param {string} dateRange - Time range for analytics
+ */
+export async function getAnalyticsTopRegions(dateRange = '7days') {
+    return apiClient(`/analytics/top-regions?dateRange=${dateRange}`);
+}
+
+/**
+ * Get analytics top pages
+ * @param {string} dateRange - Time range for analytics
+ */
+export async function getAnalyticsTopPages(dateRange = '7days') {
+    return apiClient(`/analytics/top-pages?dateRange=${dateRange}`);
+}
+
+/**
+ * Get analytics events
+ * @param {string} dateRange - Time range for analytics
+ */
+export async function getAnalyticsEvents(dateRange = '7days') {
+    return apiClient(`/analytics/events?dateRange=${dateRange}`);
+}
+
+// ============================================================
+// MERCHANT ORDERS APIs
+// ============================================================
+
+/**
+ * Get merchant orders
+ * @param {object} params - {status, page, limit, search}
+ */
+export async function getMerchantOrders({ status = 'all', page = 1, limit = 30, search } = {}) {
+    let url = `/orders/merchant?page=${page}&limit=${limit}`;
+    if (status !== 'all') url += `&status=${status}`;
+    if (search) url += `&search=${encodeURIComponent(search)}`;
+    return apiClient(url);
+}
+
+/**
+ * Update merchant order status
+ * @param {string} orderId - Order ID
+ * @param {string} status - New status
+ */
+export async function updateMerchantOrderStatus(orderId, status) {
+    return apiClient(`/orders/${orderId}/status`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status }),
+    });
+}
+
+// ============================================================
+// MERCHANT REVIEWS & RATINGS APIs
+// ============================================================
+
+/**
+ * Get merchant reviews and ratings
+ * @param {object} params - {status, search, page, limit}
+ */
+export async function getMerchantReviews({ status, search, page = 1, limit = 30 } = {}) {
+    let url = `/reviews/merchant?page=${page}&limit=${limit}`;
+    if (status) url += `&status=${status}`;
+    if (search) url += `&search=${encodeURIComponent(search)}`;
+    return apiClient(url);
+}
+
+/**
+ * Get merchant review statistics
+ */
+export async function getMerchantReviewStats() {
+    return apiClient('/reviews/merchant/stats');
+}
+
+/**
+ * Update merchant review status
+ * @param {string} reviewId - Review ID
+ * @param {string} status - New status
+ * @param {string} response - Merchant response
+ */
+export async function updateMerchantReviewStatus(reviewId, status, response = '') {
+    return apiClient(`/reviews/${reviewId}/status`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status, response }),
+    });
+}
+
+// ============================================================
+// MERCHANT PRODUCTS APIs
+// ============================================================
+
+/**
+ * Update merchant product
+ * @param {string} productId - Product ID
+ * @param {object} updateData - Product update data
+ */
+export async function updateMerchantProduct(productId, updateData) {
+    return apiClient(`/merchant/products/${productId}`, {
+        method: 'PUT',
+        body: JSON.stringify(updateData),
+    });
+}
+
+// ============================================================
+// MERCHANT ANALYTICS APIS
+// ============================================================
+
+/**
+ * Get merchant's liked products (offers sorted by wishlist count)
+ * @param {number} limit - Number of results to return
+ */
+export async function getMerchantLikedProducts(limit = 10) {
+    return apiClient(`/users/merchant/liked-products?limit=${limit}`);
+}
+
+/**
+ * Get merchant loyalty leaderboard (top customers by loyalty points)
+ */
+export async function getMerchantLoyaltyLeaderboard() {
+    return apiClient('/merchant-dashboard/loyalty-leaderboard');
+}
+
+// ============================================================
+// BANNER PROMOTION APIs
+// ============================================================
+
+/**
+ * Update banner promotion
+ * @param {string} promotionId - Promotion ID
+ * @param {object} updateData - Promotion update data
+ */
+export async function updateMyBannerPromotion(requestId, data) {
+    return apiClient(`/banners/promotions/${requestId}`, {
+        method: "PUT",
+        body: JSON.stringify(data),
+    });
+}
+
+export async function deleteBannerPromotion(requestId) {
+    return apiClient(`/banners/promotions/${requestId}`, {
+        method: "DELETE",
+    });
+}
+
+export async function updateMyOfferPromotion(promotionId, updateData) {
+    try {
+        const response = await apiClient(`/offers/${promotionId}`, {
+            method: 'PUT',
+            body: JSON.stringify(updateData),
+        });
+        rememberOfferPromotionId(promotionId);
+        return response;
+    } catch (err) {
+        if (err?.status === 404) {
+            // Fallback for older backends
+            const response = await apiClient(`/banners/promotions/${promotionId}?type=offer`, {
+                method: 'PUT',
+                body: JSON.stringify(updateData),
+            });
+            rememberOfferPromotionId(promotionId);
+            return response;
+        }
+        throw err;
+    }
+}
+
+/**
+ * Delete banner promotion
+ * @param {string} promotionId - Promotion ID
+ */
+export async function deleteMyBannerPromotion(promotionId) {
+    return apiClient(`/banners/promotions/${promotionId}?type=banner`, {
+        method: 'DELETE',
+    });
+}
+
+export async function deleteMyOfferPromotion(promotionId) {
+    try {
+        const response = await apiClient(`/offers/${promotionId}`, {
+            method: 'DELETE',
+        });
+        forgetOfferPromotionId(promotionId);
+        return response;
+    } catch (err) {
+        if (err?.status === 404) {
+            const response = await apiClient(`/banners/promotions/${promotionId}?type=offer`, {
+                method: 'DELETE',
+            });
+            forgetOfferPromotionId(promotionId);
+            return response;
+        }
+        throw err;
+    }
+}
+
+
+
+/**
+ * Save merchant offer template in backend cache (Redis)
+ */
+export async function saveMyOfferTemplate(payload) {
+    try {
+        return await apiClient('/offers/template/save', {
+            method: 'POST',
+            body: JSON.stringify(payload),
+        });
+    } catch (err) {
+        if (err?.status === 404) {
+            return apiClient('/banners/promotions/template/save', {
+                method: 'POST',
+                body: JSON.stringify(payload),
+            });
+        }
+        throw err;
+    }
+}
+
+/**
+ * Get merchant offer template from backend cache (Redis)
+ */
+export async function getMyOfferTemplate() {
+    try {
+        return await apiClient('/offers/template');
+    } catch (err) {
+        if (err?.status === 404) {
+            return apiClient('/banners/promotions/template');
+        }
+        throw err;
+    }
+}
+
+/**
+ * Clear merchant offer template from backend cache (Redis)
+ */
+export async function clearMyOfferTemplate() {
+    try {
+        return await apiClient('/offers/template', {
+            method: 'DELETE',
+        });
+    } catch (err) {
+        if (err?.status === 404) {
+            return apiClient('/banners/promotions/template', {
+                method: 'DELETE',
+            });
+        }
+        throw err;
+    }
+}
+
+// ============================================================
+// CONTENT MODERATION APIs
+// ============================================================
+
+/**
+ * Get merchant moderation reports
+ * @param {object} params - {status, page, limit}
+ */
+export async function getMerchantModerationReports({ status, page = 1, limit = 30 } = {}) {
+    let url = `/merchant/moderation-reports?page=${page}&limit=${limit}`;
+    if (status) url += `&status=${status}`;
+    return apiClient(url);
+}
+
+/**
+ * Update moderation report status
+ * @param {string} reportId - Report ID
+ * @param {string} status - New status
+ */
+export async function updateMerchantModerationReportStatus(reportId, status) {
+    return apiClient(`/merchant/moderation-reports/${reportId}/status`, {
+        method: 'PUT',
+        body: JSON.stringify({ status }),
+    });
+}
+
+/**
+ * Verify voucher using verification code (manual entry)
+ * @param {string} code - Verification code
+ */
+export async function verifyVoucherByCode(code) {
+    return apiClient(`/vouchers/verify-code`, {
+        method: 'POST',
+        body: JSON.stringify({ code }),
+    });
+}
+
+// ============================================================
+// USER DEALS & VOUCHERS APIs
+// ============================================================
+
+/**
+ * Get user's claimed vouchers/deals
+ * @param {object} params - {page, limit, status}
+ */
+export const toggleFollowMerchant = async (merchantId) => {
+    return apiClient(`/users/merchants/${merchantId}/follow`, {
+        method: 'POST',
+    });
+};
+
+export const checkFollowStatus = async (merchantId) => {
+    try {
+        const token = getStoredAccessToken();
+        if (!token) return { success: true, isFollowing: false };
+        return await apiClient(`/users/merchants/${merchantId}/follow-status`, {
+            method: 'GET',
+        });
+    } catch (error) {
+        console.error('checkFollowStatus error:', error);
+        return { success: true, isFollowing: false };
+    }
+};
+
+// ============================================================
+// PLATFORM REVIEWS
+// ============================================================
+
+export async function submitPlatformReview(payload) {
+    return apiClient('/reviews/platform', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+    });
+}
+
+// ============================================================
+// PRODUCT VIEWS
+// ============================================================
+
+/**
+ * Log an authentic product page view
+ * @param {string} productId 
+ */
+export async function logProductView(productId) {
+    if (!productId) return;
+    try {
+        return await apiClient(`/merchant/products/public/item/${productId}/view`, {
+            method: 'POST',
+        });
+    } catch (error) {
+        // Silently fail view logging so it doesn't interrupt UX
+        console.warn('Failed to log product view:', error);
+    }
+}
+
+// ==================== UNIFIED SEARCH ====================
+export async function deleteMerchantAccount(payload) {
+    return apiClient('/merchant/account', {
+        method: 'DELETE',
+        body: JSON.stringify(payload),
+    });
+}

@@ -7,7 +7,7 @@ import Footer from "../../components/Footer";
 import { Heart, MapPin, ChevronDown, SlidersHorizontal, Compass } from "lucide-react";
 import { useEffect, useState, useMemo } from "react";
 import { useAuth } from "../../context/AuthContext";
-import { getWishlistAds, toggleWishlist } from "../../lib/api";
+import { getWishlistAds, toggleWishlist } from "../../lib/api/user";;
 
 const OFFER_TYPES = [
   "All",

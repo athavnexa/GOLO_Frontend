@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, Save, Sparkles, Trash2, Pause, Play } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
 import MerchantNavbar from "../../MerchantNavbar";
-import { getMyBannerPromotions, updateMyBannerPromotion, deleteBannerPromotion } from "../../../lib/api";
+import { getMyBannerPromotions, updateMyBannerPromotion, deleteBannerPromotion } from "../../../lib/api/merchant";;
 import { uploadToCloudinary } from "../../../services/cloudinaryConfig";
 
 const BANNER_CATEGORIES = [

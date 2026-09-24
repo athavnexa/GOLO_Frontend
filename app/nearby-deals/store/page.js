@@ -7,15 +7,8 @@ import { MapPin, Phone, Star, ArrowRight, ExternalLink, ShieldCheck, ShoppingBag
 import dynamic from "next/dynamic";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
-import {
-  getNearbyOffers,
-  getPublicMerchantProducts,
-  getPublicMerchantProfile,
-  getPublicMerchantStoreLocation,
-  getPublicMerchantReviewStats,
-  toggleFollowMerchant,
-  checkFollowStatus,
-} from "../../lib/api";
+import { getNearbyOffers } from "../../lib/api/ads";
+import { getPublicMerchantProducts, getPublicMerchantProfile, getPublicMerchantStoreLocation, getPublicMerchantReviewStats, toggleFollowMerchant, checkFollowStatus } from "../../lib/api/merchant";;
 
 // Dynamically import Leaflet map
 const LeafletMap = dynamic(() => import("../../components/LeafletMap"), { ssr: false });

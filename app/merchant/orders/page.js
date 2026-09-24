@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Bell, Download, Plus, ShoppingBag, Star, User, ChevronLeft, ChevronRight } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import MerchantNavbar from "../MerchantNavbar";
-import { getMerchantOrders, getMerchantOrderStats, updateMerchantOrderStatus, getMerchantRedemptionHistory } from "../../lib/api";
+import { getMerchantOrders, getMerchantOrderStats, updateMerchantOrderStatus, getMerchantRedemptionHistory } from "../../lib/api/merchant";;
 
 const FALLBACK_AVATAR = "/images/default-user-avatar.jpg";
 

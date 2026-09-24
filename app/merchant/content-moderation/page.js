@@ -35,10 +35,7 @@ import {
   UserRound,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
-import {
-  getMerchantModerationReports,
-  updateMerchantModerationReportStatus,
-} from "../../lib/api";
+import { getMerchantModerationReports, updateMerchantModerationReportStatus } from "../../lib/api/merchant";;
 
 export default function MerchantContentModerationPage() {
   const router = useRouter();
