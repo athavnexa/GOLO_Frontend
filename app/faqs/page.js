@@ -258,7 +258,7 @@ export default function FAQPage() {
   return (
     <div style={{ minHeight:"100vh", background:"transparent", fontFamily:"'Inter',system-ui,-apple-system,sans-serif", WebkitFontSmoothing:"antialiased", ...vars }}>
       <Navbar />
-      <div style={{ display:"flex", position:"relative", zIndex:10 }}>
+      <div className="faq-layout-container" style={{ display:"flex", position:"relative", zIndex:10 }}>
         {/* ── Sidebar ── */}
         <aside className="faq-sidebar" style={{ width:300, flexShrink:0, background:"transparent", borderRight:"1px solid var(--fq-b)", position:"sticky", top:0, height:"100vh", overflowY:"auto", padding:"24px 20px", display:"flex", flexDirection:"column", gap:20, zIndex:20 }}>
           {/* Brand */}
@@ -337,8 +337,26 @@ export default function FAQPage() {
       </div>
       <Footer />
       <style>{`
-        @media(max-width:900px){.faq-sidebar{display:none!important}main{padding:24px 20px!important}}
+        
         @media print{.faq-sidebar{display:none!important}main{padding:0!important;max-width:100%!important}}
+      
+        /* Responsive Overrides */
+        @media (max-width: 900px) {
+            .faq-layout-container {
+                flex-direction: column !important;
+            }
+            .faq-sidebar {
+                width: 100% !important;
+                position: static !important;
+                height: auto !important;
+                border-right: none !important;
+                border-bottom: 1px solid var(--fq-b) !important;
+                display: block !important;
+            }
+            main {
+                padding: 24px 16px !important;
+            }
+        }
       `}</style>
     </div>
   );

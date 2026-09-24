@@ -294,6 +294,19 @@ export default function MerchantRegisterPage() {
       setError("Please enter a valid PAN number (e.g., ABCDE1234F).");
       return;
     }
+
+    if (!aadhaarDoc) {
+      setError("Aadhaar document upload is mandatory.");
+      return;
+    }
+    if (!panDoc) {
+      setError("PAN document upload is mandatory.");
+      return;
+    }
+    if (!businessDocs["Shop Photo"]) {
+      setError("Shop Photo upload is mandatory.");
+      return;
+    }
     
     setIsLoading(true);
     try {

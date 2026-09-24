@@ -16,23 +16,8 @@ export default function UserGuidePage() {
     
     // Original JS logic ported directly
     
-        // Theme Toggle
-        const themeToggle = document.getElementById('themeToggle');
-        const root = document.documentElement;
-        
-        const savedTheme = localStorage.getItem('golo_theme') || 'light';
-        root.setAttribute('data-theme', savedTheme);
-        themeToggle.textContent = savedTheme === 'dark' ? '☀️ Light' : '🌙 Dark';
-
-        themeToggle.addEventListener('click', () => {
-            const currentTheme = root.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            root.setAttribute('data-theme', newTheme);
-            localStorage.setItem('golo_theme', newTheme);
-            themeToggle.textContent = newTheme === 'dark' ? '☀️ Light' : '🌙 Dark';
-        });
-
-        // Search Filter
+    // Theme toggle removed
+    // Search Filter
         const searchInput = document.getElementById('guideSearch');
         const guideSections = document.querySelectorAll('.guide-section');
 
@@ -165,11 +150,6 @@ export default function UserGuidePage() {
                 <a href="#guide-15" className="nav-link"><span>15. Password Reset</span> <span className="nav-badge">P0</span></a>
                 <a href="#guide-matrix" className="nav-link"><span>16. Cross-Role Matrix</span> <span className="nav-badge">Ref</span></a>
             </nav>
-
-            <div className="sidebar-footer">
-                <button className="theme-toggle" id="themeToggle">🌓 Theme</button>
-                <button className="print-btn" onClick={() => { window.print() }}>🖨️ Print</button>
-            </div>
         </aside>
 
         {/*  Main Content  */}
@@ -1617,7 +1597,27 @@ export default function UserGuidePage() {
             .role-card { break-inside: avoid; border: 1px solid #ccc; }
             .matrix-container { break-inside: avoid; }
         }
-    `}</style>
+    
+        /* Responsive Overrides */
+        @media (max-width: 900px) {
+            .app-container {
+                flex-direction: column !important;
+            }
+            .sidebar {
+                width: 100% !important;
+                position: static !important;
+                height: auto !important;
+                border-right: none !important;
+                border-bottom: 1px solid var(--border-color) !important;
+            }
+            .content {
+                padding: 24px 16px !important;
+            }
+            .roles-grid {
+                grid-template-columns: 1fr !important;
+            }
+        }
+      `}</style>
     </div>
   );
 }
