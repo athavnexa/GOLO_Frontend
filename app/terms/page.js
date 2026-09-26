@@ -1,38 +1,133 @@
 "use client";
-
-import React from "react";
+import React, { useEffect, useState } from "react";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 
 export default function TermsAndConditionsPage() {
-  return (
-    <div className="min-h-screen bg-[#F4F7F6] font-sans selection:bg-[#157A4F] selection:text-white pb-24">
-      {/* Header Section */}
-      <div className="bg-white border-b border-gray-200 py-8 md:py-16 mb-8 md:mb-12 shadow-sm">
-        <div className="w-full px-4 sm:px-6 md:px-16 lg:px-32">
-          <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight mb-4 uppercase">
-            TERMS & CONDITIONS — GOLO
-          </h1>
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4 text-sm font-semibold text-gray-500">
-            <div className="flex items-center gap-2 bg-green-50 px-3 py-1.5 rounded-lg border border-green-100">
-              <span className="w-2 h-2 rounded-full bg-green-500"></span>
-              Effective Date: <span className="text-gray-900">[10/09/2026]</span>
-            </div>
-            <div className="flex items-center gap-2 bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-100">
-              <span className="w-2 h-2 rounded-full bg-blue-500"></span>
-              Last Updated: <span className="text-gray-900">[09/09/2026]</span>
-            </div>
-          </div>
-        </div>
-      </div>
+  const [mounted, setMounted] = useState(false);
 
-      {/* Main Content Area */}
-      <main className="w-full px-4 sm:px-6 md:px-16 lg:px-32">
-        <div className="bg-white rounded-2xl md:rounded-[32px] shadow-sm border border-gray-100 p-6 sm:p-6 md:p-8 md:p-16 w-full space-y-10 md:space-y-16">
-          
-          {/* Section 1 */}
-          <section>
-            <h2 id="1-introduction" className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 md:mb-6 pb-3 md:pb-4 border-b-2 border-gray-100">
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+    
+    // Active Navigation Highlight on Scroll
+    const guideSections = document.querySelectorAll('.guide-section');
+    window.addEventListener('scroll', () => {
+        let current = '';
+        guideSections.forEach(section => {
+            const sectionTop = section.offsetTop;
+            if (window.pageYOffset >= sectionTop - 120) {
+                current = section.getAttribute('id');
+            }
+        });
+
+        const navLinks = document.querySelectorAll('.nav-link');
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === '#' + current) {
+                link.classList.add('active');
+            }
+        });
+    });
+
+    const navLinksClick = document.querySelectorAll('.nav-link');
+    navLinksClick.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const targetId = link.getAttribute('href').substring(1);
+            const targetElement = document.getElementById(targetId);
+            if (targetElement) {
+                targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+            window.history.pushState(null, '', link.getAttribute('href'));
+        });
+    });
+  }, [mounted]);
+
+  if (!mounted) return null;
+
+  return (
+    <div className="user-guide-wrapper" style={{ minHeight:"100vh", background:"transparent", position:"relative", zIndex:10 }}>
+      <Navbar />
+      <div style={{ position:"relative", zIndex:10, background:"transparent" }}>
+        <div className="app-container">
+        {/*  Sidebar Navigation  */}
+        <aside className="sidebar">
+            <div className="brand">
+                <div className="brand-logo">G</div>
+                <div>
+                    <div className="brand-title">GOLO Docs</div>
+                    <div className="brand-subtitle">Legal & Compliance</div>
+                </div>
+            </div>
+
+            {/*  Navigation Links  */}
+            <nav className="nav-sections" id="navSections">
+                <span className="nav-title">TERMS & CONDITIONS — GOLO</span>
+                <a href="#1-introduction" className="nav-link active"><span>1. INTRODUCTION</span></a>
+                <a href="#2-definitions" className="nav-link"><span>2. DEFINITIONS</span></a>
+                <a href="#3-eligibility" className="nav-link"><span>3. ELIGIBILITY</span></a>
+                <a href="#4-accounts" className="nav-link"><span>4. CREATION AND SECURITY OF ACCOUNTS</span></a>
+                <a href="#5-role" className="nav-link"><span>5. GOLO’S ROLE AS A PLATFORM</span></a>
+                <a href="#6-merchant-listings" className="nav-link"><span>6. MERCHANT LISTINGS, PRODUCTS AND SERVICES</span></a>
+                <a href="#7-offers" className="nav-link"><span>7. OFFERS AND DEALS</span></a>
+                <a href="#8-refusal" className="nav-link"><span>8. REFUSAL OF OFFER REDEMPTION</span></a>
+                <a href="#9-payment" className="nav-link"><span>9. PAYMENT FOR MERCHANT PRODUCTS AND SERVICES</span></a>
+                <a href="#10-returns" className="nav-link"><span>10. RETURNS, REPLACEMENTS, WARRANTIES AND REFUNDS</span></a>
+                <a href="#11-paid-services" className="nav-link"><span>11. GOLO PAID SERVICES</span></a>
+                <a href="#12-advertising" className="nav-link"><span>12. ADVERTISING AND PROMOTIONAL SERVICES</span></a>
+                <a href="#13-refunds" className="nav-link"><span>13. CANCELLATION, REFUND AND CREDIT NOTES FOR GOLO SERVICES</span></a>
+                <a href="#14-ugc" className="nav-link"><span>14. USER-GENERATED CONTENT</span></a>
+                <a href="#15-prohibited" className="nav-link"><span>15. PROHIBITED CONTENT AND ACTIVITIES</span></a>
+                <a href="#16-moderation" className="nav-link"><span>16. CONTENT MODERATION AND ENFORCEMENT</span></a>
+                <a href="#17-reporting" className="nav-link"><span>17. REPORTING</span></a>
+                <a href="#18-blocking" className="nav-link"><span>18. BLOCKING</span></a>
+                <a href="#19-ratings" className="nav-link"><span>19. RATINGS</span></a>
+                <a href="#20-chat" className="nav-link"><span>20. CHAT AND ONLINE CALLING</span></a>
+                <a href="#21-verification" className="nav-link"><span>21. MERCHANT VERIFICATION</span></a>
+                <a href="#22-merchant-obligations" className="nav-link"><span>22. MERCHANT OBLIGATIONS</span></a>
+                <a href="#23-user-obligations" className="nav-link"><span>23. USER OBLIGATIONS</span></a>
+                <a href="#24-referral" className="nav-link"><span>24. REFERRAL PROGRAM</span></a>
+                <a href="#25-ip" className="nav-link"><span>25. INTELLECTUAL PROPERTY</span></a>
+                <a href="#26-licence" className="nav-link"><span>26. USER AND MERCHANT CONTENT LICENCE</span></a>
+                <a href="#27-privacy" className="nav-link"><span>27. PRIVACY</span></a>
+                <a href="#28-third-party" className="nav-link"><span>28. THIRD-PARTY SERVICES</span></a>
+                <a href="#29-suspension" className="nav-link"><span>29. ACCOUNT SUSPENSION AND TERMINATION</span></a>
+                <a href="#30-deletion" className="nav-link"><span>30. ACCOUNT DELETION</span></a>
+                <a href="#31-availability" className="nav-link"><span>31. PLATFORM AVAILABILITY</span></a>
+                <a href="#32-no-guarantee" className="nav-link"><span>32. NO GUARANTEE OF MERCHANT PERFORMANCE OR COMMERCIAL RESULTS</span></a>
+                <a href="#33-disclaimer" className="nav-link"><span>33. DISCLAIMER</span></a>
+                <a href="#34-limitation" className="nav-link"><span>34. LIMITATION OF LIABILITY</span></a>
+                <a href="#35-indemnification" className="nav-link"><span>35. INDEMNIFICATION</span></a>
+                <a href="#36-disputes" className="nav-link"><span>36. USER-MERCHANT DISPUTES</span></a>
+                <a href="#37-golo-disputes" className="nav-link"><span>37. DISPUTES BETWEEN YOU AND GOLO</span></a>
+                <a href="#38-changes" className="nav-link"><span>38. CHANGES TO THESE TERMS</span></a>
+                <a href="#39-electronic" className="nav-link"><span>39. ELECTRONIC ACCEPTANCE</span></a>
+                <a href="#40-severability" className="nav-link"><span>40. SEVERABILITY</span></a>
+                <a href="#41-entire-agreement" className="nav-link"><span>41. ENTIRE AGREEMENT</span></a>
+                <a href="#42-contact" className="nav-link"><span>42. CONTACT</span></a>
+
+            </nav>
+        </aside>
+
+        {/*  Main Content  */}
+        <main className="content">
+            <header className="doc-header">
+                <h1 className="doc-title">TERMS & CONDITIONS — GOLO</h1>
+                <div className="meta-tags">
+                    <span className="meta-pill">Effective Date: [10/09/2026]</span>
+                    <span className="meta-pill">Last Updated: [09/09/2026]</span>
+                    <span className="meta-pill">NexaPrime Pvt. Ltd.</span>
+                </div>
+            </header>
+
+<section className="guide-section" id="1-introduction">
+            <div className="section-header"><h2 className="section-title">
               1. INTRODUCTION
-            </h2>
+            </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
               <p>
                 Welcome to <strong>GOLO</strong>, a hyperlocal marketplace, discovery and customer-acquisition 
@@ -65,11 +160,10 @@ export default function TermsAndConditionsPage() {
             </div>
           </section>
 
-          {/* Section 2 */}
-          <section>
-            <h2 id="2-definitions" className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 md:mb-6 pb-3 md:pb-4 border-b-2 border-gray-100">
+<section className="guide-section" id="2-definitions">
+            <div className="section-header"><h2 className="section-title">
               2. DEFINITIONS
-            </h2>
+            </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-8">
               <p>For purposes of these Terms:</p>
               
@@ -115,11 +209,10 @@ export default function TermsAndConditionsPage() {
             </div>
           </section>
 
-          {/* Section 3 */}
-          <section>
-            <h2 id="3-eligibility" className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 md:mb-6 pb-3 md:pb-4 border-b-2 border-gray-100">
+<section className="guide-section" id="3-eligibility">
+            <div className="section-header"><h2 className="section-title">
               3. ELIGIBILITY
-            </h2>
+            </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
               <p>GOLO may only be used by persons who are <strong>18 years of age or older</strong>.</p>
               <p>By using GOLO, you represent and warrant that:</p>
@@ -134,11 +227,10 @@ export default function TermsAndConditionsPage() {
             </div>
           </section>
 
-          {/* Section 4 */}
-          <section>
-            <h2 id="4-accounts" className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 md:mb-6 pb-3 md:pb-4 border-b-2 border-gray-100">
+<section className="guide-section" id="4-accounts">
+            <div className="section-header"><h2 className="section-title">
               4. CREATION AND SECURITY OF ACCOUNTS
-            </h2>
+            </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
               <p>Certain GOLO features require account registration.</p>
               <p>You are responsible for:</p>
@@ -156,11 +248,10 @@ export default function TermsAndConditionsPage() {
             </div>
           </section>
 
-          {/* Section 5 */}
-          <section>
-            <h2 id="5-role" className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 md:mb-6 pb-3 md:pb-4 border-b-2 border-gray-100">
+<section className="guide-section" id="5-role">
+            <div className="section-header"><h2 className="section-title">
               5. GOLO’S ROLE AS A PLATFORM
-            </h2>
+            </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-8">
               <p>GOLO provides technology and marketplace/discovery functionality intended to help Users discover and connect with Merchants and help Merchants acquire potential customers.</p>
               <p>GOLO may facilitate:</p>
@@ -214,11 +305,10 @@ export default function TermsAndConditionsPage() {
             </div>
           </section>
 
-          {/* Section 6 */}
-          <section>
-            <h2 id="6-merchant-listings" className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 md:mb-6 pb-3 md:pb-4 border-b-2 border-gray-100">
+<section className="guide-section" id="6-merchant-listings">
+            <div className="section-header"><h2 className="section-title">
               6. MERCHANT LISTINGS, PRODUCTS AND SERVICES
-            </h2>
+            </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
               <p>Merchants are solely responsible for everything they publish or offer through GOLO.</p>
               <p>This includes responsibility for:</p>
@@ -258,11 +348,10 @@ export default function TermsAndConditionsPage() {
             </div>
           </section>
 
-          {/* Section 7 */}
-          <section>
-            <h2 id="7-offers" className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 md:mb-6 pb-3 md:pb-4 border-b-2 border-gray-100">
+<section className="guide-section" id="7-offers">
+            <div className="section-header"><h2 className="section-title">
               7. OFFERS AND DEALS
-            </h2>
+            </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
               <p>A Merchant may create an Offer or Deal by selecting the applicable product/service and specifying the applicable promotional conditions and validity period.</p>
               <p>The general redemption process may operate as follows:</p>
@@ -281,11 +370,10 @@ export default function TermsAndConditionsPage() {
             </div>
           </section>
 
-          {/* Section 8 */}
-          <section>
-            <h2 id="8-refusal" className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 md:mb-6 pb-3 md:pb-4 border-b-2 border-gray-100">
+<section className="guide-section" id="8-refusal">
+            <div className="section-header"><h2 className="section-title">
               8. REFUSAL OF OFFER REDEMPTION
-            </h2>
+            </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
               <p>A Merchant should not arbitrarily refuse a valid Offer.</p>
               <p>A Merchant may refuse redemption where there is a legitimate reason, including:</p>
@@ -303,11 +391,10 @@ export default function TermsAndConditionsPage() {
             </div>
           </section>
 
-          {/* Section 9 */}
-          <section>
-            <h2 id="9-payment" className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 md:mb-6 pb-3 md:pb-4 border-b-2 border-gray-100">
+<section className="guide-section" id="9-payment">
+            <div className="section-header"><h2 className="section-title">
               9. PAYMENT FOR MERCHANT PRODUCTS AND SERVICES
-            </h2>
+            </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
               <p>The price paid by a User for a Merchant’s product or service is a transaction between the User and Merchant.</p>
               <p>The Merchant is responsible for:</p>
@@ -330,11 +417,10 @@ export default function TermsAndConditionsPage() {
             </div>
           </section>
 
-          {/* Section 10 */}
-          <section>
-            <h2 id="10-returns" className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 md:mb-6 pb-3 md:pb-4 border-b-2 border-gray-100">
+<section className="guide-section" id="10-returns">
+            <div className="section-header"><h2 className="section-title">
               10. RETURNS, REPLACEMENTS, WARRANTIES AND REFUNDS
-            </h2>
+            </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
               <p>The Merchant is responsible for handling product/service:</p>
               <ul className="list-disc pl-8 space-y-2">
@@ -351,11 +437,10 @@ export default function TermsAndConditionsPage() {
             </div>
           </section>
 
-          {/* Section 11 */}
-          <section>
-            <h2 id="11-paid-services" className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 md:mb-6 pb-3 md:pb-4 border-b-2 border-gray-100">
+<section className="guide-section" id="11-paid-services">
+            <div className="section-header"><h2 className="section-title">
               11. GOLO PAID SERVICES
-            </h2>
+            </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
               <p>GOLO may provide paid services to Users and Merchants.</p>
               <p>These may include:</p>
@@ -384,11 +469,10 @@ export default function TermsAndConditionsPage() {
             </div>
           </section>
 
-          {/* Section 12 */}
-          <section>
-            <h2 id="12-advertising" className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 md:mb-6 pb-3 md:pb-4 border-b-2 border-gray-100">
+<section className="guide-section" id="12-advertising">
+            <div className="section-header"><h2 className="section-title">
               12. ADVERTISING AND PROMOTIONAL SERVICES
-            </h2>
+            </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
               <p>Merchants and Users may be permitted to purchase advertising or promotional placement through GOLO, subject to applicable eligibility, content requirements, availability and payment conditions.</p>
               <p>GOLO may determine:</p>
@@ -423,11 +507,10 @@ export default function TermsAndConditionsPage() {
             </div>
           </section>
 
-          {/* Section 13 */}
-          <section>
-            <h2 id="13-refunds" className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 md:mb-6 pb-3 md:pb-4 border-b-2 border-gray-100">
+<section className="guide-section" id="13-refunds">
+            <div className="section-header"><h2 className="section-title">
               13. CANCELLATION, REFUND AND CREDIT NOTES FOR GOLO SERVICES
-            </h2>
+            </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
               <p>Payments for GOLO’s advertising and promotional services are subject to the applicable <strong>Cancellation, Refund and Credit Note Policy</strong>.</p>
               <p>Where eligible under that policy, an amount may be issued as a <strong>GOLO Credit Note instead of a cash refund</strong>.</p>
@@ -444,11 +527,10 @@ export default function TermsAndConditionsPage() {
             </div>
           </section>
 
-          {/* Section 14 */}
-          <section>
-            <h2 id="14-ugc" className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 md:mb-6 pb-3 md:pb-4 border-b-2 border-gray-100">
+<section className="guide-section" id="14-ugc">
+            <div className="section-header"><h2 className="section-title">
               14. USER-GENERATED CONTENT
-            </h2>
+            </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
               <p>GOLO may allow Users and Merchants to submit or publish content including:</p>
               <ul className="list-disc pl-8 space-y-2 columns-1 sm:columns-2">
@@ -468,11 +550,10 @@ export default function TermsAndConditionsPage() {
             </div>
           </section>
 
-          {/* Section 15 */}
-          <section>
-            <h2 id="15-prohibited" className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 md:mb-6 pb-3 md:pb-4 border-b-2 border-gray-100">
+<section className="guide-section" id="15-prohibited">
+            <div className="section-header"><h2 className="section-title">
               15. PROHIBITED CONTENT AND ACTIVITIES
-            </h2>
+            </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
               <p>You must not use GOLO to publish, promote, facilitate, sell, request or distribute content or activity involving:</p>
               <ol className="list-decimal pl-8 space-y-2 font-medium">
@@ -505,11 +586,10 @@ export default function TermsAndConditionsPage() {
             </div>
           </section>
 
-          {/* Section 16 */}
-          <section>
-            <h2 id="16-moderation" className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 md:mb-6 pb-3 md:pb-4 border-b-2 border-gray-100">
+<section className="guide-section" id="16-moderation">
+            <div className="section-header"><h2 className="section-title">
               16. CONTENT MODERATION AND ENFORCEMENT
-            </h2>
+            </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
               <p>GOLO may use automated systems, manual review, security tools and, where applicable, third-party or AI-assisted moderation technologies to identify potentially prohibited content or activity.</p>
               <p>GOLO may, where reasonably necessary:</p>
@@ -532,11 +612,10 @@ export default function TermsAndConditionsPage() {
             </div>
           </section>
 
-          {/* Section 17 */}
-          <section>
-            <h2 id="17-reporting" className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 md:mb-6 pb-3 md:pb-4 border-b-2 border-gray-100">
+<section className="guide-section" id="17-reporting">
+            <div className="section-header"><h2 className="section-title">
               17. REPORTING
-            </h2>
+            </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
               <p>GOLO currently provides reporting functionality for applicable Platform content and accounts, including:</p>
               <ul className="list-disc pl-8 space-y-2">
@@ -550,11 +629,10 @@ export default function TermsAndConditionsPage() {
             </div>
           </section>
 
-          {/* Section 18 */}
-          <section>
-            <h2 id="18-blocking" className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 md:mb-6 pb-3 md:pb-4 border-b-2 border-gray-100">
+<section className="guide-section" id="18-blocking">
+            <div className="section-header"><h2 className="section-title">
               18. BLOCKING
-            </h2>
+            </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
               <p>GOLO may block or restrict Users or accounts as part of its safety, moderation, fraud-prevention or enforcement processes.</p>
               <p>Where User-facing blocking functionality is made available, Users may use it according to the applicable Platform functionality.</p>
@@ -563,11 +641,10 @@ export default function TermsAndConditionsPage() {
             </div>
           </section>
 
-          {/* Section 19 */}
-          <section>
-            <h2 id="19-ratings" className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 md:mb-6 pb-3 md:pb-4 border-b-2 border-gray-100">
+<section className="guide-section" id="19-ratings">
+            <div className="section-header"><h2 className="section-title">
               19. RATINGS
-            </h2>
+            </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
               <p>GOLO may allow Users to provide ratings for eligible Merchants, products, services or experiences.</p>
               <p>Ratings must represent a genuine experience or legitimate interaction.</p>
@@ -586,11 +663,10 @@ export default function TermsAndConditionsPage() {
             </div>
           </section>
 
-          {/* Section 20 */}
-          <section>
-            <h2 id="20-chat" className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 md:mb-6 pb-3 md:pb-4 border-b-2 border-gray-100">
+<section className="guide-section" id="20-chat">
+            <div className="section-header"><h2 className="section-title">
               20. CHAT AND ONLINE CALLING
-            </h2>
+            </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
               <p>GOLO may provide chat and online calling functionality to facilitate communication between Users and Merchants.</p>
               <p>Users and Merchants must use these features lawfully and respectfully.</p>
@@ -610,11 +686,10 @@ export default function TermsAndConditionsPage() {
             </div>
           </section>
 
-          {/* Section 21 */}
-          <section>
-            <h2 id="21-verification" className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 md:mb-6 pb-3 md:pb-4 border-b-2 border-gray-100">
+<section className="guide-section" id="21-verification">
+            <div className="section-header"><h2 className="section-title">
               21. MERCHANT VERIFICATION
-            </h2>
+            </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
               <p>GOLO may conduct verification checks on Merchants based on information and documentation submitted by the Merchant.</p>
               <p>A verification status means only that GOLO has completed certain applicable verification checks based on the information/documentation provided by the Merchant.</p>
@@ -633,11 +708,10 @@ export default function TermsAndConditionsPage() {
             </div>
           </section>
 
-          {/* Section 22 */}
-          <section>
-            <h2 id="22-merchant-obligations" className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 md:mb-6 pb-3 md:pb-4 border-b-2 border-gray-100">
+<section className="guide-section" id="22-merchant-obligations">
+            <div className="section-header"><h2 className="section-title">
               22. MERCHANT OBLIGATIONS
-            </h2>
+            </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
               <p>Every Merchant represents and agrees that it will:</p>
               <ol className="list-decimal pl-8 space-y-2 font-medium">
@@ -661,11 +735,10 @@ export default function TermsAndConditionsPage() {
             </div>
           </section>
 
-          {/* Section 23 */}
-          <section>
-            <h2 id="23-user-obligations" className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 md:mb-6 pb-3 md:pb-4 border-b-2 border-gray-100">
+<section className="guide-section" id="23-user-obligations">
+            <div className="section-header"><h2 className="section-title">
               23. USER OBLIGATIONS
-            </h2>
+            </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
               <p>Users agree to:</p>
               <ul className="list-disc pl-8 space-y-2 font-medium">
@@ -685,11 +758,10 @@ export default function TermsAndConditionsPage() {
             </div>
           </section>
 
-          {/* Section 24 */}
-          <section>
-            <h2 id="24-referral" className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 md:mb-6 pb-3 md:pb-4 border-b-2 border-gray-100">
+<section className="guide-section" id="24-referral">
+            <div className="section-header"><h2 className="section-title">
               24. REFERRAL PROGRAM
-            </h2>
+            </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
               <p>Where GOLO operates a referral program, participation is subject to the applicable referral rules.</p>
               <p>GOLO may reject or reverse referral benefits where it identifies:</p>
@@ -706,11 +778,10 @@ export default function TermsAndConditionsPage() {
             </div>
           </section>
 
-          {/* Section 25 */}
-          <section>
-            <h2 id="25-ip" className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 md:mb-6 pb-3 md:pb-4 border-b-2 border-gray-100">
+<section className="guide-section" id="25-ip">
+            <div className="section-header"><h2 className="section-title">
               25. INTELLECTUAL PROPERTY
-            </h2>
+            </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
               <p>GOLO and its licensors retain all rights in GOLO’s software, technology, branding, logos, designs, interfaces, databases, graphics, text and other Platform materials, except for third-party or User/Merchant-owned content.</p>
               <p>You must not reproduce, modify, distribute, reverse engineer, scrape, sell, license or commercially exploit GOLO’s proprietary materials without appropriate authorization, except where permitted by law.</p>
@@ -718,11 +789,10 @@ export default function TermsAndConditionsPage() {
             </div>
           </section>
 
-          {/* Section 26 */}
-          <section>
-            <h2 id="26-licence" className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 md:mb-6 pb-3 md:pb-4 border-b-2 border-gray-100">
+<section className="guide-section" id="26-licence">
+            <div className="section-header"><h2 className="section-title">
               26. USER AND MERCHANT CONTENT LICENCE
-            </h2>
+            </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
               <p>By submitting content to GOLO, you retain ownership of your content, subject to any rights belonging to third parties.</p>
               <p>You grant GOLO a non-exclusive, worldwide, royalty-free licence, to the extent necessary to operate the Platform, to host, store, reproduce, process, display, transmit, format, moderate and distribute your content through GOLO’s services.</p>
@@ -741,11 +811,10 @@ export default function TermsAndConditionsPage() {
             </div>
           </section>
 
-          {/* Section 27 */}
-          <section>
-            <h2 id="27-privacy" className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 md:mb-6 pb-3 md:pb-4 border-b-2 border-gray-100">
+<section className="guide-section" id="27-privacy">
+            <div className="section-header"><h2 className="section-title">
               27. PRIVACY
-            </h2>
+            </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
               <p>GOLO processes personal data in accordance with the applicable <strong>GOLO Privacy Policy</strong>.</p>
               <p>The Privacy Policy describes categories of personal data, purposes of processing, sharing, security, retention and account deletion.</p>
@@ -754,11 +823,10 @@ export default function TermsAndConditionsPage() {
             </div>
           </section>
 
-          {/* Section 28 */}
-          <section>
-            <h2 id="28-third-party" className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 md:mb-6 pb-3 md:pb-4 border-b-2 border-gray-100">
+<section className="guide-section" id="28-third-party">
+            <div className="section-header"><h2 className="section-title">
               28. THIRD-PARTY SERVICES
-            </h2>
+            </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
               <p>GOLO may integrate or rely upon third-party services, technology providers, payment providers, cloud infrastructure, communication services, authentication providers, analytics tools, mapping/location services or other third-party systems.</p>
               <p>Third-party services may be governed by their own terms and privacy policies.</p>
@@ -766,11 +834,10 @@ export default function TermsAndConditionsPage() {
             </div>
           </section>
 
-          {/* Section 29 */}
-          <section>
-            <h2 id="29-suspension" className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 md:mb-6 pb-3 md:pb-4 border-b-2 border-gray-100">
+<section className="guide-section" id="29-suspension">
+            <div className="section-header"><h2 className="section-title">
               29. ACCOUNT SUSPENSION AND TERMINATION
-            </h2>
+            </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
               <p>GOLO may restrict, suspend or terminate an account where reasonably necessary because of:</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
@@ -803,11 +870,10 @@ export default function TermsAndConditionsPage() {
             </div>
           </section>
 
-          {/* Section 30 */}
-          <section>
-            <h2 id="30-deletion" className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 md:mb-6 pb-3 md:pb-4 border-b-2 border-gray-100">
+<section className="guide-section" id="30-deletion">
+            <div className="section-header"><h2 className="section-title">
               30. ACCOUNT DELETION
-            </h2>
+            </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
               <p>Users and Merchants may request deletion of their accounts through the applicable GOLO account deletion mechanism.</p>
               <p>Account deletion may cause associated account, store, product, offer, advertisement and other information to be removed or made unavailable.</p>
@@ -816,11 +882,10 @@ export default function TermsAndConditionsPage() {
             </div>
           </section>
 
-          {/* Section 31 */}
-          <section>
-            <h2 id="31-availability" className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 md:mb-6 pb-3 md:pb-4 border-b-2 border-gray-100">
+<section className="guide-section" id="31-availability">
+            <div className="section-header"><h2 className="section-title">
               31. PLATFORM AVAILABILITY
-            </h2>
+            </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
               <p>GOLO aims to provide reliable services but does not guarantee that:</p>
               <ul className="list-disc pl-8 space-y-2">
@@ -836,11 +901,10 @@ export default function TermsAndConditionsPage() {
             </div>
           </section>
 
-          {/* Section 32 */}
-          <section>
-            <h2 id="32-no-guarantee" className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 md:mb-6 pb-3 md:pb-4 border-b-2 border-gray-100">
+<section className="guide-section" id="32-no-guarantee">
+            <div className="section-header"><h2 className="section-title">
               32. NO GUARANTEE OF MERCHANT PERFORMANCE OR COMMERCIAL RESULTS
-            </h2>
+            </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
               <p>GOLO provides a platform for discovery and customer acquisition.</p>
               <p>GOLO does not guarantee:</p>
@@ -862,11 +926,10 @@ export default function TermsAndConditionsPage() {
             </div>
           </section>
 
-          {/* Section 33 */}
-          <section>
-            <h2 id="33-disclaimer" className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 md:mb-6 pb-3 md:pb-4 border-b-2 border-gray-100">
+<section className="guide-section" id="33-disclaimer">
+            <div className="section-header"><h2 className="section-title">
               33. DISCLAIMER
-            </h2>
+            </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
               <p>To the maximum extent permitted by applicable law, GOLO provides the Platform on an “as available” and “as reasonably provided” basis.</p>
               <p>GOLO does not guarantee that information supplied by Users or Merchants is accurate, complete, current or reliable.</p>
@@ -875,11 +938,10 @@ export default function TermsAndConditionsPage() {
             </div>
           </section>
 
-          {/* Section 34 */}
-          <section>
-            <h2 id="34-limitation" className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 md:mb-6 pb-3 md:pb-4 border-b-2 border-gray-100">
+<section className="guide-section" id="34-limitation">
+            <div className="section-header"><h2 className="section-title">
               34. LIMITATION OF LIABILITY
-            </h2>
+            </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
               <p>To the maximum extent permitted by applicable law, GOLO shall not be liable for indirect, incidental, special, consequential or punitive losses arising from:</p>
               <ul className="list-disc pl-8 space-y-2 columns-1 sm:columns-2">
@@ -899,11 +961,10 @@ export default function TermsAndConditionsPage() {
             </div>
           </section>
 
-          {/* Section 35 */}
-          <section>
-            <h2 id="35-indemnification" className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 md:mb-6 pb-3 md:pb-4 border-b-2 border-gray-100">
+<section className="guide-section" id="35-indemnification">
+            <div className="section-header"><h2 className="section-title">
               35. INDEMNIFICATION
-            </h2>
+            </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
               <p>To the extent permitted by applicable law, you agree to indemnify and hold GOLO and its operator harmless from claims, losses, liabilities, damages, costs and expenses arising from:</p>
               <ul className="list-disc pl-8 space-y-2">
@@ -919,11 +980,10 @@ export default function TermsAndConditionsPage() {
             </div>
           </section>
 
-          {/* Section 36 */}
-          <section>
-            <h2 id="36-disputes" className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 md:mb-6 pb-3 md:pb-4 border-b-2 border-gray-100">
+<section className="guide-section" id="36-disputes">
+            <div className="section-header"><h2 className="section-title">
               36. USER-MERCHANT DISPUTES
-            </h2>
+            </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
               <p>The User and Merchant are primarily responsible for resolving disputes relating to their underlying transaction.</p>
               <p>Such disputes may include:</p>
@@ -944,11 +1004,10 @@ export default function TermsAndConditionsPage() {
             </div>
           </section>
 
-          {/* Section 37 */}
-          <section>
-            <h2 id="37-golo-disputes" className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 md:mb-6 pb-3 md:pb-4 border-b-2 border-gray-100">
+<section className="guide-section" id="37-golo-disputes">
+            <div className="section-header"><h2 className="section-title">
               37. DISPUTES BETWEEN YOU AND GOLO
-            </h2>
+            </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
               <p>Any dispute between you and GOLO concerning the Platform or GOLO Services shall be governed by the laws of <strong>India</strong>, subject to applicable law.</p>
               
@@ -961,11 +1020,10 @@ export default function TermsAndConditionsPage() {
             </div>
           </section>
 
-          {/* Section 38 */}
-          <section>
-            <h2 id="38-changes" className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 md:mb-6 pb-3 md:pb-4 border-b-2 border-gray-100">
+<section className="guide-section" id="38-changes">
+            <div className="section-header"><h2 className="section-title">
               38. CHANGES TO THESE TERMS
-            </h2>
+            </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
               <p>GOLO may update these Terms from time to time.</p>
               <p>Changes may be made because of:</p>
@@ -982,11 +1040,10 @@ export default function TermsAndConditionsPage() {
             </div>
           </section>
 
-          {/* Section 39 */}
-          <section>
-            <h2 id="39-electronic" className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 md:mb-6 pb-3 md:pb-4 border-b-2 border-gray-100">
+<section className="guide-section" id="39-electronic">
+            <div className="section-header"><h2 className="section-title">
               39. ELECTRONIC ACCEPTANCE
-            </h2>
+            </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
               <p>By:</p>
               <ul className="list-disc pl-8 space-y-2 font-medium">
@@ -1001,31 +1058,28 @@ export default function TermsAndConditionsPage() {
             </div>
           </section>
 
-          {/* Section 40 */}
-          <section>
-            <h2 id="40-severability" className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 md:mb-6 pb-3 md:pb-4 border-b-2 border-gray-100">
+<section className="guide-section" id="40-severability">
+            <div className="section-header"><h2 className="section-title">
               40. SEVERABILITY
-            </h2>
+            </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
               <p>If any provision of these Terms is determined to be invalid, unlawful or unenforceable, that provision shall be interpreted or modified to the extent legally permissible, and the remaining provisions shall continue to apply.</p>
             </div>
           </section>
 
-          {/* Section 41 */}
-          <section>
-            <h2 id="41-entire-agreement" className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 md:mb-6 pb-3 md:pb-4 border-b-2 border-gray-100">
+<section className="guide-section" id="41-entire-agreement">
+            <div className="section-header"><h2 className="section-title">
               41. ENTIRE AGREEMENT
-            </h2>
+            </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
               <p>These Terms, together with the GOLO Privacy Policy and other applicable GOLO policies or service-specific terms, constitute the applicable agreement governing your use of GOLO, subject to any separate written agreement expressly entered into with GOLO.</p>
             </div>
           </section>
 
-          {/* Section 42 */}
-          <section>
-            <h2 id="42-contact" className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 md:mb-6 pb-3 md:pb-4 border-b-2 border-gray-100">
+<section className="guide-section" id="42-contact">
+            <div className="section-header"><h2 className="section-title">
               42. CONTACT
-            </h2>
+            </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed bg-gray-50 border border-gray-200 rounded-2xl p-6 md:p-8 shadow-sm">
               <p className="mb-6">For questions, support, complaints or policy-related matters:</p>
               <div className="space-y-4">
@@ -1036,14 +1090,659 @@ export default function TermsAndConditionsPage() {
               </div>
             </div>
           </section>
-
-          {/* Footer Note */}
-          <div className="pt-8 border-t border-gray-200 text-center text-sm font-semibold text-gray-500 uppercase tracking-widest">
-            End of GOLO Terms & Conditions — Individual Operator Version
-          </div>
-
+        </main>
         </div>
-      </main>
+      </div>
+      <Footer />
+      <style>{`
+        .user-guide-wrapper {
+            --bg-primary: transparent;
+            --bg-surface: #ffffff;
+            --bg-card: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            
+            --primary: #157A4F;
+            --primary-hover: #064e3b;
+            --primary-light: #eff6ff;
+
+            --role-user: #157A4F;
+            --role-user-bg: #eff6ff;
+            --role-user-border: #bfdbfe;
+
+            --role-choja: #F5B849;
+            --role-choja-bg: #FFF8E6;
+            --role-choja-border: #F8C45C;
+
+            --role-merchant: #10b981;
+            --role-merchant-bg: #ecfdf5;
+            --role-merchant-border: #6ee7b7;
+
+            --code-bg: #f1f5f9;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+        }
+
+        .user-guide-wrapper[data-theme="dark"] {
+            --bg-primary: transparent;
+            --bg-surface: #111827;
+            --bg-card: #1f2937;
+            --text-primary: #f9fafb;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --border-color: #374151;
+            
+            --primary: #157A4F;
+            --primary-hover: #10b981;
+            --primary-light: #1e293b;
+
+            --role-user: #10b981;
+            --role-user-bg: #1e293b;
+            --role-user-border: #157A4F;
+
+            --role-choja: #F5B849;
+            --role-choja-bg: #423012;
+            --role-choja-border: #c9951e;
+
+            --role-merchant: #34d399;
+            --role-merchant-bg: #064e3b;
+            --role-merchant-border: #059669;
+
+            --code-bg: #1e293b;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5);
+        }
+
+        
+
+        
+
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 320px;
+            background: transparent;
+            border-right: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            padding: 24px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            z-index: 20;
+            flex-shrink: 0;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .brand-logo {
+            width: 40px;
+            height: 40px;
+            background: #157A4F;
+            color: white;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.25rem;
+            letter-spacing: -0.5px;
+            box-shadow: 0 4px 10px rgba(21, 122, 79, 0.3);
+        }
+
+        .brand-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1.2;
+        }
+
+        .brand-subtitle {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 14px 10px 38px;
+            font-size: 0.88rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .search-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            pointer-events: none;
+        }
+
+        /* Role Filter Chips */
+        .role-filters {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding: 10px;
+            background: var(--bg-primary);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+        }
+
+        .role-filters-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+        }
+
+        .role-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .role-chip {
+            padding: 4px 10px;
+            font-size: 0.76rem;
+            font-weight: 600;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-surface);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .role-chip:hover {
+            border-color: var(--text-muted);
+        }
+
+        .role-chip.active-all {
+            background: var(--text-primary);
+            color: var(--bg-surface);
+            border-color: var(--text-primary);
+        }
+
+        .role-chip.active-user {
+            background: var(--role-user);
+            color: #ffffff;
+            border-color: var(--role-user);
+        }
+
+        .role-chip.active-choja {
+            background: var(--role-choja);
+            color: #ffffff;
+            border-color: var(--role-choja);
+        }
+
+        .role-chip.active-merchant {
+            background: var(--role-merchant);
+            color: #ffffff;
+            border-color: var(--role-merchant);
+        }
+
+        .nav-sections {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            flex: 1;
+        }
+
+        .nav-title {
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+            margin-top: 8px;
+            margin-bottom: 6px;
+            padding-left: 8px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 10px;
+            font-size: 0.84rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: var(--radius-sm);
+            transition: all 0.15s ease;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .nav-link.active {
+            background: var(--primary);
+            color: white;
+            font-weight: 600;
+        }
+
+        .nav-badge {
+            font-size: 0.72rem;
+            padding: 1px 6px;
+            background: var(--border-color);
+            border-radius: 10px;
+            margin-left: auto;
+            color: var(--text-muted);
+        }
+
+        .sidebar-footer {
+            padding-top: 14px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .theme-toggle, .print-btn {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 6px 12px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 0.82rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .theme-toggle:hover, .print-btn:hover {
+            background: var(--primary-light);
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        /* Main Content */
+        .content {
+            flex: 1;
+            padding: 40px 48px;
+            max-width: 1200px;
+            overflow-y: auto;
+        }
+
+        .doc-header {
+            margin-bottom: 40px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .doc-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            letter-spacing: -0.5px;
+            margin-bottom: 10px;
+            line-height: 1.2;
+        }
+
+        .doc-description {
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+            max-width: 850px;
+            margin-bottom: 20px;
+        }
+
+        .meta-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .meta-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border-radius: 20px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        .meta-pill.pill-user {
+            border-color: var(--role-user-border);
+            color: var(--role-user);
+            background: var(--role-user-bg);
+        }
+
+        .meta-pill.pill-choja {
+            border-color: var(--role-choja-border);
+            color: var(--role-choja);
+            background: var(--role-choja-bg);
+        }
+
+        .meta-pill.pill-merchant {
+            border-color: var(--role-merchant-border);
+            color: var(--role-merchant);
+            background: var(--role-merchant-bg);
+        }
+
+        /* Guide Section */
+        .guide-section {
+            margin-bottom: 56px;
+            scroll-margin-top: 40px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .section-num {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--primary);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .section-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* 3-Role Grid */
+        .roles-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 1024px) {
+            .roles-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .role-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color);
+            padding: 22px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--shadow-sm);
+            transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .role-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .role-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+        }
+
+        .role-card.role-user {
+            border-top: 4px solid var(--role-user);
+        }
+
+        .role-card.role-choja {
+            border-top: 4px solid var(--role-choja);
+        }
+
+        .role-card.role-merchant {
+            border-top: 4px solid var(--role-merchant);
+        }
+
+        .role-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px dashed var(--border-color);
+        }
+
+        .role-title-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .role-user .role-title-badge { color: var(--role-user); }
+        .role-choja .role-title-badge { color: var(--role-choja); }
+        .role-merchant .role-title-badge { color: var(--role-merchant); }
+
+        .role-persona {
+            font-size: 0.76rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        /* Step List & Bullet List */
+        .step-list, .bullet-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+        }
+
+        .step-item {
+            display: flex;
+            gap: 10px;
+            line-height: 1.5;
+        }
+
+        .step-number {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            font-size: 0.72rem;
+            font-weight: 800;
+            flex-shrink: 0;
+            margin-top: 1px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .role-user .step-number {
+            background: var(--role-user-bg);
+            color: var(--role-user);
+            border: 1px solid var(--role-user-border);
+        }
+
+        .role-choja .step-number {
+            background: var(--role-choja-bg);
+            color: var(--role-choja);
+            border: 1px solid var(--role-choja-border);
+        }
+
+        .role-merchant .step-number {
+            background: var(--role-merchant-bg);
+            color: var(--role-merchant);
+            border: 1px solid var(--role-merchant-border);
+        }
+
+        .step-content strong, .bullet-item strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .bullet-item {
+            position: relative;
+            padding-left: 18px;
+            line-height: 1.5;
+        }
+
+        .bullet-item::before {
+            content: '•';
+            position: absolute;
+            left: 4px;
+            top: -1px;
+            font-size: 1.1rem;
+        }
+
+        .role-user .bullet-item::before { color: var(--role-user); }
+        .role-choja .bullet-item::before { color: var(--role-choja); }
+        .role-merchant .bullet-item::before { color: var(--role-merchant); }
+
+        /* Comparison Table */
+        .matrix-container {
+            margin-top: 30px;
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color);
+            overflow-x: auto;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .matrix-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+            text-align: left;
+        }
+
+        .matrix-table th {
+            padding: 14px 18px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-weight: 700;
+            border-bottom: 2px solid var(--border-color);
+            white-space: nowrap;
+        }
+
+        .matrix-table th.col-user { color: var(--role-user); }
+        .matrix-table th.col-choja { color: var(--role-choja); }
+        .matrix-table th.col-merchant { color: var(--role-merchant); }
+
+        .matrix-table td {
+            padding: 12px 18px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            vertical-align: top;
+        }
+
+        .matrix-table tr:hover td {
+            background: var(--primary-light);
+        }
+
+        .matrix-dimension {
+            font-weight: 600;
+            color: var(--text-primary);
+            white-space: nowrap;
+        }
+
+        /* Footer */
+        .page-footer {
+            margin-top: 60px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        /* Filter states */
+        .hidden-card {
+            display: none !important;
+        }
+
+        .roles-grid.single-col {
+            grid-template-columns: 1fr;
+        }
+
+        /* Print styles */
+        @media print {
+            .sidebar { display: none; }
+            .content { padding: 0; max-width: 100%; }
+            .role-card { break-inside: avoid; border: 1px solid #ccc; }
+            .matrix-container { break-inside: avoid; }
+        }
+    
+        /* Responsive Overrides */
+        @media (max-width: 900px) {
+            .app-container {
+                flex-direction: column !important;
+            }
+            .sidebar {
+                width: 100% !important;
+                position: static !important;
+                height: auto !important;
+                border-right: none !important;
+                border-bottom: 1px solid var(--border-color) !important;
+            }
+            .content {
+                padding: 24px 16px !important;
+            }
+            .roles-grid {
+                grid-template-columns: 1fr !important;
+            }
+        }
+      `}</style>
     </div>
   );
 }
