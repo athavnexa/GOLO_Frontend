@@ -204,7 +204,7 @@ export default function MerchantProductDetailsContent() {
           price: String(product?.price || ""),
           stockQuantity: String(product?.stockQuantity || ""),
           description: product?.description || "",
-          images: product?.images || (product?.image ? [product.image] : []),
+          images: product?.images || product?.productImages || (product?.image ? [product.image] : (product?.imageUrl ? [product.imageUrl] : [])),
           videoUrl: product?.videoUrl || "",
         };
         console.log("MAPPED DATA:", mapped);

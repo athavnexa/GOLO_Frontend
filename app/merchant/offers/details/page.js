@@ -68,7 +68,7 @@ function normalizeSelectedProducts(selectedProducts = []) {
     ? selectedProducts.map((item) => ({
         productId: String(item?.productId || item?.id || ""),
         productName: String(item?.productName || item?.name || "Product"),
-        imageUrl: String(item?.imageUrl || item?.image || item?.images?.[0] || ""),
+        imageUrl: String(item?.imageUrl || item?.image || item?.productImages?.[0] || item?.images?.[0] || ""),
         originalPrice: Number(item?.originalPrice || item?.price || 0),
         offerPrice: Number(item?.offerPrice || item?.price || 0),
         stockQuantity: Number(item?.stockQuantity || item?.stock || 0),

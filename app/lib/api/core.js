@@ -15,12 +15,14 @@ export const API_BASE_URL = normalizeBackendApiBaseUrl(process.env.NEXT_PUBLIC_A
 export const API_ORIGIN_URL = API_BASE_URL;
 
 const _MASKED_BASE = '/media';
-const _CLOUDINARY_URL_RE = /https?:\/\/res\.cloudinary\.com\/[^/]+\//g;
+// Capture the cloud name so it is preserved in the masked path: /media/<cloudname>/image/upload/...
+const _CLOUDINARY_URL_RE = /https?:\/\/res\.cloudinary\.com\/([^/]+)\//g;
 
 function _maskCloudinaryStr(str) {
     if (!str || typeof str !== 'string') return str;
     if (!str.includes('res.cloudinary.com')) return str;
-    return str.replace(_CLOUDINARY_URL_RE, _MASKED_BASE + '/');
+    // Replace origin but keep cloud name: /media/<cloudname>/
+    return str.replace(_CLOUDINARY_URL_RE, (_match, cloudName) => `${_MASKED_BASE}/${cloudName}/`);
 }
 
 function _maskCloudinaryDeep(obj) {

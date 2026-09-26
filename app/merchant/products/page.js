@@ -9,6 +9,11 @@ import { useRoleProtection, LoadingScreen } from "../../components/RoleBasedRedi
 import { deleteMerchantProduct, getMerchantProducts, selectActiveProducts } from "../../lib/api/merchant";;
 import MerchantNavbar from "../MerchantNavbar";
 
+const resolveProductImage = (item) => {
+  if (!item) return '';
+  return item.image || item.imageUrl || (item.productImages && item.productImages[0]) || (item.images && item.images[0]) || '';
+};
+
 export default function MerchantProductsPage() {
   const router = useRouter();
   const { user, logout } = useAuth();
@@ -387,7 +392,7 @@ export default function MerchantProductsPage() {
                     <tr key={item.id} className="border-t border-[#f0f0f0]">
                       <td className="px-4 py-3">
                         <div className="h-8 w-8 rounded-full overflow-hidden border border-[#ececec]">
-                          <Image src={item.image || "/images/deal2.avif"} alt={item.name} width={32} height={32} className="h-full w-full object-cover" />
+                          <Image src={resolveProductImage(item) || "/images/deal2.avif"} alt={item.name} width={32} height={32} className="h-full w-full object-cover" />
                         </div>
                       </td>
                       <td className="px-4 py-3 font-semibold text-[#2a2a2a]">
@@ -537,8 +542,8 @@ export default function MerchantProductsPage() {
                           >
                             <div className="flex items-center gap-3">
                               <div className="h-10 w-10 rounded-lg overflow-hidden border border-gray-200 flex-shrink-0 bg-gray-50">
-                                {prod.image ? (
-                                  <img src={prod.image} alt={prod.name} className="h-full w-full object-cover" />
+                                {resolveProductImage(prod) ? (
+                                  <img src={resolveProductImage(prod)} alt={prod.name} className="h-full w-full object-cover" />
                                 ) : (
                                   <div className="h-full w-full bg-gray-100 flex items-center justify-center text-gray-400 text-xs font-bold">G</div>
                                 )}
