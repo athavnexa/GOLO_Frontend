@@ -111,13 +111,14 @@ export const API_ORIGIN_URL = API_BASE_URL;
 
 // ==================== CLOUDINARY URL MASKING ====================
 const _MASKED_BASE = '/media';
-// Regex matches https://res.cloudinary.com/<any-cloud-name>/ and captures the rest
-const _CLOUDINARY_URL_RE = /https?:\/\/res\.cloudinary\.com\/[^/]+\//g;
+// Regex matches https://res.cloudinary.com/<cloud-name>/ and captures the cloud name and the rest
+const _CLOUDINARY_URL_RE = /https?:\/\/res\.cloudinary\.com\/([^/]+)\//g;
 
 function _maskCloudinaryStr(str) {
     if (!str || typeof str !== 'string') return str;
     if (!str.includes('res.cloudinary.com')) return str;
-    return str.replace(_CLOUDINARY_URL_RE, _MASKED_BASE + '/');
+    // Preserve cloud name in the path: /media/<cloudname>/image/upload/...
+    return str.replace(_CLOUDINARY_URL_RE, (_match, cloudName) => `${_MASKED_BASE}/${cloudName}/`);
 }
 
 function _maskCloudinaryDeep(obj) {

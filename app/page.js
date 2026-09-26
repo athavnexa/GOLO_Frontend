@@ -197,7 +197,8 @@ function SectionCarousel({ title, items, onItemClick }) {
                         </div>
                       ) : (
                         <span className="text-[11px] sm:text-[12px] font-bold text-[#157A4F] truncate">
-                          {item.type === 'shop' ? 'Visit Store' : 'Special Offer'}
+                          {item.type === 'shop' || item.type === 'merchant' ? 'Visit Store' : 'Special Offer'}
+
                         </span>
                       )}
 
@@ -269,8 +270,8 @@ function HomeContent() {
             const mappedSections = response.map(section => ({
                 ...section,
                 items: (section.products || []).map((p, index) => {
-                    const isShop = p.type === 'shop';
-                    const merchantName = p.merchantName || p.merchant?.name || p.merchant?.storeName || (isShop ? p.title : "");
+                    const isShop = p.type === 'shop' || p.type === 'merchant';
+                    const merchantName = p.merchantName || p.storeName || p.merchant?.name || p.merchant?.storeName || (isShop ? p.title : "");
                     const location = p.storeLocation || p.merchantLocation || p.location || p.city || p.merchant?.storeLocation || p.merchant?.city || "";
                     const price = p.price !== undefined && p.price !== null && p.price !== "" ? Number(p.price) : null;
                     const originalPrice = p.originalPrice !== undefined && p.originalPrice !== null && p.originalPrice !== "" ? Number(p.originalPrice) : null;
@@ -280,18 +281,18 @@ function HomeContent() {
                     const validityText = formatValidityText(p.endDate || p.validUntil || p.expiryDate || p.promotionExpiryText, "");
 
                     return {
-                        id: p.id || p.offerId || p.merchantId || `item-${index}`,
+                        id: p.id || p.offerId || p.merchantId || p.userId || `item-${index}`,
                         offerId: p.offerId || p.id,
-                        merchantId: p.merchantId || p.merchant?.merchantId,
-                        title: p.title || "Special Offer",
-                        subtitle: p.description || p.subtitle || "",
+                        merchantId: p.merchantId || p.merchant?.merchantId || p.userId,
+                        title: isShop ? (p.storeName || p.merchantName || p.title || 'View Store') : (p.title || "Special Offer"),
+                        subtitle: p.description || p.subtitle || p.businessDescription || "",
                         merchantName,
                         location,
                         price,
                         originalPrice,
                         discountPercent,
                         validityText,
-                        image: p.imageUrl || p.image || (Array.isArray(p.images) && p.images[0]) || "/images/placeholder.webp",
+                        image: p.imageUrl || p.profilePhoto || p.image || (Array.isArray(p.images) && p.images[0]) || "/images/placeholder.webp",
                         badge: discountPercent > 0 ? `${discountPercent}% OFF` : (p.promoTag || p.badge || ""),
                         buttonLabel: isShop ? "View Store" : "View Deal",
                         type: p.type || 'deal'
@@ -364,7 +365,8 @@ function HomeContent() {
                   title={section.title}
                   items={section.items}
                   onItemClick={(item) => {
-                      if (item.type === 'shop') handleShopClick(item);
+                      if (item.type === 'shop' || item.type === 'merchant') handleShopClick(item);
+
                       else handleDealClick(item);
                   }}
                 />

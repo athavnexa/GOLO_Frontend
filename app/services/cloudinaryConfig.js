@@ -123,20 +123,22 @@ export function isValidCloudinaryUrl(url) {
 
 // ==================== URL MASKING ====================
 
-const CLOUDINARY_BASE = `https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'dkiagrvnp'}`;
 const MASKED_BASE = '/media';
+// Regex that captures the cloud name from a Cloudinary URL
+const _CLD_RE = /https?:\/\/res\.cloudinary\.com\/([^/]+)\//g;
 
 /**
  * Masks a raw Cloudinary URL behind our own domain proxy.
+ * The cloud name is preserved in the path so /media/ proxy can route to the correct account.
  * Input:  https://res.cloudinary.com/dkiagrvnp/image/upload/v1/abc.jpg
- * Output: /media/image/upload/v1/abc.jpg
+ * Output: /media/dkiagrvnp/image/upload/v1/abc.jpg
  *
  * Safe by default — non-Cloudinary URLs pass through unchanged.
  */
 export function maskCloudinaryUrl(url) {
     if (!url || typeof url !== 'string') return url;
     if (!url.includes('res.cloudinary.com')) return url;
-    return url.replace(CLOUDINARY_BASE, MASKED_BASE);
+    return url.replace(_CLD_RE, (_match, cloudName) => `${MASKED_BASE}/${cloudName}/`);
 }
 
 /**

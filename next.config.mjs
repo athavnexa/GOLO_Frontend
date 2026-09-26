@@ -24,6 +24,10 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
+        hostname: 'res.cloudinary.com',
+      },
+      {
+        protocol: 'https',
         hostname: '**',
       },
       {
@@ -35,8 +39,10 @@ const nextConfig = {
   async rewrites() {
     return [
       {
+        // The cloud name is now part of the path, so any Cloudinary account's
+        // images are proxied correctly: /media/<cloudname>/image/upload/...
         source: '/media/:path*',
-        destination: `https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'dkiagrvnp'}/:path*`,
+        destination: 'https://res.cloudinary.com/:path*',
       },
     ];
   },
