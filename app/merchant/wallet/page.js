@@ -153,7 +153,7 @@ export default function MerchantWalletPage() {
           
           {/* Footer */}
           <div className="flex flex-col sm:flex-row items-center justify-between pt-6 pb-2 text-[12px] text-[#999] border-t border-[#e5e5e5] mt-8">
-            <p>© 2026 GOLO Merchant. All rights reserved.</p>
+            <p>© 2026 AjuBaju Merchant. All rights reserved.</p>
             <div className="flex items-center gap-6 mt-3 sm:mt-0">
               <a href="#" className="hover:text-[#666]">Privacy Policy</a>
               <a href="#" className="hover:text-[#666]">Terms of Service</a>

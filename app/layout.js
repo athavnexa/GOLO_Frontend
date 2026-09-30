@@ -8,33 +8,33 @@ import ClarityAnalytics from "./components/ClarityAnalytics";
 
 export const metadata = {
   title: {
-    default: "GOLO | Best Local Deals, Offers & Services Near You",
-    template: "%s | GOLO",
+    default: "AjuBaju | Best Local Deals, Offers & Services Near You",
+    template: "%s | AjuBaju",
   },
-  description: "Discover the best local discounts, exclusive offers, nearby store deals, and services around you. Save big on shopping, dining, wellness, and more with GOLO.",
+  description: "Discover the best local discounts, exclusive offers, nearby store deals, and services around you. Save big on shopping, dining, wellness, and more with AjuBaju.",
   keywords: [
     "local deals", "nearby offers", "coupons", "discounts", "local savings", 
-    "shopping deals", "store offers", "GOLO", "Choja",
-    "golo kolhapur", "kolhapur", "kolhapur deals", "kolhapur ads", "choja kolhapur",
+    "shopping deals", "store offers", "AjuBaju", "Choja",
+    "ajubaju kolhapur", "kolhapur", "kolhapur deals", "kolhapur ads", "choja kolhapur",
     "best local offers", "nearby discounts", "dining offers", "wellness discount coupons", 
     "local business finder", "store discounts near me", "nearby services marketplace", 
-    "best deals in city", "golo app savings", "active merchant discounts"
+    "best deals in city", "ajubaju app savings", "active merchant discounts"
   ],
-  authors: [{ name: "GOLO Team" }],
-  creator: "GOLO",
-  publisher: "GOLO",
-  metadataBase: new URL("https://golo.co.in"),
+  authors: [{ name: "AjuBaju Team" }],
+  creator: "AjuBaju",
+  publisher: "AjuBaju",
+  metadataBase: new URL("https://ajubaju.co.in"),
   openGraph: {
-    title: "GOLO | Best Local Deals, Offers & Services Near You",
+    title: "AjuBaju | Best Local Deals, Offers & Services Near You",
     description: "Discover the best local discounts, exclusive offers, nearby store deals, and services around you.",
-    url: "https://golo.co.in",
-    siteName: "GOLO",
+    url: "https://ajubaju.co.in",
+    siteName: "AjuBaju",
     locale: "en_US",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "GOLO | Best Local Deals, Offers & Services Near You",
+    title: "AjuBaju | Best Local Deals, Offers & Services Near You",
     description: "Discover the best local discounts, exclusive offers, nearby store deals, and services around you.",
   },
   robots: {

@@ -348,7 +348,7 @@ function ProductDetailContent() {
       try {
         await navigator.share({
           title: productName,
-          text: `Check out ${productName} on GOLO`,
+          text: `Check out ${productName} on AjuBaju`,
           url: window.location.href,
         });
       } catch (error) {

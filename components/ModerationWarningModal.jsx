@@ -12,7 +12,7 @@ export default function ModerationWarningModal({ isOpen, onClose, message, restr
 
   const penaltyText = restrictedUntil 
     ? `You are restricted for ${durationHours} hours for posting inappropriate images. Further violations will result in escalating penalties of 3 hours, 8 hours, and then 24 hours.`
-    : message || "Repeated uploads that violate GOLO's content policy may temporarily restrict your ability to upload images.";
+    : message || "Repeated uploads that violate AjuBaju's content policy may temporarily restrict your ability to upload images.";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
@@ -39,7 +39,7 @@ export default function ModerationWarningModal({ isOpen, onClose, message, restr
           </p>
 
           <p className="text-gray-500 mb-4 text-xs italic">
-            Repeated uploads that violate GOLO's content policy may temporarily restrict your ability to upload images.
+            Repeated uploads that violate AjuBaju's content policy may temporarily restrict your ability to upload images.
           </p>
 
           <div className="bg-red-50 border border-red-100 rounded-lg p-4 mb-6">

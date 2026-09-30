@@ -152,9 +152,9 @@ export default function MerchantContentModerationPage() {
           onClick={() => router.push("/")}
           className="flex items-center gap-2 px-2 mb-5 text-left"
         >
-          <div className="h-7 w-7 rounded-md bg-[#157A4F] text-white text-[12px] font-bold flex items-center justify-center">G</div>
+          <div className="h-7 w-7 rounded-md bg-[#157A4F] text-white text-[12px] font-bold flex items-center justify-center">A</div>
           <div>
-            <p className="text-[14px] font-bold text-[#157A4F] leading-none">GOLO</p>
+            <p className="text-[14px] font-bold text-[#157A4F] leading-none">AjuBaju</p>
             <p className="text-[21px] font-semibold text-[#157A4F] leading-none mt-[2px]">Dashboard</p>
           </div>
         </button>
@@ -208,7 +208,7 @@ export default function MerchantContentModerationPage() {
           <div className="flex items-start justify-between">
             <div>
               <h1 className="text-[24px] font-bold leading-none">CONTENT MODERATION CENTER</h1>
-              <p className="text-[11px] text-gray-500 mt-1">Real time surveillance and enforcement for GOLO marketplace integrity.</p>
+              <p className="text-[11px] text-gray-500 mt-1">Real time surveillance and enforcement for AjuBaju marketplace integrity.</p>
             </div>
             <div className="flex gap-2">
               <button onClick={handleExportCsv} className="h-7 px-3 rounded-[5px] border border-[#e5e7eb] bg-white text-[10px]">Export Audit Logs</button>
@@ -427,13 +427,13 @@ export default function MerchantContentModerationPage() {
 
         <footer className="h-10 bg-[#edb841] border-t border-[#daa22f] px-4 flex items-center justify-between text-[9px] text-[#5c4513]">
           <div className="flex items-center gap-1.5 font-semibold">
-            <div className="h-4 w-4 rounded-sm bg-white/70 text-[#157A4F] flex items-center justify-center">G</div>
-            Golo
+            <div className="h-4 w-4 rounded-sm bg-white/70 text-[#157A4F] flex items-center justify-center">A</div>
+            AjuBaju
           </div>
           <div className="hidden md:flex items-center gap-3">
             <span>About Us</span><span>Contact Us</span><span>Support Center</span><span>Privacy Policy</span><span>Terms of Service</span><span>Cookie Policy</span>
           </div>
-          <div>© 2026 Golo.</div>
+          <div>© 2026 AjuBaju.</div>
         </footer>
       </div>
     </div>

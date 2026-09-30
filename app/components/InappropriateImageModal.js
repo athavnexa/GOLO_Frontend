@@ -58,7 +58,7 @@ export default function InappropriateImageModal({ isOpen, onClose, mode = "image
             <p className="text-[12px] sm:text-sm text-orange-800 leading-snug">
               <strong>Note:</strong> {isTextMode 
                 ? "Repeated attempts to post policy-violating text may temporarily restrict your ability to publish ads." 
-                : "Repeated uploads that violate GOLO's content policy may temporarily restrict your ability to upload images."}
+                : "Repeated uploads that violate AjuBaju's content policy may temporarily restrict your ability to upload images."}
             </p>
           </div>
           <button

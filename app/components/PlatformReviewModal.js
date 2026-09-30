@@ -124,7 +124,7 @@ export default function PlatformReviewModal() {
           <div className="text-center mb-6">
             <h2 className="text-2xl font-bold text-[#1e2228] mb-2">How are we doing?</h2>
             <p className="text-[#666] text-sm">
-              We'd love to hear about your overall experience with GOLO. Your feedback helps us improve!
+              We'd love to hear about your overall experience with AjuBaju. Your feedback helps us improve!
             </p>
           </div>
 

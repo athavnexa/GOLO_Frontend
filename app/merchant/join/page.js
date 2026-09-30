@@ -26,9 +26,9 @@ export default function MerchantJoinPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#F5F7FA]" style={{ fontFamily: "'Inter', sans-serif" }}>
       <div className="flex flex-col items-center gap-4">
-        {/* Animated GOLO Logo */}
+        {/* Animated AjuBaju Logo */}
         <div className="w-14 h-14 bg-[#157A4F] rounded-2xl flex items-center justify-center shadow-lg animate-bounce">
-          <span className="text-white font-black text-2xl">G</span>
+          <span className="text-white font-black text-2xl">A</span>
         </div>
         <p className="text-[15px] font-semibold text-gray-600">Taking you to registration...</p>
         <div className="flex gap-1.5">

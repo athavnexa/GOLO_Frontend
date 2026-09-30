@@ -217,7 +217,7 @@ export default function Footer() {
         <div className="mx-auto max-w-[1200px] flex flex-col md:flex-row items-center justify-between gap-4">
           {/* Left: Copyright */}
           <p className="text-[13px] font-medium text-[#2d2412]">
-            © 2026 GOLO. All rights reserved.
+            © 2026 AjuBaju. All rights reserved.
           </p>
 
           {/* Middle: Payments */}

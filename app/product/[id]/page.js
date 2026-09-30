@@ -1,10 +1,10 @@
 import AdClient from "./AdClient";
 
 function getAbsoluteUrl(path) {
-  if (!path) return "https://www.golo.com/images/default-ad.jpg";
+  if (!path) return "https://www.ajubaju.com/images/default-ad.jpg";
   if (path.startsWith("http")) return path;
-  if (path.startsWith("/")) return `https://www.golo.com${path}`;
-  return `https://www.golo.com/${path}`;
+  if (path.startsWith("/")) return `https://www.ajubaju.com${path}`;
+  return `https://www.ajubaju.com/${path}`;
 }
 
 export async function generateMetadata(props) {
@@ -13,7 +13,7 @@ export async function generateMetadata(props) {
   
   if (!adId) {
     return {
-      title: "Ad not found | GOLO",
+      title: "Ad not found | AjuBaju",
       description: "This ad does not exist or has been removed."
     };
   }
@@ -24,10 +24,10 @@ export async function generateMetadata(props) {
     const data = await res.json();
     const ad = data.data || data;
 
-    const title = ad?.title || ad?.productName || "GOLO Ad";
-    const description = ad?.description || "Check out this amazing ad on GOLO!";
+    const title = ad?.title || ad?.productName || "AjuBaju Ad";
+    const description = ad?.description || "Check out this amazing ad on AjuBaju!";
     
-    let imageUrl = "https://www.golo.com/images/default-ad.jpg";
+    let imageUrl = "https://www.ajubaju.com/images/default-ad.jpg";
     if (ad?.images && ad.images.length > 0) {
       imageUrl = getAbsoluteUrl(ad.images[0]);
     } else if (ad?.imageUrl) {
@@ -42,7 +42,7 @@ export async function generateMetadata(props) {
     }
 
     return {
-      title: `${title} | GOLO`,
+      title: `${title} | AjuBaju`,
       description,
       openGraph: {
         title,
@@ -68,8 +68,8 @@ export async function generateMetadata(props) {
   } catch (err) {
     console.error("Error generating metadata for ad:", err);
     return {
-      title: "GOLO Ad",
-      description: "Check out this amazing ad on GOLO!"
+      title: "AjuBaju Ad",
+      description: "Check out this amazing ad on AjuBaju!"
     };
   }
 }

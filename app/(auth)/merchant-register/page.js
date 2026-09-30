@@ -378,10 +378,8 @@ export default function MerchantRegisterPage() {
       <header className="w-full bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between shrink-0 z-10 sticky top-0 shadow-sm">
         {/* Left: Logo */}
         <div className="flex items-center gap-3 border-r border-gray-200 pr-6">
-          <div className="w-8 h-8 bg-[#157A4F] rounded flex items-center justify-center font-bold text-white text-[16px]">
-            G
-          </div>
-          <span className="text-[16px] font-bold text-[#157A4F] tracking-tight">GOLO Merchant Registration</span>
+          <div className="w-8 h-8 bg-[#157A4F] rounded flex items-center justify-center font-bold text-white text-[16px]">A</div>
+          <span className="text-[16px] font-bold text-[#157A4F] tracking-tight">AjuBaju Merchant Registration</span>
         </div>
 
         {/* Center: Stepper */}
@@ -518,7 +516,7 @@ export default function MerchantRegisterPage() {
             </div>
 
             <p className="text-[14px] text-gray-500 leading-relaxed max-w-[280px]">
-              Create your account to start your business journey with GOLO and join thousands of successful vendors.
+              Create your account to start your business journey with AjuBaju and join thousands of successful vendors.
             </p>
           </div>
         </div>
@@ -848,7 +846,7 @@ export default function MerchantRegisterPage() {
                   <h2 className="text-[22px] font-extrabold text-gray-900">Verify Your Business</h2>
                 </div>
                 <p className="text-[13px] text-gray-500 mb-8 leading-relaxed">
-                  Choose the level of verification you want for your business. Higher tiers unlock premium features and increase your visibility on the GOLO marketplace.
+                  Choose the level of verification you want for your business. Higher tiers unlock premium features and increase your visibility on the AjuBaju marketplace.
                 </p>
 
                 {error && <p className="text-red-500 text-[12px] mb-4 font-semibold">{error}</p>}
@@ -1026,7 +1024,7 @@ export default function MerchantRegisterPage() {
                   </label>
                   <label className="flex items-start gap-3 cursor-pointer group">
                     <input type="checkbox" className="mt-0.5 accent-[#157A4F] w-3.5 h-3.5 cursor-pointer" checked={termsChecked} onChange={(e) => setTermsChecked(e.target.checked)} />
-                    <span className="text-[11px] text-gray-700 font-medium group-hover:text-gray-900 transition-colors">I agree to the GOLO Merchant Terms of Service and Verification Policy. <span className="text-[#157A4F] font-bold hover:underline">Read Document</span></span>
+                    <span className="text-[11px] text-gray-700 font-medium group-hover:text-gray-900 transition-colors">I agree to the AjuBaju Merchant Terms of Service and Verification Policy. <span className="text-[#157A4F] font-bold hover:underline">Read Document</span></span>
                   </label>
                   <label className="flex items-start gap-3 cursor-pointer group">
                     <input type="checkbox" className="mt-0.5 accent-[#157A4F] w-3.5 h-3.5 cursor-pointer" checked={privacyChecked} onChange={(e) => setPrivacyChecked(e.target.checked)} />
@@ -1043,7 +1041,7 @@ export default function MerchantRegisterPage() {
                 </div>
                 <h2 className="text-[24px] font-bold text-gray-900 mb-3 text-center">Registration Submitted Successfully</h2>
                 <p className="text-[14px] text-gray-500 text-center max-w-[400px] leading-relaxed mb-8">
-                  Thank you for choosing GOLO. Our compliance team has received your documents and is currently reviewing your application.
+                  Thank you for choosing AjuBaju. Our compliance team has received your documents and is currently reviewing your application.
                 </p>
 
                 <div className="flex w-full gap-4 mb-8">
@@ -1112,7 +1110,7 @@ export default function MerchantRegisterPage() {
                           Check your email
                           <ChevronRight size={14} className="text-gray-300 group-hover:text-gray-500 transition-colors" />
                         </h4>
-                        <p className="text-[12px] text-gray-500 leading-relaxed">We've sent a confirmation email with your application reference number #GOLO-88294-2026.</p>
+                        <p className="text-[12px] text-gray-500 leading-relaxed">We've sent a confirmation email with your application reference number #AjuBaju-88294-2026.</p>
                       </div>
                     </div>
                     
@@ -1211,7 +1209,7 @@ export default function MerchantRegisterPage() {
       {/* ─── BOTTOM FOOTER ─── */}
       <footer className="w-full bg-white border-t border-gray-200 px-8 py-5 flex items-center justify-between shrink-0 z-10 text-[11px] text-gray-400">
         <div>
-          © 2026 <strong className="text-gray-600">GOLO Merchant Registration</strong> . All rights reserved.
+          © 2026 <strong className="text-gray-600">AjuBaju Merchant Registration</strong> . All rights reserved.
         </div>
         <div className="flex items-center gap-6">
           <a href="#" className="hover:text-gray-600 transition-colors">Privacy Policy</a>

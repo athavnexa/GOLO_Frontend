@@ -844,8 +844,8 @@ export default function MerchantOffersPage() {
         <div className="max-w-[1500px] mx-auto flex flex-col lg:flex-row gap-4 lg:gap-12 items-start justify-between">
           <div className="max-w-[240px]">
             <div className="flex items-center gap-2 mb-2 lg:mb-4">
-              <div className="w-8 h-8 bg-white rounded-sm flex items-center justify-center font-bold text-[#157a4f]">G</div>
-              <span className="text-[18px] font-semibold text-[#157a4f]">GOLO</span>
+              <div className="w-8 h-8 bg-white rounded-sm flex items-center justify-center font-bold text-[#157a4f]">A</div>
+              <span className="text-[18px] font-semibold text-[#157a4f]">AjuBaju</span>
             </div>
             <p className="text-[10px] leading-[1.35] text-[#fff8de] max-w-[150px]">
               The all-in-one management platform for modern businesses.
@@ -888,7 +888,7 @@ export default function MerchantOffersPage() {
         </div>
 
         <div className="max-w-[1500px] mx-auto mt-3 lg:mt-6 flex items-center justify-between text-[9px] text-[#5f4710]">
-          <p>© 2026 GOLO Dashboard. All rights reserved.</p>
+          <p>© 2026 AjuBaju Dashboard. All rights reserved.</p>
           <p>Made with ♥ by V</p>
         </div>
       </footer>

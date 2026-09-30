@@ -1107,11 +1107,9 @@ function NavbarContent({
                 <span
                   className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[11px] font-extrabold leading-none text-white"
                   style={{ background: "#157A4F" }}
-                >
-                  G
-                </span>
+                >A</span>
                 <span className="text-[15px] font-extrabold tracking-wide text-[#157A4F]">
-                  GOLO
+                  AjuBaju
                 </span>
               </Link>
               <Link
@@ -1132,11 +1130,9 @@ function NavbarContent({
               <span
                 className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[11px] font-extrabold leading-none text-white"
                 style={{ background: "#157A4F" }}
-              >
-                G
-              </span>
+              >A</span>
               <span className="text-[15px] font-extrabold tracking-wide text-[#157A4F]">
-                GOLO
+                AjuBaju
               </span>
             </Link>
           )}
@@ -1753,10 +1749,8 @@ function NavbarContent({
               <span
                 className="flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-full text-[11px] font-extrabold leading-none text-white"
                 style={{ background: "#157A4F" }}
-              >
-                G
-              </span>{" "}
-              GOLO
+              >A</span>{" "}
+              AjuBaju
             </Link>
             <Link
               href="/choja"
@@ -1901,7 +1895,7 @@ function NavbarContent({
         isOpen={showAuthPrompt}
         onClose={() => setShowAuthPrompt(false)}
         title="Login or Register"
-        description="Please log in or create an account to access GOLO listings, chats, posting, and search from the home page."
+        description="Please log in or create an account to access AjuBaju listings, chats, posting, and search from the home page."
         redirectTo={pathname || "/"}
       />
     </>

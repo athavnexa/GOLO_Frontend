@@ -449,14 +449,14 @@ export default function RegisterPage() {
             <div
               className="rounded-[28px] bg-white shadow-sm flex flex-col items-center px-10 py-8 relative mx-auto w-full max-w-[340px]"
             >
-              {/* GOLO Logo row */}
+              {/* AjuBaju Logo row */}
               <div className="flex items-center gap-2 self-end mb-6">
                 {/* Diamond logo icon */}
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
                   <path d="M12 2L2 9l10 13 10-13L12 2z" fill="#157A4F" fillOpacity="0.15" stroke="#157A4F" strokeWidth="1.5"/>
                   <path d="M12 2L2 9h20L12 2z" fill="#157A4F" fillOpacity="0.35"/>
                 </svg>
-                <span className="text-[15px] font-bold text-gray-800 tracking-wide">GOLO</span>
+                <span className="text-[15px] font-bold text-gray-800 tracking-wide">AjuBaju</span>
               </div>
 
               {/* Phone illustration */}
@@ -529,7 +529,7 @@ export default function RegisterPage() {
               </div>
 
               <h2 className="text-[22px] font-extrabold text-gray-900 leading-tight">
-                Join GOLO Network
+                Join AjuBaju Network
               </h2>
               <p className="text-[13px] text-gray-500 leading-relaxed px-4">
                 Create your free account to shop from trusted local businesses, earn rewards and enjoy seamless shopping.
@@ -543,7 +543,7 @@ export default function RegisterPage() {
           <div className="w-full max-w-[500px]">
             {/* Title */}
             <h1 className="text-[26px] font-extrabold text-gray-900 text-center mb-1">
-              Join GOLO Network Group
+              Join AjuBaju Network Group
             </h1>
             <p className="text-center text-[13px] text-gray-500 mb-8">
               Grow Smarter With Every Ad. Join Free.

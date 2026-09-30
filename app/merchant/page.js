@@ -139,10 +139,10 @@ export default function MerchantLandingPage() {
               {/* Green top bar */}
               <div className="bg-gradient-to-r from-[#157a4f] to-[#1aaa6b] px-8 pt-8 pb-7 text-center">
                 <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-[#f3b12a] shadow-lg mb-4">
-                  <span className="text-white text-2xl font-black">G</span>
+                  <span className="text-white text-2xl font-black">A</span>
                 </div>
                 <h2 className="text-white text-xl font-extrabold leading-tight mb-1">
-                  Join GOLO as a Merchant
+                  Join AjuBaju as a Merchant
                 </h2>
                 <p className="text-green-100 text-[13px]">
                   Get your registration link instantly — it's free!
@@ -237,11 +237,9 @@ export default function MerchantLandingPage() {
           >
             <span
               className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[11px] font-extrabold leading-none text-[#f3b12a] bg-white"
-            >
-              G
-            </span>
+            >A</span>
             <span className="text-[15px] font-extrabold tracking-wide text-white">
-              GOLO
+              AjuBaju
             </span>
           </Link>
         </div>
@@ -295,7 +293,7 @@ export default function MerchantLandingPage() {
             <h1 className="text-5xl sm:text-[64px] font-extrabold text-[#1e2228] leading-[1.1] tracking-tight">
               Grow Your Local <br />
               <span className="text-[#157a4f]">Business with</span> <br />
-              <span className="text-[#157a4f]">GOLO</span>
+              <span className="text-[#157a4f]">AjuBaju</span>
             </h1>
             <p className="text-gray-500 text-base md:text-lg leading-relaxed max-w-md">
               Connect with local shoppers, digitize your store, and manage your offers—all from one platform designed for local growth.
@@ -355,11 +353,11 @@ export default function MerchantLandingPage() {
         </div>
       </section>
 
-      {/* HOW GOLO WORKS */}
+      {/* HOW AjuBaju WORKS */}
       <section className="py-16 md:py-20 px-4 sm:px-6 bg-[#fef9f5]">
         <FadeInScroll delay={0.1} className="max-w-[1500px] mx-auto space-y-10 md:space-y-12">
           <div className="text-center space-y-4">
-            <h2 className="text-4xl md:text-6xl font-extrabold text-gray-900 tracking-tight leading-tight">How GOLO Works</h2>
+            <h2 className="text-4xl md:text-6xl font-extrabold text-gray-900 tracking-tight leading-tight">How AjuBaju Works</h2>
             <p className="text-base md:text-lg text-gray-500 max-w-2xl mx-auto">Simple steps to get your local business online and thriving.</p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
@@ -844,7 +842,7 @@ export default function MerchantLandingPage() {
               </h2>
             </div>
             <p className="text-base text-green-50 max-w-lg leading-relaxed">
-              Join thousands of local merchants utilizing GOLO. Sign up today and get a <strong className="text-white">50-day free trial</strong> with full access to all premium features—no credit card required!
+              Join thousands of local merchants utilizing AjuBaju. Sign up today and get a <strong className="text-white">50-day free trial</strong> with full access to all premium features—no credit card required!
             </p>
             <div className="pt-3 flex items-center gap-4">
               <button
@@ -874,7 +872,7 @@ export default function MerchantLandingPage() {
         <div className="space-y-2">
           <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight">Get Merchant Growth Tips</h2>
           <p className="text-sm text-gray-500 max-w-md mx-auto leading-relaxed">
-            Subscribe to our newsletter for exclusive tips, marketing strategies, and GOLO platform updates directly to your inbox.
+            Subscribe to our newsletter for exclusive tips, marketing strategies, and AjuBaju platform updates directly to your inbox.
           </p>
         </div>
         <form onSubmit={handleSubscribe} className="flex max-w-md mx-auto relative mt-4 shadow-sm rounded-full">
@@ -902,7 +900,7 @@ export default function MerchantLandingPage() {
           <div className="space-y-4 md:col-span-1">
             <Link href="/" className="flex items-center gap-2">
               <div className="flex h-8 px-3 items-center justify-center rounded-lg bg-[#f3b12a] text-white font-extrabold text-sm shadow-sm">
-                GOLO
+                AjuBaju
               </div>
             </Link>
             <p className="text-xs text-gray-400 leading-relaxed max-w-xs">
@@ -931,7 +929,7 @@ export default function MerchantLandingPage() {
           </div>
           
           <div className="space-y-4">
-            <h4 className="font-bold text-xs uppercase tracking-wider text-gray-900">Get the GOLO App</h4>
+            <h4 className="font-bold text-xs uppercase tracking-wider text-gray-900">Get the AjuBaju App</h4>
             <div className="space-y-3">
               <button className="w-full max-w-[140px] h-10 bg-gray-900 text-white rounded-lg flex items-center justify-center gap-2 hover:bg-black transition-colors">
                 <span className="text-xs font-bold">App Store</span>
@@ -944,7 +942,7 @@ export default function MerchantLandingPage() {
         </div>
         
         <div className="max-w-[1200px] mx-auto mt-16 pt-8 border-t border-gray-100 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-gray-400">© 2026 GOLO Inc. All rights reserved.</p>
+          <p className="text-xs text-gray-400">© 2026 AjuBaju Inc. All rights reserved.</p>
           <div className="flex gap-4">
             {/* Social Icons Placeholder */}
             <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:text-[#157a4f] cursor-pointer"><Globe size={14} /></div>

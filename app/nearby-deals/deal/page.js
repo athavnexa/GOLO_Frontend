@@ -1,10 +1,10 @@
 import DealClient from "./DealClient";
 
 function getAbsoluteUrl(path) {
-  if (!path) return "https://www.golo.com/images/default-offer.jpg";
+  if (!path) return "https://www.ajubaju.com/images/default-offer.jpg";
   if (path.startsWith("http")) return path;
-  if (path.startsWith("/")) return `https://www.golo.com${path}`;
-  return `https://www.golo.com/${path}`;
+  if (path.startsWith("/")) return `https://www.ajubaju.com${path}`;
+  return `https://www.ajubaju.com/${path}`;
 }
 
 export async function generateMetadata(props) {
@@ -13,7 +13,7 @@ export async function generateMetadata(props) {
   
   if (!offerId) {
     return {
-      title: "Offer not found | GOLO",
+      title: "Offer not found | AjuBaju",
       description: "This offer does not exist or has been removed."
     };
   }
@@ -25,10 +25,10 @@ export async function generateMetadata(props) {
     const data = await res.json();
     const offer = data.data || data;
 
-    const title = offer?.title || offer?.offerTitle || offer?.productName || "GOLO Offer";
-    const description = offer?.description || "Check out this amazing offer on GOLO!";
+    const title = offer?.title || offer?.offerTitle || offer?.productName || "AjuBaju Offer";
+    const description = offer?.description || "Check out this amazing offer on AjuBaju!";
     
-    let imageUrl = "https://www.golo.com/images/default-offer.jpg";
+    let imageUrl = "https://www.ajubaju.com/images/default-offer.jpg";
     if (offer?.images && offer.images.length > 0) {
       imageUrl = getAbsoluteUrl(offer.images[0]);
     } else if (offer?.imageUrl) {
@@ -48,16 +48,16 @@ export async function generateMetadata(props) {
       imageUrl = imageUrl.replace(/\.(webp|avif|png|heic)$/i, ".jpg");
     }
 
-    const offerUrl = `https://www.golo.com/nearby-deals/deal?offerId=${encodeURIComponent(offerId)}`;
+    const offerUrl = `https://www.ajubaju.com/nearby-deals/deal?offerId=${encodeURIComponent(offerId)}`;
 
     return {
-      title: `${title} | GOLO`,
+      title: `${title} | AjuBaju`,
       description,
       openGraph: {
         title: `Checkout this offer: ${title}`,
         description,
         url: offerUrl,
-        siteName: "GOLO",
+        siteName: "AjuBaju",
         images: [
           {
             url: imageUrl,
@@ -79,8 +79,8 @@ export async function generateMetadata(props) {
   } catch (err) {
     console.error("Error generating metadata for offer:", err);
     return {
-      title: "GOLO Offer",
-      description: "Check out this amazing offer on GOLO!"
+      title: "AjuBaju Offer",
+      description: "Check out this amazing offer on AjuBaju!"
     };
   }
 }

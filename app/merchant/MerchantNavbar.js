@@ -94,11 +94,9 @@ export default function MerchantNavbar({ activeKey = "dashboard" }) {
           <span
             className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[11px] font-extrabold leading-none text-white"
             style={{ background: "#157A4F" }}
-          >
-            G
-          </span>
+          >A</span>
           <span className="text-[15px] font-extrabold tracking-wide text-[#157A4F]">
-            GOLO
+            AjuBaju
           </span>
         </Link>
       </div>

@@ -189,10 +189,10 @@ export default function MerchantLoginPage() {
               {/* Green top bar */}
               <div className="bg-gradient-to-r from-[#157a4f] to-[#1aaa6b] px-8 pt-8 pb-7 text-center">
                 <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-[#f3b12a] shadow-lg mb-4">
-                  <span className="text-white text-2xl font-black">G</span>
+                  <span className="text-white text-2xl font-black">A</span>
                 </div>
                 <h2 className="text-white text-xl font-extrabold leading-tight mb-1">
-                  Join GOLO as a Merchant
+                  Join AjuBaju as a Merchant
                 </h2>
                 <p className="text-green-100 text-[13px]">
                   Get your registration link instantly — it&apos;s free!
@@ -294,7 +294,7 @@ export default function MerchantLoginPage() {
             <div
               className="rounded-[28px] bg-white shadow-sm flex flex-col items-center p-8 relative mx-auto w-full max-w-[380px]"
             >
-              {/* GOLO Logo (Floating outside top-left) */}
+              {/* AjuBaju Logo (Floating outside top-left) */}
               <div className="absolute top-[-30px] left-0 flex items-center gap-2">
                 <div className="w-8 h-8 bg-[#157A4F] rounded-md flex items-center justify-center">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -302,7 +302,7 @@ export default function MerchantLoginPage() {
                     <path d="M12 2L2 9h20L12 2z" fill="#FFF" fillOpacity="1"/>
                   </svg>
                 </div>
-                <span className="text-[18px] font-bold text-gray-800 tracking-wide">GOLO</span>
+                <span className="text-[18px] font-bold text-gray-800 tracking-wide">AjuBaju</span>
               </div>
 
               {/* Merchant Illustration */}

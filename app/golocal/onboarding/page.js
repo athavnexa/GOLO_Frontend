@@ -133,10 +133,8 @@ export default function GolocalOnboardingPage() {
       <div className="min-h-screen w-full overflow-hidden border border-gray-200 bg-white shadow-[inset_0_1px_0_rgba(255,255,255,0.6)]">
         <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3 sm:px-8">
           <div className="flex items-center gap-2 sm:gap-3">
-            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#157A4F] text-white text-xs font-bold">
-              G
-            </div>
-            <span className="text-xl font-bold tracking-tight text-[#157A4F]">GOLO</span>
+            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#157A4F] text-white text-xs font-bold">A</div>
+            <span className="text-xl font-bold tracking-tight text-[#157A4F]">AjuBaju</span>
           </div>
           <p className="text-xl font-bold text-[#157A4F] sm:text-3xl">
             {selectionCount} <span className="text-gray-400">/ {MAX_SELECTION}</span>

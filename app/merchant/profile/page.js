@@ -1156,7 +1156,7 @@ function MerchantProfileContent({ user, logout, router, initialTab = "Profile Se
                       Store & Listing Data Will Be Wiped
                     </h4>
                     <p className="text-[12px] text-[#b91c1c] mt-1 leading-relaxed">
-                      Confirming will completely remove your merchant presence across all GOLO platforms:
+                      Confirming will completely remove your merchant presence across all AjuBaju platforms:
                     </p>
 
                     <ul className="mt-3 space-y-1.5 text-[12px] text-[#7f1d1d] pl-5 list-disc">
@@ -1304,10 +1304,8 @@ function MerchantProfileContent({ user, logout, router, initialTab = "Profile Se
         <div className="mx-auto flex max-w-[1500px] flex-col items-start justify-between gap-4 lg:flex-row lg:gap-12">
           <div className="max-w-[240px]">
             <div className="mb-2 flex items-center gap-2 lg:mb-4">
-              <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-white font-bold text-[#157a4f]">
-                G
-              </div>
-              <span className="text-[18px] font-semibold text-[#157a4f]">GOLO</span>
+              <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-white font-bold text-[#157a4f]">A</div>
+              <span className="text-[18px] font-semibold text-[#157a4f]">AjuBaju</span>
             </div>
             <p className="max-w-[150px] text-[10px] leading-[1.35] text-[#fff8de]">
               The all-in-one management platform for modern businesses.
@@ -1350,7 +1348,7 @@ function MerchantProfileContent({ user, logout, router, initialTab = "Profile Se
         </div>
 
         <div className="mx-auto mt-3 flex max-w-[1500px] items-center justify-between text-[9px] text-[#5f4710] lg:mt-6">
-          <p>© 2026 GOLO Dashboard. All rights reserved.</p>
+          <p>© 2026 AjuBaju Dashboard. All rights reserved.</p>
           <p>Made with ♥ by V</p>
         </div>
       </footer>

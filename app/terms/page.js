@@ -57,29 +57,29 @@ export default function TermsAndConditionsPage() {
         {/*  Sidebar Navigation  */}
         <aside className="sidebar">
             <div className="brand">
-                <div className="brand-logo">G</div>
+                <div className="brand-logo">A</div>
                 <div>
-                    <div className="brand-title">GOLO Docs</div>
+                    <div className="brand-title">AjuBaju Docs</div>
                     <div className="brand-subtitle">Legal & Compliance</div>
                 </div>
             </div>
 
             {/*  Navigation Links  */}
             <nav className="nav-sections" id="navSections">
-                <span className="nav-title">TERMS & CONDITIONS — GOLO</span>
+                <span className="nav-title">TERMS & CONDITIONS — AjuBaju</span>
                 <a href="#1-introduction" className="nav-link active"><span>1. INTRODUCTION</span></a>
                 <a href="#2-definitions" className="nav-link"><span>2. DEFINITIONS</span></a>
                 <a href="#3-eligibility" className="nav-link"><span>3. ELIGIBILITY</span></a>
                 <a href="#4-accounts" className="nav-link"><span>4. CREATION AND SECURITY OF ACCOUNTS</span></a>
-                <a href="#5-role" className="nav-link"><span>5. GOLO’S ROLE AS A PLATFORM</span></a>
+                <a href="#5-role" className="nav-link"><span>5. AjuBaju’S ROLE AS A PLATFORM</span></a>
                 <a href="#6-merchant-listings" className="nav-link"><span>6. MERCHANT LISTINGS, PRODUCTS AND SERVICES</span></a>
                 <a href="#7-offers" className="nav-link"><span>7. OFFERS AND DEALS</span></a>
                 <a href="#8-refusal" className="nav-link"><span>8. REFUSAL OF OFFER REDEMPTION</span></a>
                 <a href="#9-payment" className="nav-link"><span>9. PAYMENT FOR MERCHANT PRODUCTS AND SERVICES</span></a>
                 <a href="#10-returns" className="nav-link"><span>10. RETURNS, REPLACEMENTS, WARRANTIES AND REFUNDS</span></a>
-                <a href="#11-paid-services" className="nav-link"><span>11. GOLO PAID SERVICES</span></a>
+                <a href="#11-paid-services" className="nav-link"><span>11. AjuBaju PAID SERVICES</span></a>
                 <a href="#12-advertising" className="nav-link"><span>12. ADVERTISING AND PROMOTIONAL SERVICES</span></a>
-                <a href="#13-refunds" className="nav-link"><span>13. CANCELLATION, REFUND AND CREDIT NOTES FOR GOLO SERVICES</span></a>
+                <a href="#13-refunds" className="nav-link"><span>13. CANCELLATION, REFUND AND CREDIT NOTES FOR AjuBaju SERVICES</span></a>
                 <a href="#14-ugc" className="nav-link"><span>14. USER-GENERATED CONTENT</span></a>
                 <a href="#15-prohibited" className="nav-link"><span>15. PROHIBITED CONTENT AND ACTIVITIES</span></a>
                 <a href="#16-moderation" className="nav-link"><span>16. CONTENT MODERATION AND ENFORCEMENT</span></a>
@@ -103,7 +103,7 @@ export default function TermsAndConditionsPage() {
                 <a href="#34-limitation" className="nav-link"><span>34. LIMITATION OF LIABILITY</span></a>
                 <a href="#35-indemnification" className="nav-link"><span>35. INDEMNIFICATION</span></a>
                 <a href="#36-disputes" className="nav-link"><span>36. USER-MERCHANT DISPUTES</span></a>
-                <a href="#37-golo-disputes" className="nav-link"><span>37. DISPUTES BETWEEN YOU AND GOLO</span></a>
+                <a href="#37-golo-disputes" className="nav-link"><span>37. DISPUTES BETWEEN YOU AND AjuBaju</span></a>
                 <a href="#38-changes" className="nav-link"><span>38. CHANGES TO THESE TERMS</span></a>
                 <a href="#39-electronic" className="nav-link"><span>39. ELECTRONIC ACCEPTANCE</span></a>
                 <a href="#40-severability" className="nav-link"><span>40. SEVERABILITY</span></a>
@@ -116,7 +116,7 @@ export default function TermsAndConditionsPage() {
         {/*  Main Content  */}
         <main className="content">
             <header className="doc-header">
-                <h1 className="doc-title">TERMS & CONDITIONS — GOLO</h1>
+                <h1 className="doc-title">TERMS & CONDITIONS — AjuBaju</h1>
                 <div className="meta-tags">
                     <span className="meta-pill">Effective Date: [10/09/2026]</span>
                     <span className="meta-pill">Last Updated: [09/09/2026]</span>
@@ -130,31 +130,31 @@ export default function TermsAndConditionsPage() {
             </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
               <p>
-                Welcome to <strong>GOLO</strong>, a hyperlocal marketplace, discovery and customer-acquisition 
-                platform operated by <strong>Sukrut Atul Nigavekar</strong>, the individual operator/proprietor of GOLO 
-                (“GOLO”, “Platform”, “we”, “us” or “our”).
+                Welcome to <strong>AjuBaju</strong>, a hyperlocal marketplace, discovery and customer-acquisition 
+                platform operated by <strong>Sukrut Atul Nigavekar</strong>, the individual operator/proprietor of AjuBaju 
+                (“AjuBaju”, “Platform”, “we”, “us” or “our”).
               </p>
               <p>
-                These Terms & Conditions (“Terms”) govern your access to and use of the GOLO website, 
+                These Terms & Conditions (“Terms”) govern your access to and use of the AjuBaju website, 
                 mobile applications and related services.
               </p>
               <p>
-                GOLO enables Users to discover nearby Merchants, products, services, offers, deals, 
-                advertisements and other content. GOLO also enables Merchants to present their 
+                AjuBaju enables Users to discover nearby Merchants, products, services, offers, deals, 
+                advertisements and other content. AjuBaju also enables Merchants to present their 
                 businesses, products, services and promotional offers to potential customers.
               </p>
               <p>
-                GOLO primarily functions as a platform that facilitates discovery, connection, customer 
-                acquisition, offer claiming and redemption. Unless expressly stated otherwise, GOLO is 
+                AjuBaju primarily functions as a platform that facilitates discovery, connection, customer 
+                acquisition, offer claiming and redemption. Unless expressly stated otherwise, AjuBaju is 
                 <strong> not the seller, manufacturer, supplier or service provider of products or services offered by Merchants.</strong>
               </p>
               <p>
-                By creating an account, accessing or using GOLO, you agree to be legally bound by these 
-                Terms and the GOLO Privacy Policy.
+                By creating an account, accessing or using AjuBaju, you agree to be legally bound by these 
+                Terms and the AjuBaju Privacy Policy.
               </p>
               <div className="mt-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg">
                 <p className="font-bold text-red-800 m-0">
-                  If you do not agree with these Terms, you must not create an account or use GOLO.
+                  If you do not agree with these Terms, you must not create an account or use AjuBaju.
                 </p>
               </div>
             </div>
@@ -168,43 +168,43 @@ export default function TermsAndConditionsPage() {
               <p>For purposes of these Terms:</p>
               
               <div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-4 text-[#157A4F]">2.1 “GOLO”, “Platform”, “we”, “us” or “our”</h3>
-                <p>means GOLO and its website, mobile applications, technology, systems and related services operated by Sukrut Atul Nigavekar.</p>
+                <h3 className="text-2xl font-bold text-gray-900 mb-4 text-[#157A4F]">2.1 “AjuBaju”, “Platform”, “we”, “us” or “our”</h3>
+                <p>means AjuBaju and its website, mobile applications, technology, systems and related services operated by Sukrut Atul Nigavekar.</p>
               </div>
 
               <div>
                 <h3 className="text-2xl font-bold text-gray-900 mb-4 text-[#157A4F]">2.2 “User”</h3>
-                <p>means an individual who accesses or uses GOLO for discovering Merchants, products, services, offers, deals, advertisements or other Platform content, posting classified advertisements or “I Want” requests, communicating with Merchants, claiming offers, or using other User functionality.</p>
+                <p>means an individual who accesses or uses AjuBaju for discovering Merchants, products, services, offers, deals, advertisements or other Platform content, posting classified advertisements or “I Want” requests, communicating with Merchants, claiming offers, or using other User functionality.</p>
               </div>
 
               <div>
                 <h3 className="text-2xl font-bold text-gray-900 mb-4 text-[#157A4F]">2.3 “Merchant”</h3>
-                <p>means a business owner, service provider, shop, establishment or authorised representative using GOLO to display a business, products, services, offers, deals, advertisements or promotional content.</p>
+                <p>means a business owner, service provider, shop, establishment or authorised representative using AjuBaju to display a business, products, services, offers, deals, advertisements or promotional content.</p>
               </div>
 
               <div>
                 <h3 className="text-2xl font-bold text-gray-900 mb-4 text-[#157A4F]">2.4 “Offer” or “Deal”</h3>
-                <p>means a promotional offer created by a Merchant through GOLO and made available to Users subject to the terms, conditions, validity period and other restrictions specified by the Merchant.</p>
+                <p>means a promotional offer created by a Merchant through AjuBaju and made available to Users subject to the terms, conditions, validity period and other restrictions specified by the Merchant.</p>
               </div>
 
               <div>
                 <h3 className="text-2xl font-bold text-gray-900 mb-4 text-[#157A4F]">2.5 “Classified Advertisement”</h3>
-                <p>means an advertisement or listing submitted by a User through GOLO for the purpose of promoting, seeking, offering or communicating information about goods, services, requirements or other permitted content.</p>
+                <p>means an advertisement or listing submitted by a User through AjuBaju for the purpose of promoting, seeking, offering or communicating information about goods, services, requirements or other permitted content.</p>
               </div>
 
               <div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-4 text-[#157A4F]">2.6 “GOLO Services”</h3>
-                <p>means services provided directly by GOLO, including Merchant subscriptions, banner advertising, promotional services, classified advertising services and other services expressly offered by GOLO.</p>
+                <h3 className="text-2xl font-bold text-gray-900 mb-4 text-[#157A4F]">2.6 “AjuBaju Services”</h3>
+                <p>means services provided directly by AjuBaju, including Merchant subscriptions, banner advertising, promotional services, classified advertising services and other services expressly offered by AjuBaju.</p>
               </div>
 
               <div>
                 <h3 className="text-2xl font-bold text-gray-900 mb-4 text-[#157A4F]">2.7 “Credit Note”</h3>
-                <p>means an accounting/credit adjustment issued by GOLO in accordance with its applicable Refund, Cancellation and Credit Note Policy. A Credit Note is not a cash balance, bank deposit, withdrawable amount or general-purpose wallet balance.</p>
+                <p>means an accounting/credit adjustment issued by AjuBaju in accordance with its applicable Refund, Cancellation and Credit Note Policy. A Credit Note is not a cash balance, bank deposit, withdrawable amount or general-purpose wallet balance.</p>
               </div>
 
               <div>
                 <h3 className="text-2xl font-bold text-gray-900 mb-4 text-[#157A4F]">2.8 “User Content”</h3>
-                <p>means content submitted, uploaded, posted, communicated or otherwise made available by a User or Merchant through GOLO, including text, photographs, videos, advertisements, product information, offers, ratings and other content.</p>
+                <p>means content submitted, uploaded, posted, communicated or otherwise made available by a User or Merchant through AjuBaju, including text, photographs, videos, advertisements, product information, offers, ratings and other content.</p>
               </div>
             </div>
           </section>
@@ -214,8 +214,8 @@ export default function TermsAndConditionsPage() {
               3. ELIGIBILITY
             </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
-              <p>GOLO may only be used by persons who are <strong>18 years of age or older</strong>.</p>
-              <p>By using GOLO, you represent and warrant that:</p>
+              <p>AjuBaju may only be used by persons who are <strong>18 years of age or older</strong>.</p>
+              <p>By using AjuBaju, you represent and warrant that:</p>
               <ol className="list-decimal pl-8 space-y-3 font-medium">
                 <li>you are at least 18 years old;</li>
                 <li>you have legal capacity to enter into these Terms;</li>
@@ -223,7 +223,7 @@ export default function TermsAndConditionsPage() {
                 <li>you will maintain accurate account information; and</li>
                 <li>you will comply with these Terms and applicable law.</li>
               </ol>
-              <p>GOLO may restrict or terminate accounts where it reasonably believes that an account does not satisfy the applicable eligibility requirements.</p>
+              <p>AjuBaju may restrict or terminate accounts where it reasonably believes that an account does not satisfy the applicable eligibility requirements.</p>
             </div>
           </section>
 
@@ -232,29 +232,29 @@ export default function TermsAndConditionsPage() {
               4. CREATION AND SECURITY OF ACCOUNTS
             </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
-              <p>Certain GOLO features require account registration.</p>
+              <p>Certain AjuBaju features require account registration.</p>
               <p>You are responsible for:</p>
               <ul className="list-disc pl-8 space-y-3">
                 <li>providing accurate registration information;</li>
                 <li>maintaining the confidentiality of your password and authentication credentials;</li>
                 <li>protecting your account and device;</li>
-                <li>notifying GOLO if you suspect unauthorised access; and</li>
+                <li>notifying AjuBaju if you suspect unauthorised access; and</li>
                 <li>all activity conducted through your account, subject to applicable law.</li>
               </ul>
               <p className="bg-blue-50 p-6 rounded-xl border border-blue-100 italic text-blue-900">
                 You must not create accounts using false identities or another person’s information without lawful authority.
               </p>
-              <p>GOLO may require additional verification where reasonably necessary for security, fraud prevention, Merchant verification, account recovery or legal compliance.</p>
+              <p>AjuBaju may require additional verification where reasonably necessary for security, fraud prevention, Merchant verification, account recovery or legal compliance.</p>
             </div>
           </section>
 
 <section className="guide-section" id="5-role">
             <div className="section-header"><h2 className="section-title">
-              5. GOLO’S ROLE AS A PLATFORM
+              5. AjuBaju’S ROLE AS A PLATFORM
             </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-8">
-              <p>GOLO provides technology and marketplace/discovery functionality intended to help Users discover and connect with Merchants and help Merchants acquire potential customers.</p>
-              <p>GOLO may facilitate:</p>
+              <p>AjuBaju provides technology and marketplace/discovery functionality intended to help Users discover and connect with Merchants and help Merchants acquire potential customers.</p>
+              <p>AjuBaju may facilitate:</p>
               <ul className="list-disc pl-8 space-y-2">
                 <li>Merchant discovery;</li>
                 <li>product and service discovery;</li>
@@ -270,37 +270,37 @@ export default function TermsAndConditionsPage() {
               </ul>
 
               <div className="bg-gray-50 rounded-2xl p-6 md:p-8 border border-gray-100">
-                <h3 className="text-xl font-bold text-gray-900 mb-4">5.1 GOLO does not ordinarily participate in the underlying Merchant transaction</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-4">5.1 AjuBaju does not ordinarily participate in the underlying Merchant transaction</h3>
                 <p className="mb-4">For ordinary purchases of Merchant products or services:</p>
                 <p className="font-bold text-gray-900 mb-4">User → Merchant</p>
                 <p className="mb-4">The User pays the Merchant directly.</p>
-                <p className="mb-4">GOLO does not ordinarily:</p>
+                <p className="mb-4">AjuBaju does not ordinarily:</p>
                 <ul className="list-disc pl-6 space-y-2 mb-6">
                   <li>collect the underlying purchase price;</li>
                   <li>act as an escrow provider;</li>
                   <li>hold the purchase money;</li>
                   <li>settle the Merchant’s sale proceeds;</li>
                   <li>take a commission from the underlying Merchant/User transaction; or</li>
-                  <li>become the seller or service provider merely because the transaction was discovered or facilitated through GOLO.</li>
+                  <li>become the seller or service provider merely because the transaction was discovered or facilitated through AjuBaju.</li>
                 </ul>
                 <p>The Merchant may receive payment directly through its applicable UPI-linked bank/payment account or another payment method accepted by the Merchant.</p>
               </div>
 
               <div className="bg-gray-50 rounded-2xl p-6 md:p-8 border border-gray-100">
-                <h3 className="text-xl font-bold text-gray-900 mb-4">5.2 GOLO’s own paid services</h3>
-                <p className="mb-4">GOLO may separately charge:</p>
-                <p className="font-bold text-gray-900 mt-4 mb-2">Merchant → GOLO</p>
+                <h3 className="text-xl font-bold text-gray-900 mb-4">5.2 AjuBaju’s own paid services</h3>
+                <p className="mb-4">AjuBaju may separately charge:</p>
+                <p className="font-bold text-gray-900 mt-4 mb-2">Merchant → AjuBaju</p>
                 <ul className="list-disc pl-6 space-y-2 mb-4">
                   <li>Merchant subscription charges;</li>
                   <li>banner charges; and</li>
-                  <li>other GOLO promotional services expressly offered.</li>
+                  <li>other AjuBaju promotional services expressly offered.</li>
                 </ul>
-                <p className="font-bold text-gray-900 mt-4 mb-2">User → GOLO</p>
+                <p className="font-bold text-gray-900 mt-4 mb-2">User → AjuBaju</p>
                 <ul className="list-disc pl-6 space-y-2 mb-6">
                   <li>classified advertisement charges, including charges determined by applicable city, town, district or other geographical coverage; and</li>
-                  <li>other GOLO services expressly offered to Users.</li>
+                  <li>other AjuBaju services expressly offered to Users.</li>
                 </ul>
-                <p className="italic">The underlying Merchant/User purchase is separate from the User/Merchant payment for GOLO services.</p>
+                <p className="italic">The underlying Merchant/User purchase is separate from the User/Merchant payment for AjuBaju services.</p>
               </div>
             </div>
           </section>
@@ -310,7 +310,7 @@ export default function TermsAndConditionsPage() {
               6. MERCHANT LISTINGS, PRODUCTS AND SERVICES
             </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
-              <p>Merchants are solely responsible for everything they publish or offer through GOLO.</p>
+              <p>Merchants are solely responsible for everything they publish or offer through AjuBaju.</p>
               <p>This includes responsibility for:</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                 <ul className="list-disc pl-8 space-y-2">
@@ -342,7 +342,7 @@ export default function TermsAndConditionsPage() {
                 </ul>
               </div>
               <p className="bg-yellow-50 p-6 rounded-xl border border-yellow-100 font-medium">
-                GOLO does not independently guarantee the accuracy, completeness, quality, safety, legality, availability or suitability of every Merchant listing.
+                AjuBaju does not independently guarantee the accuracy, completeness, quality, safety, legality, availability or suitability of every Merchant listing.
               </p>
               <p>Merchants must not publish misleading, fraudulent, deceptive or materially incomplete information.</p>
             </div>
@@ -358,7 +358,7 @@ export default function TermsAndConditionsPage() {
               <ol className="list-decimal pl-8 space-y-3">
                 <li>Merchant creates an Offer;</li>
                 <li>User discovers and claims the Offer;</li>
-                <li>GOLO generates or provides a QR code, code or other redemption identifier;</li>
+                <li>AjuBaju generates or provides a QR code, code or other redemption identifier;</li>
                 <li>User visits the Merchant’s store or applicable location;</li>
                 <li>Merchant scans or verifies the code;</li>
                 <li>Merchant determines whether the redemption satisfies the published Offer terms;</li>
@@ -366,7 +366,7 @@ export default function TermsAndConditionsPage() {
                 <li>User pays the Merchant directly for the applicable product/service;</li>
                 <li>Merchant receives the applicable purchase amount through the payment method accepted by the Merchant.</li>
               </ol>
-              <p className="italic">GOLO facilitates the technical discovery, claim and redemption workflow but does not guarantee that the Merchant will perform the underlying transaction.</p>
+              <p className="italic">AjuBaju facilitates the technical discovery, claim and redemption workflow but does not guarantee that the Merchant will perform the underlying transaction.</p>
             </div>
           </section>
 
@@ -387,7 +387,7 @@ export default function TermsAndConditionsPage() {
                 <li>another material restriction expressly disclosed in the Offer applies.</li>
               </ul>
               <p>Merchants must not use undisclosed conditions to unfairly defeat a valid Offer.</p>
-              <p>GOLO may investigate complaints concerning alleged misuse, fraudulent redemption or unreasonable rejection, but GOLO does not guarantee the outcome of an underlying Merchant/User dispute.</p>
+              <p>AjuBaju may investigate complaints concerning alleged misuse, fraudulent redemption or unreasonable rejection, but AjuBaju does not guarantee the outcome of an underlying Merchant/User dispute.</p>
             </div>
           </section>
 
@@ -413,7 +413,7 @@ export default function TermsAndConditionsPage() {
                   <li>other obligations relating to the sale or service.</li>
                 </ul>
               </div>
-              <p className="bg-gray-50 p-6 rounded-xl font-medium">Unless expressly stated otherwise, GOLO does not collect the underlying Merchant purchase amount.</p>
+              <p className="bg-gray-50 p-6 rounded-xl font-medium">Unless expressly stated otherwise, AjuBaju does not collect the underlying Merchant purchase amount.</p>
             </div>
           </section>
 
@@ -432,17 +432,17 @@ export default function TermsAndConditionsPage() {
                 <li>other post-sale obligations</li>
               </ul>
               <p>in accordance with applicable law and the Merchant’s disclosed policies.</p>
-              <p className="font-medium text-gray-900">Because GOLO ordinarily does not collect the underlying Merchant purchase amount, GOLO does not ordinarily issue refunds for Merchant product/service purchases.</p>
-              <p>GOLO may assist Users and Merchants in communication or dispute resolution where reasonably possible, but such assistance does not make GOLO a party to the underlying sale or service contract.</p>
+              <p className="font-medium text-gray-900">Because AjuBaju ordinarily does not collect the underlying Merchant purchase amount, AjuBaju does not ordinarily issue refunds for Merchant product/service purchases.</p>
+              <p>AjuBaju may assist Users and Merchants in communication or dispute resolution where reasonably possible, but such assistance does not make AjuBaju a party to the underlying sale or service contract.</p>
             </div>
           </section>
 
 <section className="guide-section" id="11-paid-services">
             <div className="section-header"><h2 className="section-title">
-              11. GOLO PAID SERVICES
+              11. AjuBaju PAID SERVICES
             </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
-              <p>GOLO may provide paid services to Users and Merchants.</p>
+              <p>AjuBaju may provide paid services to Users and Merchants.</p>
               <p>These may include:</p>
               
               <div className="mt-4">
@@ -460,12 +460,12 @@ export default function TermsAndConditionsPage() {
                 <ul className="list-disc pl-8 space-y-2">
                   <li>classified advertisements;</li>
                   <li>geographical promotional coverage such as city, town or district-based advertising;</li>
-                  <li>other paid GOLO services.</li>
+                  <li>other paid AjuBaju services.</li>
                 </ul>
               </div>
 
               <p>Applicable prices, duration, availability, plan benefits and conditions may be displayed at the time of purchase.</p>
-              <p className="italic">A payment to GOLO for a GOLO service does not constitute payment for the underlying Merchant product or service.</p>
+              <p className="italic">A payment to AjuBaju for a AjuBaju service does not constitute payment for the underlying Merchant product or service.</p>
             </div>
           </section>
 
@@ -474,8 +474,8 @@ export default function TermsAndConditionsPage() {
               12. ADVERTISING AND PROMOTIONAL SERVICES
             </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
-              <p>Merchants and Users may be permitted to purchase advertising or promotional placement through GOLO, subject to applicable eligibility, content requirements, availability and payment conditions.</p>
-              <p>GOLO may determine:</p>
+              <p>Merchants and Users may be permitted to purchase advertising or promotional placement through AjuBaju, subject to applicable eligibility, content requirements, availability and payment conditions.</p>
+              <p>AjuBaju may determine:</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <ul className="list-disc pl-8 space-y-2">
                   <li>available advertising formats;</li>
@@ -509,11 +509,11 @@ export default function TermsAndConditionsPage() {
 
 <section className="guide-section" id="13-refunds">
             <div className="section-header"><h2 className="section-title">
-              13. CANCELLATION, REFUND AND CREDIT NOTES FOR GOLO SERVICES
+              13. CANCELLATION, REFUND AND CREDIT NOTES FOR AjuBaju SERVICES
             </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
-              <p>Payments for GOLO’s advertising and promotional services are subject to the applicable <strong>Cancellation, Refund and Credit Note Policy</strong>.</p>
-              <p>Where eligible under that policy, an amount may be issued as a <strong>GOLO Credit Note instead of a cash refund</strong>.</p>
+              <p>Payments for AjuBaju’s advertising and promotional services are subject to the applicable <strong>Cancellation, Refund and Credit Note Policy</strong>.</p>
+              <p>Where eligible under that policy, an amount may be issued as a <strong>AjuBaju Credit Note instead of a cash refund</strong>.</p>
               <p>A Credit Note:</p>
               <ul className="list-disc pl-8 space-y-2">
                 <li>is not cash;</li>
@@ -532,7 +532,7 @@ export default function TermsAndConditionsPage() {
               14. USER-GENERATED CONTENT
             </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
-              <p>GOLO may allow Users and Merchants to submit or publish content including:</p>
+              <p>AjuBaju may allow Users and Merchants to submit or publish content including:</p>
               <ul className="list-disc pl-8 space-y-2 columns-1 sm:columns-2">
                 <li>classified advertisements;</li>
                 <li>“I Want” requests;</li>
@@ -555,7 +555,7 @@ export default function TermsAndConditionsPage() {
               15. PROHIBITED CONTENT AND ACTIVITIES
             </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
-              <p>You must not use GOLO to publish, promote, facilitate, sell, request or distribute content or activity involving:</p>
+              <p>You must not use AjuBaju to publish, promote, facilitate, sell, request or distribute content or activity involving:</p>
               <ol className="list-decimal pl-8 space-y-2 font-medium">
                 <li>illegal products or services;</li>
                 <li>counterfeit goods;</li>
@@ -572,14 +572,14 @@ export default function TermsAndConditionsPage() {
                 <li>copyright infringement;</li>
                 <li>trademark infringement;</li>
                 <li>unauthorised disclosure of personal or confidential information;</li>
-                <li>regulated goods or services where prohibited by applicable law or GOLO rules;</li>
+                <li>regulated goods or services where prohibited by applicable law or AjuBaju rules;</li>
                 <li>spam or unsolicited commercial abuse;</li>
                 <li>fake or manipulated ratings;</li>
                 <li>manipulation of offers or prices;</li>
                 <li>attempts to manipulate redemption systems;</li>
                 <li>referral or promotional abuse;</li>
-                <li>attempts to bypass GOLO security or moderation systems;</li>
-                <li>content intended to evade GOLO moderation;</li>
+                <li>attempts to bypass AjuBaju security or moderation systems;</li>
+                <li>content intended to evade AjuBaju moderation;</li>
                 <li>unlawful harassment or abuse; or</li>
                 <li>any activity that violates applicable law.</li>
               </ol>
@@ -591,8 +591,8 @@ export default function TermsAndConditionsPage() {
               16. CONTENT MODERATION AND ENFORCEMENT
             </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
-              <p>GOLO may use automated systems, manual review, security tools and, where applicable, third-party or AI-assisted moderation technologies to identify potentially prohibited content or activity.</p>
-              <p>GOLO may, where reasonably necessary:</p>
+              <p>AjuBaju may use automated systems, manual review, security tools and, where applicable, third-party or AI-assisted moderation technologies to identify potentially prohibited content or activity.</p>
+              <p>AjuBaju may, where reasonably necessary:</p>
               <ul className="list-disc pl-8 space-y-2 columns-1 sm:columns-2">
                 <li>reject content before publication;</li>
                 <li>remove content;</li>
@@ -606,9 +606,9 @@ export default function TermsAndConditionsPage() {
                 <li>block access to particular features; or</li>
                 <li>take other proportionate measures.</li>
               </ul>
-              <p>GOLO may take immediate action where necessary to protect Users, Merchants, the Platform, third parties or legal/regulatory interests.</p>
-              <p>Where appropriate and reasonably practicable, GOLO may provide notice, an explanation, an opportunity to clarify or a review/appeal mechanism.</p>
-              <p>Nothing in this section prevents GOLO from taking urgent action where immediate action is reasonably necessary for safety, fraud prevention, security or legal compliance.</p>
+              <p>AjuBaju may take immediate action where necessary to protect Users, Merchants, the Platform, third parties or legal/regulatory interests.</p>
+              <p>Where appropriate and reasonably practicable, AjuBaju may provide notice, an explanation, an opportunity to clarify or a review/appeal mechanism.</p>
+              <p>Nothing in this section prevents AjuBaju from taking urgent action where immediate action is reasonably necessary for safety, fraud prevention, security or legal compliance.</p>
             </div>
           </section>
 
@@ -617,15 +617,15 @@ export default function TermsAndConditionsPage() {
               17. REPORTING
             </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
-              <p>GOLO currently provides reporting functionality for applicable Platform content and accounts, including:</p>
+              <p>AjuBaju currently provides reporting functionality for applicable Platform content and accounts, including:</p>
               <ul className="list-disc pl-8 space-y-2">
                 <li>Report User;</li>
                 <li>Report Advertisement.</li>
               </ul>
-              <p>Users may use the applicable reporting mechanism to notify GOLO of suspected prohibited, fraudulent, abusive or unlawful content/activity.</p>
-              <p>GOLO may review reports and take action that it considers appropriate.</p>
-              <p>GOLO does not guarantee that every reported item will be removed or that every report will result in enforcement action.</p>
-              <p>GOLO may restrict or terminate accounts that repeatedly submit malicious, fraudulent or abusive reports.</p>
+              <p>Users may use the applicable reporting mechanism to notify AjuBaju of suspected prohibited, fraudulent, abusive or unlawful content/activity.</p>
+              <p>AjuBaju may review reports and take action that it considers appropriate.</p>
+              <p>AjuBaju does not guarantee that every reported item will be removed or that every report will result in enforcement action.</p>
+              <p>AjuBaju may restrict or terminate accounts that repeatedly submit malicious, fraudulent or abusive reports.</p>
             </div>
           </section>
 
@@ -634,10 +634,10 @@ export default function TermsAndConditionsPage() {
               18. BLOCKING
             </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
-              <p>GOLO may block or restrict Users or accounts as part of its safety, moderation, fraud-prevention or enforcement processes.</p>
+              <p>AjuBaju may block or restrict Users or accounts as part of its safety, moderation, fraud-prevention or enforcement processes.</p>
               <p>Where User-facing blocking functionality is made available, Users may use it according to the applicable Platform functionality.</p>
-              <p>GOLO may also independently restrict communication or interaction between accounts where reasonably necessary.</p>
-              <p className="bg-gray-50 p-4 rounded-xl text-sm text-gray-600">Implementation note: GOLO should provide a User-facing “Block User” function before launch where Users can directly interact with each other through chat/calling.</p>
+              <p>AjuBaju may also independently restrict communication or interaction between accounts where reasonably necessary.</p>
+              <p className="bg-gray-50 p-4 rounded-xl text-sm text-gray-600">Implementation note: AjuBaju should provide a User-facing “Block User” function before launch where Users can directly interact with each other through chat/calling.</p>
             </div>
           </section>
 
@@ -646,7 +646,7 @@ export default function TermsAndConditionsPage() {
               19. RATINGS
             </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
-              <p>GOLO may allow Users to provide ratings for eligible Merchants, products, services or experiences.</p>
+              <p>AjuBaju may allow Users to provide ratings for eligible Merchants, products, services or experiences.</p>
               <p>Ratings must represent a genuine experience or legitimate interaction.</p>
               <p>You must not:</p>
               <ul className="list-disc pl-8 space-y-2">
@@ -658,8 +658,8 @@ export default function TermsAndConditionsPage() {
                 <li>submit ratings for improper competitive purposes; or</li>
                 <li>use ratings to publish unlawful or abusive content.</li>
               </ul>
-              <p>GOLO may remove, restrict or disregard ratings that violate these Terms or applicable rating rules.</p>
-              <p className="italic">A rating does not constitute a guarantee or endorsement by GOLO.</p>
+              <p>AjuBaju may remove, restrict or disregard ratings that violate these Terms or applicable rating rules.</p>
+              <p className="italic">A rating does not constitute a guarantee or endorsement by AjuBaju.</p>
             </div>
           </section>
 
@@ -668,7 +668,7 @@ export default function TermsAndConditionsPage() {
               20. CHAT AND ONLINE CALLING
             </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
-              <p>GOLO may provide chat and online calling functionality to facilitate communication between Users and Merchants.</p>
+              <p>AjuBaju may provide chat and online calling functionality to facilitate communication between Users and Merchants.</p>
               <p>Users and Merchants must use these features lawfully and respectfully.</p>
               <p>You must not use chat or calling to:</p>
               <ul className="list-disc pl-8 space-y-2">
@@ -678,11 +678,11 @@ export default function TermsAndConditionsPage() {
                 <li>solicit unlawful transactions;</li>
                 <li>send prohibited content;</li>
                 <li>collect personal information improperly;</li>
-                <li>evade GOLO moderation; or</li>
+                <li>evade AjuBaju moderation; or</li>
                 <li>otherwise violate these Terms.</li>
               </ul>
-              <p>GOLO may restrict communication functionality where necessary for safety, moderation, fraud prevention or legal compliance.</p>
-              <p>GOLO does not guarantee the identity, intentions, statements, availability or conduct of another User or Merchant.</p>
+              <p>AjuBaju may restrict communication functionality where necessary for safety, moderation, fraud prevention or legal compliance.</p>
+              <p>AjuBaju does not guarantee the identity, intentions, statements, availability or conduct of another User or Merchant.</p>
             </div>
           </section>
 
@@ -691,8 +691,8 @@ export default function TermsAndConditionsPage() {
               21. MERCHANT VERIFICATION
             </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
-              <p>GOLO may conduct verification checks on Merchants based on information and documentation submitted by the Merchant.</p>
-              <p>A verification status means only that GOLO has completed certain applicable verification checks based on the information/documentation provided by the Merchant.</p>
+              <p>AjuBaju may conduct verification checks on Merchants based on information and documentation submitted by the Merchant.</p>
+              <p>A verification status means only that AjuBaju has completed certain applicable verification checks based on the information/documentation provided by the Merchant.</p>
               <p>Verification does <strong>not</strong> constitute:</p>
               <ul className="list-disc pl-8 space-y-2 columns-1 sm:columns-2">
                 <li>endorsement;</li>
@@ -730,7 +730,7 @@ export default function TermsAndConditionsPage() {
                 <li>avoid counterfeit/stolen goods;</li>
                 <li>not engage in fraudulent or deceptive conduct;</li>
                 <li>provide appropriate customer service; and</li>
-                <li>comply with these Terms and applicable GOLO policies.</li>
+                <li>comply with these Terms and applicable AjuBaju policies.</li>
               </ol>
             </div>
           </section>
@@ -743,7 +743,7 @@ export default function TermsAndConditionsPage() {
               <p>Users agree to:</p>
               <ul className="list-disc pl-8 space-y-2 font-medium">
                 <li>provide accurate information;</li>
-                <li>use GOLO lawfully;</li>
+                <li>use AjuBaju lawfully;</li>
                 <li>respect Merchants and other Users;</li>
                 <li>use Offers only according to their conditions;</li>
                 <li>not duplicate, tamper with or misuse QR codes or redemption codes;</li>
@@ -752,7 +752,7 @@ export default function TermsAndConditionsPage() {
                 <li>not submit fraudulent advertisements;</li>
                 <li>not misuse chat or calling;</li>
                 <li>not submit prohibited content;</li>
-                <li>not attempt to bypass GOLO security or moderation; and</li>
+                <li>not attempt to bypass AjuBaju security or moderation; and</li>
                 <li>comply with applicable law.</li>
               </ul>
             </div>
@@ -763,8 +763,8 @@ export default function TermsAndConditionsPage() {
               24. REFERRAL PROGRAM
             </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
-              <p>Where GOLO operates a referral program, participation is subject to the applicable referral rules.</p>
-              <p>GOLO may reject or reverse referral benefits where it identifies:</p>
+              <p>Where AjuBaju operates a referral program, participation is subject to the applicable referral rules.</p>
+              <p>AjuBaju may reject or reverse referral benefits where it identifies:</p>
               <ul className="list-disc pl-8 space-y-2">
                 <li>self-referrals;</li>
                 <li>duplicate accounts;</li>
@@ -774,7 +774,7 @@ export default function TermsAndConditionsPage() {
                 <li>abuse of promotional terms; or</li>
                 <li>other prohibited conduct.</li>
               </ul>
-              <p>GOLO may modify, suspend or discontinue a referral program subject to applicable law and applicable program terms.</p>
+              <p>AjuBaju may modify, suspend or discontinue a referral program subject to applicable law and applicable program terms.</p>
             </div>
           </section>
 
@@ -783,9 +783,9 @@ export default function TermsAndConditionsPage() {
               25. INTELLECTUAL PROPERTY
             </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
-              <p>GOLO and its licensors retain all rights in GOLO’s software, technology, branding, logos, designs, interfaces, databases, graphics, text and other Platform materials, except for third-party or User/Merchant-owned content.</p>
-              <p>You must not reproduce, modify, distribute, reverse engineer, scrape, sell, license or commercially exploit GOLO’s proprietary materials without appropriate authorization, except where permitted by law.</p>
-              <p>GOLO’s name, logo and branding may not be used in a manner that falsely suggests endorsement or affiliation.</p>
+              <p>AjuBaju and its licensors retain all rights in AjuBaju’s software, technology, branding, logos, designs, interfaces, databases, graphics, text and other Platform materials, except for third-party or User/Merchant-owned content.</p>
+              <p>You must not reproduce, modify, distribute, reverse engineer, scrape, sell, license or commercially exploit AjuBaju’s proprietary materials without appropriate authorization, except where permitted by law.</p>
+              <p>AjuBaju’s name, logo and branding may not be used in a manner that falsely suggests endorsement or affiliation.</p>
             </div>
           </section>
 
@@ -794,8 +794,8 @@ export default function TermsAndConditionsPage() {
               26. USER AND MERCHANT CONTENT LICENCE
             </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
-              <p>By submitting content to GOLO, you retain ownership of your content, subject to any rights belonging to third parties.</p>
-              <p>You grant GOLO a non-exclusive, worldwide, royalty-free licence, to the extent necessary to operate the Platform, to host, store, reproduce, process, display, transmit, format, moderate and distribute your content through GOLO’s services.</p>
+              <p>By submitting content to AjuBaju, you retain ownership of your content, subject to any rights belonging to third parties.</p>
+              <p>You grant AjuBaju a non-exclusive, worldwide, royalty-free licence, to the extent necessary to operate the Platform, to host, store, reproduce, process, display, transmit, format, moderate and distribute your content through AjuBaju’s services.</p>
               <p>This licence is limited to purposes such as:</p>
               <ul className="list-disc pl-8 space-y-2 columns-1 sm:columns-2">
                 <li>displaying your listing;</li>
@@ -805,7 +805,7 @@ export default function TermsAndConditionsPage() {
                 <li>moderation;</li>
                 <li>security;</li>
                 <li>technical processing; and</li>
-                <li>improving and maintaining GOLO.</li>
+                <li>improving and maintaining AjuBaju.</li>
               </ul>
               <p className="font-medium">You represent that you have the necessary rights to grant this licence.</p>
             </div>
@@ -816,10 +816,10 @@ export default function TermsAndConditionsPage() {
               27. PRIVACY
             </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
-              <p>GOLO processes personal data in accordance with the applicable <strong>GOLO Privacy Policy</strong>.</p>
+              <p>AjuBaju processes personal data in accordance with the applicable <strong>AjuBaju Privacy Policy</strong>.</p>
               <p>The Privacy Policy describes categories of personal data, purposes of processing, sharing, security, retention and account deletion.</p>
-              <p>Users and Merchants should read the Privacy Policy before using GOLO.</p>
-              <p>GOLO’s Privacy Policy currently provides account deletion mechanisms for Users and Merchants through the Website and Mobile Applications, subject to legally permitted or required retention.</p>
+              <p>Users and Merchants should read the Privacy Policy before using AjuBaju.</p>
+              <p>AjuBaju’s Privacy Policy currently provides account deletion mechanisms for Users and Merchants through the Website and Mobile Applications, subject to legally permitted or required retention.</p>
             </div>
           </section>
 
@@ -828,9 +828,9 @@ export default function TermsAndConditionsPage() {
               28. THIRD-PARTY SERVICES
             </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
-              <p>GOLO may integrate or rely upon third-party services, technology providers, payment providers, cloud infrastructure, communication services, authentication providers, analytics tools, mapping/location services or other third-party systems.</p>
+              <p>AjuBaju may integrate or rely upon third-party services, technology providers, payment providers, cloud infrastructure, communication services, authentication providers, analytics tools, mapping/location services or other third-party systems.</p>
               <p>Third-party services may be governed by their own terms and privacy policies.</p>
-              <p>GOLO is not responsible for independent acts, omissions, outages or policies of third-party providers to the extent permitted by applicable law.</p>
+              <p>AjuBaju is not responsible for independent acts, omissions, outages or policies of third-party providers to the extent permitted by applicable law.</p>
             </div>
           </section>
 
@@ -839,7 +839,7 @@ export default function TermsAndConditionsPage() {
               29. ACCOUNT SUSPENSION AND TERMINATION
             </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
-              <p>GOLO may restrict, suspend or terminate an account where reasonably necessary because of:</p>
+              <p>AjuBaju may restrict, suspend or terminate an account where reasonably necessary because of:</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                 <ul className="list-disc pl-8 space-y-2">
                   <li>fraud;</li>
@@ -860,13 +860,13 @@ export default function TermsAndConditionsPage() {
                   <li>unlawful activity;</li>
                   <li>security threats;</li>
                   <li>attempts to bypass Platform controls;</li>
-                  <li>misuse of GOLO services;</li>
+                  <li>misuse of AjuBaju services;</li>
                   <li>regulatory or legal requirements; or</li>
                   <li>other material violations of these Terms.</li>
                 </ul>
               </div>
-              <p>GOLO will seek to take action proportionate to the circumstances.</p>
-              <p>Where appropriate, GOLO may provide notice, clarification or review mechanisms. However, GOLO may take immediate action where necessary to protect Users, Merchants, the Platform or third parties.</p>
+              <p>AjuBaju will seek to take action proportionate to the circumstances.</p>
+              <p>Where appropriate, AjuBaju may provide notice, clarification or review mechanisms. However, AjuBaju may take immediate action where necessary to protect Users, Merchants, the Platform or third parties.</p>
             </div>
           </section>
 
@@ -875,10 +875,10 @@ export default function TermsAndConditionsPage() {
               30. ACCOUNT DELETION
             </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
-              <p>Users and Merchants may request deletion of their accounts through the applicable GOLO account deletion mechanism.</p>
+              <p>Users and Merchants may request deletion of their accounts through the applicable AjuBaju account deletion mechanism.</p>
               <p>Account deletion may cause associated account, store, product, offer, advertisement and other information to be removed or made unavailable.</p>
               <p>Certain information may be retained where required or permitted for legal, tax, accounting, security, fraud-prevention, dispute-resolution or other legitimate purposes.</p>
-              <p>GOLO’s Privacy Policy provides further details regarding deletion and retention.</p>
+              <p>AjuBaju’s Privacy Policy provides further details regarding deletion and retention.</p>
             </div>
           </section>
 
@@ -887,9 +887,9 @@ export default function TermsAndConditionsPage() {
               31. PLATFORM AVAILABILITY
             </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
-              <p>GOLO aims to provide reliable services but does not guarantee that:</p>
+              <p>AjuBaju aims to provide reliable services but does not guarantee that:</p>
               <ul className="list-disc pl-8 space-y-2">
-                <li>GOLO will always be available;</li>
+                <li>AjuBaju will always be available;</li>
                 <li>every feature will always operate;</li>
                 <li>the Platform will be error-free;</li>
                 <li>listings will always be available;</li>
@@ -897,7 +897,7 @@ export default function TermsAndConditionsPage() {
                 <li>third-party services will always function; or</li>
                 <li>interruptions will never occur.</li>
               </ul>
-              <p>GOLO may modify, suspend or discontinue features or services where reasonably necessary.</p>
+              <p>AjuBaju may modify, suspend or discontinue features or services where reasonably necessary.</p>
             </div>
           </section>
 
@@ -906,8 +906,8 @@ export default function TermsAndConditionsPage() {
               32. NO GUARANTEE OF MERCHANT PERFORMANCE OR COMMERCIAL RESULTS
             </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
-              <p>GOLO provides a platform for discovery and customer acquisition.</p>
-              <p>GOLO does not guarantee:</p>
+              <p>AjuBaju provides a platform for discovery and customer acquisition.</p>
+              <p>AjuBaju does not guarantee:</p>
               <ul className="list-disc pl-8 space-y-2 columns-1 sm:columns-2">
                 <li>Merchant performance;</li>
                 <li>product/service quality;</li>
@@ -931,9 +931,9 @@ export default function TermsAndConditionsPage() {
               33. DISCLAIMER
             </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
-              <p>To the maximum extent permitted by applicable law, GOLO provides the Platform on an “as available” and “as reasonably provided” basis.</p>
-              <p>GOLO does not guarantee that information supplied by Users or Merchants is accurate, complete, current or reliable.</p>
-              <p>GOLO is not responsible for the independent acts or omissions of Users or Merchants.</p>
+              <p>To the maximum extent permitted by applicable law, AjuBaju provides the Platform on an “as available” and “as reasonably provided” basis.</p>
+              <p>AjuBaju does not guarantee that information supplied by Users or Merchants is accurate, complete, current or reliable.</p>
+              <p>AjuBaju is not responsible for the independent acts or omissions of Users or Merchants.</p>
               <p>Nothing in these Terms excludes liability that cannot legally be excluded.</p>
             </div>
           </section>
@@ -943,7 +943,7 @@ export default function TermsAndConditionsPage() {
               34. LIMITATION OF LIABILITY
             </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
-              <p>To the maximum extent permitted by applicable law, GOLO shall not be liable for indirect, incidental, special, consequential or punitive losses arising from:</p>
+              <p>To the maximum extent permitted by applicable law, AjuBaju shall not be liable for indirect, incidental, special, consequential or punitive losses arising from:</p>
               <ul className="list-disc pl-8 space-y-2 columns-1 sm:columns-2">
                 <li>Merchant products/services;</li>
                 <li>Merchant conduct;</li>
@@ -966,14 +966,14 @@ export default function TermsAndConditionsPage() {
               35. INDEMNIFICATION
             </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
-              <p>To the extent permitted by applicable law, you agree to indemnify and hold GOLO and its operator harmless from claims, losses, liabilities, damages, costs and expenses arising from:</p>
+              <p>To the extent permitted by applicable law, you agree to indemnify and hold AjuBaju and its operator harmless from claims, losses, liabilities, damages, costs and expenses arising from:</p>
               <ul className="list-disc pl-8 space-y-2">
                 <li>your violation of these Terms;</li>
                 <li>your unlawful conduct;</li>
                 <li>your User Content;</li>
                 <li>intellectual-property infringement;</li>
                 <li>fraud or misrepresentation;</li>
-                <li>misuse of GOLO;</li>
+                <li>misuse of AjuBaju;</li>
                 <li>your violation of another person’s rights; or</li>
                 <li>your transaction or dispute with another User or Merchant.</li>
               </ul>
@@ -1000,23 +1000,23 @@ export default function TermsAndConditionsPage() {
                 <li>Offer redemption; or</li>
                 <li>other matters relating to the Merchant’s product/service.</li>
               </ul>
-              <p>GOLO may reasonably assist with communication or facilitate resolution where possible, but such assistance does not make GOLO a party to the underlying sale or service contract.</p>
+              <p>AjuBaju may reasonably assist with communication or facilitate resolution where possible, but such assistance does not make AjuBaju a party to the underlying sale or service contract.</p>
             </div>
           </section>
 
 <section className="guide-section" id="37-golo-disputes">
             <div className="section-header"><h2 className="section-title">
-              37. DISPUTES BETWEEN YOU AND GOLO
+              37. DISPUTES BETWEEN YOU AND AjuBaju
             </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
-              <p>Any dispute between you and GOLO concerning the Platform or GOLO Services shall be governed by the laws of <strong>India</strong>, subject to applicable law.</p>
+              <p>Any dispute between you and AjuBaju concerning the Platform or AjuBaju Services shall be governed by the laws of <strong>India</strong>, subject to applicable law.</p>
               
               <h3 className="text-xl font-bold text-gray-900 mt-6">Jurisdiction</h3>
               <p className="font-bold text-[#157A4F] bg-green-50 p-4 rounded-xl">
                 KOLHAPUR, MAHARASHTRA, INDIA
               </p>
               <p>The courts having jurisdiction at the agreed location shall have jurisdiction over disputes, subject to applicable law.</p>
-              <p>GOLO may establish additional support, escalation, mediation or arbitration procedures through a separate policy or agreement where appropriate.</p>
+              <p>AjuBaju may establish additional support, escalation, mediation or arbitration procedures through a separate policy or agreement where appropriate.</p>
             </div>
           </section>
 
@@ -1025,7 +1025,7 @@ export default function TermsAndConditionsPage() {
               38. CHANGES TO THESE TERMS
             </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
-              <p>GOLO may update these Terms from time to time.</p>
+              <p>AjuBaju may update these Terms from time to time.</p>
               <p>Changes may be made because of:</p>
               <ul className="list-disc pl-8 space-y-2">
                 <li>new Platform features;</li>
@@ -1035,8 +1035,8 @@ export default function TermsAndConditionsPage() {
                 <li>operational changes; or</li>
                 <li>improvements to the Platform.</li>
               </ul>
-              <p>The updated Terms will be published through the applicable GOLO website or application.</p>
-              <p>Your continued use of GOLO after the effective date of updated Terms may constitute acceptance of the updated Terms to the extent permitted by applicable law.</p>
+              <p>The updated Terms will be published through the applicable AjuBaju website or application.</p>
+              <p>Your continued use of AjuBaju after the effective date of updated Terms may constitute acceptance of the updated Terms to the extent permitted by applicable law.</p>
             </div>
           </section>
 
@@ -1047,14 +1047,14 @@ export default function TermsAndConditionsPage() {
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
               <p>By:</p>
               <ul className="list-disc pl-8 space-y-2 font-medium">
-                <li>creating a GOLO account;</li>
-                <li>accessing GOLO;</li>
-                <li>using GOLO;</li>
+                <li>creating a AjuBaju account;</li>
+                <li>accessing AjuBaju;</li>
+                <li>using AjuBaju;</li>
                 <li>selecting an acceptance checkbox; or</li>
                 <li>otherwise affirmatively accepting these Terms,</li>
               </ul>
-              <p>you acknowledge that you have read, understood and agreed to these Terms and the GOLO Privacy Policy.</p>
-              <p>Where applicable, GOLO may require affirmative acceptance before allowing access to particular features.</p>
+              <p>you acknowledge that you have read, understood and agreed to these Terms and the AjuBaju Privacy Policy.</p>
+              <p>Where applicable, AjuBaju may require affirmative acceptance before allowing access to particular features.</p>
             </div>
           </section>
 
@@ -1072,7 +1072,7 @@ export default function TermsAndConditionsPage() {
               41. ENTIRE AGREEMENT
             </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
-              <p>These Terms, together with the GOLO Privacy Policy and other applicable GOLO policies or service-specific terms, constitute the applicable agreement governing your use of GOLO, subject to any separate written agreement expressly entered into with GOLO.</p>
+              <p>These Terms, together with the AjuBaju Privacy Policy and other applicable AjuBaju policies or service-specific terms, constitute the applicable agreement governing your use of AjuBaju, subject to any separate written agreement expressly entered into with AjuBaju.</p>
             </div>
           </section>
 
@@ -1083,10 +1083,10 @@ export default function TermsAndConditionsPage() {
             <div className="text-base md:text-lg text-gray-700 leading-relaxed bg-gray-50 border border-gray-200 rounded-2xl p-6 md:p-8 shadow-sm">
               <p className="mb-6">For questions, support, complaints or policy-related matters:</p>
               <div className="space-y-4">
-                <p><strong className="text-gray-900 text-xl block mb-2">GOLO</strong></p>
+                <p><strong className="text-gray-900 text-xl block mb-2">AjuBaju</strong></p>
                 <p><strong>Operator:</strong> Sukrut Atul Nigavekar</p>
                 <p><strong>Registered Office:</strong> Mahalaxmi Nagar, Kolhapur, Maharashtra, PIN 416012, India</p>
-                <p><strong>Email:</strong> <a href="mailto:golo.support@nexaprime.in" className="text-blue-600 hover:underline">golo.support@nexaprime.in</a></p>
+                <p><strong>Email:</strong> <a href="mailto:ajubaju.support@nexaprime.in" className="text-blue-600 hover:underline">ajubaju.support@nexaprime.in</a></p>
               </div>
             </div>
           </section>

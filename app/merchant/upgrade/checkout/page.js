@@ -10,7 +10,7 @@ import { subscribeToPlan, getSubscriptionPlans } from "../../../lib/api/merchant
 const PLANS = {
   basic: {
     id: "basic",
-    name: "GOLO BASIC",
+    name: "AjuBaju BASIC",
     monthlyPrice: 999,
     color: "#157a4f",
     icon: Zap,
@@ -27,7 +27,7 @@ const PLANS = {
   },
   pro: {
     id: "pro",
-    name: "GOLO PRO",
+    name: "AjuBaju PRO",
     monthlyPrice: 2499,
     color: "#2563eb",
     icon: TrendingUp,
@@ -46,7 +46,7 @@ const PLANS = {
   },
   premium: {
     id: "premium",
-    name: "GOLO PREMIUM",
+    name: "AjuBaju PREMIUM",
     monthlyPrice: 4999,
     color: "#7c3aed",
     icon: Crown,
@@ -306,7 +306,7 @@ function CheckoutPageContent() {
 
                 <div className="flex items-start gap-2 text-[11px] text-[#6B7280] mb-5 leading-relaxed">
                   <Lock size={14} className="shrink-0 mt-0.5" />
-                  <p>Secure payment processed by GOLO. Cancel anytime before renewal.</p>
+                  <p>Secure payment processed by AjuBaju. Cancel anytime before renewal.</p>
                 </div>
 
                 <button

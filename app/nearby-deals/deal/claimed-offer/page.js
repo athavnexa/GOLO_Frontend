@@ -793,7 +793,7 @@ function ClaimedOfferContent() {
                 <button
                   onClick={async () => {
                     const shareUrl = window.location.href;
-                    const shareText = `Check out this offer on GOLO!\n${resolvedOfferTitle} - Get ₹${resolvedOfferPrice} off!`;
+                    const shareText = `Check out this offer on AjuBaju!\n${resolvedOfferTitle} - Get ₹${resolvedOfferPrice} off!`;
 
                     if (!navigator.share) {
                       try {
@@ -807,7 +807,7 @@ function ClaimedOfferContent() {
 
                     try {
                       await navigator.share({
-                        title: "GOLO Offer",
+                        title: "AjuBaju Offer",
                         text: shareText,
                         url: shareUrl,
                       });
@@ -823,7 +823,7 @@ function ClaimedOfferContent() {
                 </button>
               </div>
 
-              <p className="mt-4 text-[10px] text-[#9098a3]">Secure claim • No upfront payment required at GOLO</p>
+              <p className="mt-4 text-[10px] text-[#9098a3]">Secure claim • No upfront payment required at AjuBaju</p>
             </div>
           </div>
 

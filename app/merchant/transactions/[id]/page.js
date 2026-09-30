@@ -152,7 +152,7 @@ export default function TransactionDetailsPage({ params }) {
               <div className="p-6 space-y-4 flex-1">
                 <div className="flex justify-between items-center text-[13px]">
                   <span className="text-[#666]">Description</span>
-                  <span className="font-bold text-[#1a1a1a]">{payment.description || "GOLO Services"}</span>
+                  <span className="font-bold text-[#1a1a1a]">{payment.description || "AjuBaju Services"}</span>
                 </div>
                 <div className="flex justify-between items-center text-[13px]">
                   <span className="text-[#666]">Billing Type</span>

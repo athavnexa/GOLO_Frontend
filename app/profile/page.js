@@ -94,7 +94,7 @@ export default function ProfilePage() {
   const [deleteSuccessMsg, setDeleteSuccessMsg] = useState("");
 
   const USER_DELETE_REASONS = [
-    "I no longer use GOLO",
+    "I no longer use AjuBaju",
     "Privacy and data security concerns",
     "Too many emails or notifications",
     "Created another / duplicate account",
@@ -998,7 +998,7 @@ export default function ProfilePage() {
                           Permanent Deletion Warning
                         </h4>
                         <p className="text-[12px] text-[#b91c1c] mt-1 leading-relaxed">
-                          This action is irreversible. Once confirmed, all your data will be permanently wiped from GOLO databases:
+                          This action is irreversible. Once confirmed, all your data will be permanently wiped from AjuBaju databases:
                         </p>
                       </div>
                     </div>

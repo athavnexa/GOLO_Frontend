@@ -57,16 +57,16 @@ export default function PrivacyPolicyPage() {
         {/*  Sidebar Navigation  */}
         <aside className="sidebar">
             <div className="brand">
-                <div className="brand-logo">G</div>
+                <div className="brand-logo">A</div>
                 <div>
-                    <div className="brand-title">GOLO Docs</div>
+                    <div className="brand-title">AjuBaju Docs</div>
                     <div className="brand-subtitle">Legal & Compliance</div>
                 </div>
             </div>
 
             {/*  Navigation Links  */}
             <nav className="nav-sections" id="navSections">
-                <span className="nav-title">PRIVACY POLICY — GOLO</span>
+                <span className="nav-title">PRIVACY POLICY — AjuBaju</span>
                 <a href="#1-introduction" className="nav-link active"><span>1. Introduction</span></a>
                 <a href="#2-scope" className="nav-link"><span>2. Scope</span></a>
                 <a href="#3-data-fiduciary" className="nav-link"><span>3. Data Fiduciary / Platform Operator</span></a>
@@ -100,7 +100,7 @@ export default function PrivacyPolicyPage() {
                 <a href="#31-storage-transfers" className="nav-link"><span>31. Data Storage and Transfers</span></a>
                 <a href="#32-sharing" className="nav-link"><span>32. Data Sharing and Disclosure Summary</span></a>
                 <a href="#33-third-party-links" className="nav-link"><span>33. Third-Party Links and Services</span></a>
-                <a href="#34-relationship" className="nav-link"><span>34. Relationship With Other GOLO Policies</span></a>
+                <a href="#34-relationship" className="nav-link"><span>34. Relationship With Other AjuBaju Policies</span></a>
                 <a href="#35-changes" className="nav-link"><span>35. Changes to This Privacy Policy</span></a>
                 <a href="#36-contact-us" className="nav-link"><span>36. Contact Us</span></a>
 
@@ -110,7 +110,7 @@ export default function PrivacyPolicyPage() {
         {/*  Main Content  */}
         <main className="content">
             <header className="doc-header">
-                <h1 className="doc-title">PRIVACY POLICY — GOLO</h1>
+                <h1 className="doc-title">PRIVACY POLICY — AjuBaju</h1>
                 <div className="meta-tags">
                     <span className="meta-pill">Effective Date: [10/09/2026]</span>
                     <span className="meta-pill">Last Updated: [09/09/2026]</span>
@@ -125,12 +125,12 @@ export default function PrivacyPolicyPage() {
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
               <p>
                 This Privacy Policy explains how Sukrut Atul Nigavekar, the individual proprietor and 
-                operator of GOLO (the “Platform,” “GOLO,” “we,” “us,” or “our”), collects, uses, stores, 
+                operator of AjuBaju (the “Platform,” “AjuBaju,” “we,” “us,” or “our”), collects, uses, stores, 
                 shares, protects, and otherwise processes personal data of individuals who access or use 
-                the GOLO Platform as Users or Merchants.
+                the AjuBaju Platform as Users or Merchants.
               </p>
               <p>
-                GOLO is a hyperlocal marketplace and discovery platform through which Users may 
+                AjuBaju is a hyperlocal marketplace and discovery platform through which Users may 
                 discover nearby Merchants, products, services, offers, deals, advertisements, and other 
                 content. Merchants may create business listings, publish products, offers, deals, and 
                 advertisements, and interact with Users through the Platform.
@@ -145,17 +145,17 @@ export default function PrivacyPolicyPage() {
               <div className="bg-gray-50 rounded-2xl p-6 md:p-8 my-8 border border-gray-100">
                 <h3 className="text-xl font-bold text-gray-900 mb-4">Operator</h3>
                 <p className="mb-4">
-                  GOLO is currently operated by its individual proprietor:<br/>
+                  AjuBaju is currently operated by its individual proprietor:<br/>
                   <span className="text-xl font-extrabold text-black block mt-2">Sukrut Atul Nigavekar</span>
                 </p>
                 <p className="mb-4">
-                  If ownership or operation of GOLO is transferred to a company, incorporated entity, or 
+                  If ownership or operation of AjuBaju is transferred to a company, incorporated entity, or 
                   another legal person, this Privacy Policy will be updated to identify the applicable Data 
                   Fiduciary/operator and reflect the relevant processing arrangements.
                 </p>
                 <p>
-                  By using GOLO, you acknowledge that you have read this Privacy Policy. Where consent is 
-                  legally required for a particular processing activity, GOLO will obtain the applicable 
+                  By using AjuBaju, you acknowledge that you have read this Privacy Policy. Where consent is 
+                  legally required for a particular processing activity, AjuBaju will obtain the applicable 
                   consent.
                 </p>
                 <div className="mt-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg">
@@ -173,7 +173,7 @@ export default function PrivacyPolicyPage() {
             </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-8">
               <p>
-                This Privacy Policy applies to individuals interacting with GOLO in either of the following 
+                This Privacy Policy applies to individuals interacting with AjuBaju in either of the following 
                 roles:
               </p>
               
@@ -186,8 +186,8 @@ export default function PrivacyPolicyPage() {
                   <li>save products, offers, advertisements, or other content to a wishlist;</li>
                   <li>submit classified advertisements or “I Want” requests;</li>
                   <li>interact with Merchants through available Platform functionality;</li>
-                  <li>participate in the GOLO Referral Program;</li>
-                  <li>purchase or use eligible GOLO services;</li>
+                  <li>participate in the AjuBaju Referral Program;</li>
+                  <li>purchase or use eligible AjuBaju services;</li>
                   <li>receive service and promotional notifications where applicable.</li>
                 </ul>
               </div>
@@ -203,7 +203,7 @@ export default function PrivacyPolicyPage() {
                   <li>publish advertisements and promotional content;</li>
                   <li>subscribe to applicable Merchant plans;</li>
                   <li>interact with Users;</li>
-                  <li>participate in the GOLO Referral Program;</li>
+                  <li>participate in the AjuBaju Referral Program;</li>
                   <li>complete identity and business verification processes.</li>
                 </ul>
               </div>
@@ -220,14 +220,14 @@ export default function PrivacyPolicyPage() {
             </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed">
               <p className="mb-6">
-                For personal data processed through GOLO, the applicable Data Fiduciary/operator is currently:
+                For personal data processed through AjuBaju, the applicable Data Fiduciary/operator is currently:
               </p>
               <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6 md:p-8 shadow-sm">
-                <h3 className="text-3xl font-black mb-6 text-[#157A4F]">GOLO</h3>
+                <h3 className="text-3xl font-black mb-6 text-[#157A4F]">AjuBaju</h3>
                 <div className="space-y-4 text-gray-700">
                   <p><strong className="text-gray-900 text-xl">Operated by:</strong> <br/>Sukrut Atul Nigavekar</p>
                   <p><strong className="text-gray-900 text-xl">Registered Office:</strong> <br/>[Mahalaxmi Nagar, Kolhapur, Maharashtra, PIN:416012 — India]</p>
-                  <p><strong className="text-gray-900 text-xl">Privacy / Support Email:</strong> <br/><a href="mailto:GOLO.support@nexaprime.in" className="text-blue-600 hover:underline">[GOLO.support@nexaprime.in]</a></p>
+                  <p><strong className="text-gray-900 text-xl">Privacy / Support Email:</strong> <br/><a href="mailto:AjuBaju.support@nexaprime.in" className="text-blue-600 hover:underline">[AjuBaju.support@nexaprime.in]</a></p>
                 </div>
               </div>
             </div>
@@ -240,7 +240,7 @@ export default function PrivacyPolicyPage() {
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-8">
               <p className="text-xl">
                 We collect information that is necessary to provide, secure, maintain, improve, and 
-                administer GOLO and its services. The exact information collected may vary depending on whether you use GOLO as a User 
+                administer AjuBaju and its services. The exact information collected may vary depending on whether you use AjuBaju as a User 
                 or Merchant and which features you use.
               </p>
 
@@ -278,7 +278,7 @@ export default function PrivacyPolicyPage() {
                     <li>JWT/session-related information;</li>
                     <li>account authentication and security records.</li>
                   </ul>
-                  <p className="text-sm text-gray-500 italic">Authentication information is used to authenticate Users, maintain secure sessions, prevent unauthorized access, and protect GOLO accounts.</p>
+                  <p className="text-sm text-gray-500 italic">Authentication information is used to authenticate Users, maintain secure sessions, prevent unauthorized access, and protect AjuBaju accounts.</p>
                 </div>
 
                 <div className="bg-gray-50 rounded-2xl p-6 md:p-8 border border-gray-100">
@@ -334,12 +334,12 @@ export default function PrivacyPolicyPage() {
                     <li>eligible Credit Note amounts;</li>
                     <li>Credit Note validity/status.</li>
                   </ul>
-                  <p className="text-sm font-bold text-[#157A4F] bg-green-100 p-3 rounded-lg">GOLO does not currently operate a cash-withdrawable wallet system.</p>
+                  <p className="text-sm font-bold text-[#157A4F] bg-green-100 p-3 rounded-lg">AjuBaju does not currently operate a cash-withdrawable wallet system.</p>
                 </div>
 
                 <div className="bg-gray-50 rounded-2xl p-6 md:p-8 border border-gray-100">
                   <h4 className="text-xl font-bold text-gray-900 mb-4">H. Referral Information</h4>
-                  <p className="font-semibold mb-2">Where a User participates in the GOLO Referral Program, we may collect:</p>
+                  <p className="font-semibold mb-2">Where a User participates in the AjuBaju Referral Program, we may collect:</p>
                   <ul className="list-disc pl-6 space-y-2">
                     <li>referral code/link;</li>
                     <li>referral attribution;</li>
@@ -471,7 +471,7 @@ export default function PrivacyPolicyPage() {
             </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed bg-white border-2 border-gray-100 rounded-3xl p-6 md:p-10">
               <p className="mb-6 text-xl">
-                When you access or use GOLO, certain technical information may be collected automatically.
+                When you access or use AjuBaju, certain technical information may be collected automatically.
                 This may include:
               </p>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-y-4 gap-x-8 mb-8 font-medium">
@@ -488,7 +488,7 @@ export default function PrivacyPolicyPage() {
               </div>
               <p className="text-gray-500 italic bg-gray-50 p-6 rounded-xl">
                 This information may be collected through standard web technologies, application 
-                functionality, analytics mechanisms, SDKs, and security systems used by GOLO.
+                functionality, analytics mechanisms, SDKs, and security systems used by AjuBaju.
               </p>
             </div>
           </section>
@@ -497,7 +497,7 @@ export default function PrivacyPolicyPage() {
             <div className="section-header"><h2 className="section-title">
               7. How We Use Personal Data
             </h2></div>
-            <p className="text-xl text-gray-700 mb-8">GOLO may process personal data for the following purposes:</p>
+            <p className="text-xl text-gray-700 mb-8">AjuBaju may process personal data for the following purposes:</p>
             
             <div className="space-y-8 text-lg text-gray-700">
               <div className="pl-6 border-l-4 border-[#157A4F]">
@@ -522,7 +522,7 @@ export default function PrivacyPolicyPage() {
 
               <div className="pl-6 border-l-4 border-[#157A4F]">
                 <h3 className="text-2xl font-bold text-gray-900 mb-3">7.5 Verification and Fraud Prevention</h3>
-                <p>To: verify Merchant identity; verify business legitimacy; detect suspicious activity; prevent fraud and abuse; enforce Platform policies; protect Users, Merchants, and GOLO.</p>
+                <p>To: verify Merchant identity; verify business legitimacy; detect suspicious activity; prevent fraud and abuse; enforce Platform policies; protect Users, Merchants, and AjuBaju.</p>
               </div>
 
               <div className="pl-6 border-l-4 border-[#157A4F]">
@@ -557,7 +557,7 @@ export default function PrivacyPolicyPage() {
 
               <div className="pl-6 border-l-4 border-[#157A4F]">
                 <h3 className="text-2xl font-bold text-gray-900 mb-3">7.12 Legal and Regulatory Compliance</h3>
-                <p>To: respond to lawful requests; comply with applicable laws; comply with court or government orders; maintain legally required records; protect GOLO’s legal rights and interests.</p>
+                <p>To: respond to lawful requests; comply with applicable laws; comply with court or government orders; maintain legally required records; protect AjuBaju’s legal rights and interests.</p>
               </div>
             </div>
           </section>
@@ -567,7 +567,7 @@ export default function PrivacyPolicyPage() {
               8. Legal Basis / Consent
             </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed bg-blue-50/50 p-6 md:p-10 rounded-3xl border border-blue-100 space-y-6">
-              <p>Depending on the processing activity, GOLO may process personal data based on:</p>
+              <p>Depending on the processing activity, AjuBaju may process personal data based on:</p>
               <ul className="list-disc pl-8 space-y-2 font-medium text-gray-800">
                 <li>your consent, where consent is required;</li>
                 <li>the need to provide requested Platform functionality or services;</li>
@@ -612,7 +612,7 @@ export default function PrivacyPolicyPage() {
                   <span className="bg-[#157A4F] text-white w-10 h-10 rounded-lg flex items-center justify-center">9.2</span>
                   User Location
                 </h3>
-                <p className="mb-4">Where a User grants permission, GOLO may collect precise or approximate device location to provide features such as:</p>
+                <p className="mb-4">Where a User grants permission, AjuBaju may collect precise or approximate device location to provide features such as:</p>
                 <ul className="list-disc pl-6 space-y-2 mb-6">
                   <li>Nearby Deals;</li>
                   <li>nearby Merchant discovery;</li>
@@ -620,7 +620,7 @@ export default function PrivacyPolicyPage() {
                 </ul>
                 <p className="font-bold text-gray-900 mb-4">User location access is optional.</p>
                 <p className="mb-4">Users may grant, deny, or revoke location permission through their device settings. If location permission is denied or revoked, certain location-based features may not be available, but the remainder of the Platform may continue to be accessible.</p>
-                <p className="italic">GOLO will not use precise User location for purposes beyond those disclosed in this Privacy Policy without the applicable consent or other lawful basis.</p>
+                <p className="italic">AjuBaju will not use precise User location for purposes beyond those disclosed in this Privacy Policy without the applicable consent or other lawful basis.</p>
               </div>
             </div>
           </section>
@@ -650,14 +650,14 @@ export default function PrivacyPolicyPage() {
 
                 <div>
                   <h3 className="text-2xl font-bold text-gray-900 mb-3">10.2 KYC Storage</h3>
-                  <p className="mb-3">KYC documents submitted through GOLO may currently be stored as uploaded document/image files using GOLO’s hosting infrastructure.</p>
+                  <p className="mb-3">KYC documents submitted through AjuBaju may currently be stored as uploaded document/image files using AjuBaju’s hosting infrastructure.</p>
                   <p className="mb-3 bg-yellow-50 text-yellow-800 p-4 rounded-lg font-mono text-sm border border-yellow-200">Technical implementation and security controls must be verified before publication of this statement.</p>
-                  <p>Where applicable, GOLO applies access restrictions and security measures designed to prevent unauthorized access.</p>
+                  <p>Where applicable, AjuBaju applies access restrictions and security measures designed to prevent unauthorized access.</p>
                 </div>
 
                 <div>
                   <h3 className="text-2xl font-bold text-gray-900 mb-3">10.3 Rejected KYC Applications</h3>
-                  <p className="mb-3 font-semibold">Where a Merchant’s KYC submission is rejected, GOLO may retain the rejection reason for:</p>
+                  <p className="mb-3 font-semibold">Where a Merchant’s KYC submission is rejected, AjuBaju may retain the rejection reason for:</p>
                   <ul className="list-disc pl-8 space-y-2">
                     <li>communicating the result to the Merchant;</li>
                     <li>maintaining verification records;</li>
@@ -674,7 +674,7 @@ export default function PrivacyPolicyPage() {
                     <li>authorized verification/KYC service providers;</li>
                     <li>legal or regulatory requirements;</li>
                     <li>law-enforcement requests;</li>
-                    <li>protection of GOLO, Users, or Merchants;</li>
+                    <li>protection of AjuBaju, Users, or Merchants;</li>
                     <li>other circumstances described in this Privacy Policy.</li>
                   </ul>
                   <p className="italic text-gray-500">Any actual third-party KYC provider should be identified in this Privacy Policy if one is used.</p>
@@ -688,12 +688,12 @@ export default function PrivacyPolicyPage() {
               11. Referral Program
             </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-8">
-              <p className="text-xl">GOLO may provide a Referral Program allowing Users and Merchants to invite others using referral codes or links.</p>
+              <p className="text-xl">AjuBaju may provide a Referral Program allowing Users and Merchants to invite others using referral codes or links.</p>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:p-8">
                 <div className="bg-white border border-gray-200 rounded-2xl p-6 md:p-8 shadow-sm">
                   <h3 className="text-2xl font-bold text-gray-900 mb-4">11.1 Referral Information</h3>
-                  <p className="font-semibold mb-3">GOLO may process:</p>
+                  <p className="font-semibold mb-3">AjuBaju may process:</p>
                   <ul className="list-disc pl-6 space-y-2">
                     <li>referral code/link;</li>
                     <li>referral attribution;</li>
@@ -713,7 +713,7 @@ export default function PrivacyPolicyPage() {
 
                 <div className="bg-white border border-gray-200 rounded-2xl p-6 md:p-8 shadow-sm">
                   <h3 className="text-2xl font-bold text-gray-900 mb-4">11.3 Anti-Abuse Measures</h3>
-                  <p className="font-semibold mb-3">GOLO may apply:</p>
+                  <p className="font-semibold mb-3">AjuBaju may apply:</p>
                   <ul className="list-disc pl-6 space-y-2 mb-4">
                     <li>verification periods;</li>
                     <li>account activity checks;</li>
@@ -728,7 +728,7 @@ export default function PrivacyPolicyPage() {
                   <div>
                     <h3 className="text-2xl font-bold text-gray-900 mb-4">11.4 Rewards</h3>
                     <p className="mb-4">Eligible Merchant referrals may result in an applicable subscription-period reward subject to the rules and limits of the Referral Program.</p>
-                    <p className="mb-4">Eligible User referrals may result in a Credit Note that can be applied toward eligible future GOLO services, such as applicable advertisements or classified-ad postings.</p>
+                    <p className="mb-4">Eligible User referrals may result in a Credit Note that can be applied toward eligible future AjuBaju services, such as applicable advertisements or classified-ad postings.</p>
                   </div>
                   <div className="bg-orange-50 text-orange-800 p-4 rounded-xl font-bold border border-orange-100">
                     Sharing a referral code alone does not necessarily qualify for a reward.
@@ -756,11 +756,11 @@ export default function PrivacyPolicyPage() {
             </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed bg-[#F8FAFC] p-6 md:p-10 rounded-2xl md:rounded-[32px] border border-gray-200">
               <h3 className="text-2xl font-black text-red-600 mb-6 flex items-center gap-3 bg-red-50 p-4 rounded-xl w-fit">
-                GOLO does not currently operate a Wallet or withdrawable Wallet Credit system.
+                AjuBaju does not currently operate a Wallet or withdrawable Wallet Credit system.
               </h3>
               
               <p className="mb-6 text-xl">
-                Where a User or Merchant is eligible for a refund-related adjustment or reward, GOLO may 
+                Where a User or Merchant is eligible for a refund-related adjustment or reward, AjuBaju may 
                 issue a Credit Note in accordance with its applicable Refund & Credit Note Policy.
               </p>
               
@@ -770,7 +770,7 @@ export default function PrivacyPolicyPage() {
                   <ul className="list-disc pl-6 space-y-2">
                     <li>is an accounting record;</li>
                     <li>represents an eligible amount;</li>
-                    <li>may be applied toward eligible future GOLO services;</li>
+                    <li>may be applied toward eligible future AjuBaju services;</li>
                     <li>is not a cash balance;</li>
                     <li>is not a bank deposit;</li>
                     <li>is not withdrawable cash;</li>
@@ -778,7 +778,7 @@ export default function PrivacyPolicyPage() {
                   </ul>
                 </div>
                 <div>
-                  <h4 className="font-bold text-gray-900 mb-3 text-xl">GOLO may maintain:</h4>
+                  <h4 className="font-bold text-gray-900 mb-3 text-xl">AjuBaju may maintain:</h4>
                   <ul className="list-disc pl-6 space-y-2">
                     <li>transaction references;</li>
                     <li>Credit Note amounts;</li>
@@ -801,7 +801,7 @@ export default function PrivacyPolicyPage() {
             </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-8">
               <div className="bg-white p-6 md:p-8 border border-gray-200 rounded-2xl shadow-sm">
-                <p className="font-semibold mb-4 text-xl text-gray-900">GOLO may collect FCM push-notification tokens to deliver:</p>
+                <p className="font-semibold mb-4 text-xl text-gray-900">AjuBaju may collect FCM push-notification tokens to deliver:</p>
                 <ul className="list-disc pl-8 space-y-2 mb-6 text-gray-600">
                   <li>service alerts;</li>
                   <li>account notifications;</li>
@@ -831,7 +831,7 @@ export default function PrivacyPolicyPage() {
               14. User and Merchant Interactions
             </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed">
-              <p className="text-xl mb-6">Certain GOLO functionality may require information to be shared between Users and Merchants.</p>
+              <p className="text-xl mb-6">Certain AjuBaju functionality may require information to be shared between Users and Merchants.</p>
               
               <div className="flex flex-col md:flex-row gap-6 md:p-8 items-stretch">
                 <div className="flex-1 bg-gray-50 p-6 md:p-8 rounded-2xl border border-gray-200">
@@ -844,7 +844,7 @@ export default function PrivacyPolicyPage() {
                     <li>submits an “I Want” request;</li>
                     <li>otherwise initiates a feature requiring Merchant interaction,</li>
                   </ul>
-                  <p className="font-medium text-[#157A4F]">GOLO may provide the relevant Merchant with information necessary to respond to or fulfil that specific interaction.</p>
+                  <p className="font-medium text-[#157A4F]">AjuBaju may provide the relevant Merchant with information necessary to respond to or fulfil that specific interaction.</p>
                 </div>
                 
                 <div className="flex-1 bg-gray-50 p-6 md:p-8 rounded-2xl border border-gray-200">
@@ -857,7 +857,7 @@ export default function PrivacyPolicyPage() {
                   </ul>
                   <p className="bg-red-50 text-red-800 p-4 rounded-xl border border-red-200 font-semibold text-sm">
                     Merchants are expected to use such information only for the applicable Platform 
-                    interaction and in accordance with GOLO’s Terms and applicable law.
+                    interaction and in accordance with AjuBaju’s Terms and applicable law.
                   </p>
                 </div>
               </div>
@@ -869,14 +869,14 @@ export default function PrivacyPolicyPage() {
               15. Third-Party Service Providers
             </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-8">
-              <p className="text-xl font-medium">GOLO may use third-party service providers to operate particular Platform functions.</p>
+              <p className="text-xl font-medium">AjuBaju may use third-party service providers to operate particular Platform functions.</p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:p-8">
                 {/* 15.1 */}
                 <div className="bg-white border-2 border-gray-100 p-6 md:p-8 rounded-2xl shadow-sm hover:border-[#157A4F] transition-colors">
                   <h3 className="text-2xl font-bold text-gray-900 mb-4">15.1 Razorpay</h3>
                   <p className="mb-4">Razorpay may process applicable payment transactions.</p>
-                  <p className="font-semibold mb-2">GOLO may retain transaction metadata such as:</p>
+                  <p className="font-semibold mb-2">AjuBaju may retain transaction metadata such as:</p>
                   <ul className="list-disc pl-6 space-y-1 mb-4 text-gray-600">
                     <li>payment ID;</li>
                     <li>order ID;</li>
@@ -885,14 +885,14 @@ export default function PrivacyPolicyPage() {
                     <li>failure information;</li>
                     <li>other information necessary for transaction administration.</li>
                   </ul>
-                  <p className="text-sm bg-gray-50 p-4 rounded-lg mb-4">Payment credentials such as card details, UPI credentials, or net-banking authentication information may be processed directly by the applicable payment service provider rather than stored by GOLO.</p>
+                  <p className="text-sm bg-gray-50 p-4 rounded-lg mb-4">Payment credentials such as card details, UPI credentials, or net-banking authentication information may be processed directly by the applicable payment service provider rather than stored by AjuBaju.</p>
                   <p className="text-sm italic">Users should review the applicable payment provider’s privacy practices for further information.</p>
                 </div>
 
                 {/* 15.2 */}
                 <div className="bg-white border-2 border-gray-100 p-6 md:p-8 rounded-2xl shadow-sm hover:border-[#157A4F] transition-colors">
                   <h3 className="text-2xl font-bold text-gray-900 mb-4">15.2 Cloudinary</h3>
-                  <p className="mb-4">GOLO may use Cloudinary or applicable cloud media infrastructure to host uploaded media, including:</p>
+                  <p className="mb-4">AjuBaju may use Cloudinary or applicable cloud media infrastructure to host uploaded media, including:</p>
                   <ul className="list-disc pl-6 space-y-1 mb-6 text-gray-600">
                     <li>profile images;</li>
                     <li>product images;</li>
@@ -907,7 +907,7 @@ export default function PrivacyPolicyPage() {
                 {/* 15.3 */}
                 <div className="bg-white border-2 border-gray-100 p-6 md:p-8 rounded-2xl shadow-sm hover:border-[#157A4F] transition-colors">
                   <h3 className="text-2xl font-bold text-gray-900 mb-4">15.3 Firebase / Google Cloud</h3>
-                  <p className="mb-4">GOLO may use Firebase and/or Google Cloud services for functions including:</p>
+                  <p className="mb-4">AjuBaju may use Firebase and/or Google Cloud services for functions including:</p>
                   <ul className="list-disc pl-6 space-y-1 mb-6 text-gray-600">
                     <li>push notifications;</li>
                     <li>application infrastructure;</li>
@@ -920,16 +920,16 @@ export default function PrivacyPolicyPage() {
                 {/* 15.4 */}
                 <div className="bg-white border-2 border-gray-100 p-6 md:p-8 rounded-2xl shadow-sm hover:border-[#157A4F] transition-colors">
                   <h3 className="text-2xl font-bold text-gray-900 mb-4">15.4 Google Gemini AI</h3>
-                  <p className="mb-4">GOLO may use Google Gemini AI or applicable Google AI services to process User- or Merchant-submitted text and images for real-time content moderation and safety checks.</p>
-                  <p className="mb-4 text-gray-600">This may include checking content for violations of GOLO’s content rules and applicable safety requirements.</p>
+                  <p className="mb-4">AjuBaju may use Google Gemini AI or applicable Google AI services to process User- or Merchant-submitted text and images for real-time content moderation and safety checks.</p>
+                  <p className="mb-4 text-gray-600">This may include checking content for violations of AjuBaju’s content rules and applicable safety requirements.</p>
                   <p className="text-sm font-mono bg-yellow-50 text-yellow-800 p-4 rounded-lg border border-yellow-200">The exact categories of content sent to the AI service, retention settings, and applicable provider configuration should be verified against the production implementation before publication.</p>
                 </div>
 
                 {/* 15.5 */}
                 <div className="md:col-span-2 bg-white border-2 border-gray-100 p-6 md:p-8 rounded-2xl shadow-sm hover:border-[#157A4F] transition-colors">
                   <h3 className="text-2xl font-bold text-gray-900 mb-4">15.5 Other Service Providers</h3>
-                  <p className="mb-4">GOLO may engage additional service providers where reasonably necessary to operate, secure, maintain, or improve the Platform.</p>
-                  <p>Where applicable, such providers may process personal data only for the services they provide to GOLO and subject to appropriate contractual or other protections.</p>
+                  <p className="mb-4">AjuBaju may engage additional service providers where reasonably necessary to operate, secure, maintain, or improve the Platform.</p>
+                  <p>Where applicable, such providers may process personal data only for the services they provide to AjuBaju and subject to appropriate contractual or other protections.</p>
                 </div>
               </div>
             </div>
@@ -940,19 +940,19 @@ export default function PrivacyPolicyPage() {
               16. Legal and Regulatory Disclosures
             </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed bg-[#F8FAFC] p-6 md:p-10 rounded-3xl border border-gray-200">
-              <p className="text-xl font-bold text-gray-900 mb-6">GOLO may disclose personal data where necessary or legally required to:</p>
+              <p className="text-xl font-bold text-gray-900 mb-6">AjuBaju may disclose personal data where necessary or legally required to:</p>
               <ul className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8 list-none mb-8">
                 <li className="flex items-center gap-3"><span className="text-blue-500 font-bold">✓</span> comply with applicable law;</li>
                 <li className="flex items-center gap-3"><span className="text-blue-500 font-bold">✓</span> comply with a valid court order;</li>
                 <li className="flex items-center gap-3"><span className="text-blue-500 font-bold">✓</span> respond to lawful government or regulatory requests;</li>
                 <li className="flex items-center gap-3"><span className="text-blue-500 font-bold">✓</span> investigate fraud;</li>
                 <li className="flex items-center gap-3"><span className="text-blue-500 font-bold">✓</span> prevent abuse;</li>
-                <li className="flex items-center gap-3"><span className="text-blue-500 font-bold">✓</span> protect the rights, safety, and property of GOLO;</li>
+                <li className="flex items-center gap-3"><span className="text-blue-500 font-bold">✓</span> protect the rights, safety, and property of AjuBaju;</li>
                 <li className="flex items-center gap-3"><span className="text-blue-500 font-bold">✓</span> protect Users and Merchants;</li>
                 <li className="flex items-center gap-3"><span className="text-blue-500 font-bold">✓</span> establish, exercise, or defend legal claims.</li>
               </ul>
               <div className="bg-green-100 text-green-800 text-2xl font-black p-6 rounded-2xl text-center border-2 border-green-200">
-                GOLO does not sell personal data.
+                AjuBaju does not sell personal data.
               </div>
             </div>
           </section>
@@ -962,7 +962,7 @@ export default function PrivacyPolicyPage() {
               17. Business Transfers
             </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed">
-              <p className="mb-6">If GOLO’s ownership, assets, operation, or business is transferred, personal data may be transferred as part of the relevant transaction where legally permitted.</p>
+              <p className="mb-6">If AjuBaju’s ownership, assets, operation, or business is transferred, personal data may be transferred as part of the relevant transaction where legally permitted.</p>
               <p className="font-semibold mb-4">Such transfer may occur in connection with:</p>
               <ul className="flex flex-wrap gap-4 list-none mb-6">
                 <li className="bg-gray-100 px-4 py-2 rounded-full border border-gray-200">incorporation</li>
@@ -972,7 +972,7 @@ export default function PrivacyPolicyPage() {
                 <li className="bg-gray-100 px-4 py-2 rounded-full border border-gray-200">sale of assets</li>
                 <li className="bg-gray-100 px-4 py-2 rounded-full border border-gray-200">transfer of business operations</li>
               </ul>
-              <p className="italic">Where required, GOLO will update this Privacy Policy to identify the new operator or applicable Data Fiduciary.</p>
+              <p className="italic">Where required, AjuBaju will update this Privacy Policy to identify the new operator or applicable Data Fiduciary.</p>
             </div>
           </section>
 
@@ -981,7 +981,7 @@ export default function PrivacyPolicyPage() {
               18. Cookies, SDKs and Similar Technologies
             </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
-              <p className="text-xl">GOLO’s Website and Mobile Applications may use cookies, SDKs, local storage, device technologies, and similar mechanisms for purposes such as:</p>
+              <p className="text-xl">AjuBaju’s Website and Mobile Applications may use cookies, SDKs, local storage, device technologies, and similar mechanisms for purposes such as:</p>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                 <div className="bg-white border border-gray-200 shadow-sm rounded-xl p-4 text-center font-semibold text-gray-800">maintaining sessions</div>
                 <div className="bg-white border border-gray-200 shadow-sm rounded-xl p-4 text-center font-semibold text-gray-800">remembering preferences</div>
@@ -996,8 +996,8 @@ export default function PrivacyPolicyPage() {
                 <span className="font-bold text-orange-600 block mt-2">Disabling certain technologies may affect Platform functionality.</span>
               </p>
               <p className="italic text-gray-500 text-sm mt-4">
-                Third-party SDKs used in GOLO may independently process technical or other information 
-                according to their applicable configurations and policies. GOLO remains responsible for 
+                Third-party SDKs used in AjuBaju may independently process technical or other information 
+                according to their applicable configurations and policies. AjuBaju remains responsible for 
                 configuring and disclosing applicable SDK-related processing in accordance with 
                 applicable requirements.
               </p>
@@ -1010,7 +1010,7 @@ export default function PrivacyPolicyPage() {
             </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed bg-[#F8FAFC] p-6 md:p-10 rounded-2xl md:rounded-[32px] border border-gray-200 shadow-sm">
               <p className="text-xl text-gray-900 font-bold mb-8">
-                GOLO implements reasonable technical and organizational measures designed to protect 
+                AjuBaju implements reasonable technical and organizational measures designed to protect 
                 personal data against:
               </p>
               
@@ -1037,7 +1037,7 @@ export default function PrivacyPolicyPage() {
 
               <div className="bg-red-50 border border-red-200 p-6 rounded-xl text-center">
                 <p className="text-red-900 font-bold mb-2">No method of transmission, storage, or electronic processing can be guaranteed to be completely secure.</p>
-                <p className="text-red-800 text-sm font-medium">Accordingly, while GOLO takes reasonable measures to protect personal data, absolute security cannot be guaranteed.</p>
+                <p className="text-red-800 text-sm font-medium">Accordingly, while AjuBaju takes reasonable measures to protect personal data, absolute security cannot be guaranteed.</p>
               </div>
             </div>
           </section>
@@ -1048,7 +1048,7 @@ export default function PrivacyPolicyPage() {
             </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-8">
               <p className="text-xl">
-                GOLO provides Users and Merchants with an account deletion mechanism through the 
+                AjuBaju provides Users and Merchants with an account deletion mechanism through the 
                 Website and Mobile Applications. The purpose of this process is to provide a clear, deliberate, and transparent method for 
                 requesting deletion of an account and applicable associated data.
               </p>
@@ -1085,7 +1085,7 @@ export default function PrivacyPolicyPage() {
                     <div className="flex items-center justify-center w-10 h-10 rounded-full border border-white bg-white text-gray-900 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10 font-bold text-xl">3</div>
                     <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] bg-white p-6 rounded-2xl border border-red-200 shadow-sm bg-red-50">
                       <h4 className="font-bold text-red-900 mb-2">Step 3 — Deletion Warning</h4>
-                      <p className="text-base text-red-700">Before final deletion, GOLO will display a clear warning explaining that the account is intended to be permanently deleted and that the User should continue only if they wish to proceed.</p>
+                      <p className="text-base text-red-700">Before final deletion, AjuBaju will display a clear warning explaining that the account is intended to be permanently deleted and that the User should continue only if they wish to proceed.</p>
                     </div>
                   </div>
 
@@ -1108,7 +1108,7 @@ export default function PrivacyPolicyPage() {
                       <p className="text-base text-gray-600 mb-2">After the User confirms deletion:</p>
                       <ul className="list-disc pl-5 space-y-1 text-sm text-gray-600 mb-3">
                         <li>the deletion request is validated;</li>
-                        <li>the request is processed by the GOLO backend;</li>
+                        <li>the request is processed by the AjuBaju backend;</li>
                         <li>applicable account data is deleted, deactivated, anonymized, or retained according to this Privacy Policy and applicable legal requirements.</li>
                       </ul>
                       <p className="text-xs font-bold text-gray-800 bg-gray-100 p-2 rounded">Deletion is performed server-side and is not dependent solely on deletion performed by the Website or Mobile Application.</p>
@@ -1157,7 +1157,7 @@ export default function PrivacyPolicyPage() {
                     <li>applicable advertisements;</li>
                     <li>other associated store information,</li>
                   </ul>
-                  <p className="text-xs text-gray-500 italic bg-gray-50 p-2 rounded">subject to information that GOLO is legally required or otherwise permitted to retain.</p>
+                  <p className="text-xs text-gray-500 italic bg-gray-50 p-2 rounded">subject to information that AjuBaju is legally required or otherwise permitted to retain.</p>
                 </div>
 
                 <div className="space-y-8">
@@ -1168,7 +1168,7 @@ export default function PrivacyPolicyPage() {
 
                   <div className="bg-white p-6 rounded-2xl shadow-sm border border-red-200">
                     <h3 className="text-xl font-bold text-red-600 mb-2">21.3 Final Deletion Warning</h3>
-                    <p className="text-sm text-gray-600">Before final confirmation, GOLO will clearly inform the Merchant that the Merchant account and applicable associated store information will be removed or made unavailable through normal User and Merchant flows.</p>
+                    <p className="text-sm text-gray-600">Before final confirmation, AjuBaju will clearly inform the Merchant that the Merchant account and applicable associated store information will be removed or made unavailable through normal User and Merchant flows.</p>
                   </div>
                 </div>
 
@@ -1183,7 +1183,7 @@ export default function PrivacyPolicyPage() {
                   <h3 className="text-xl font-bold text-gray-900 mb-4">21.5 Final Confirmation & Backend</h3>
                   <p className="text-sm text-gray-600 mb-2">After final confirmation:</p>
                   <ul className="list-disc pl-5 space-y-1 text-sm text-gray-600">
-                    <li>GOLO validates the deletion request;</li>
+                    <li>AjuBaju validates the deletion request;</li>
                     <li>the backend processes the deletion;</li>
                     <li>applicable Merchant account data is deleted, deactivated, or anonymized;</li>
                     <li>associated store data is handled according to this Privacy Policy;</li>
@@ -1200,7 +1200,7 @@ export default function PrivacyPolicyPage() {
                   <h3 className="text-xl font-bold text-green-900 mb-4">21.7 Completion</h3>
                   <p className="text-sm text-green-800 mb-2">After successful deletion:</p>
                   <ul className="list-disc pl-5 space-y-1 text-sm text-green-700">
-                    <li>GOLO displays a deletion-completion message;</li>
+                    <li>AjuBaju displays a deletion-completion message;</li>
                     <li>the deleted Merchant account is no longer accessible through normal Merchant authentication;</li>
                     <li>the associated store is no longer available through normal User or Merchant flows, subject to legally required or otherwise permitted retained information.</li>
                   </ul>
@@ -1217,7 +1217,7 @@ export default function PrivacyPolicyPage() {
               <p className="text-xl">
                 Account deletion does not necessarily mean that every record associated with an account 
                 can be immediately and permanently deleted. Depending on the nature of the information, applicable law, and operational requirements, 
-                GOLO may:
+                AjuBaju may:
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1253,7 +1253,7 @@ export default function PrivacyPolicyPage() {
                     <li>establishment, exercise, or defence of legal claims.</li>
                   </ul>
                   <div className="mt-6 bg-blue-50 p-4 rounded-xl text-blue-900 text-sm font-semibold border border-blue-100">
-                    Where information is retained after deletion, GOLO will not use it for ordinary account 
+                    Where information is retained after deletion, AjuBaju will not use it for ordinary account 
                     functionality except where necessary for the purpose for which it is retained or where 
                     otherwise permitted or required by law.
                   </div>
@@ -1292,10 +1292,10 @@ export default function PrivacyPolicyPage() {
               24. Secure Deletion Request Processing
             </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-4 bg-gray-50 p-6 md:p-8 rounded-2xl border border-gray-200">
-              <p className="font-semibold text-gray-900">GOLO requires an authenticated User or Merchant to initiate account deletion through the applicable account interface.</p>
-              <p>GOLO processes deletion requests server-side after validation.</p>
+              <p className="font-semibold text-gray-900">AjuBaju requires an authenticated User or Merchant to initiate account deletion through the applicable account interface.</p>
+              <p>AjuBaju processes deletion requests server-side after validation.</p>
               <p>The deletion mechanism is designed to protect against unauthorized deletion requests.</p>
-              <p>GOLO may maintain a minimal deletion audit record to establish that a deletion request was initiated and processed. Such audit records will avoid retaining unnecessary personal information where reasonably possible.</p>
+              <p>AjuBaju may maintain a minimal deletion audit record to establish that a deletion request was initiated and processed. Such audit records will avoid retaining unnecessary personal information where reasonably possible.</p>
             </div>
           </section>
 
@@ -1315,15 +1315,15 @@ export default function PrivacyPolicyPage() {
               26. Website and Mobile Application Deletion
             </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
-              <p className="font-semibold text-xl">GOLO’s account deletion mechanism is designed to be available on:</p>
+              <p className="font-semibold text-xl">AjuBaju’s account deletion mechanism is designed to be available on:</p>
               <div className="flex gap-4">
-                <span className="bg-gray-900 text-white font-bold px-6 py-3 rounded-xl shadow">GOLO Website</span>
+                <span className="bg-gray-900 text-white font-bold px-6 py-3 rounded-xl shadow">AjuBaju Website</span>
                 <span className="bg-[#3DDC84] text-gray-900 font-bold px-6 py-3 rounded-xl shadow">Android Application</span>
                 <span className="bg-gray-200 text-gray-900 font-bold px-6 py-3 rounded-xl shadow">iOS Application, where available</span>
               </div>
               <p>The deletion journey is intended to use consistent confirmation principles across supported Platforms.</p>
               <p>The Delete Account option will be accessible through the applicable account/settings area.</p>
-              <p className="font-bold text-gray-900">The final deletion process is executed through GOLO’s backend systems after validation.</p>
+              <p className="font-bold text-gray-900">The final deletion process is executed through AjuBaju’s backend systems after validation.</p>
             </div>
           </section>
 
@@ -1333,7 +1333,7 @@ export default function PrivacyPolicyPage() {
             </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-8">
               <div className="bg-[#F8FAFC] p-6 md:p-8 rounded-3xl border border-gray-200">
-                <p className="text-xl font-bold text-gray-900 mb-6">GOLO retains personal data for as long as reasonably necessary to:</p>
+                <p className="text-xl font-bold text-gray-900 mb-6">AjuBaju retains personal data for as long as reasonably necessary to:</p>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 font-semibold text-gray-600 mb-8">
                   <div className="flex items-start gap-2"><span>•</span> provide Platform services;</div>
                   <div className="flex items-start gap-2"><span>•</span> maintain active accounts;</div>
@@ -1367,7 +1367,7 @@ export default function PrivacyPolicyPage() {
                     <p className="mb-2">[Retained as necessary for verification, fraud prevention, dispute resolution and applicable legal/regulatory requirements; deleted when no longer required.]</p>
                     <p className="mb-2">[Retained for the period required by applicable tax, accounting, financial, legal and regulatory requirements.]</p>
                     <p className="mb-4">[Retained for a limited period necessary for security, audit, fraud prevention, dispute resolution and legal compliance.]</p>
-                    <p className="font-bold font-sans text-lg border-t border-yellow-200 pt-4 text-center">GOLO should finalize these periods before publication of this Privacy Policy.</p>
+                    <p className="font-bold font-sans text-lg border-t border-yellow-200 pt-4 text-center">AjuBaju should finalize these periods before publication of this Privacy Policy.</p>
                   </div>
                 </div>
               </div>
@@ -1384,7 +1384,7 @@ export default function PrivacyPolicyPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:p-8">
                 <div className="bg-white border-2 border-gray-100 p-6 md:p-8 rounded-2xl hover:border-blue-300 transition-colors">
                   <h3 className="text-2xl font-black text-gray-900 mb-3 text-blue-600">28.1 Access</h3>
-                  <p>You may request information regarding the personal data processed by GOLO about you, subject to applicable legal limitations.</p>
+                  <p>You may request information regarding the personal data processed by AjuBaju about you, subject to applicable legal limitations.</p>
                 </div>
                 
                 <div className="bg-white border-2 border-gray-100 p-6 md:p-8 rounded-2xl hover:border-blue-300 transition-colors">
@@ -1409,8 +1409,8 @@ export default function PrivacyPolicyPage() {
                 
                 <div className="bg-white border-2 border-gray-100 p-6 md:p-8 rounded-2xl hover:border-blue-300 transition-colors bg-blue-50/30">
                   <h3 className="text-2xl font-black text-gray-900 mb-3 text-blue-600">28.6 Grievance</h3>
-                  <p className="mb-4">You may raise a grievance with GOLO through the contact details provided below.</p>
-                  <p className="font-bold text-gray-900 text-sm bg-white p-3 rounded-lg border border-blue-100">To exercise applicable rights, contact:<br/><a href="mailto:GOLO.support@nexaprime.in" className="text-blue-600 text-lg hover:underline mt-1 block">[GOLO.support@nexaprime.in]</a></p>
+                  <p className="mb-4">You may raise a grievance with AjuBaju through the contact details provided below.</p>
+                  <p className="font-bold text-gray-900 text-sm bg-white p-3 rounded-lg border border-blue-100">To exercise applicable rights, contact:<br/><a href="mailto:AjuBaju.support@nexaprime.in" className="text-blue-600 text-lg hover:underline mt-1 block">[AjuBaju.support@nexaprime.in]</a></p>
                 </div>
               </div>
             </div>
@@ -1422,10 +1422,10 @@ export default function PrivacyPolicyPage() {
             </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed bg-red-50/50 p-6 md:p-8 rounded-2xl border border-red-100">
               <p className="text-xl font-bold text-red-900 mb-4 flex items-center gap-3">
-                <span className="text-2xl">🔞</span> GOLO is intended for individuals aged 18 years and above.
+                <span className="text-2xl">🔞</span> AjuBaju is intended for individuals aged 18 years and above.
               </p>
-              <p className="mb-4 font-medium">GOLO does not knowingly intend to provide its services to children below the applicable minimum age.</p>
-              <p className="text-gray-600">If GOLO becomes aware that personal data belonging to a minor has been collected without an appropriate legal basis or consent, GOLO may take reasonable steps to delete or otherwise handle such information in accordance with applicable law.</p>
+              <p className="mb-4 font-medium">AjuBaju does not knowingly intend to provide its services to children below the applicable minimum age.</p>
+              <p className="text-gray-600">If AjuBaju becomes aware that personal data belonging to a minor has been collected without an appropriate legal basis or consent, AjuBaju may take reasonable steps to delete or otherwise handle such information in accordance with applicable law.</p>
             </div>
           </section>
 
@@ -1434,7 +1434,7 @@ export default function PrivacyPolicyPage() {
               30. Grievance Officer / Data Protection Contact
             </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-8">
-              <p className="text-xl font-medium">GOLO’s grievance and privacy contact is:</p>
+              <p className="text-xl font-medium">AjuBaju’s grievance and privacy contact is:</p>
               
               <div className="bg-gray-50 border border-gray-200 rounded-3xl p-6 md:p-10 shadow-sm max-w-2xl">
                 <p className="text-gray-500 font-bold uppercase tracking-widest text-sm mb-6">Grievance Officer</p>
@@ -1442,7 +1442,7 @@ export default function PrivacyPolicyPage() {
                 <div className="space-y-4">
                   <p className="flex flex-col">
                     <span className="text-gray-500 text-sm font-bold uppercase mb-1">Email</span>
-                    <a href="mailto:GOLO.support@nexaprime.in" className="text-xl font-bold text-gray-900 hover:text-[#157A4F] transition-colors">[GOLO.support@nexaprime.in]</a>
+                    <a href="mailto:AjuBaju.support@nexaprime.in" className="text-xl font-bold text-gray-900 hover:text-[#157A4F] transition-colors">[AjuBaju.support@nexaprime.in]</a>
                   </p>
                   <p className="flex flex-col">
                     <span className="text-gray-500 text-sm font-bold uppercase mb-1 mt-2">Address</span>
@@ -1461,8 +1461,8 @@ export default function PrivacyPolicyPage() {
                   <div className="bg-white px-4 py-3 rounded-lg border border-gray-100 text-center shadow-sm">grievances</div>
                   <div className="bg-white px-4 py-3 rounded-lg border border-gray-100 text-center shadow-sm text-sm flex items-center justify-center">questions concerning this Privacy Policy</div>
                 </div>
-                <p className="text-gray-800 font-medium mb-2">GOLO will handle grievances and requests in accordance with applicable law and applicable internal procedures.</p>
-                <p className="text-gray-500 italic">[GOLO will comply with the timelines prescribed by applicable law and regulations.</p>
+                <p className="text-gray-800 font-medium mb-2">AjuBaju will handle grievances and requests in accordance with applicable law and applicable internal procedures.</p>
+                <p className="text-gray-500 italic">[AjuBaju will comply with the timelines prescribed by applicable law and regulations.</p>
               </div>
             </div>
           </section>
@@ -1472,15 +1472,15 @@ export default function PrivacyPolicyPage() {
               31. Data Storage and Transfers
             </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed bg-[#F8FAFC] p-6 md:p-8 rounded-2xl border border-gray-200">
-              <p className="mb-6 font-medium text-xl">Personal data collected through GOLO may be stored using GOLO’s own infrastructure and third-party service providers engaged to provide Platform functionality.</p>
+              <p className="mb-6 font-medium text-xl">Personal data collected through AjuBaju may be stored using AjuBaju’s own infrastructure and third-party service providers engaged to provide Platform functionality.</p>
               
               <div className="flex items-center gap-4 bg-white px-6 py-4 rounded-xl shadow-sm w-fit mb-6 border border-gray-100">
                 <span className="font-bold text-gray-500 uppercase tracking-wider text-sm">Current data-storage location:</span>
                 <span className="font-black text-2xl text-gray-900">[India]</span>
               </div>
               
-              <p className="mb-4 text-gray-600">Where personal data is transferred outside India, GOLO will take applicable measures required under Indian law and applicable contractual/data-protection requirements.</p>
-              <p className="bg-yellow-50 text-yellow-800 p-4 rounded-lg font-mono text-sm border border-yellow-200">The exact data locations and international transfer arrangements should be confirmed against GOLO’s production infrastructure before this Policy is published.</p>
+              <p className="mb-4 text-gray-600">Where personal data is transferred outside India, AjuBaju will take applicable measures required under Indian law and applicable contractual/data-protection requirements.</p>
+              <p className="bg-yellow-50 text-yellow-800 p-4 rounded-lg font-mono text-sm border border-yellow-200">The exact data locations and international transfer arrangements should be confirmed against AjuBaju’s production infrastructure before this Policy is published.</p>
             </div>
           </section>
 
@@ -1489,7 +1489,7 @@ export default function PrivacyPolicyPage() {
               32. Data Sharing and Disclosure Summary
             </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed">
-              <p className="text-xl font-bold text-gray-900 mb-6">GOLO may share or provide access to personal data only where necessary for legitimate Platform purposes, including:</p>
+              <p className="text-xl font-bold text-gray-900 mb-6">AjuBaju may share or provide access to personal data only where necessary for legitimate Platform purposes, including:</p>
               <ul className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8 list-none mb-10 text-gray-600 font-medium">
                 <li className="flex items-center gap-3"><span className="w-2 h-2 rounded-full bg-gray-400"></span> Users and Merchants interacting through Platform functionality;</li>
                 <li className="flex items-center gap-3"><span className="w-2 h-2 rounded-full bg-gray-400"></span> payment service providers;</li>
@@ -1503,7 +1503,7 @@ export default function PrivacyPolicyPage() {
                 <li className="flex items-center gap-3"><span className="w-2 h-2 rounded-full bg-gray-400"></span> business transferees where legally permitted.</li>
               </ul>
               <div className="bg-[#157A4F] text-white text-2xl font-black p-6 md:p-8 rounded-2xl text-center shadow-lg">
-                GOLO does not sell personal data.
+                AjuBaju does not sell personal data.
               </div>
             </div>
           </section>
@@ -1513,19 +1513,19 @@ export default function PrivacyPolicyPage() {
               33. Third-Party Links and Services
             </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-4 bg-gray-50 p-6 md:p-8 rounded-2xl border border-gray-200">
-              <p className="font-semibold text-gray-900 text-xl mb-2">GOLO may contain links, integrations, or functionality provided by third parties.</p>
+              <p className="font-semibold text-gray-900 text-xl mb-2">AjuBaju may contain links, integrations, or functionality provided by third parties.</p>
               <p>Third-party services may operate under their own privacy policies and terms.</p>
-              <p className="font-bold text-gray-800">GOLO is not responsible for the privacy practices of third-party services outside GOLO’s control.</p>
+              <p className="font-bold text-gray-800">AjuBaju is not responsible for the privacy practices of third-party services outside AjuBaju’s control.</p>
               <p className="bg-white p-4 rounded-lg border border-gray-100 text-gray-500 italic text-center shadow-sm">Users should review the applicable third-party privacy policies before using those services.</p>
             </div>
           </section>
 
 <section className="guide-section" id="34-relationship">
             <div className="section-header"><h2 className="section-title">
-              34. Relationship With Other GOLO Policies
+              34. Relationship With Other AjuBaju Policies
             </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed">
-              <p className="text-xl font-medium mb-6">This Privacy Policy should be read together with applicable GOLO policies, including:</p>
+              <p className="text-xl font-medium mb-6">This Privacy Policy should be read together with applicable AjuBaju policies, including:</p>
               <div className="flex flex-wrap gap-4 mb-8">
                 <span className="bg-[#F8FAFC] border border-gray-200 px-5 py-2.5 rounded-xl font-bold text-gray-800 shadow-sm">Terms & Conditions</span>
                 <span className="bg-[#F8FAFC] border border-gray-200 px-5 py-2.5 rounded-xl font-bold text-gray-800 shadow-sm">User Conduct Policy</span>
@@ -1539,7 +1539,7 @@ export default function PrivacyPolicyPage() {
                 <span className="bg-[#F8FAFC] border border-gray-200 px-5 py-2.5 rounded-xl font-bold text-gray-800 shadow-sm">other applicable Platform policies</span>
               </div>
               <p className="bg-blue-50 text-blue-900 p-6 rounded-2xl border border-blue-100 font-medium">
-                Where another policy describes a specific GOLO service, this Privacy Policy governs how 
+                Where another policy describes a specific AjuBaju service, this Privacy Policy governs how 
                 personal data associated with that service is collected, used, stored, shared, and protected.
               </p>
             </div>
@@ -1550,7 +1550,7 @@ export default function PrivacyPolicyPage() {
               35. Changes to This Privacy Policy
             </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-8">
-              <p className="text-xl font-medium">GOLO may update this Privacy Policy from time to time to reflect:</p>
+              <p className="text-xl font-medium">AjuBaju may update this Privacy Policy from time to time to reflect:</p>
               <ul className="grid grid-cols-2 md:grid-cols-3 gap-4 font-semibold text-gray-600 mb-8">
                 <li className="bg-gray-50 border border-gray-100 p-4 rounded-xl text-center">changes in Platform functionality</li>
                 <li className="bg-gray-50 border border-gray-100 p-4 rounded-xl text-center">changes in data-processing practices</li>
@@ -1561,7 +1561,7 @@ export default function PrivacyPolicyPage() {
               </ul>
               <div className="bg-[#F8FAFC] p-6 md:p-8 rounded-3xl border border-gray-200 text-center">
                 <p className="font-bold text-gray-900 mb-6 text-xl">The Last Updated date will be revised when this Policy is materially updated.</p>
-                <p className="text-gray-600 mb-4">Where required, GOLO may provide notice of material changes through:</p>
+                <p className="text-gray-600 mb-4">Where required, AjuBaju may provide notice of material changes through:</p>
                 <div className="flex flex-wrap justify-center gap-3 font-medium text-gray-500">
                   <span className="bg-white px-4 py-2 rounded-lg border border-gray-100 shadow-sm">the Platform</span>
                   <span className="bg-white px-4 py-2 rounded-lg border border-gray-100 shadow-sm">Website</span>
@@ -1579,18 +1579,18 @@ export default function PrivacyPolicyPage() {
               36. Contact Us
             </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed bg-[#F8FAFC] border border-gray-200 rounded-2xl md:rounded-[32px] p-6 md:p-14 shadow-sm">
-              <p className="text-2xl font-bold text-gray-900 mb-8">For questions regarding this Privacy Policy or GOLO’s privacy practices:</p>
+              <p className="text-2xl font-bold text-gray-900 mb-8">For questions regarding this Privacy Policy or AjuBaju’s privacy practices:</p>
               
               <div className="space-y-8">
                 <div>
-                  <h3 className="text-4xl font-black text-[#157A4F] tracking-tight mb-2">GOLO</h3>
+                  <h3 className="text-4xl font-black text-[#157A4F] tracking-tight mb-2">AjuBaju</h3>
                   <p className="text-gray-600 font-medium">Operated by: <span className="text-gray-900 text-xl font-bold block mt-1">Sukrut Atul Nigavekar</span></p>
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-6 md:p-8 border-t border-gray-200 pt-8">
                   <div>
                     <p className="text-gray-500 uppercase tracking-widest text-sm font-bold mb-2">Privacy / Support Email</p>
-                    <a href="mailto:GOLO.support@nexaprime.in" className="text-xl font-bold text-blue-600 hover:text-blue-800 transition-colors block">[GOLO.support@nexaprime.in]</a>
+                    <a href="mailto:AjuBaju.support@nexaprime.in" className="text-xl font-bold text-blue-600 hover:text-blue-800 transition-colors block">[AjuBaju.support@nexaprime.in]</a>
                   </div>
                   <div>
                     <p className="text-gray-500 uppercase tracking-widest text-sm font-bold mb-2">Registered Office</p>

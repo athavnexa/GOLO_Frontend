@@ -492,10 +492,8 @@ export default function AddProductPage() {
         <div className="mx-auto max-w-[1400px] flex items-start justify-between gap-8">
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <div className="w-7 h-7 bg-white rounded-lg flex items-center justify-center font-bold" style={{ color: "#157a4f" }}>
-                G
-              </div>
-              <span className="text-lg font-semibold">GOLO</span>
+              <div className="w-7 h-7 bg-white rounded-lg flex items-center justify-center font-bold" style={{ color: "#157a4f" }}>A</div>
+              <span className="text-lg font-semibold">AjuBaju</span>
             </div>
             <p className="text-[12px] max-w-[250px] leading-relaxed">
               The all-in-one management platforms for modern businesses. Empowering growth through analytics and innovative product management.
@@ -531,7 +529,7 @@ export default function AddProductPage() {
         </div>
 
         <div className="mt-6 border-t border-[#e2a112] pt-4 text-[11px] flex items-center justify-between">
-          <p>© 2024 GOLO Dashboard. All rights reserved.</p>
+          <p>© 2024 AjuBaju Dashboard. All rights reserved.</p>
           <div className="flex items-center gap-3">
             <span>Made with ♥️ Vaily</span>
           </div>

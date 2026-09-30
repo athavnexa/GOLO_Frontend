@@ -121,7 +121,7 @@ export default function MerchantReferralsPage() {
             <div>
               <h1 className="text-[32px] font-extrabold text-[#1a1a1a] tracking-tight">Referrals & Rewards</h1>
               <p className="text-[#666] text-[15px] mt-2 max-w-2xl">
-                Invite other businesses and users to join GOLO. Earn exclusive rewards and wallet credits for every successful referral.
+                Invite other businesses and users to join AjuBaju. Earn exclusive rewards and wallet credits for every successful referral.
               </p>
             </div>
             <div className="flex items-center justify-end">
@@ -152,7 +152,7 @@ export default function MerchantReferralsPage() {
                 <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-[12px] font-medium tracking-wide uppercase mb-4">
                   <Gift size={14} /> Earn 15 Days Extension per invite
                 </div>
-                <h2 className="text-[36px] font-bold leading-tight mb-3">Share GOLO with your network</h2>
+                <h2 className="text-[36px] font-bold leading-tight mb-3">Share AjuBaju with your network</h2>
                 <p className="text-white/80 text-[16px] max-w-lg leading-relaxed">
                   Give your friends exclusive signup bonuses and earn a 15-day free extension to your subscription when they make their first transaction on the platform.
                 </p>

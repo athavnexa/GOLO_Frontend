@@ -228,7 +228,7 @@ export default function TransactionsPage() {
                     return (
                       <tr key={tx.paymentId || idx} className="border-b border-[#f0f0f0] hover:bg-[#fafafa] transition-colors group">
                         <td className="px-6 py-4 text-[13px] font-medium text-[#157A4F]">{tx.receipt || String(tx.paymentId || "").substring(0, 10)}</td>
-                        <td className="px-6 py-4 text-[13px] text-[#333]">{tx.description || "GOLO Services"}</td>
+                        <td className="px-6 py-4 text-[13px] text-[#333]">{tx.description || "AjuBaju Services"}</td>
                         <td className="px-6 py-4 text-[13px] text-[#666]">One-time</td>
                         <td className="px-6 py-4 text-[13px] text-[#666]">{new Date(tx.createdAt).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}</td>
                         <td className="px-6 py-4 text-[13px] font-medium text-[#333]">₹{(tx.amount || 0).toLocaleString()}</td>
@@ -288,7 +288,7 @@ export default function TransactionsPage() {
           
           {/* Footer */}
           <div className="flex flex-col sm:flex-row items-center justify-between pt-6 pb-2 text-[12px] text-[#999] border-t border-[#e5e5e5] mt-8">
-            <p>© 2026 GOLO Merchant. All rights reserved.</p>
+            <p>© 2026 AjuBaju Merchant. All rights reserved.</p>
             <div className="flex items-center gap-6 mt-3 sm:mt-0">
               <a href="#" className="hover:text-[#666]">Privacy Policy</a>
               <a href="#" className="hover:text-[#666]">Terms of Service</a>

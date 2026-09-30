@@ -156,14 +156,14 @@ export default function LoginPage() {
                 className="rounded-[28px] bg-white shadow-md flex flex-col items-center px-10 py-8"
                 style={{ width: 340 }}
               >
-                {/* GOLO Logo row */}
+                {/* AjuBaju Logo row */}
                 <div className="flex items-center gap-2 self-end mb-4">
                   {/* Diamond logo icon */}
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
                     <path d="M12 2L2 9l10 13 10-13L12 2z" fill="#157A4F" fillOpacity="0.15" stroke="#157A4F" strokeWidth="1.5"/>
                     <path d="M12 2L2 9h20L12 2z" fill="#157A4F" fillOpacity="0.35"/>
                   </svg>
-                  <span className="text-[15px] font-bold text-gray-800 tracking-wide">GOLO</span>
+                  <span className="text-[15px] font-bold text-gray-800 tracking-wide">AjuBaju</span>
                 </div>
 
                 {/* Shopping cart illustration */}
@@ -256,7 +256,7 @@ export default function LoginPage() {
             <div className="w-full max-w-[420px]">
               {/* Title */}
               <h1 className="text-[26px] font-extrabold text-gray-900 text-center mb-1">
-                Welcome to GOLO Network Group
+                Welcome to AjuBaju Network Group
               </h1>
               <p className="text-center text-[13px] text-gray-400 mb-7">
                 Grow Smarter With Every Ad. Join Free
@@ -380,7 +380,7 @@ export default function LoginPage() {
 
               {/* Footer */}
               <div className="mt-5 text-center text-[12px] text-gray-500">
-                New to GOLO Network Group?{" "}
+                New to AjuBaju Network Group?{" "}
                 <Link href="/register" className="text-gray-900 font-bold hover:underline">
                   Register Now
                 </Link>

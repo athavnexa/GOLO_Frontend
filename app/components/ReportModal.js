@@ -109,7 +109,7 @@ export default function ReportModal({ isOpen, onClose, adId, adTitle }) {
                 </svg>
               </div>
               <h3 className="text-base font-semibold text-gray-800 mb-1.5 sm:text-lg sm:mb-2">Report Submitted!</h3>
-              <p className="text-xs text-gray-600 sm:text-sm">Thank you for helping keep GOLO safe. Our team will review this ad shortly.</p>
+              <p className="text-xs text-gray-600 sm:text-sm">Thank you for helping keep AjuBaju safe. Our team will review this ad shortly.</p>
             </div>
           ) : (
             <>

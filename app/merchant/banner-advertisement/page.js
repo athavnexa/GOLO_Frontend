@@ -146,9 +146,9 @@ export default function MerchantBannerAdvertisementPage() {
     <div className="min-h-screen bg-[#FAFAFA] text-[#111827] flex" style={{ fontFamily: "var(--font-poppins), system-ui, sans-serif" }}>
       <aside className="w-[250px] bg-[#f8f9fb] border-r border-[#e4e6eb] px-3.5 py-4 hidden lg:flex lg:flex-col">
         <button type="button" onClick={() => router.push("/")} className="flex items-center gap-2 px-2 mb-5 text-left">
-          <div className="h-7 w-7 rounded-md bg-[#157A4F] text-white text-[12px] font-bold flex items-center justify-center">G</div>
+          <div className="h-7 w-7 rounded-md bg-[#157A4F] text-white text-[12px] font-bold flex items-center justify-center">A</div>
           <div>
-            <p className="text-[14px] font-bold text-[#157A4F] leading-none">GOLO</p>
+            <p className="text-[14px] font-bold text-[#157A4F] leading-none">AjuBaju</p>
             <p className="text-[21px] font-semibold text-[#157A4F] leading-none mt-[2px]">Dashboard</p>
           </div>
         </button>
@@ -286,14 +286,14 @@ export default function MerchantBannerAdvertisementPage() {
 
         <footer className="h-14 bg-[#edb841] border-t border-[#daa22f] px-4 flex items-center justify-between text-[10px] text-[#5c4513]">
           <div className="flex items-center gap-2 font-semibold">
-            <div className="h-5 w-5 rounded-sm bg-white/70 text-[#157A4F] flex items-center justify-center">G</div>
-            Golo
+            <div className="h-5 w-5 rounded-sm bg-white/70 text-[#157A4F] flex items-center justify-center">A</div>
+            AjuBaju
           </div>
           <div className="hidden md:flex items-center gap-3">
             <span>About Us</span><span>Contact Us</span><span>Support Center</span><span>Privacy Policy</span><span>Terms of Service</span><span>Cookie Policy</span>
           </div>
           <div className="flex items-center gap-2">
-            <span>© 2026 Golo. All rights reserved.</span>
+            <span>© 2026 AjuBaju. All rights reserved.</span>
           </div>
         </footer>
       </div>

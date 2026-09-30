@@ -26,7 +26,7 @@ export default function GlobalAppBanner() {
 					/>
 				</div>
 				<div className="flex-1 min-w-0 pr-4">
-					<p className="text-[14px] font-bold text-gray-900 truncate">Download GOLO App</p>
+					<p className="text-[14px] font-bold text-gray-900 truncate">Download AjuBaju App</p>
 					<p className="text-[12px] text-gray-500 truncate">Get the best deals instantly</p>
 				</div>
 				<a 

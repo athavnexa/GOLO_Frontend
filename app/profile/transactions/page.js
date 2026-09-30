@@ -69,7 +69,7 @@ export default function TransactionHistory() {
     try {
       await openRazorpayCheckout({
         amount: 10,
-        description: 'GOLO Payment',
+        description: 'AjuBaju Payment',
         notes: {
           source: 'profile_transactions',
         },

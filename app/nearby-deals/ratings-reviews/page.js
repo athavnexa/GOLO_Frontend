@@ -209,7 +209,7 @@ export default function RatingsReviewsPage() {
                 <p className="text-[13px] font-semibold text-[#333]">Helpful Tips</p>
                 <ul className="mt-3 space-y-1.5 text-[11px] text-[#666]">
                   <li>Reserve your table 24h in advance</li>
-                  <li>Mention GOLO upon arrival</li>
+                  <li>Mention AjuBaju upon arrival</li>
                   <li>Review helps others find great deals</li>
                   <li>Deal valid for dine-in only</li>
                 </ul>

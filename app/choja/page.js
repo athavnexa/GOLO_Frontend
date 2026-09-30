@@ -6,14 +6,14 @@ import RecentListings from "../components/RecentListings";
 import Footer from "../components/Footer";
 
 export const metadata = {
-  title: "Choja Classified Ads & Listings | GOLO",
-  description: "Explore local advertisements, buy and sell products, search classified listings, and discover services on Choja GOLO. Your ultimate nearby classifieds hub.",
+  title: "Choja Classified Ads & Listings | AjuBaju",
+  description: "Explore local advertisements, buy and sell products, search classified listings, and discover services on Choja AjuBaju. Your ultimate nearby classifieds hub.",
   keywords: [
-    "choja", "golo choja", "choja ads", "classified ads", "nearby listings", "choja classifieds", "post ads nearby",
-    "choja kolhapur ads", "kolhapur classified ads", "kolhapur local listings", "golo choja kolhapur", "buy sell kolhapur",
+    "choja", "ajubaju choja", "choja ads", "classified ads", "nearby listings", "choja classifieds", "post ads nearby",
+    "choja kolhapur ads", "kolhapur classified ads", "kolhapur local listings", "ajubaju choja kolhapur", "buy sell kolhapur",
     "post ads free online", "local business promotion", "classified listing site", "used products marketplace", 
     "second hand selling app", "nearby products listings", "local services ads", "choja classified portal", 
-    "golo marketplace ads", "post shopping deals free",
+    "ajubaju marketplace ads", "post shopping deals free",
     "olx", "olx ads", "olx deals", "olx kolhapur", "olx alternatives", 
     "sites like olx", "olx classifieds", "olx buy sell", "olx second hand", "olx marketplace"
   ],

@@ -53,7 +53,7 @@ export default function SocialButtons({ redirectPath = "/" }) {
 				throw new Error("Your social account did not return an email. Please use another method.");
 			}
 
-			const fullName = socialUser?.displayName || email.split("@")[0] || "GOLO User";
+			const fullName = socialUser?.displayName || email.split("@")[0] || "AjuBaju User";
 			const phone = socialUser?.phoneNumber || undefined;
 
 			const backendAuth = await socialAuthUser({

@@ -75,7 +75,7 @@ export default function PostAdPaymentPage() {
       if (remainingToPay > 0) {
         await openRazorpayCheckout({
           amount: remainingToPay,
-          description: `Ad Payment - ${pending.adData.title || "GOLO"}`,
+          description: `Ad Payment - ${pending.adData.title || "AjuBaju"}`,
           notes: {
             flow: "post_ad",
             category: pending.adData.category || "General",
@@ -102,7 +102,7 @@ export default function PostAdPaymentPage() {
               },
               body: JSON.stringify({
                 amount: walletToUse,
-                description: `Payment for Ad: ${pending.adData.title || "GOLO"}`,
+                description: `Payment for Ad: ${pending.adData.title || "AjuBaju"}`,
                 referenceId: response.data?.adId || "ad",
                 referenceType: "ad"
               })

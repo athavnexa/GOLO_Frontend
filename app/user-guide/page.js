@@ -120,9 +120,9 @@ export default function UserGuidePage() {
         {/*  Sidebar Navigation  */}
         <aside className="sidebar">
             <div className="brand">
-                <div className="brand-logo">G</div>
+                <div className="brand-logo">A</div>
                 <div>
-                    <div className="brand-title">GOLO Docs</div>
+                    <div className="brand-title">AjuBaju Docs</div>
                     <div className="brand-subtitle">3-Sided Guides</div>
                 </div>
             </div>
@@ -138,7 +138,7 @@ export default function UserGuidePage() {
                 <span className="role-filters-label">Filter by Stakeholder</span>
                 <div className="role-chips">
                     <button className="role-chip active-all" data-role="all">All Roles</button>
-                    <button className="role-chip" data-role="user">GOLO User</button>
+                    <button className="role-chip" data-role="user">AjuBaju User</button>
                     <button className="role-chip" data-role="choja">Choja (C2C)</button>
                     <button className="role-chip" data-role="merchant">Merchant</button>
                 </div>
@@ -169,13 +169,13 @@ export default function UserGuidePage() {
         {/*  Main Content  */}
         <main className="content">
             <header className="doc-header">
-                <h1 className="doc-title">GOLO Operational Guides</h1>
+                <h1 className="doc-title">AjuBaju Operational Guides</h1>
                 <p className="doc-description">
-                    Complete end-to-end operational documentation across all 15 core features for the 3 key stakeholders of the GOLO ecosystem: 
-                    <strong>GOLO User (Shopper)</strong>, <strong>Choja (Classifieds / C2C)</strong>, and <strong>Merchant (Retailer / Store Owner)</strong>.
+                    Complete end-to-end operational documentation across all 15 core features for the 3 key stakeholders of the AjuBaju ecosystem: 
+                    <strong>AjuBaju User (Shopper)</strong>, <strong>Choja (Classifieds / C2C)</strong>, and <strong>Merchant (Retailer / Store Owner)</strong>.
                 </p>
                 <div className="meta-tags">
-                    <span className="meta-pill pill-user">🔵 GOLO User (Shopper)</span>
+                    <span className="meta-pill pill-user">🔵 AjuBaju User (Shopper)</span>
                     <span className="meta-pill pill-choja">🟣 Choja (Classifieds / C2C)</span>
                     <span className="meta-pill pill-merchant">🟠 Merchant (Store Owner)</span>
                     <span className="meta-pill">v2.0 Official</span>
@@ -192,11 +192,11 @@ export default function UserGuidePage() {
                 <div className="roles-grid">
                     <div className="role-card role-user" data-role-type="user">
                         <div className="role-header">
-                            <span className="role-title-badge">🔵 GOLO User</span>
+                            <span className="role-title-badge">🔵 AjuBaju User</span>
                             <span className="role-persona">Consumer / Shopper</span>
                         </div>
                         <div className="step-list">
-                            <div className="step-item"><span className="step-number">1</span><div className="step-content"><strong>Access Registration:</strong> Open the GOLO app or visit the Registration page on the web.</div></div>
+                            <div className="step-item"><span className="step-number">1</span><div className="step-content"><strong>Access Registration:</strong> Open the AjuBaju app or visit the Registration page on the web.</div></div>
                             <div className="step-item"><span className="step-number">2</span><div className="step-content"><strong>Enter Details:</strong> Provide Full Legal Name, active Mobile Number, valid Email, and secure Password.</div></div>
                             <div className="step-item"><span className="step-number">3</span><div className="step-content"><strong>Mobile Verification:</strong> Request SMS OTP. A 6-digit verification passcode is delivered instantly.</div></div>
                             <div className="step-item"><span className="step-number">4</span><div className="step-content"><strong>Consent & Activate:</strong> Enter OTP, accept Terms & Privacy Policy, and activate the account.</div></div>
@@ -209,7 +209,7 @@ export default function UserGuidePage() {
                             <span className="role-persona">Classifieds / C2C Poster</span>
                         </div>
                         <div className="step-list">
-                            <div className="step-item"><span className="step-number">1</span><div className="step-content"><strong>Single Sign-On (SSO):</strong> Existing GOLO shoppers automatically have Choja credentials; no second account needed.</div></div>
+                            <div className="step-item"><span className="step-number">1</span><div className="step-content"><strong>Single Sign-On (SSO):</strong> Existing AjuBaju shoppers automatically have Choja credentials; no second account needed.</div></div>
                             <div className="step-item"><span className="step-number">2</span><div className="step-content"><strong>Seller Setup:</strong> Tap "Post Free Ad" or "Choja Tab". Choose your city and neighborhood (e.g. Rajarampuri).</div></div>
                             <div className="step-item"><span className="step-number">3</span><div className="step-content"><strong>Contact Preferences:</strong> Choose whether your phone number is displayed or restricted to in-app chat.</div></div>
                             <div className="step-item"><span className="step-number">4</span><div className="step-content"><strong>Trust Verification:</strong> Complete mobile OTP verification before publishing your first classified ad.</div></div>
@@ -222,11 +222,11 @@ export default function UserGuidePage() {
                             <span className="role-persona">Retailer / Store Owner</span>
                         </div>
                         <div className="step-list">
-                            <div className="step-item"><span className="step-number">1</span><div className="step-content"><strong>Merchant Onboarding:</strong> Visit the Merchant Portal or select "Become a GOLO Merchant".</div></div>
+                            <div className="step-item"><span className="step-number">1</span><div className="step-content"><strong>Merchant Onboarding:</strong> Visit the Merchant Portal or select "Become a AjuBaju Merchant".</div></div>
                             <div className="step-item"><span className="step-number">2</span><div className="step-content"><strong>Business Profile:</strong> Enter Legal Business Name, Trade Name, Store Category, and Physical Address.</div></div>
                             <div className="step-item"><span className="step-number">3</span><div className="step-content"><strong>Statutory KYC:</strong> Upload GSTIN (or declaration), Business PAN, and Shop License / FSSAI.</div></div>
                             <div className="step-item"><span className="step-number">4</span><div className="step-content"><strong>Bank Details:</strong> Provide Account Number, IFSC, and Cancelled Cheque for automated payout settlements.</div></div>
-                            <div className="step-item"><span className="step-number">5</span><div className="step-content"><strong>Profile Verification:</strong> GOLO audits KYC within 24–48 hours to unlock the Merchant Console.</div></div>
+                            <div className="step-item"><span className="step-number">5</span><div className="step-content"><strong>Profile Verification:</strong> AjuBaju audits KYC within 24–48 hours to unlock the Merchant Console.</div></div>
                         </div>
                     </div>
                 </div>
@@ -241,7 +241,7 @@ export default function UserGuidePage() {
                 <div className="roles-grid">
                     <div className="role-card role-user" data-role-type="user">
                         <div className="role-header">
-                            <span className="role-title-badge">🔵 GOLO User</span>
+                            <span className="role-title-badge">🔵 AjuBaju User</span>
                             <span className="role-persona">Consumer / Shopper</span>
                         </div>
                         <ul className="bullet-list">
@@ -258,7 +258,7 @@ export default function UserGuidePage() {
                             <span className="role-persona">Classifieds / C2C Poster</span>
                         </div>
                         <ul className="bullet-list">
-                            <li className="bullet-item"><strong>Unified Single Sign-On:</strong> Seamless session transfer when navigating between GOLO store and Choja classifieds.</li>
+                            <li className="bullet-item"><strong>Unified Single Sign-On:</strong> Seamless session transfer when navigating between AjuBaju store and Choja classifieds.</li>
                             <li className="bullet-item"><strong>Guest Browsing:</strong> Browse ads freely; attempting to Chat, Call, or Post triggers a contextual in-line login modal.</li>
                             <li className="bullet-item"><strong>Multi-Device Sync:</strong> Active chats and saved listings automatically sync across all logged-in devices.</li>
                         </ul>
@@ -270,7 +270,7 @@ export default function UserGuidePage() {
                             <span className="role-persona">Retailer / Store Owner</span>
                         </div>
                         <ul className="bullet-list">
-                            <li className="bullet-item"><strong>Dedicated Merchant Console:</strong> Access via the Merchant Login page or the GOLO Merchant App.</li>
+                            <li className="bullet-item"><strong>Dedicated Merchant Console:</strong> Access via the Merchant Login page or the AjuBaju Merchant App.</li>
                             <li className="bullet-item"><strong>Two-Factor Authentication (2FA):</strong> Mandatory OTP on unrecognized devices or IP addresses.</li>
                             <li className="bullet-item"><strong>Role-Based Staff Access (RBAC):</strong> Restricted sub-accounts for billing cashiers (scanning only, no financial ledgers).</li>
                         </ul>
@@ -287,7 +287,7 @@ export default function UserGuidePage() {
                 <div className="roles-grid">
                     <div className="role-card role-user" data-role-type="user">
                         <div className="role-header">
-                            <span className="role-title-badge">🔵 GOLO User</span>
+                            <span className="role-title-badge">🔵 AjuBaju User</span>
                             <span className="role-persona">Consumer / Shopper</span>
                         </div>
                         <ul className="bullet-list">
@@ -332,7 +332,7 @@ export default function UserGuidePage() {
                 <div className="roles-grid">
                     <div className="role-card role-user" data-role-type="user">
                         <div className="role-header">
-                            <span className="role-title-badge">🔵 GOLO User</span>
+                            <span className="role-title-badge">🔵 AjuBaju User</span>
                             <span className="role-persona">Consumer / Shopper</span>
                         </div>
                         <ul className="bullet-list">
@@ -376,7 +376,7 @@ export default function UserGuidePage() {
                 <div className="roles-grid">
                     <div className="role-card role-user" data-role-type="user">
                         <div className="role-header">
-                            <span className="role-title-badge">🔵 GOLO User</span>
+                            <span className="role-title-badge">🔵 AjuBaju User</span>
                             <span className="role-persona">Consumer / Shopper</span>
                         </div>
                         <ul className="bullet-list">
@@ -421,7 +421,7 @@ export default function UserGuidePage() {
                 <div className="roles-grid">
                     <div className="role-card role-user" data-role-type="user">
                         <div className="role-header">
-                            <span className="role-title-badge">🔵 GOLO User</span>
+                            <span className="role-title-badge">🔵 AjuBaju User</span>
                             <span className="role-persona">Consumer / Shopper</span>
                         </div>
                         <ul className="bullet-list">
@@ -465,11 +465,11 @@ export default function UserGuidePage() {
                 <div className="roles-grid">
                     <div className="role-card role-user" data-role-type="user">
                         <div className="role-header">
-                            <span className="role-title-badge">🔵 GOLO User</span>
+                            <span className="role-title-badge">🔵 AjuBaju User</span>
                             <span className="role-persona">Consumer / Shopper</span>
                         </div>
                         <ul className="bullet-list">
-                            <li className="bullet-item"><strong>Price & Savings Breakdown:</strong> Transparent MRP, GOLO Offer Price, and calculated net savings (₹ and %).</li>
+                            <li className="bullet-item"><strong>Price & Savings Breakdown:</strong> Transparent MRP, AjuBaju Offer Price, and calculated net savings (₹ and %).</li>
                             <li className="bullet-item"><strong>Specifications:</strong> Net weight, ingredients, manufacturer, expiry date, and return policy coverage.</li>
                             <li className="bullet-item"><strong>Store Context:</strong> Merchant name, distance in km, store rating, and operational hours.</li>
                             <li className="bullet-item"><strong>Call to Action:</strong> Claim Discount Voucher, Add to Cart, Buy Now, or Message Store.</li>
@@ -511,13 +511,13 @@ export default function UserGuidePage() {
                 <div className="roles-grid">
                     <div className="role-card role-user" data-role-type="user">
                         <div className="role-header">
-                            <span className="role-title-badge">🔵 GOLO User</span>
+                            <span className="role-title-badge">🔵 AjuBaju User</span>
                             <span className="role-persona">Consumer / Shopper</span>
                         </div>
                         <ul className="bullet-list">
                             <li className="bullet-item"><strong>Eligibility:</strong> Damaged goods, expired items, missing items, or merchant cancellation.</li>
                             <li className="bullet-item"><strong>Claim Window:</strong> Submit request within 24–48 hours via My Orders &rarr; Request Refund with photos.</li>
-                            <li className="bullet-item"><strong>Reimbursement:</strong> Reversal to original bank/UPI account in 5–7 days, or instant GOLO Wallet credit.</li>
+                            <li className="bullet-item"><strong>Reimbursement:</strong> Reversal to original bank/UPI account in 5–7 days, or instant AjuBaju Wallet credit.</li>
                         </ul>
                     </div>
 
@@ -555,7 +555,7 @@ export default function UserGuidePage() {
                 <div className="roles-grid">
                     <div className="role-card role-user" data-role-type="user">
                         <div className="role-header">
-                            <span className="role-title-badge">🔵 GOLO User</span>
+                            <span className="role-title-badge">🔵 AjuBaju User</span>
                             <span className="role-persona">Consumer / Shopper</span>
                         </div>
                         <ul className="bullet-list">
@@ -599,7 +599,7 @@ export default function UserGuidePage() {
                 <div className="roles-grid">
                     <div className="role-card role-user" data-role-type="user">
                         <div className="role-header">
-                            <span className="role-title-badge">🔵 GOLO User</span>
+                            <span className="role-title-badge">🔵 AjuBaju User</span>
                             <span className="role-persona">Consumer / Shopper</span>
                         </div>
                         <ul className="bullet-list">
@@ -643,7 +643,7 @@ export default function UserGuidePage() {
                 <div className="roles-grid">
                     <div className="role-card role-user" data-role-type="user">
                         <div className="role-header">
-                            <span className="role-title-badge">🔵 GOLO User</span>
+                            <span className="role-title-badge">🔵 AjuBaju User</span>
                             <span className="role-persona">Consumer / Shopper</span>
                         </div>
                         <ul className="bullet-list">
@@ -672,7 +672,7 @@ export default function UserGuidePage() {
                         <ul className="bullet-list">
                             <li className="bullet-item"><strong>Coupon Wizard:</strong> Configure Percentage (%) or Flat (₹) discounts and Minimum Order Values.</li>
                             <li className="bullet-item"><strong>Usage Limits:</strong> Set campaign budget caps, daily limits, and per-user redemption caps.</li>
-                            <li className="bullet-item"><strong>Counter Scanner:</strong> Use GOLO Merchant App's built-in camera to validate customer voucher QR codes in 2 seconds.</li>
+                            <li className="bullet-item"><strong>Counter Scanner:</strong> Use AjuBaju Merchant App's built-in camera to validate customer voucher QR codes in 2 seconds.</li>
                         </ul>
                     </div>
                 </div>
@@ -687,7 +687,7 @@ export default function UserGuidePage() {
                 <div className="roles-grid">
                     <div className="role-card role-user" data-role-type="user">
                         <div className="role-header">
-                            <span className="role-title-badge">🔵 GOLO User</span>
+                            <span className="role-title-badge">🔵 AjuBaju User</span>
                             <span className="role-persona">Consumer / Shopper</span>
                         </div>
                         <ul className="bullet-list">
@@ -732,7 +732,7 @@ export default function UserGuidePage() {
                 <div className="roles-grid">
                     <div className="role-card role-user" data-role-type="user">
                         <div className="role-header">
-                            <span className="role-title-badge">🔵 GOLO User</span>
+                            <span className="role-title-badge">🔵 AjuBaju User</span>
                             <span className="role-persona">Consumer / Shopper</span>
                         </div>
                         <ul className="bullet-list">
@@ -776,7 +776,7 @@ export default function UserGuidePage() {
                 <div className="roles-grid">
                     <div className="role-card role-user" data-role-type="user">
                         <div className="role-header">
-                            <span className="role-title-badge">🔵 GOLO User</span>
+                            <span className="role-title-badge">🔵 AjuBaju User</span>
                             <span className="role-persona">Consumer / Shopper</span>
                         </div>
                         <ul className="bullet-list">
@@ -820,7 +820,7 @@ export default function UserGuidePage() {
                 <div className="roles-grid">
                     <div className="role-card role-user" data-role-type="user">
                         <div className="role-header">
-                            <span className="role-title-badge">🔵 GOLO User</span>
+                            <span className="role-title-badge">🔵 AjuBaju User</span>
                             <span className="role-persona">Consumer / Shopper</span>
                         </div>
                         <div className="step-list">
@@ -837,7 +837,7 @@ export default function UserGuidePage() {
                             <span className="role-persona">Classifieds / C2C Poster</span>
                         </div>
                         <ul className="bullet-list">
-                            <li className="bullet-item"><strong>Unified Sync:</strong> Resetting your GOLO customer password updates Choja authentication across all devices.</li>
+                            <li className="bullet-item"><strong>Unified Sync:</strong> Resetting your AjuBaju customer password updates Choja authentication across all devices.</li>
                             <li className="bullet-item"><strong>In-App Reset:</strong> Password recovery can be triggered directly from any Choja auth prompt.</li>
                         </ul>
                     </div>
@@ -868,7 +868,7 @@ export default function UserGuidePage() {
                         <thead>
                             <tr>
                                 <th>Operational Dimension</th>
-                                <th className="col-user">🔵 GOLO User (Shopper)</th>
+                                <th className="col-user">🔵 AjuBaju User (Shopper)</th>
                                 <th className="col-choja">🟣 Choja (Classifieds)</th>
                                 <th className="col-merchant">🟠 Merchant (Retailer)</th>
                             </tr>
@@ -877,7 +877,7 @@ export default function UserGuidePage() {
                             <tr>
                                 <td className="matrix-dimension">Primary Identifier</td>
                                 <td>Mobile Number / Email</td>
-                                <td>Linked GOLO User ID</td>
+                                <td>Linked AjuBaju User ID</td>
                                 <td>Store ID + Business Email</td>
                             </tr>
                             <tr>
@@ -976,7 +976,7 @@ export default function UserGuidePage() {
             </section>
 
             <footer className="page-footer">
-                <p>&copy; 2026 GOLO Hyperlocal Retail & Classifieds Network. Operated by NexaPrime Pvt. Ltd.</p>
+                <p>&copy; 2026 AjuBaju Hyperlocal Retail & Classifieds Network. Operated by NexaPrime Pvt. Ltd.</p>
                 <p>Confidential & Proprietary Architecture Documentation</p>
             </footer>
         </main>

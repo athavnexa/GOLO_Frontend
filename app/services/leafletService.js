@@ -43,7 +43,7 @@ export async function searchLocations(query, options = {}) {
         const nomResponse = await fetch(nomUrl, {
           headers: {
             "Accept": "application/json",
-            "User-Agent": "GOLO-App/1.0",
+            "User-Agent": "AjuBaju-App/1.0",
           },
           signal: nomController.signal,
         });
@@ -227,7 +227,7 @@ export async function reverseGeocode(lng, lat) {
       method: 'GET',
       headers: {
         "Accept": "application/json",
-        "User-Agent": "GOLO-App/1.0",
+        "User-Agent": "AjuBaju-App/1.0",
       },
       signal: controller.signal,
     });

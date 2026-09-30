@@ -265,7 +265,7 @@ export default function ProductDetails({ params }) {
 			try {
 				await navigator.share({
 					title: ad?.title || "Check out this ad",
-					text: `Check out ${ad?.title} on GOLO`,
+					text: `Check out ${ad?.title} on AjuBaju`,
 					url: window.location.href,
 				});
 			} catch (error) {

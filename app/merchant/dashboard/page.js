@@ -559,8 +559,8 @@ function MerchantDashboardContent() {
         <div className="max-w-[1400px] mx-auto px-4 lg:px-8 xl:px-12 grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 rounded bg-[#157A4F] text-white flex items-center justify-center font-bold text-xl">G</div>
-              <span className="text-2xl font-bold text-[#157A4F]">GOLO</span>
+              <div className="w-8 h-8 rounded bg-[#157A4F] text-white flex items-center justify-center font-bold text-xl">A</div>
+              <span className="text-2xl font-bold text-[#157A4F]">AjuBaju</span>
             </div>
             <p className="text-[13px] font-semibold max-w-[250px] leading-relaxed">
               Manage your store, promotions, orders, and customer engagement from one merchant dashboard.
@@ -602,7 +602,7 @@ function MerchantDashboardContent() {
           </div>
         </div>
         <div className="max-w-[1400px] mx-auto px-4 lg:px-8 xl:px-12 pt-6 border-t border-[#F57C00] flex flex-col md:flex-row items-center justify-between text-[11px] font-bold">
-          <p>© 2026 GOLO Merchant Dashboard. All rights reserved.</p>
+          <p>© 2026 AjuBaju Merchant Dashboard. All rights reserved.</p>
           <p>Built for smarter local business growth.</p>
         </div>
       </footer>

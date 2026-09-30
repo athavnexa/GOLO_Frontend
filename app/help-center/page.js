@@ -212,7 +212,7 @@ export default function HelpCenterPage() {
                 </div>
                 <div>
                    <h4 className="font-bold text-gray-900">Email Support</h4>
-                   <p className="text-sm">support@golo.in</p>
+                   <p className="text-sm">support@ajubaju.in</p>
                 </div>
              </div>
              <div className="flex items-center gap-4 text-gray-600">

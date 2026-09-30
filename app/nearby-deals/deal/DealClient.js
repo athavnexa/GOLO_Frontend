@@ -1310,7 +1310,7 @@ function NearbyDealDetailsContent() {
               },
               {
                 q: "Do I need to visit the store to use it?",
-                a: "Yes, GOLO deals are redeemed at the merchant's store. Please visit the store before the deal expires and show your voucher there.",
+                a: "Yes, AjuBaju deals are redeemed at the merchant's store. Please visit the store before the deal expires and show your voucher there.",
               },
               {
                 q: "When do I earn loyalty points?",
@@ -1379,7 +1379,7 @@ function NearbyDealDetailsContent() {
                 </div>
                 <h3 className="text-2xl font-bold text-[#1f2329] mb-2">Report Submitted</h3>
                 <p className="text-[#5d6670] mb-6">
-                  Thank you for helping us keep GOLO safe. Our team will review this offer shortly.
+                  Thank you for helping us keep AjuBaju safe. Our team will review this offer shortly.
                 </p>
                 <button
                   onClick={() => setReportModalOpen(false)}

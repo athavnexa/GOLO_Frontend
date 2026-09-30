@@ -60,15 +60,15 @@ export default function CookiePolicyPage() {
 
           <aside className="sidebar">
             <div className="brand">
-              <div className="brand-logo">G</div>
+              <div className="brand-logo">A</div>
               <div>
-                <div className="brand-title">GOLO Docs</div>
+                <div className="brand-title">AjuBaju Docs</div>
                 <div className="brand-subtitle">Legal &amp; Compliance</div>
               </div>
             </div>
 
             <nav className="nav-sections" id="navSections">
-              <span className="nav-title">COOKIE POLICY — GOLO</span>
+              <span className="nav-title">COOKIE POLICY — AjuBaju</span>
               <a href="#1-what-are-cookies" className="nav-link active"><span>1. What Are Cookies and Similar Technologies?</span></a>
               <a href="#2-what-we-use" className="nav-link"><span>2. What We Use Them For</span></a>
               <a href="#3-cookies-we-use" className="nav-link"><span>3. Cookies We Use</span></a>
@@ -79,7 +79,7 @@ export default function CookiePolicyPage() {
               <a href="#8-consent" className="nav-link"><span>8. Consent and Your Rights</span></a>
               <a href="#9-children" className="nav-link"><span>9. Children</span></a>
               <a href="#10-security" className="nav-link"><span>10. Security</span></a>
-              <a href="#11-relationship" className="nav-link"><span>11. Relationship With the GOLO Privacy Policy</span></a>
+              <a href="#11-relationship" className="nav-link"><span>11. Relationship With the AjuBaju Privacy Policy</span></a>
               <a href="#12-changes" className="nav-link"><span>12. Changes to This Policy</span></a>
               <a href="#13-contact" className="nav-link"><span>13. Contact and Grievance Redressal</span></a>
             </nav>
@@ -87,7 +87,7 @@ export default function CookiePolicyPage() {
 
           <main className="content">
             <header className="doc-header">
-              <h1 className="doc-title">COOKIE POLICY — GOLO</h1>
+              <h1 className="doc-title">COOKIE POLICY — AjuBaju</h1>
               <div className="meta-tags">
                 <span className="meta-pill">Effective Date: 26/09/2026</span>
                 <span className="meta-pill">Last Updated: 26/09/2026</span>
@@ -97,17 +97,17 @@ export default function CookiePolicyPage() {
 
             <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-4 mb-10 p-6 bg-blue-50 rounded-2xl border border-blue-100">
               <p>
-                This Cookie Policy explains how <strong>NexaPrime Private Limited</strong>, a company incorporated under the Companies Act, 2013 and having its registered office at Mahalaxmi Nagar, Subhash Road, Mangalwar Peth, near Gokhale College, Kolhapur, Maharashtra, 416012 — India (<strong>"NexaPrime," "GOLO," "we," "us"</strong> or <strong>"our"</strong>), uses cookies and similar technologies when you access or use the GOLO web application and mobile application (together, the <strong>"Platform"</strong>).
+                This Cookie Policy explains how <strong>NexaPrime Private Limited</strong>, a company incorporated under the Companies Act, 2013 and having its registered office at Mahalaxmi Nagar, Subhash Road, Mangalwar Peth, near Gokhale College, Kolhapur, Maharashtra, 416012 — India (<strong>"NexaPrime," "AjuBaju," "we," "us"</strong> or <strong>"our"</strong>), uses cookies and similar technologies when you access or use the AjuBaju web application and mobile application (together, the <strong>"Platform"</strong>).
               </p>
               <p>
-                This Cookie Policy should be read together with the <a href="/privacy" className="text-blue-600 hover:underline font-semibold">GOLO Privacy Policy</a> and the <a href="/terms" className="text-blue-600 hover:underline font-semibold">GOLO Terms &amp; Conditions</a>. Terms such as <strong>"User"</strong> and <strong>"Merchant"</strong> have the same meaning as in those documents.
+                This Cookie Policy should be read together with the <a href="/privacy" className="text-blue-600 hover:underline font-semibold">AjuBaju Privacy Policy</a> and the <a href="/terms" className="text-blue-600 hover:underline font-semibold">AjuBaju Terms &amp; Conditions</a>. Terms such as <strong>"User"</strong> and <strong>"Merchant"</strong> have the same meaning as in those documents.
               </p>
             </div>
 
             <section className="guide-section" id="1-what-are-cookies">
               <div className="section-header"><h2 className="section-title">1. What Are Cookies and Similar Technologies?</h2></div>
               <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
-                <p>Cookies are small text files that a website stores on your browser or device. GOLO also uses browser <strong>local storage</strong> and <strong>session storage</strong> (HTML5 storage mechanisms), which work similarly to cookies but are not sent with every request and, in the case of local storage, remain on your device until deleted or expired.</p>
+                <p>Cookies are small text files that a website stores on your browser or device. AjuBaju also uses browser <strong>local storage</strong> and <strong>session storage</strong> (HTML5 storage mechanisms), which work similarly to cookies but are not sent with every request and, in the case of local storage, remain on your device until deleted or expired.</p>
                 <div className="bg-gray-50 rounded-2xl p-6 border border-gray-100">
                   <p className="font-semibold text-gray-900 m-0">In this Policy, <span className="text-[#157A4F]">"Cookies and Similar Technologies"</span> refers to cookies, local storage and session storage collectively.</p>
                 </div>
@@ -117,7 +117,7 @@ export default function CookiePolicyPage() {
             <section className="guide-section" id="2-what-we-use">
               <div className="section-header"><h2 className="section-title">2. What We Use Them For</h2></div>
               <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
-                <p>GOLO uses Cookies and Similar Technologies <strong>only</strong> to:</p>
+                <p>AjuBaju uses Cookies and Similar Technologies <strong>only</strong> to:</p>
                 <ul className="list-disc pl-8 space-y-3">
                   <li>sign you in and keep your account session active;</li>
                   <li>keep your account and session secure and prevent unauthorised access;</li>
@@ -127,7 +127,7 @@ export default function CookiePolicyPage() {
                   <li>keep the Platform working properly and protect it against abuse.</li>
                 </ul>
                 <div className="bg-green-50 border-l-4 border-green-500 p-4 rounded-r-lg">
-                  <p className="text-green-900 font-medium m-0">GOLO does <strong>not</strong> currently use cookies or similar technologies for third-party advertising, analytics or cross-site tracking. If GOLO introduces any such technology (for example, an analytics tool), we will update this Policy and this table first, and will ask for your consent before using it, as described in Section 7.</p>
+                  <p className="text-green-900 font-medium m-0">AjuBaju does <strong>not</strong> currently use cookies or similar technologies for third-party advertising, analytics or cross-site tracking. If AjuBaju introduces any such technology (for example, an analytics tool), we will update this Policy and this table first, and will ask for your consent before using it, as described in Section 7.</p>
                 </div>
               </div>
             </section>
@@ -135,7 +135,7 @@ export default function CookiePolicyPage() {
             <section className="guide-section" id="3-cookies-we-use">
               <div className="section-header"><h2 className="section-title">3. Cookies We Use</h2></div>
               <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
-                <p>The following cookies are currently set by GOLO:</p>
+                <p>The following cookies are currently set by AjuBaju:</p>
                 <div className="overflow-x-auto rounded-2xl border border-gray-200 shadow-sm">
                   <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                     <thead>
@@ -148,9 +148,9 @@ export default function CookiePolicyPage() {
                     </thead>
                     <tbody>
                       {[
-                        { name: 'accessToken', category: 'Strictly necessary', expiry: '7 days', purpose: 'Primary authentication token that verifies you are logged in and identifies your account securely to the GOLO backend.' },
+                        { name: 'accessToken', category: 'Strictly necessary', expiry: '7 days', purpose: 'Primary authentication token that verifies you are logged in and identifies your account securely to the AjuBaju backend.' },
                         { name: 'authToken', category: 'Strictly necessary', expiry: '7 days', purpose: 'Legacy authentication token retained to support older endpoints during API updates.' },
-                        { name: 'GOLO-access-token', category: 'Strictly necessary', expiry: '7 days', purpose: 'Alternate access-token cookie used to keep your session working consistently across the Platform.' },
+                        { name: 'AjuBaju-access-token', category: 'Strictly necessary', expiry: '7 days', purpose: 'Alternate access-token cookie used to keep your session working consistently across the Platform.' },
                         { name: 'refreshToken', category: 'Strictly necessary', expiry: '7 days', purpose: 'Used to obtain a new access token automatically when the current one expires, so you are not logged out unnecessarily.' },
                       ].map((row, i) => (
                         <tr key={i} style={{ background: i % 2 === 0 ? '#f8fafb' : '#fff', borderBottom: '1px solid #e5e7eb' }}>
@@ -203,9 +203,9 @@ export default function CookiePolicyPage() {
             <section className="guide-section" id="5-payment">
               <div className="section-header"><h2 className="section-title">5. Payment Technologies</h2></div>
               <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
-                <p>GOLO uses <strong>Razorpay</strong> as its payment gateway. During checkout, Razorpay sets its own session and fraud-prevention cookies to process your payment, authenticate the transaction and detect fraud.</p>
+                <p>AjuBaju uses <strong>Razorpay</strong> as its payment gateway. During checkout, Razorpay sets its own session and fraud-prevention cookies to process your payment, authenticate the transaction and detect fraud.</p>
                 <div className="bg-gray-50 rounded-2xl p-6 border border-gray-100">
-                  <p className="text-gray-700 m-0">GOLO does <strong>not</strong> store your complete card or banking credentials; these are handled directly by Razorpay under its own privacy and cookie policy.</p>
+                  <p className="text-gray-700 m-0">AjuBaju does <strong>not</strong> store your complete card or banking credentials; these are handled directly by Razorpay under its own privacy and cookie policy.</p>
                 </div>
               </div>
             </section>
@@ -213,8 +213,8 @@ export default function CookiePolicyPage() {
             <section className="guide-section" id="6-third-party">
               <div className="section-header"><h2 className="section-title">6. Third-Party and Future Technologies</h2></div>
               <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
-                <p>GOLO does <strong>not</strong> currently use third-party analytics, advertising or audience-measurement cookies (for example, Google Analytics or Mixpanel). Images on the Platform are delivered through <strong>Cloudinary</strong>, which may receive standard technical information (such as your IP address and browser type) needed to deliver and optimise media, but does not currently set tracking cookies for analytics purposes on GOLO.</p>
-                <p>If GOLO adds any analytics, advertising or similar third-party technology in the future, we will:</p>
+                <p>AjuBaju does <strong>not</strong> currently use third-party analytics, advertising or audience-measurement cookies (for example, Google Analytics or Mixpanel). Images on the Platform are delivered through <strong>Cloudinary</strong>, which may receive standard technical information (such as your IP address and browser type) needed to deliver and optimise media, but does not currently set tracking cookies for analytics purposes on AjuBaju.</p>
+                <p>If AjuBaju adds any analytics, advertising or similar third-party technology in the future, we will:</p>
                 <ul className="list-disc pl-8 space-y-3">
                   <li>update this Cookie Policy to name the specific cookies, their purpose and their provider;</li>
                   <li>introduce a cookie consent mechanism allowing you to accept or decline non-essential cookies before they are set; and</li>
@@ -233,11 +233,11 @@ export default function CookiePolicyPage() {
                   </div>
                   <div className="bg-red-50 rounded-2xl p-6 border border-red-100">
                     <h3 className="text-lg font-bold text-red-900 mb-3">Effect of Blocking</h3>
-                    <p className="text-red-800 text-sm leading-relaxed m-0">If you block or delete <code className="bg-red-100 px-1 rounded text-xs">accessToken</code>, <code className="bg-red-100 px-1 rounded text-xs">authToken</code>, <code className="bg-red-100 px-1 rounded text-xs">GOLO-access-token</code> or <code className="bg-red-100 px-1 rounded text-xs">refreshToken</code>, you will be signed out and may need to log in again. Clearing theme cookies resets your theme to default. Clearing <code className="bg-red-100 px-1 rounded text-xs">merchantRegData</code> mid-registration will lose your unsaved form progress.</p>
+                    <p className="text-red-800 text-sm leading-relaxed m-0">If you block or delete <code className="bg-red-100 px-1 rounded text-xs">accessToken</code>, <code className="bg-red-100 px-1 rounded text-xs">authToken</code>, <code className="bg-red-100 px-1 rounded text-xs">AjuBaju-access-token</code> or <code className="bg-red-100 px-1 rounded text-xs">refreshToken</code>, you will be signed out and may need to log in again. Clearing theme cookies resets your theme to default. Clearing <code className="bg-red-100 px-1 rounded text-xs">merchantRegData</code> mid-registration will lose your unsaved form progress.</p>
                   </div>
                   <div className="bg-blue-50 rounded-2xl p-6 border border-blue-100">
                     <h3 className="text-lg font-bold text-blue-900 mb-3">Do Not Track</h3>
-                    <p className="text-blue-800 text-sm leading-relaxed m-0">There is no common technical standard for browser "Do Not Track" signals, so GOLO does not respond to them differently at this time. Because GOLO does not use tracking or advertising cookies, this does not currently affect how your information is used.</p>
+                    <p className="text-blue-800 text-sm leading-relaxed m-0">There is no common technical standard for browser "Do Not Track" signals, so AjuBaju does not respond to them differently at this time. Because AjuBaju does not use tracking or advertising cookies, this does not currently affect how your information is used.</p>
                   </div>
                 </div>
               </div>
@@ -247,10 +247,10 @@ export default function CookiePolicyPage() {
               <div className="section-header"><h2 className="section-title">8. Consent and Your Rights</h2></div>
               <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-6">
                 <p>The cookies in Section 3 are <strong>strictly necessary</strong> to provide the service you have asked for (signing in, staying signed in, and keeping your account secure), so consent is not required for them, though they are disclosed here. The local/session storage in Section 4 is functional and used only to remember your own choices or unsaved input.</p>
-                <p>Where GOLO introduces any optional, non-essential technology in the future, we will ask for your consent first, in clear and plain language. You will be able to <strong>withdraw that consent at any time</strong>, as easily as you gave it, and withdrawal will not affect processing already carried out before you withdrew.</p>
+                <p>Where AjuBaju introduces any optional, non-essential technology in the future, we will ask for your consent first, in clear and plain language. You will be able to <strong>withdraw that consent at any time</strong>, as easily as you gave it, and withdrawal will not affect processing already carried out before you withdrew.</p>
                 <div className="bg-gray-50 rounded-2xl p-6 border border-gray-100">
                   <h3 className="text-lg font-bold text-gray-900 mb-3">Your Rights Under DPDP Act, 2023</h3>
-                  <p className="text-gray-700 m-0">Under the Digital Personal Data Protection Act, 2023 and the rules made under it, and other applicable Indian law, you may have rights over your personal data, including rights to access, correct, or erase it, and to have your grievances addressed. The <a href="/privacy" className="text-blue-600 hover:underline font-semibold">GOLO Privacy Policy</a> explains how to exercise these rights.</p>
+                  <p className="text-gray-700 m-0">Under the Digital Personal Data Protection Act, 2023 and the rules made under it, and other applicable Indian law, you may have rights over your personal data, including rights to access, correct, or erase it, and to have your grievances addressed. The <a href="/privacy" className="text-blue-600 hover:underline font-semibold">AjuBaju Privacy Policy</a> explains how to exercise these rights.</p>
                 </div>
               </div>
             </section>
@@ -258,7 +258,7 @@ export default function CookiePolicyPage() {
             <section className="guide-section" id="9-children">
               <div className="section-header"><h2 className="section-title">9. Children</h2></div>
               <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-4">
-                <p>GOLO is intended only for people aged <strong>18 years or older</strong>. GOLO does not knowingly use Cookies and Similar Technologies to collect personal data from anyone under 18. If we learn that we have done so, we will take steps to delete that data.</p>
+                <p>AjuBaju is intended only for people aged <strong>18 years or older</strong>. AjuBaju does not knowingly use Cookies and Similar Technologies to collect personal data from anyone under 18. If we learn that we have done so, we will take steps to delete that data.</p>
               </div>
             </section>
 
@@ -281,9 +281,9 @@ export default function CookiePolicyPage() {
             </section>
 
             <section className="guide-section" id="11-relationship">
-              <div className="section-header"><h2 className="section-title">11. Relationship With the GOLO Privacy Policy</h2></div>
+              <div className="section-header"><h2 className="section-title">11. Relationship With the AjuBaju Privacy Policy</h2></div>
               <div className="text-base md:text-lg text-gray-700 leading-relaxed space-y-4">
-                <p>This Cookie Policy explains how GOLO uses cookies, local storage and session storage. The <a href="/privacy" className="text-blue-600 hover:underline font-semibold">GOLO Privacy Policy</a> explains what personal data GOLO collects, why, how long it is kept, who it is shared with, and how to exercise your rights.</p>
+                <p>This Cookie Policy explains how AjuBaju uses cookies, local storage and session storage. The <a href="/privacy" className="text-blue-600 hover:underline font-semibold">AjuBaju Privacy Policy</a> explains what personal data AjuBaju collects, why, how long it is kept, who it is shared with, and how to exercise your rights.</p>
                 <div className="bg-blue-50 rounded-2xl p-6 border border-blue-100">
                   <p className="text-blue-900 m-0">Where information collected through Cookies and Similar Technologies is personal data, it is handled under the Privacy Policy and applicable law.</p>
                 </div>
@@ -305,9 +305,9 @@ export default function CookiePolicyPage() {
                 <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6 md:p-8 shadow-sm">
                   <h3 className="text-2xl font-black mb-6 text-[#157A4F]">NexaPrime Private Limited</h3>
                   <div className="space-y-4 text-gray-700">
-                    <p><strong className="text-gray-900 text-lg">Operating:</strong><br/>GOLO Platform</p>
+                    <p><strong className="text-gray-900 text-lg">Operating:</strong><br/>AjuBaju Platform</p>
                     <p><strong className="text-gray-900 text-lg">Grievance Officer / Contact:</strong><br/>NexaPrime Pvt. Ltd.</p>
-                    <p><strong className="text-gray-900 text-lg">Email:</strong><br/><a href="mailto:support.golo@nexaprime.in" className="text-blue-600 hover:underline">support.golo@nexaprime.in</a></p>
+                    <p><strong className="text-gray-900 text-lg">Email:</strong><br/><a href="mailto:support.ajubaju@nexaprime.in" className="text-blue-600 hover:underline">support.ajubaju@nexaprime.in</a></p>
                     <p><strong className="text-gray-900 text-lg">Registered Office:</strong><br/>Mahalaxmi Nagar, Subhash Road, Mangalwar Peth, near Gokhale College, Kolhapur, Maharashtra, 416012 — India</p>
                     <p><strong className="text-gray-900 text-lg">CIN:</strong><br/>U62012PN2025PTC245962</p>
                   </div>
@@ -319,7 +319,7 @@ export default function CookiePolicyPage() {
             </section>
 
             <div className="page-footer">
-              <p>GOLO Cookie Policy — NexaPrime Private Limited — Effective: 26/09/2026</p>
+              <p>AjuBaju Cookie Policy — NexaPrime Private Limited — Effective: 26/09/2026</p>
             </div>
           </main>
         </div>

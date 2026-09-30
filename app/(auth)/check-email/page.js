@@ -181,7 +181,7 @@ function CheckEmailContent() {
         </div>
 
         <div className={`check-email-card ${styles.card}`}>
-          <div className="top-g-box">G</div>
+          <div className="top-g-box">A</div>
 
           <Link href="/login" className={styles.backLink}>
             <ArrowLeft size={17} />
@@ -195,7 +195,7 @@ function CheckEmailContent() {
               </div>
 
               <p className={styles.eyebrow}>
-                {accountType === "merchant" ? "Merchant Account" : "GOLO Account"}
+                {accountType === "merchant" ? "Merchant Account" : "AjuBaju Account"}
               </p>
               <h2>{stepMeta.title}</h2>
               <p className={styles.description}>{stepMeta.description}</p>
@@ -321,7 +321,7 @@ function CheckEmailContent() {
           </div>
 
           <div className="register-footer">
-            New to GOLO?{" "}
+            New to AjuBaju?{" "}
             <Link href="/register" className="font-bold cursor-pointer">
               Register Now
             </Link>

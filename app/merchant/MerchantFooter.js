@@ -29,10 +29,8 @@ export default function MerchantFooter() {
       <div className="mx-auto grid w-full max-w-[1500px] grid-cols-1 gap-6 px-4 py-6 sm:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr_1fr] lg:px-10 lg:py-8">
         <div>
           <div className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-[6px] bg-[#157a4f] text-[28px] font-bold leading-none text-white shadow-sm">
-              G
-            </div>
-            <span className="text-[30px] font-semibold leading-none text-[#157a4f]">GOLO</span>
+            <div className="flex h-9 w-9 items-center justify-center rounded-[6px] bg-[#157a4f] text-[28px] font-bold leading-none text-white shadow-sm">A</div>
+            <span className="text-[30px] font-semibold leading-none text-[#157a4f]">AjuBaju</span>
           </div>
           <p className="mt-3 max-w-[280px] text-[12px] leading-5 text-[#4f3d13]">
             Manage your store, promotions, orders, and customer engagement from one merchant dashboard.
@@ -77,7 +75,7 @@ export default function MerchantFooter() {
 
       <div className="border-t border-[#d49b22]/80">
         <div className="mx-auto flex w-full max-w-[1500px] flex-col gap-2 px-4 py-3 text-[10px] text-[#5f4710] sm:flex-row sm:items-center sm:justify-between lg:px-10">
-          <p>© 2026 GOLO Merchant Dashboard. All rights reserved.</p>
+          <p>© 2026 AjuBaju Merchant Dashboard. All rights reserved.</p>
           <p>Built for smarter local business growth.</p>
         </div>
       </div>
