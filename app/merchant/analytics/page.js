@@ -323,35 +323,45 @@ function BarChartWidget({ title, icon, data, dataKey, color }) {
 }
 
 function AgeGenderWidget({ data, totalCustomers }) {
-  const rows = data || [];
-  
-  let totalCount = 0;
-  let maleRaw = 0;
-  let femaleRaw = 0;
-  let otherRaw = 0;
+  // Backend now returns: { data: [{ count, male%, female%, other% }], summary: { total, male, female, other } }
+  // Support both old array format and new summary format
+  const demData = data || {};
+  const rows = Array.isArray(demData) ? demData : (demData.data || []);
+  const summary = demData.summary || null;
 
-  rows.forEach(r => {
-    totalCount += (r.count || 0);
-    maleRaw += Math.round(((r.male || 0) / 100) * (r.count || 0));
-    femaleRaw += Math.round(((r.female || 0) / 100) * (r.count || 0));
-    otherRaw += Math.round(((r.other || 0) / 100) * (r.count || 0));
-  });
+  let total, maleCount, femaleCount, otherCount;
 
-  const baseTotal = totalCustomers || 0;
-  const total = totalCount > 0 ? totalCount : baseTotal;
-  
-  // If we have no demographic data but we have customers, we will distribute them deterministically or show 0
-  const maleCount = totalCount > 0 ? maleRaw : 0;
-  const femaleCount = totalCount > 0 ? femaleRaw : 0;
-  const otherCount = totalCount > 0 ? otherRaw : 0;
+  if (summary && summary.total > 0) {
+    // New backend format — direct counts
+    total = summary.total;
+    maleCount = summary.male || 0;
+    femaleCount = summary.female || 0;
+    otherCount = summary.other || 0;
+  } else if (rows.length > 0) {
+    // Aggregate from rows
+    total = rows.reduce((s, r) => s + (r.count || 0), 0);
+    maleCount = rows.reduce((s, r) => s + Math.round(((r.male || 0) / 100) * (r.count || 0)), 0);
+    femaleCount = rows.reduce((s, r) => s + Math.round(((r.female || 0) / 100) * (r.count || 0)), 0);
+    otherCount = rows.reduce((s, r) => s + Math.round(((r.other || 0) / 100) * (r.count || 0)), 0);
+  } else {
+    // No demographic data at all — at least show correct total from KPI stats
+    total = totalCustomers || 0;
+    maleCount = 0;
+    femaleCount = 0;
+    otherCount = total; // All customers shown as "other" when gender unknown
+  }
 
   const male = total > 0 ? Math.round((maleCount / total) * 100) : 0;
   const female = total > 0 ? Math.round((femaleCount / total) * 100) : 0;
-  const other = total > 0 ? Math.round((otherCount / total) * 100) : 0;
+  const other = total > 0 ? Math.max(0, 100 - male - female) : 0;
+  // Recompute otherCount to be remainder (avoids floating point rounding issues)
+  const otherCountDisplay = Math.max(0, total - maleCount - femaleCount);
+
+  const hasGenderData = maleCount > 0 || femaleCount > 0;
 
   return (
     <div className="bg-white rounded-[16px] p-6 shadow-sm border border-gray-100 h-72 flex flex-col">
-      <h3 className="text-[15px] font-bold text-gray-900 mb-6">Age & Gender</h3>
+      <h3 className="text-[15px] font-bold text-gray-900 mb-6">Age &amp; Gender</h3>
       
       <div className="flex items-center gap-8 flex-1">
         <div className="relative w-36 h-36 shrink-0">
@@ -392,11 +402,11 @@ function AgeGenderWidget({ data, totalCustomers }) {
           </div>
           <div className="flex items-center justify-between text-[11px]">
             <div className="flex items-center gap-2 text-gray-600 font-medium">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#9CA3AF]"></span> Other
+              <span className="w-2.5 h-2.5 rounded-full bg-[#9CA3AF]"></span> {hasGenderData ? 'Other' : 'Not Specified'}
             </div>
             <div className="flex gap-4">
               <span className="font-bold text-gray-900">{other}%</span>
-              <span className="text-gray-400 w-10 text-right">({otherCount.toLocaleString()})</span>
+              <span className="text-gray-400 w-10 text-right">({otherCountDisplay.toLocaleString()})</span>
             </div>
           </div>
         </div>
