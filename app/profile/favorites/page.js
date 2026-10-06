@@ -288,15 +288,15 @@ export default function GolocalFavoritesPage() {
           ) : (
             <div className="mt-5 grid sm:grid-cols-2 xl:grid-cols-4 gap-4">
               {filteredAds.map((ad, idx) => {
-                const locationText =
-                  [ad.city, ad.state].filter(Boolean).join(", ") ||
-                  ad.location ||
-                  ad.storeLocation ||
-                  ad.merchant?.storeLocation ||
-                  ad.merchant?.address ||
-                  ad.merchantLocation ||
-                  ad.area ||
-                  "Nearby Store";
+                const rawLoc = [ad.city, ad.state].filter(Boolean).join(", ") ||
+                  (typeof ad.location === 'string' ? ad.location : null) ||
+                  (typeof ad.storeLocation === 'string' ? ad.storeLocation : null) ||
+                  (typeof ad.merchant?.storeLocation === 'string' ? ad.merchant?.storeLocation : null) ||
+                  (typeof ad.merchant?.address === 'string' ? ad.merchant?.address : null) ||
+                  (typeof ad.merchantLocation === 'string' ? ad.merchantLocation : null) ||
+                  (typeof ad.area === 'string' ? ad.area : null);
+                  
+                const locationText = rawLoc || "Nearby Store";
 
                 const tag = getItemTag(ad);
                 const itemLink = getItemLink(ad);

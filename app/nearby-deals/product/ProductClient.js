@@ -289,7 +289,7 @@ function ProductDetailContent() {
       try {
         const countRes = await getAdWishlistCount(wishlistTargetId);
         if (!cancelled && countRes?.success) {
-          setWishlistCount(countRes.data?.wishlistCount ?? 0);
+          setAdWishlistCount(countRes.data?.wishlistCount ?? 0);
         }
       } catch {
         // ignore
@@ -334,7 +334,7 @@ function ProductDetailContent() {
       if (res?.success) {
         const added = !!res.data?.added;
         setIsWishlisted(added);
-        setWishlistCount((prev) => (prev === null ? null : added ? (prev || 0) + 1 : Math.max(0, (prev || 0) - 1)));
+        setAdWishlistCount((prev) => (prev === null ? null : added ? (prev || 0) + 1 : Math.max(0, (prev || 0) - 1)));
       }
     } catch (err) {
       console.error('Failed to toggle wishlist:', err);
