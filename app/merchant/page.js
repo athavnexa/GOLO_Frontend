@@ -585,65 +585,106 @@ export default function MerchantLandingPage() {
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
             
             {/* Template 1 */}
-            <div className="bg-white rounded-[24px] border border-gray-100 overflow-hidden shadow-xl shadow-gray-200/50 flex flex-col hover:-translate-y-1.5 transition-all duration-300 group cursor-pointer">
+            <Link href="/merchant/templates/template1" className="bg-white rounded-[24px] border border-gray-100 overflow-hidden shadow-xl shadow-gray-200/50 flex flex-col hover:-translate-y-1.5 transition-all duration-300 group cursor-pointer">
               <div className="relative aspect-[4/5] w-full bg-white flex flex-col border-b border-gray-100 overflow-hidden">
                 {/* Browser Top Bar */}
-                <div className="h-5 bg-gray-100 border-b border-gray-200 flex items-center px-3 gap-1.5 w-full shrink-0">
-                  <div className="w-2 h-2 rounded-full bg-red-400"></div>
-                  <div className="w-2 h-2 rounded-full bg-amber-400"></div>
-                  <div className="w-2 h-2 rounded-full bg-green-400"></div>
+                <div className="h-4 bg-gray-100 border-b border-gray-200 flex items-center px-2.5 gap-1 w-full shrink-0">
+                  <div className="w-1.5 h-1.5 rounded-full bg-red-400"></div>
+                  <div className="w-1.5 h-1.5 rounded-full bg-amber-400"></div>
+                  <div className="w-1.5 h-1.5 rounded-full bg-green-400"></div>
                 </div>
-                {/* Navbar Mockup */}
-                <div className="h-8 flex items-center justify-between px-4 border-b border-gray-50 shrink-0">
-                  <div className="w-10 h-2.5 bg-gray-200 rounded-sm"></div>
-                  <div className="flex gap-2.5">
-                    <div className="w-5 h-1.5 bg-gray-200 rounded-sm"></div>
-                    <div className="w-5 h-1.5 bg-gray-200 rounded-sm"></div>
-                    <div className="w-5 h-1.5 bg-gray-200 rounded-sm"></div>
+                {/* Teal Navbar Mockup */}
+                <div className="h-6 bg-[#32a1c8] flex items-center justify-between px-3 shrink-0">
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-3 h-3 rounded-full bg-white/40"></div>
+                    <div className="w-10 h-1.5 bg-white/70 rounded-sm"></div>
+                  </div>
+                  <div className="flex gap-2">
+                    <div className="w-5 h-1 bg-white/50 rounded-sm"></div>
+                    <div className="w-5 h-1 bg-white/50 rounded-sm"></div>
+                    <div className="w-5 h-1 bg-white/50 rounded-sm"></div>
                   </div>
                 </div>
-                {/* Hero Banner with Specific Image */}
-                <div className="h-[55%] relative overflow-hidden flex flex-col justify-center items-center p-4 text-center shrink-0">
-                  <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=600&q=80" alt="Food & Dining" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                  <div className="absolute inset-0 bg-black/40"></div>
-                  <div className="relative z-10 space-y-2">
-                    <div className="w-20 h-3.5 bg-white rounded-sm mx-auto shadow-sm"></div>
-                    <div className="w-32 h-2 bg-white/80 rounded-sm mx-auto shadow-sm"></div>
-                    <div className="w-12 h-3.5 bg-[#f3b12a] rounded-sm mx-auto mt-3 shadow-sm"></div>
+                {/* Hero split: left image + right yellow text area */}
+                <div className="flex shrink-0" style={{height: '38%'}}>
+                  <div className="w-1/2 relative overflow-hidden">
+                    <img src="https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=300&q=80" alt="Hero" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                  </div>
+                  <div className="w-1/2 bg-white flex flex-col justify-center px-3 py-2 gap-1.5 border-l border-gray-100">
+                    <div className="w-14 h-3 bg-[#ffc107] rounded-sm"></div>
+                    <div className="w-10 h-3 bg-[#ffc107]/70 rounded-sm"></div>
+                    <div className="w-16 h-1 bg-gray-200 rounded-sm mt-1"></div>
+                    <div className="w-12 h-1 bg-gray-200 rounded-sm"></div>
+                    <div className="w-10 h-4 border border-[#ffc107] rounded-full mt-2"></div>
                   </div>
                 </div>
-                {/* Below the Fold: Services / Features Skeleton */}
-                <div className="flex-1 bg-gray-50 p-4 flex flex-col justify-center gap-3">
-                  <div className="w-24 h-2 bg-gray-300 rounded-sm mx-auto mb-1"></div>
-                  <div className="flex gap-3">
-                    <div className="flex-1 space-y-2">
-                      <div className="w-full aspect-video bg-gray-200 rounded-sm"></div>
-                      <div className="w-3/4 h-1.5 bg-gray-300 rounded mx-auto"></div>
-                    </div>
-                    <div className="flex-1 space-y-2">
-                      <div className="w-full aspect-video bg-gray-200 rounded-sm"></div>
-                      <div className="w-3/4 h-1.5 bg-gray-300 rounded mx-auto"></div>
-                    </div>
-                    <div className="flex-1 space-y-2">
-                      <div className="w-full aspect-video bg-gray-200 rounded-sm"></div>
-                      <div className="w-3/4 h-1.5 bg-gray-300 rounded mx-auto"></div>
-                    </div>
+                {/* Story strip */}
+                <div className="bg-[#b5d8e6]/60 flex items-center gap-2 px-3 py-1.5 shrink-0">
+                  <div className="w-8 h-7 rounded-sm overflow-hidden shrink-0">
+                    <img src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=60&q=60" alt="" className="w-full h-full object-cover" />
+                  </div>
+                  <div className="flex-1 space-y-1">
+                    <div className="w-16 h-1 bg-[#297895]/50 rounded-sm"></div>
+                    <div className="w-20 h-1 bg-gray-400/40 rounded-sm"></div>
                   </div>
                 </div>
-                <div className="absolute top-3 right-3 z-20 bg-[#f3b12a] text-white text-[9px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider shadow-md">
-                  NEW TEMPLATE
+                {/* Product cards row */}
+                <div className="flex-1 bg-gray-50 px-2.5 py-2 flex flex-col justify-center gap-1.5">
+                  <div className="w-16 h-1.5 bg-gray-300 rounded-sm mx-auto mb-0.5"></div>
+                  <div className="flex gap-1.5">
+                    {[
+                      "https://images.unsplash.com/photo-1585336261022-680e295ce3fe?auto=format&fit=crop&w=80&q=60",
+                      "https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=80&q=60",
+                      "https://images.unsplash.com/photo-1580136453916-d3c5bf40cc7f?auto=format&fit=crop&w=80&q=60",
+                    ].map((src, i) => (
+                      <div key={i} className="flex-1 bg-white rounded-sm overflow-hidden shadow-sm border border-gray-100">
+                        <div className="aspect-square w-full overflow-hidden">
+                          <img src={src} alt="" className="w-full h-full object-cover" />
+                        </div>
+                        <div className="p-1 space-y-0.5">
+                          <div className="w-full h-1 bg-gray-200 rounded-sm"></div>
+                          <div className="w-2/3 h-1 bg-[#ffc107]/60 rounded-sm"></div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="absolute top-7 right-2 z-20 bg-[#f3b12a] text-white text-[8px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider shadow-md">
+                  NEW
                 </div>
               </div>
-              <div className="p-6 flex-1 flex flex-col justify-between space-y-4 bg-white relative z-30">
-                <div>
-                  <h4 className="font-extrabold text-base text-gray-900">Food & Dining</h4>
-                  <p className="text-xs text-gray-400 mt-1">Classic & Clean</p>
+              <div className="p-5 flex-1 flex flex-col gap-3 bg-white relative z-30">
+                {/* Top row: name + template no */}
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <h4 className="font-extrabold text-sm text-gray-900 leading-tight">Stationary & Books</h4>
+                    <p className="text-[11px] text-gray-400 mt-0.5">Modern & Clean</p>
+                  </div>
+                  <span className="shrink-0 text-[10px] font-bold text-[#32a1c8] bg-blue-50 border border-blue-100 px-2 py-0.5 rounded-full">
+                    #1
+                  </span>
                 </div>
-                <span className="text-xs font-bold text-[#157a4f] group-hover:underline flex items-center gap-1">
-                  Preview Template <ChevronRight size={14} />
-                </span>
+
+                {/* Badges row */}
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-full">
+                    <svg width="9" height="9" viewBox="0 0 10 10" fill="none" className="shrink-0"><circle cx="5" cy="5" r="4" stroke="currentColor" strokeWidth="1.4"/><path d="M3 5l1.5 1.5L7 3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    Single Page Website
+                  </span>
+                </div>
+
+                {/* Price + CTA */}
+                <div className="flex items-center justify-between mt-auto pt-2 border-t border-gray-100">
+                  <div>
+                    <span className="text-base font-extrabold text-gray-900">₹999</span>
+                    <span className="text-[10px] text-gray-400 ml-1">/one-time</span>
+                  </div>
+                  <span className="text-[11px] font-bold text-[#32a1c8] group-hover:underline flex items-center gap-0.5">
+                    Preview <ChevronRight size={13} />
+                  </span>
+                </div>
               </div>
-            </div>
+            </Link>
 
             {/* Template 2 */}
             <div className="bg-white rounded-[24px] border border-gray-100 overflow-hidden shadow-xl shadow-gray-200/50 flex flex-col hover:-translate-y-1.5 transition-all duration-300 group cursor-pointer">

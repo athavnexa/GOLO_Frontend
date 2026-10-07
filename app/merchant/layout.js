@@ -6,8 +6,10 @@ import MerchantFooter from "./MerchantFooter";
 export default function MerchantLayout({ children }) {
   const pathname = usePathname();
   const isLandingPage = pathname === "/merchant";
+  const isTemplatePage = pathname.startsWith("/merchant/templates/");
 
-  if (isLandingPage) {
+  // Landing page and template previews render without any shared chrome
+  if (isLandingPage || isTemplatePage) {
     return <>{children}</>;
   }
 
