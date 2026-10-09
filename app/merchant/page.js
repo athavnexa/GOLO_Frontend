@@ -898,62 +898,105 @@ export default function MerchantLandingPage() {
             </Link>
 
             {/* Template 4 */}
-            <div className="bg-white rounded-[24px] border border-gray-100 overflow-hidden shadow-xl shadow-gray-200/50 flex flex-col hover:-translate-y-1.5 transition-all duration-300 group cursor-pointer">
+            <Link href="/merchant/templates/template4" className="bg-white rounded-[24px] border border-gray-100 overflow-hidden shadow-xl shadow-gray-200/50 flex flex-col hover:-translate-y-1.5 transition-all duration-300 group cursor-pointer">
               <div className="relative aspect-[4/5] w-full bg-white flex flex-col border-b border-gray-100 overflow-hidden">
                 {/* Browser Top Bar */}
-                <div className="h-5 bg-gray-100 border-b border-gray-200 flex items-center px-3 gap-1.5 w-full shrink-0">
-                  <div className="w-2 h-2 rounded-full bg-red-400"></div>
-                  <div className="w-2 h-2 rounded-full bg-amber-400"></div>
-                  <div className="w-2 h-2 rounded-full bg-green-400"></div>
+                <div className="h-4 bg-gray-100 border-b border-gray-200 flex items-center px-2.5 gap-1 w-full shrink-0">
+                  <div className="w-1.5 h-1.5 rounded-full bg-red-400"></div>
+                  <div className="w-1.5 h-1.5 rounded-full bg-amber-400"></div>
+                  <div className="w-1.5 h-1.5 rounded-full bg-green-400"></div>
                 </div>
-                {/* Navbar Mockup */}
-                <div className="h-8 flex items-center justify-between px-4 border-b border-gray-50 shrink-0">
-                  <div className="w-10 h-2.5 bg-gray-200 rounded-sm"></div>
-                  <div className="flex gap-2.5">
-                    <div className="w-5 h-1.5 bg-gray-200 rounded-sm"></div>
-                    <div className="w-5 h-1.5 bg-gray-200 rounded-sm"></div>
-                    <div className="w-5 h-1.5 bg-gray-200 rounded-sm"></div>
+                
+                {/* Minimal Navbar Mockup */}
+                <div className="h-6 bg-white border-b border-gray-100 flex items-center justify-between px-3 shrink-0">
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-3 h-3 bg-[#6b35c8] rounded flex items-center justify-center">
+                      <div className="w-1 h-1 bg-white rounded-full"></div>
+                    </div>
+                    <div className="w-12 h-1 bg-gray-800 rounded-sm"></div>
+                  </div>
+                  <div className="flex gap-2">
+                    <div className="w-5 h-1 bg-gray-300 rounded-sm"></div>
+                    <div className="w-5 h-1 bg-gray-300 rounded-sm"></div>
+                    <div className="w-5 h-1 bg-gray-300 rounded-sm"></div>
                   </div>
                 </div>
-                {/* Hero Banner with Specific Image */}
-                <div className="h-[55%] relative overflow-hidden flex flex-col justify-center items-center p-4 text-center shrink-0">
-                  <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80" alt="Fitness & Gym" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                  <div className="absolute inset-0 bg-black/40"></div>
-                  <div className="relative z-10 space-y-2">
-                    <div className="w-24 h-3.5 bg-white rounded-sm mx-auto shadow-sm"></div>
-                    <div className="w-28 h-2 bg-white/80 rounded-sm mx-auto shadow-sm"></div>
-                    <div className="w-12 h-3.5 bg-[#f3b12a] rounded-sm mx-auto mt-3 shadow-sm"></div>
+                
+                {/* Hero section */}
+                <div className="flex shrink-0 p-2.5 gap-2" style={{height: '40%'}}>
+                  <div className="w-1/2 flex flex-col gap-1.5 justify-center">
+                    <div className="w-14 h-2 bg-[#6b35c8] rounded-sm mb-1"></div>
+                    <div className="w-full h-1 bg-gray-200 rounded-sm mt-1"></div>
+                    <div className="w-4/5 h-1 bg-gray-200 rounded-sm"></div>
+                    <div className="w-12 h-2 bg-[#f5a623] rounded-sm mt-2"></div>
+                  </div>
+                  <div className="w-1/2 h-full relative rounded-lg overflow-hidden shadow-sm">
+                    <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=300&q=80" alt="Home Services" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                   </div>
                 </div>
-                {/* Below the Fold: Services / Features Skeleton */}
-                <div className="flex-1 bg-gray-50 p-4 flex flex-col justify-center gap-3">
-                  <div className="w-24 h-2 bg-gray-300 rounded-sm mx-auto mb-1"></div>
-                  <div className="flex gap-3">
-                    <div className="flex-1 space-y-2">
-                      <div className="w-full aspect-video bg-gray-200 rounded-sm"></div>
-                      <div className="w-3/4 h-1.5 bg-gray-300 rounded mx-auto"></div>
+
+                {/* Premium Services Strip */}
+                <div className="bg-[#6b35c8] flex flex-col items-center py-2 px-3 shrink-0">
+                   <div className="w-16 h-1.5 bg-white rounded-sm mb-1"></div>
+                   <div className="flex gap-1.5 w-full mt-1">
+                     <div className="flex-1 aspect-square bg-white/20 rounded border border-white/30"></div>
+                     <div className="flex-1 aspect-square bg-white/20 rounded border border-white/30"></div>
+                     <div className="flex-1 aspect-square bg-white/20 rounded border border-white/30"></div>
+                   </div>
+                </div>
+
+                {/* Features row */}
+                <div className="flex-1 bg-gray-50 px-2.5 py-2 flex flex-col justify-center gap-1.5">
+                  <div className="w-16 h-1 bg-gray-300 rounded-sm mx-auto mb-1"></div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-5 h-5 rounded bg-white shadow-sm border border-gray-100 flex-shrink-0"></div>
+                    <div className="flex flex-col gap-0.5">
+                      <div className="w-16 h-1 bg-gray-600 rounded-sm"></div>
+                      <div className="w-24 h-0.5 bg-gray-400 rounded-sm"></div>
                     </div>
-                    <div className="flex-1 space-y-2">
-                      <div className="w-full aspect-video bg-gray-200 rounded-sm"></div>
-                      <div className="w-3/4 h-1.5 bg-gray-300 rounded mx-auto"></div>
-                    </div>
-                    <div className="flex-1 space-y-2">
-                      <div className="w-full aspect-video bg-gray-200 rounded-sm"></div>
-                      <div className="w-3/4 h-1.5 bg-gray-300 rounded mx-auto"></div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-5 h-5 rounded bg-white shadow-sm border border-gray-100 flex-shrink-0"></div>
+                    <div className="flex flex-col gap-0.5">
+                      <div className="w-16 h-1 bg-gray-600 rounded-sm"></div>
+                      <div className="w-24 h-0.5 bg-gray-400 rounded-sm"></div>
                     </div>
                   </div>
                 </div>
               </div>
-              <div className="p-6 flex-1 flex flex-col justify-between space-y-4 bg-white relative z-30">
-                <div>
-                  <h4 className="font-extrabold text-base text-gray-900">Fitness & Gym</h4>
-                  <p className="text-xs text-gray-400 mt-1">Bold & Dynamic</p>
+
+              <div className="p-5 flex-1 flex flex-col gap-3 bg-white relative z-30">
+                {/* Top row: name + template no */}
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <h4 className="font-extrabold text-sm text-gray-900 leading-tight">Home Services</h4>
+                    <p className="text-[11px] text-gray-400 mt-0.5">Trusted & Professional</p>
+                  </div>
+                  <span className="shrink-0 text-[10px] font-bold text-[#6b35c8] bg-[#6b35c8]/10 border border-[#6b35c8]/20 px-2 py-0.5 rounded-full">
+                    #4
+                  </span>
                 </div>
-                <span className="text-xs font-bold text-[#157a4f] group-hover:underline flex items-center gap-1">
-                  Preview Template <ChevronRight size={14} />
-                </span>
+
+                {/* Badges row */}
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-full">
+                    <svg width="9" height="9" viewBox="0 0 10 10" fill="none" className="shrink-0"><circle cx="5" cy="5" r="4" stroke="currentColor" strokeWidth="1.4"/><path d="M3 5l1.5 1.5L7 3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    Four Page Website
+                  </span>
+                </div>
+
+                {/* Price + CTA */}
+                <div className="flex items-center justify-between mt-auto pt-2 border-t border-gray-100">
+                  <div>
+                    <span className="text-base font-extrabold text-gray-900">₹3999</span>
+                    <span className="text-[10px] text-gray-400 ml-1">/one-time</span>
+                  </div>
+                  <span className="text-[11px] font-bold text-[#6b35c8] group-hover:underline flex items-center gap-0.5">
+                    Preview <ChevronRight size={13} />
+                  </span>
+                </div>
               </div>
-            </div>
+            </Link>
           </div>
         </FadeInScroll>
       </section>
