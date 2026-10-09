@@ -84,7 +84,7 @@ export default function JumboStationaryPreview() {
             </div>
             
             <div>
-              <button className="border-2 border-[#ffc107] text-[#ffc107] hover:bg-[#ffc107] hover:text-white transition-colors px-8 py-3 rounded-full font-bold text-sm tracking-wide">
+              <button onClick={() => scrollTo('products')} className="border-2 border-[#ffc107] text-[#ffc107] hover:bg-[#ffc107] hover:text-white transition-colors px-8 py-3 rounded-full font-bold text-sm tracking-wide">
                 Explore All Our Products
               </button>
             </div>
@@ -156,9 +156,6 @@ export default function JumboStationaryPreview() {
               <span className="font-bold text-[#ffc107]">$4.00</span>
             </div>
             <p className="text-sm text-gray-500 mb-4 line-clamp-2">A set of 5 color ballpoint pens perfect for drawing, writing and more. Available in 5 colors.</p>
-            <span className="text-xs font-bold text-[#ffc107] uppercase tracking-wider flex items-center gap-1">
-              View Details <ChevronDown size={12} className="-rotate-90" />
-            </span>
           </div>
 
           {/* Product 2 */}
@@ -175,9 +172,6 @@ export default function JumboStationaryPreview() {
               <span className="font-bold text-[#ffc107]">$5.00</span>
             </div>
             <p className="text-sm text-gray-500 mb-4 line-clamp-2">Premium artistic ribbons for all your decoration and DIY needs. Sold per bundle.</p>
-            <span className="text-xs font-bold text-[#ffc107] uppercase tracking-wider flex items-center gap-1">
-              View Details <ChevronDown size={12} className="-rotate-90" />
-            </span>
           </div>
 
           {/* Product 3 */}
@@ -194,9 +188,6 @@ export default function JumboStationaryPreview() {
               <span className="font-bold text-[#ffc107]">$3.50</span>
             </div>
             <p className="text-sm text-gray-500 mb-4 line-clamp-2">Traditional design with luxurious golden leaf details. Smooth writing experience.</p>
-            <span className="text-xs font-bold text-[#ffc107] uppercase tracking-wider flex items-center gap-1">
-              View Details <ChevronDown size={12} className="-rotate-90" />
-            </span>
           </div>
           
           {/* Product 4 */}
@@ -213,9 +204,6 @@ export default function JumboStationaryPreview() {
               <span className="font-bold text-[#ffc107]">$4.00</span>
             </div>
             <p className="text-sm text-gray-500 mb-4 line-clamp-2">A pack of vibrant colored pencils for artists and students.</p>
-            <span className="text-xs font-bold text-[#ffc107] uppercase tracking-wider flex items-center gap-1">
-              View Details <ChevronDown size={12} className="-rotate-90" />
-            </span>
           </div>
           
           {/* Product 5 */}
@@ -232,9 +220,6 @@ export default function JumboStationaryPreview() {
               <span className="font-bold text-[#ffc107]">$8.50</span>
             </div>
             <p className="text-sm text-gray-500 mb-4 line-clamp-2">Professional grade brushes for watercolor, acrylics, and oil painting.</p>
-            <span className="text-xs font-bold text-[#ffc107] uppercase tracking-wider flex items-center gap-1">
-              View Details <ChevronDown size={12} className="-rotate-90" />
-            </span>
           </div>
           
           {/* Product 6 */}
@@ -251,9 +236,6 @@ export default function JumboStationaryPreview() {
               <span className="font-bold text-[#ffc107]">$12.00</span>
             </div>
             <p className="text-sm text-gray-500 mb-4 line-clamp-2">Start your masterpiece with our premium stretched canvas and mini wooden easel.</p>
-            <span className="text-xs font-bold text-[#ffc107] uppercase tracking-wider flex items-center gap-1">
-              View Details <ChevronDown size={12} className="-rotate-90" />
-            </span>
           </div>
         </div>
         
