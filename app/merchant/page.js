@@ -582,7 +582,7 @@ export default function MerchantLandingPage() {
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
             
             {/* Template 1 */}
             <Link href="/merchant/templates/template1" className="bg-white rounded-[24px] border border-gray-100 overflow-hidden shadow-xl shadow-gray-200/50 flex flex-col hover:-translate-y-1.5 transition-all duration-300 group cursor-pointer">
@@ -997,6 +997,123 @@ export default function MerchantLandingPage() {
                 </div>
               </div>
             </Link>
+
+            {/* Template 5 */}
+            <Link href="/merchant/templates/template5" className="bg-white rounded-[24px] border border-gray-100 overflow-hidden shadow-xl shadow-gray-200/50 flex flex-col hover:-translate-y-1.5 transition-all duration-300 group cursor-pointer">
+              <div className="relative aspect-[4/5] w-full bg-white flex flex-col border-b border-gray-100 overflow-hidden">
+                {/* Browser Top Bar */}
+                <div className="h-4 bg-gray-100 border-b border-gray-200 flex items-center px-2.5 gap-1 w-full shrink-0">
+                  <div className="w-1.5 h-1.5 rounded-full bg-red-400"></div>
+                  <div className="w-1.5 h-1.5 rounded-full bg-amber-400"></div>
+                  <div className="w-1.5 h-1.5 rounded-full bg-green-400"></div>
+                </div>
+                
+                {/* Mustard Navbar Mockup */}
+                <div className="h-6 bg-[#d4af37] border-b border-yellow-600 flex items-center justify-between px-3 shrink-0">
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-3 h-3 bg-white rounded-sm flex items-center justify-center"></div>
+                    <div className="w-12 h-1 bg-white/90 rounded-sm"></div>
+                  </div>
+                  <div className="flex gap-2">
+                    <div className="w-5 h-1 bg-white/70 rounded-sm"></div>
+                    <div className="w-5 h-1 bg-white/70 rounded-sm"></div>
+                    <div className="w-5 h-1 bg-white/70 rounded-sm"></div>
+                  </div>
+                </div>
+                
+                {/* Hero section */}
+                <div className="flex shrink-0 p-2.5 gap-2" style={{height: '35%'}}>
+                  <div className="w-full h-full relative rounded-lg overflow-hidden shadow-sm">
+                    <img src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=300&q=80" alt="Cafe" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                    <div className="absolute inset-0 bg-black/20"></div>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5">
+                       <div className="w-20 h-2 bg-white rounded-sm shadow-sm"></div>
+                       <div className="w-24 h-1 bg-white/80 rounded-sm"></div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Features row */}
+                <div className="bg-[#e8dfb4]/50 flex flex-col items-center py-2 px-3 shrink-0">
+                   <div className="flex gap-1.5 w-full justify-center">
+                     <div className="w-8 h-8 bg-white rounded-full flex flex-col items-center justify-center shadow-sm">
+                        <div className="w-3 h-3 bg-[#d4af37]/30 rounded-full mb-0.5"></div>
+                        <div className="w-4 h-0.5 bg-[#d4af37]/60 rounded-sm"></div>
+                     </div>
+                     <div className="w-8 h-8 bg-white rounded-full flex flex-col items-center justify-center shadow-sm">
+                        <div className="w-3 h-3 bg-[#d4af37]/30 rounded-full mb-0.5"></div>
+                        <div className="w-4 h-0.5 bg-[#d4af37]/60 rounded-sm"></div>
+                     </div>
+                     <div className="w-8 h-8 bg-white rounded-full flex flex-col items-center justify-center shadow-sm">
+                        <div className="w-3 h-3 bg-[#d4af37]/30 rounded-full mb-0.5"></div>
+                        <div className="w-4 h-0.5 bg-[#d4af37]/60 rounded-sm"></div>
+                     </div>
+                   </div>
+                </div>
+
+                {/* Products row */}
+                <div className="flex-1 bg-white px-2.5 py-2 flex flex-col justify-center gap-1.5">
+                  <div className="w-16 h-1 bg-[#d4af37]/80 rounded-sm mx-auto mb-1"></div>
+                  <div className="flex gap-1.5 justify-center">
+                    <div className="w-[30%] aspect-[4/5] bg-[#e8dfb4]/60 rounded-md border border-[#d4af37]/30"></div>
+                    <div className="w-[30%] aspect-[4/5] bg-[#e8dfb4]/60 rounded-md border border-[#d4af37]/30"></div>
+                    <div className="w-[30%] aspect-[4/5] bg-[#e8dfb4]/60 rounded-md border border-[#d4af37]/30"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-5 flex-1 flex flex-col gap-3 bg-white relative z-30">
+                {/* Top row: name + template no */}
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <h4 className="font-extrabold text-sm text-gray-900 leading-tight">Cafe & Restaurant</h4>
+                    <p className="text-[11px] text-gray-400 mt-0.5">Warm & Welcoming</p>
+                  </div>
+                  <span className="shrink-0 text-[10px] font-bold text-[#d4af37] bg-[#d4af37]/10 border border-[#d4af37]/20 px-2 py-0.5 rounded-full">
+                    #5
+                  </span>
+                </div>
+
+                {/* Badges row */}
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-full">
+                    <svg width="9" height="9" viewBox="0 0 10 10" fill="none" className="shrink-0"><circle cx="5" cy="5" r="4" stroke="currentColor" strokeWidth="1.4"/><path d="M3 5l1.5 1.5L7 3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    Five Page Website
+                  </span>
+                </div>
+
+                {/* Price + CTA */}
+                <div className="flex items-center justify-between mt-auto pt-2 border-t border-gray-100">
+                  <div>
+                    <span className="text-base font-extrabold text-gray-900">₹4999</span>
+                    <span className="text-[10px] text-gray-400 ml-1">/one-time</span>
+                  </div>
+                  <span className="text-[11px] font-bold text-[#d4af37] group-hover:underline flex items-center gap-0.5">
+                    Preview <ChevronRight size={13} />
+                  </span>
+                </div>
+              </div>
+            </Link>
+
+            {/* Template 6 (Coming Soon Placeholder) */}
+            <div className="bg-gray-50/50 rounded-[24px] border border-gray-200 overflow-hidden flex flex-col">
+              <div className="relative aspect-[4/5] w-full bg-gray-100/50 flex flex-col items-center justify-center border-b border-gray-200">
+                <div className="text-gray-300">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                    <line x1="8" y1="21" x2="16" y2="21"></line>
+                    <line x1="12" y1="17" x2="12" y2="21"></line>
+                  </svg>
+                </div>
+                <p className="text-sm font-semibold text-gray-400 mt-4">More Templates</p>
+                <p className="text-xs text-gray-400 mt-1">Coming Soon</p>
+              </div>
+              <div className="p-5 flex-1 flex flex-col gap-3 bg-white/50">
+                 <div className="w-3/4 h-4 bg-gray-200 rounded-sm"></div>
+                 <div className="w-1/2 h-3 bg-gray-200 rounded-sm mt-1"></div>
+                 <div className="w-1/3 h-5 bg-gray-200 rounded-full mt-2"></div>
+              </div>
+            </div>
           </div>
         </FadeInScroll>
       </section>
