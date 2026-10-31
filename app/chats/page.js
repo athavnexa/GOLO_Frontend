@@ -759,7 +759,7 @@ function ChatsPageContent() {
               conversation.id === incoming.conversationId
                 ? {
                     ...conversation,
-                    lastMessageText: incoming.text || (incoming.attachments?.length ? "📎 Attachment" : ""),
+                    lastMessageText: incoming.text || (incoming.attachments?.length ? "Attachment" : ""),
                     lastMessageAt: incoming.createdAt,
                     lastMessageAdId: incoming.adId || conversation.lastMessageAdId,
                     lastMessageAdTitle: incoming.adTitle || conversation.lastMessageAdTitle,
@@ -800,7 +800,7 @@ function ChatsPageContent() {
               conversation.id === event.conversationId
                 ? {
                     ...conversation,
-                    lastMessageText: event.lastMessageText || (event?.message?.attachments?.length ? "📎 Attachment" : ""),
+                    lastMessageText: event.lastMessageText || (event?.message?.attachments?.length ? "Attachment" : ""),
                     lastMessageAt: event.lastMessageAt,
                     lastMessageAdId: event.lastMessageAdId || conversation.lastMessageAdId,
                     lastMessageAdTitle: event.lastMessageAdTitle || conversation.lastMessageAdTitle,
@@ -1292,7 +1292,7 @@ function ChatsPageContent() {
             conversation.id === selectedConversationId
               ? {
                   ...conversation,
-                  lastMessageText: message.text || (message.attachments?.length ? "📎 Attachment" : ""),
+                  lastMessageText: message.text || (message.attachments?.length ? "Attachment" : ""),
                   lastMessageAt: message.createdAt,
                   lastMessageAdId: message.adId || conversation.lastMessageAdId,
                   lastMessageAdTitle: message.adTitle || conversation.lastMessageAdTitle,

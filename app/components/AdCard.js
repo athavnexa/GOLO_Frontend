@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { deleteAd, cancelAd, trackAdView } from "../lib/api/ads";;
 import { useState } from "react";
-import { Eye, Edit2, Trash2, Loader2 } from "lucide-react";
+import { Eye, Edit2, Trash2, Loader2, Clock } from "lucide-react";
 
 /**
  * Template-aware AdCard for My Ads page.
@@ -158,9 +158,10 @@ export default function AdCard({ ad, onDelete, onEdit }) {
             <span style={{
               fontSize: "11px", fontWeight: 600, color: exp.color,
               background: exp.bg, borderRadius: "20px", padding: "2px 8px",
-              display: "inline-block", marginBottom: "8px", width: "fit-content"
+              display: "inline-flex", alignItems: "center", gap: "4px", marginBottom: "8px", width: "fit-content"
             }}>
-              ⏱ {exp.label}
+              <Clock size={11} style={{ flexShrink: 0 }} />
+              <span>{exp.label}</span>
             </span>
           ) : null;
         })()}

@@ -1,6 +1,6 @@
 "use client";
 
-import { Award, BookOpen, Clock, MapPin, Star } from "lucide-react";
+import { Award, BookOpen, Clock, MapPin, Star, Hammer, Droplets, Zap, Palette } from "lucide-react";
 
 export default function Template4Profile() {
   return (
@@ -45,16 +45,16 @@ export default function Template4Profile() {
             {/* Skills Badges */}
             <div className="flex flex-wrap gap-2 mb-10">
               <span className="flex items-center gap-1.5 bg-gray-50 text-gray-700 text-xs font-semibold px-3 py-1.5 rounded-full border border-gray-200">
-                <span className="text-[#f5a623]">🔨</span> Carpentry
+                <Hammer size={14} className="text-[#f5a623]" /> Carpentry
               </span>
               <span className="flex items-center gap-1.5 bg-gray-50 text-gray-700 text-xs font-semibold px-3 py-1.5 rounded-full border border-gray-200">
-                <span className="text-[#f5a623]">💧</span> Plumbing
+                <Droplets size={14} className="text-blue-500" /> Plumbing
               </span>
               <span className="flex items-center gap-1.5 bg-gray-50 text-gray-700 text-xs font-semibold px-3 py-1.5 rounded-full border border-gray-200">
-                <span className="text-[#f5a623]">⚡</span> Electrical
+                <Zap size={14} className="text-[#f5a623]" /> Electrical
               </span>
               <span className="flex items-center gap-1.5 bg-gray-50 text-gray-700 text-xs font-semibold px-3 py-1.5 rounded-full border border-gray-200">
-                <span className="text-[#f5a623]">🎨</span> Painting
+                <Palette size={14} className="text-purple-500" /> Painting
               </span>
             </div>
 

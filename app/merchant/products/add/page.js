@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronLeft, X, ImagePlus, Video } from "lucide-react";
+import { ChevronLeft, X, ImagePlus, Video, Plus } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
 import { createMerchantProduct, getMerchantProfile } from "../../../lib/api/merchant";;
 import MerchantNavbar from "../../MerchantNavbar";
@@ -465,7 +465,8 @@ export default function AddProductPage() {
                   onClick={handlePublishProduct}
                   className="h-10 rounded-[8px] bg-[#efb02e] px-5 text-[12px] font-semibold text-[#5a4514] hover:bg-[#e2a112] transition inline-flex items-center gap-1.5 disabled:opacity-60"
                 >
-                  ➕ Publish Product
+                  <Plus size={15} className="shrink-0" />
+                  <span>Publish Product</span>
                 </button>
               </div>
             </div>

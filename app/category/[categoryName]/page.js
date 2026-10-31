@@ -10,6 +10,28 @@ import { getAdsByCategory, searchAds, getNearbyAds, trackAdView, trackAdContactC
 import { useAuth } from "../../context/AuthContext";
 import AuthRequiredModal from "../../components/AuthRequiredModal";
 
+import {
+    GraduationCap,
+    Car,
+    Home,
+    Briefcase,
+    Smartphone,
+    Tv,
+    HeartHandshake,
+    Store,
+    Moon,
+    Search,
+    Wrench,
+    User,
+    PawPrint,
+    Plane,
+    Armchair,
+    Megaphone,
+    Package,
+    Folder,
+    AlertTriangle
+} from "lucide-react";
+
 const chatButtonClass =
     "bg-[#157a4f] text-white font-semibold shadow-[0_10px_22px_rgba(21,122,79,0.26)] hover:bg-[#126542] transition-colors";
 
@@ -17,24 +39,24 @@ const callButtonClass =
     "bg-[#efb02e] text-[#1f2329] font-semibold shadow-[0_10px_22px_rgba(239,176,46,0.28)] hover:bg-[#d79d25] transition-colors";
 
 const CATEGORY_ICONS = {
-    "Education": "🎓",
-    "Vehicle": "🚗",
-    "Property": "🏠",
-    "Employment": "💼",
-    "Mobiles": "📱",
-    "Electronics": "🖥️",
-    "Electronics & Home appliances": "🖥️",
-    "Matrimonial": "💍",
-    "Business": "🏪",
-    "Astrology": "🔮",
-    "Lost & Found": "🔍",
-    "Service": "🔧",
-    "Personal": "👤",
-    "Pets": "🐾",
-    "Travel": "✈️",
-    "Furniture": "🛋️",
-    "Public Notice": "📢",
-    "Other": "📦",
+    "Education": GraduationCap,
+    "Vehicle": Car,
+    "Property": Home,
+    "Employment": Briefcase,
+    "Mobiles": Smartphone,
+    "Electronics": Tv,
+    "Electronics & Home appliances": Tv,
+    "Matrimonial": HeartHandshake,
+    "Business": Store,
+    "Astrology": Moon,
+    "Lost & Found": Search,
+    "Service": Wrench,
+    "Personal": User,
+    "Pets": PawPrint,
+    "Travel": Plane,
+    "Furniture": Armchair,
+    "Public Notice": Megaphone,
+    "Other": Package,
 };
 
 const SORT_OPTIONS = [
@@ -266,7 +288,7 @@ function CategoryPageContent() {
     }, [categoryName, fetchAds, gpsReady]);
 
     const totalPages = subFromUrl ? 1 : Math.max(1, Math.ceil(total / LIMIT));
-    const icon = CATEGORY_ICONS[categoryName] || "📂";
+    const CategoryIcon = CATEGORY_ICONS[categoryName] || Folder;
 
     const handleSort = (val) => {
         const [by, order] = val.split("_");
@@ -286,7 +308,7 @@ function CategoryPageContent() {
         <section className="w-full pt-4 pb-10">
 
             {/* Compact sort + count bar */}
-            <div className="w-full px-6 lg:px-8 mb-6 flex items-center justify-between gap-3 flex-wrap">
+            <div className="w-full px-4 sm:px-6 lg:px-8 mb-6 flex items-center justify-between gap-3 flex-wrap">
                 <p className="text-sm text-gray-400 font-medium">
                     {loading ? "Loading…" : filteredAds.length > 0
                         ? `${filteredAds.length} ad${filteredAds.length !== 1 ? "s" : ""}${subFromUrl ? ` · ${subFromUrl}` : ""}`
@@ -308,7 +330,7 @@ function CategoryPageContent() {
 
             {/* Loading Skeleton */}
             {loading && (
-                <div className="w-full px-6 lg:px-8">
+                <div className="w-full px-4 sm:px-6 lg:px-8">
                     <div className="grid grid-cols-12 auto-rows-[220px] gap-6">
                         {Array.from({ length: 8 }).map((_, i) => (
                             <div
@@ -325,8 +347,10 @@ function CategoryPageContent() {
 
             {/* Error State */}
             {!loading && error && (
-                <div className="text-center py-16 px-5 text-red-400">
-                    <div className="text-5xl mb-3">⚠️</div>
+                <div className="text-center py-16 px-5 text-red-500 flex flex-col items-center justify-center">
+                    <div className="mb-3">
+                        <AlertTriangle size={48} className="text-red-500" />
+                    </div>
                     <p>{error}</p>
                     <button
                         onClick={fetchAds}
@@ -339,8 +363,10 @@ function CategoryPageContent() {
 
             {/* Empty State */}
             {!loading && !error && filteredAds.length === 0 && (
-                <div className="text-center py-20 px-5">
-                    <div className="text-6xl mb-4">{icon}</div>
+                <div className="text-center py-20 px-5 flex flex-col items-center justify-center">
+                    <div className="mb-4 w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center text-gray-500">
+                        <CategoryIcon size={34} />
+                    </div>
                     <h2 className="text-gray-700 font-bold text-xl">No matching ads in {categoryName} yet</h2>
                     <p className="text-gray-400 mb-6">Be the first to post an ad in this category!</p>
                     <button
@@ -361,8 +387,8 @@ function CategoryPageContent() {
 
             {/* Bento Grid — identical structure to RecentListings */}
             {!loading && !error && filteredAds.length > 0 && (
-                <div className="w-full px-6 lg:px-8">
-                    <div className="grid grid-cols-12 auto-rows-[220px] gap-6">
+                <div className="w-full px-4 sm:px-6 lg:px-8">
+                    <div className="grid grid-cols-12 auto-rows-[220px] gap-4 sm:gap-6">
                         {layoutAds.map((ad, index) => {
                             const cls = `${ad.col} ${ad.row}`;
                             if (ad.type === "big") {
@@ -433,7 +459,7 @@ export default function CategoryPage() {
             <div className="relative z-10 w-full">
                 <CategoryBar />
                 <Suspense fallback={
-                    <div className="w-full px-6 lg:px-8 py-20 bg-gray-50 animate-pulse rounded-3xl mx-auto max-w-7xl mt-10 h-96" />
+                    <div className="w-full px-4 sm:px-6 lg:px-8 py-20 bg-gray-50 animate-pulse rounded-3xl mx-auto max-w-7xl mt-10 h-96" />
                 }>
                     <CategoryPageContent />
                 </Suspense>

@@ -21,6 +21,7 @@ import {
   ArrowDown,
   ChevronRight,
   Download,
+  Clock,
 } from "lucide-react";
 
 // ─── CSV Download ─────────────────────────────────────────────────────────────
@@ -569,7 +570,12 @@ function AdsTable({ ads }) {
                   {(() => {
                     const exp = getExpiryLabel(ad.expiryDate, ad.status);
                     return exp
-                      ? <span className={exp.cls}>⏱ {exp.label}</span>
+                      ? (
+                        <span className={`${exp.cls} inline-flex items-center gap-1`}>
+                          <Clock size={11} className="shrink-0" />
+                          <span>{exp.label}</span>
+                        </span>
+                      )
                       : <span className="text-gray-300">—</span>;
                   })()}
                 </td>

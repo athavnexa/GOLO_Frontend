@@ -189,7 +189,7 @@ function RecentListingsContent() {
         <section className="w-full pt-4 pb-10">
 
             {/* Compact sort bar (ad count removed as requested) */}
-            <div className={`w-full px-6 lg:px-8 mb-6 flex items-center ${(q || location || loading || (!loading && ads.length === 0)) ? "justify-between" : "justify-end"} gap-3 flex-wrap`}>
+            <div className={`w-full px-4 sm:px-6 lg:px-8 mb-6 flex items-center ${(q || location || loading || (!loading && ads.length === 0)) ? "justify-between" : "justify-end"} gap-3 flex-wrap`}>
                 {(q || location || loading || (!loading && ads.length === 0)) && (
                     <p className="text-sm text-gray-500 font-medium">
                         {loading ? "Loading…" : ads.length === 0 ? "No ads found" : ""}
@@ -212,7 +212,7 @@ function RecentListingsContent() {
             </div>
 
             {loading && (
-                <div className="w-full px-6 lg:px-8">
+                <div className="w-full px-4 sm:px-6 lg:px-8">
                     <div className="grid grid-cols-12 auto-rows-[220px] gap-6 grid-flow-row grid-flow-dense">
                         {Array.from({ length: 8 }).map((_, i) => (
                             <div
@@ -240,7 +240,7 @@ function RecentListingsContent() {
             )}
 
             {!loading && !error && ads.length > 0 && (
-                <div className="w-full px-6 lg:px-8">
+                <div className="w-full px-4 sm:px-6 lg:px-8">
                     <GridPackerContainer>
                         {layoutAds.map((ad, index) => {
                             const cls = `${ad.col} ${ad.row}`;
@@ -270,7 +270,7 @@ function RecentListingsContent() {
 export default function RecentListings() {
     return (
         <Suspense fallback={
-            <div className="w-full px-6 lg:px-8 py-10">
+            <div className="w-full px-4 sm:px-6 lg:px-8 py-10">
                 <div className="grid grid-cols-12 auto-rows-[220px] gap-6">
                     {Array.from({ length: 8 }).map((_, i) => (
                         <div
@@ -411,7 +411,7 @@ function GridPackerContainer({ children }) {
     }, [children]);
 
     return (
-        <div ref={containerRef} className="grid grid-cols-12 auto-rows-[220px] gap-6" style={{ position: 'relative' }}>
+        <div ref={containerRef} className="grid grid-cols-12 auto-rows-[220px] gap-4 sm:gap-6" style={{ position: 'relative' }}>
             {children}
         </div>
     );

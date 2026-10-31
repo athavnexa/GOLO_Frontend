@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
-import { CircleHelp, Download, MapPin, Share2, Star, Ticket, Copy, Check, ArrowLeft, Phone } from "lucide-react";
+import { CircleHelp, Download, MapPin, Share2, Star, Ticket, Copy, Check, ArrowLeft, Phone, KeyRound } from "lucide-react";
 import { useVoucher } from "../../../context/VoucherContext";
 import { useAuth } from "../../../context/AuthContext";
 import { getNearbyOfferDetails } from "../../../lib/api/ads";
@@ -757,7 +757,10 @@ function ClaimedOfferContent() {
 
               {/* MANUAL VERIFICATION CODE */}
               <div className="mx-auto mt-5 w-full max-w-[400px] rounded-[10px] bg-[#f3f8f5] px-4 py-4 border border-[#c8e6d7]">
-                <p className="text-[11px] font-bold text-[#2d6a4f] mb-2">🔐 Manual Verification Code</p>
+                <p className="text-[11px] font-bold text-[#2d6a4f] mb-2 flex items-center gap-1.5">
+                  <KeyRound size={13} className="shrink-0" />
+                  <span>Manual Verification Code</span>
+                </p>
                 <p className="text-[10px] text-[#5a8570] mb-3">If scanner is not working, provide this code to merchant for manual verification:</p>
                 
                 <div className="flex gap-2 items-stretch">

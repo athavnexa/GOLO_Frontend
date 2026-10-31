@@ -20,6 +20,7 @@ import {
   Gift,
   ChevronLeft,
   ChevronRight,
+  FileText,
 } from "lucide-react";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
@@ -1777,7 +1778,7 @@ export default function PostAdForm({
                 <div className="col-span-2"><label className="text-sm font-medium text-gray-700">Notice Type</label><select value={noticeType} onChange={(e) => setNoticeType(e.target.value)} className={inputStyle}><option value="">Select Notice Type</option><option value="Tender">Tender</option><option value="Government">Government</option><option value="Legal">Legal</option><option value="Announcement">Announcement</option></select></div>
                 <div className="col-span-2"><label className="text-sm font-medium text-gray-700">Issuing Authority</label><input placeholder="Department Name/Organization Name" value={issuingAuthority} onChange={(e) => setIssuingAuthority(e.target.value)} className={inputStyle} /></div>
                 <div className="col-span-2"><label className="text-sm font-medium text-gray-700">Detailed Notice</label><textarea placeholder="Enter complete notice details..." value={detailedNotice} onChange={(e) => setDetailedNotice(e.target.value)} className={inputStyle + " resize-none h-32"} /></div>
-                <div className="col-span-2"><label className="text-sm font-medium text-gray-700">Supporting Documents</label><div className="space-y-3"><label className="flex items-center justify-center h-20 px-4 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-[#157A4F] hover:bg-[#FFF3D6] transition"><input type="file" multiple className="hidden" onChange={handleDocumentUpload} /><span className="text-gray-600 font-medium">Click to upload documents</span></label><div className="flex flex-wrap gap-2">{supportingDocuments.map((doc) => (<span key={doc.id} className="flex items-center gap-2 px-3 py-2 bg-[#157A4F] text-white rounded-full text-sm"><span>📄 {doc.name}</span><button type="button" onClick={() => removeDocument(doc.id)} className="text-white hover:text-red-200">×</button></span>))}</div></div></div>
+                <div className="col-span-2"><label className="text-sm font-medium text-gray-700">Supporting Documents</label><div className="space-y-3"><label className="flex items-center justify-center h-20 px-4 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-[#157A4F] hover:bg-[#FFF3D6] transition"><input type="file" multiple className="hidden" onChange={handleDocumentUpload} /><span className="text-gray-600 font-medium">Click to upload documents</span></label><div className="flex flex-wrap gap-2">{supportingDocuments.map((doc) => (<span key={doc.id} className="flex items-center gap-2 px-3 py-2 bg-[#157A4F] text-white rounded-full text-sm"><span className="flex items-center gap-1.5"><FileText size={14} /><span>{doc.name}</span></span><button type="button" onClick={() => removeDocument(doc.id)} className="text-white hover:text-red-200">×</button></span>))}</div></div></div>
               </div>
             )}
 

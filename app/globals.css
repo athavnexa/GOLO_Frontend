@@ -1482,34 +1482,32 @@ body {
 
   .golo-category-shell {
     min-height: 58px !important;
-    padding: 8px 12px !important;
+    padding: 6px 12px !important;
     gap: 8px !important;
   }
 
-  .golo-category-row {
+  .golo-category-row,
+  .choja-category-row {
     display: flex !important;
     grid-template-columns: none !important;
     justify-content: flex-start !important;
+    align-items: flex-start !important;
     overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
     scroll-snap-type: x proximity;
-    scrollbar-width: none;
+    scrollbar-width: none !important;
+    gap: 8px !important;
   }
 
   .golo-category-row::-webkit-scrollbar,
   .choja-category-row::-webkit-scrollbar {
-    display: none;
+    display: none !important;
   }
 
-  .golo-category-row > div {
+  .golo-category-row > div,
+  .choja-category-row > div {
     flex: 0 0 auto !important;
     min-width: auto !important;
-  }
-
-  .golo-category-pill {
-    width: auto !important;
-    max-width: 190px !important;
-    padding: 8px 6px !important;
-    scroll-snap-align: start;
   }
 
   .choja-category-row {
@@ -1523,6 +1521,43 @@ body {
     max-height: 82vh !important;
     padding: 20px !important;
     border-radius: 18px !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .golo-category-shell {
+    padding: 4px 12px !important;
+    gap: 8px !important;
+  }
+
+  .golo-category-pill {
+    width: 70px !important;
+    min-width: 70px !important;
+    max-width: 70px !important;
+    flex: 0 0 70px !important;
+    padding: 4px 2px !important;
+    scroll-snap-align: start;
+    box-sizing: border-box !important;
+  }
+
+  .golo-category-pill .golo-cat-label {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    width: 100% !important;
+    max-width: 70px !important;
+    text-align: center !important;
+  }
+
+  .golo-category-pill .golo-cat-label > span {
+    display: inline-block !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 100% !important;
   }
 
   main,

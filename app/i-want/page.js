@@ -4,7 +4,8 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import { saveIWantPreference } from "../lib/api/user";;
+import { saveIWantPreference } from "../lib/api/user";
+import { Rocket, TrendingUp, ShieldCheck, Check } from "lucide-react";
 
 export default function IWant() {
   const router = useRouter();
@@ -285,32 +286,33 @@ export default function IWant() {
   {/* Modern Pro Tips Card */}
   <div className="bg-white p-8 rounded-3xl shadow-lg border border-gray-100 hover:shadow-xl transition duration-300">
     <h4 className="text-xl font-bold text-[#157A4F] mb-6 flex items-center gap-2">
-      🚀 Pro Listing Tips
+      <Rocket size={20} className="text-[#157A4F] shrink-0" />
+      <span>Pro Listing Tips</span>
     </h4>
 
     <div className="space-y-4 text-sm text-gray-700">
-      <div className="flex gap-3">
-        <span className="text-[#157A4F] text-lg">✔</span>
+      <div className="flex items-center gap-3">
+        <Check size={16} className="text-[#157A4F] shrink-0" />
         <p><strong>Be Specific:</strong> Clear details increase buyer trust.</p>
       </div>
 
-      <div className="flex gap-3">
-        <span className="text-[#157A4F] text-lg">✔</span>
+      <div className="flex items-center gap-3">
+        <Check size={16} className="text-[#157A4F] shrink-0" />
         <p><strong>Add 3+ Images:</strong> Listings with photos get 5x more views.</p>
       </div>
 
-      <div className="flex gap-3">
-        <span className="text-[#157A4F] text-lg">✔</span>
+      <div className="flex items-center gap-3">
+        <Check size={16} className="text-[#157A4F] shrink-0" />
         <p><strong>Use Keywords:</strong> Helps your listing appear in searches.</p>
       </div>
 
-      <div className="flex gap-3">
-        <span className="text-[#157A4F] text-lg">✔</span>
+      <div className="flex items-center gap-3">
+        <Check size={16} className="text-[#157A4F] shrink-0" />
         <p><strong>Set Fair Price:</strong> Competitive pricing gets faster responses.</p>
       </div>
 
-      <div className="flex gap-3">
-        <span className="text-[#157A4F] text-lg">✔</span>
+      <div className="flex items-center gap-3">
+        <Check size={16} className="text-[#157A4F] shrink-0" />
         <p><strong>Respond Quickly:</strong> Active listings rank higher.</p>
       </div>
     </div>
@@ -318,8 +320,9 @@ export default function IWant() {
 
   {/* Performance Stats Card */}
   <div className="bg-gradient-to-br from-[#157A4F] to-[#0f5c3b] text-white p-8 rounded-3xl shadow-lg">
-    <h4 className="text-xl font-bold mb-6">
-      📊 Why Listings Perform Better Here
+    <h4 className="text-xl font-bold mb-6 flex items-center gap-2">
+      <TrendingUp size={20} className="text-white shrink-0" />
+      <span>Why Listings Perform Better Here</span>
     </h4>
 
     <div className="space-y-4 text-sm">
@@ -342,8 +345,9 @@ export default function IWant() {
 
   {/* Trust & Safety Card */}
   <div className="bg-white p-8 rounded-3xl shadow-lg border border-gray-100 hover:shadow-xl transition duration-300">
-    <h4 className="text-xl font-bold text-[#157A4F] mb-4">
-      🔒 Safe & Trusted Platform
+    <h4 className="text-xl font-bold text-[#157A4F] mb-4 flex items-center gap-2">
+      <ShieldCheck size={20} className="text-[#157A4F] shrink-0" />
+      <span>Safe & Trusted Platform</span>
     </h4>
 
     <p className="text-sm text-gray-600 mb-4">

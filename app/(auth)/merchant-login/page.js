@@ -1,7 +1,7 @@
 "use client";
 
 import AuthLayout from "./../../components/AuthLayout";
-import { Mail, Lock, EyeOff, Eye, X, CheckCircle, Loader2 } from "lucide-react";
+import { Mail, Lock, EyeOff, Eye, X, CheckCircle, Loader2, AlertTriangle } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -216,8 +216,9 @@ export default function MerchantLoginPage() {
                       <strong className="text-[#157a4f]">{inviteEmail}</strong>{" "}
                       with your registration link. Please check your inbox (and spam folder).
                     </p>
-                    <div className="bg-[#f0faf5] border border-[#c3e6d4] rounded-xl px-4 py-3 text-[12px] text-[#0f5c3d] font-semibold mb-6">
-                      📧 Don&apos;t see it? Check your spam / promotions folder.
+                    <div className="bg-[#f0faf5] border border-[#c3e6d4] rounded-xl px-4 py-3 text-[12px] text-[#0f5c3d] font-semibold mb-6 flex items-center gap-2">
+                      <Mail size={15} className="text-[#157a4f] shrink-0" />
+                      <span>Don&apos;t see it? Check your spam / promotions folder.</span>
                     </div>
                     <button
                       onClick={closeInviteModal}
@@ -466,8 +467,9 @@ export default function MerchantLoginPage() {
 
             {/* Session Expired */}
             {sessionExpired && (
-              <p className="text-[#92400E] bg-[#FEF3C7] border border-[#F59E0B] rounded-lg p-2.5 text-xs mb-5 text-center">
-                ⚠️ Your session expired. Please log in again to continue.
+              <p className="text-[#92400E] bg-[#FEF3C7] border border-[#F59E0B] rounded-lg p-2.5 text-xs mb-5 text-center flex items-center justify-center gap-1.5">
+                <AlertTriangle size={15} className="text-[#F59E0B] shrink-0" />
+                <span>Your session expired. Please log in again to continue.</span>
               </p>
             )}
 

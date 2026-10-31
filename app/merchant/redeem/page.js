@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "../../context/AuthContext";
 import { useVoucher } from "../../context/VoucherContext";
 import { Html5Qrcode } from "html5-qrcode";
-import { Check, AlertCircle, Zap } from "lucide-react";
+import { Check, AlertCircle, Zap, Camera } from "lucide-react";
 import { verifyVoucherByCode, getMerchantRedemptionHistory } from "../../lib/api/merchant";;
 import MerchantNavbar from "../MerchantNavbar";
 
@@ -371,9 +371,10 @@ export default function MerchantQRScannerPage() {
                   {cameraStatus === "inactive" && (
                     <button
                       onClick={requestCameraPermission}
-                      className="w-full min-h-[170px] rounded-[8px] bg-black border-2 border-dashed border-[#555] text-white text-[14px] font-semibold hover:bg-gray-900 flex flex-col items-center justify-center md:min-h-[220px] md:py-8"
+                      className="w-full min-h-[170px] rounded-[8px] bg-black border-2 border-dashed border-[#555] text-white text-[14px] font-semibold hover:bg-gray-900 flex flex-col items-center justify-center gap-2 md:min-h-[220px] md:py-8"
                     >
-                      📷 Enable Camera
+                      <Camera size={26} className="text-gray-300" />
+                      <span>Enable Camera</span>
                     </button>
                   )}
 

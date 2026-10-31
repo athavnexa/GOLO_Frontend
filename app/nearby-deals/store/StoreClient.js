@@ -378,7 +378,7 @@ function NearbyStoreContent() {
                   unoptimized
                 />
               </div>
-              <h1 className="text-3xl lg:text-4xl font-bold leading-tight lg:leading-none text-[#1f2329]">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight lg:leading-none text-[#1f2329] min-w-0 flex-1">
                 {merchant?.name || "Store"}
               </h1>
             </div>
@@ -422,10 +422,10 @@ function NearbyStoreContent() {
         </div>
 
         {/* Main Section */}
-        <section className="mt-6 grid gap-6 lg:grid-cols-[1.5fr_1fr]">
+        <section className="mt-6 grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-6 w-full min-w-0 max-w-full">
           {/* Store Image */}
-          <div className="overflow-hidden rounded-2xl border border-[#d8dce3] bg-white shadow-sm h-full flex">
-            <div className="relative w-full h-full min-h-[320px] lg:min-h-[384px]">
+          <div className="overflow-hidden rounded-2xl border border-[#d8dce3] bg-white shadow-sm h-full flex min-w-0 w-full">
+            <div className="relative w-full h-full min-h-[260px] sm:min-h-[320px] lg:min-h-[384px]">
               <Image
                 src={resolvedStoreImage}
                 alt={merchant?.name || "Store"}
@@ -437,7 +437,7 @@ function NearbyStoreContent() {
           </div>
 
           {/* Store Info Card */}
-          <aside className="rounded-2xl border border-[#d8dce3] bg-white p-4 shadow-sm sm:p-6">
+          <aside className="rounded-2xl border border-[#d8dce3] bg-white p-4 shadow-sm sm:p-6 min-w-0 w-full max-w-full">
             <h2 className="text-2xl font-bold text-[#1f2329] mb-4">Store Information</h2>
             
             <div className="space-y-3 text-sm text-[#5f6974] border-b border-[#e5e8ec] pb-4 mb-4">
@@ -523,7 +523,7 @@ function NearbyStoreContent() {
           
                   {/* Popular Services Section */}
                   {offers.length > 0 && (
-                    <section className="bg-white rounded-[32px] border border-[#eef2f6] p-6 lg:p-8 shadow-sm">
+                    <section className="bg-white rounded-2xl sm:rounded-[32px] border border-[#eef2f6] p-4 sm:p-6 lg:p-8 shadow-sm min-w-0 w-full">
                       <div className="flex items-center gap-2 mb-6">
                         <div className="w-8 h-8 bg-[#f0f9f6] rounded-lg flex items-center justify-center text-[#157a4f]">
                           <ShieldCheck size={20} />
@@ -576,7 +576,7 @@ function NearbyStoreContent() {
 
                   {/* Products Section */}
                   {products.length > 0 && (
-                    <section className="bg-white rounded-[32px] border border-[#eef2f6] p-6 lg:p-8 shadow-sm">
+                    <section className="bg-white rounded-2xl sm:rounded-[32px] border border-[#eef2f6] p-4 sm:p-6 lg:p-8 shadow-sm min-w-0 w-full">
                       <div className="flex items-center gap-2 mb-6">
                         <div className="w-8 h-8 bg-[#fef5e7] rounded-lg flex items-center justify-center text-[#e7a91d]">
                           <ShoppingBag size={20} />

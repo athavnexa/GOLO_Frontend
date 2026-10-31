@@ -185,8 +185,8 @@ export default function Template4Home() {
               
               <div className="flex items-start justify-between mb-8 border-b border-gray-50 pb-4">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-yellow-50 rounded-full flex items-center justify-center">
-                    <span className="text-yellow-500 text-xs">🔧</span>
+                  <div className="w-8 h-8 bg-yellow-50 rounded-full flex items-center justify-center text-yellow-600">
+                    <Wrench size={14} />
                   </div>
                   <div>
                     <p className="text-[10px] text-gray-400">Upcoming Service</p>

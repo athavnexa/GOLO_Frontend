@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { Search, ShoppingBag, Tag, Store } from "lucide-react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
@@ -129,7 +130,7 @@ export default function UserGuidePage() {
 
             {/*  Search  */}
             <div className="search-box">
-                <span className="search-icon">🔍</span>
+                <span className="search-icon"><Search size={15} /></span>
                 <input type="text" id="guideSearch" className="search-input" placeholder="Search 15 guides..." />
             </div>
 
@@ -175,9 +176,9 @@ export default function UserGuidePage() {
                     <strong>AjuBaju User (Shopper)</strong>, <strong>Choja (Classifieds / C2C)</strong>, and <strong>Merchant (Retailer / Store Owner)</strong>.
                 </p>
                 <div className="meta-tags">
-                    <span className="meta-pill pill-user">🔵 AjuBaju User (Shopper)</span>
-                    <span className="meta-pill pill-choja">🟣 Choja (Classifieds / C2C)</span>
-                    <span className="meta-pill pill-merchant">🟠 Merchant (Store Owner)</span>
+                    <span className="meta-pill pill-user flex items-center gap-1.5"><ShoppingBag size={14} className="text-blue-500" /> AjuBaju User (Shopper)</span>
+                    <span className="meta-pill pill-choja flex items-center gap-1.5"><Tag size={14} className="text-purple-500" /> Choja (Classifieds / C2C)</span>
+                    <span className="meta-pill pill-merchant flex items-center gap-1.5"><Store size={14} className="text-amber-500" /> Merchant (Store Owner)</span>
                     <span className="meta-pill">v2.0 Official</span>
                     <span className="meta-pill">NexaPrime Pvt. Ltd.</span>
                 </div>
@@ -192,7 +193,7 @@ export default function UserGuidePage() {
                 <div className="roles-grid">
                     <div className="role-card role-user" data-role-type="user">
                         <div className="role-header">
-                            <span className="role-title-badge">🔵 AjuBaju User</span>
+                            <span className="role-title-badge flex items-center gap-1.5"><ShoppingBag size={13} className="text-blue-500" /> AjuBaju User</span>
                             <span className="role-persona">Consumer / Shopper</span>
                         </div>
                         <div className="step-list">
@@ -205,7 +206,7 @@ export default function UserGuidePage() {
 
                     <div className="role-card role-choja" data-role-type="choja">
                         <div className="role-header">
-                            <span className="role-title-badge">🟣 Choja</span>
+                            <span className="role-title-badge flex items-center gap-1.5"><Tag size={13} className="text-purple-500" /> Choja</span>
                             <span className="role-persona">Classifieds / C2C Poster</span>
                         </div>
                         <div className="step-list">
@@ -218,7 +219,7 @@ export default function UserGuidePage() {
 
                     <div className="role-card role-merchant" data-role-type="merchant">
                         <div className="role-header">
-                            <span className="role-title-badge">🟠 Merchant</span>
+                            <span className="role-title-badge flex items-center gap-1.5"><Store size={13} className="text-amber-500" /> Merchant</span>
                             <span className="role-persona">Retailer / Store Owner</span>
                         </div>
                         <div className="step-list">
@@ -241,7 +242,7 @@ export default function UserGuidePage() {
                 <div className="roles-grid">
                     <div className="role-card role-user" data-role-type="user">
                         <div className="role-header">
-                            <span className="role-title-badge">🔵 AjuBaju User</span>
+                            <span className="role-title-badge flex items-center gap-1.5"><ShoppingBag size={13} className="text-blue-500" /> AjuBaju User</span>
                             <span className="role-persona">Consumer / Shopper</span>
                         </div>
                         <ul className="bullet-list">
@@ -254,7 +255,7 @@ export default function UserGuidePage() {
 
                     <div className="role-card role-choja" data-role-type="choja">
                         <div className="role-header">
-                            <span className="role-title-badge">🟣 Choja</span>
+                            <span className="role-title-badge flex items-center gap-1.5"><Tag size={13} className="text-purple-500" /> Choja</span>
                             <span className="role-persona">Classifieds / C2C Poster</span>
                         </div>
                         <ul className="bullet-list">
@@ -266,7 +267,7 @@ export default function UserGuidePage() {
 
                     <div className="role-card role-merchant" data-role-type="merchant">
                         <div className="role-header">
-                            <span className="role-title-badge">🟠 Merchant</span>
+                            <span className="role-title-badge flex items-center gap-1.5"><Store size={13} className="text-amber-500" /> Merchant</span>
                             <span className="role-persona">Retailer / Store Owner</span>
                         </div>
                         <ul className="bullet-list">
@@ -287,7 +288,7 @@ export default function UserGuidePage() {
                 <div className="roles-grid">
                     <div className="role-card role-user" data-role-type="user">
                         <div className="role-header">
-                            <span className="role-title-badge">🔵 AjuBaju User</span>
+                            <span className="role-title-badge flex items-center gap-1.5"><ShoppingBag size={13} className="text-blue-500" /> AjuBaju User</span>
                             <span className="role-persona">Consumer / Shopper</span>
                         </div>
                         <ul className="bullet-list">
@@ -299,7 +300,7 @@ export default function UserGuidePage() {
 
                     <div className="role-card role-choja" data-role-type="choja">
                         <div className="role-header">
-                            <span className="role-title-badge">🟣 Choja</span>
+                            <span className="role-title-badge flex items-center gap-1.5"><Tag size={13} className="text-purple-500" /> Choja</span>
                             <span className="role-persona">Classifieds / C2C Poster</span>
                         </div>
                         <ul className="bullet-list">
@@ -311,7 +312,7 @@ export default function UserGuidePage() {
 
                     <div className="role-card role-merchant" data-role-type="merchant">
                         <div className="role-header">
-                            <span className="role-title-badge">🟠 Merchant</span>
+                            <span className="role-title-badge flex items-center gap-1.5"><Store size={13} className="text-amber-500" /> Merchant</span>
                             <span className="role-persona">Retailer / Store Owner</span>
                         </div>
                         <ul className="bullet-list">
@@ -332,7 +333,7 @@ export default function UserGuidePage() {
                 <div className="roles-grid">
                     <div className="role-card role-user" data-role-type="user">
                         <div className="role-header">
-                            <span className="role-title-badge">🔵 AjuBaju User</span>
+                            <span className="role-title-badge flex items-center gap-1.5"><ShoppingBag size={13} className="text-blue-500" /> AjuBaju User</span>
                             <span className="role-persona">Consumer / Shopper</span>
                         </div>
                         <ul className="bullet-list">
@@ -344,7 +345,7 @@ export default function UserGuidePage() {
 
                     <div className="role-card role-choja" data-role-type="choja">
                         <div className="role-header">
-                            <span className="role-title-badge">🟣 Choja</span>
+                            <span className="role-title-badge flex items-center gap-1.5"><Tag size={13} className="text-purple-500" /> Choja</span>
                             <span className="role-persona">Classifieds / C2C Poster</span>
                         </div>
                         <ul className="bullet-list">
@@ -355,7 +356,7 @@ export default function UserGuidePage() {
 
                     <div className="role-card role-merchant" data-role-type="merchant">
                         <div className="role-header">
-                            <span className="role-title-badge">🟠 Merchant</span>
+                            <span className="role-title-badge flex items-center gap-1.5"><Store size={13} className="text-amber-500" /> Merchant</span>
                             <span className="role-persona">Retailer / Store Owner</span>
                         </div>
                         <ul className="bullet-list">
@@ -376,7 +377,7 @@ export default function UserGuidePage() {
                 <div className="roles-grid">
                     <div className="role-card role-user" data-role-type="user">
                         <div className="role-header">
-                            <span className="role-title-badge">🔵 AjuBaju User</span>
+                            <span className="role-title-badge flex items-center gap-1.5"><ShoppingBag size={13} className="text-blue-500" /> AjuBaju User</span>
                             <span className="role-persona">Consumer / Shopper</span>
                         </div>
                         <ul className="bullet-list">
@@ -388,7 +389,7 @@ export default function UserGuidePage() {
 
                     <div className="role-card role-choja" data-role-type="choja">
                         <div className="role-header">
-                            <span className="role-title-badge">🟣 Choja</span>
+                            <span className="role-title-badge flex items-center gap-1.5"><Tag size={13} className="text-purple-500" /> Choja</span>
                             <span className="role-persona">Classifieds / C2C Poster</span>
                         </div>
                         <ul className="bullet-list">
@@ -400,7 +401,7 @@ export default function UserGuidePage() {
 
                     <div className="role-card role-merchant" data-role-type="merchant">
                         <div className="role-header">
-                            <span className="role-title-badge">🟠 Merchant</span>
+                            <span className="role-title-badge flex items-center gap-1.5"><Store size={13} className="text-amber-500" /> Merchant</span>
                             <span className="role-persona">Retailer / Store Owner</span>
                         </div>
                         <ul className="bullet-list">
@@ -421,7 +422,7 @@ export default function UserGuidePage() {
                 <div className="roles-grid">
                     <div className="role-card role-user" data-role-type="user">
                         <div className="role-header">
-                            <span className="role-title-badge">🔵 AjuBaju User</span>
+                            <span className="role-title-badge flex items-center gap-1.5"><ShoppingBag size={13} className="text-blue-500" /> AjuBaju User</span>
                             <span className="role-persona">Consumer / Shopper</span>
                         </div>
                         <ul className="bullet-list">
@@ -433,7 +434,7 @@ export default function UserGuidePage() {
 
                     <div className="role-card role-choja" data-role-type="choja">
                         <div className="role-header">
-                            <span className="role-title-badge">🟣 Choja</span>
+                            <span className="role-title-badge flex items-center gap-1.5"><Tag size={13} className="text-purple-500" /> Choja</span>
                             <span className="role-persona">Classifieds / C2C Poster</span>
                         </div>
                         <ul className="bullet-list">
@@ -445,7 +446,7 @@ export default function UserGuidePage() {
 
                     <div className="role-card role-merchant" data-role-type="merchant">
                         <div className="role-header">
-                            <span className="role-title-badge">🟠 Merchant</span>
+                            <span className="role-title-badge flex items-center gap-1.5"><Store size={13} className="text-amber-500" /> Merchant</span>
                             <span className="role-persona">Retailer / Store Owner</span>
                         </div>
                         <ul className="bullet-list">
@@ -465,7 +466,7 @@ export default function UserGuidePage() {
                 <div className="roles-grid">
                     <div className="role-card role-user" data-role-type="user">
                         <div className="role-header">
-                            <span className="role-title-badge">🔵 AjuBaju User</span>
+                            <span className="role-title-badge flex items-center gap-1.5"><ShoppingBag size={13} className="text-blue-500" /> AjuBaju User</span>
                             <span className="role-persona">Consumer / Shopper</span>
                         </div>
                         <ul className="bullet-list">
@@ -478,7 +479,7 @@ export default function UserGuidePage() {
 
                     <div className="role-card role-choja" data-role-type="choja">
                         <div className="role-header">
-                            <span className="role-title-badge">🟣 Choja</span>
+                            <span className="role-title-badge flex items-center gap-1.5"><Tag size={13} className="text-purple-500" /> Choja</span>
                             <span className="role-persona">Classifieds / C2C Poster</span>
                         </div>
                         <ul className="bullet-list">
@@ -490,7 +491,7 @@ export default function UserGuidePage() {
 
                     <div className="role-card role-merchant" data-role-type="merchant">
                         <div className="role-header">
-                            <span className="role-title-badge">🟠 Merchant</span>
+                            <span className="role-title-badge flex items-center gap-1.5"><Store size={13} className="text-amber-500" /> Merchant</span>
                             <span className="role-persona">Retailer / Store Owner</span>
                         </div>
                         <ul className="bullet-list">
@@ -511,7 +512,7 @@ export default function UserGuidePage() {
                 <div className="roles-grid">
                     <div className="role-card role-user" data-role-type="user">
                         <div className="role-header">
-                            <span className="role-title-badge">🔵 AjuBaju User</span>
+                            <span className="role-title-badge flex items-center gap-1.5"><ShoppingBag size={13} className="text-blue-500" /> AjuBaju User</span>
                             <span className="role-persona">Consumer / Shopper</span>
                         </div>
                         <ul className="bullet-list">
@@ -523,7 +524,7 @@ export default function UserGuidePage() {
 
                     <div className="role-card role-choja" data-role-type="choja">
                         <div className="role-header">
-                            <span className="role-title-badge">🟣 Choja</span>
+                            <span className="role-title-badge flex items-center gap-1.5"><Tag size={13} className="text-purple-500" /> Choja</span>
                             <span className="role-persona">Classifieds / C2C Poster</span>
                         </div>
                         <ul className="bullet-list">
@@ -534,7 +535,7 @@ export default function UserGuidePage() {
 
                     <div className="role-card role-merchant" data-role-type="merchant">
                         <div className="role-header">
-                            <span className="role-title-badge">🟠 Merchant</span>
+                            <span className="role-title-badge flex items-center gap-1.5"><Store size={13} className="text-amber-500" /> Merchant</span>
                             <span className="role-persona">Retailer / Store Owner</span>
                         </div>
                         <ul className="bullet-list">
@@ -555,7 +556,7 @@ export default function UserGuidePage() {
                 <div className="roles-grid">
                     <div className="role-card role-user" data-role-type="user">
                         <div className="role-header">
-                            <span className="role-title-badge">🔵 AjuBaju User</span>
+                            <span className="role-title-badge flex items-center gap-1.5"><ShoppingBag size={13} className="text-blue-500" /> AjuBaju User</span>
                             <span className="role-persona">Consumer / Shopper</span>
                         </div>
                         <ul className="bullet-list">
@@ -567,7 +568,7 @@ export default function UserGuidePage() {
 
                     <div className="role-card role-choja" data-role-type="choja">
                         <div className="role-header">
-                            <span className="role-title-badge">🟣 Choja</span>
+                            <span className="role-title-badge flex items-center gap-1.5"><Tag size={13} className="text-purple-500" /> Choja</span>
                             <span className="role-persona">Classifieds / C2C Poster</span>
                         </div>
                         <ul className="bullet-list">
@@ -578,7 +579,7 @@ export default function UserGuidePage() {
 
                     <div className="role-card role-merchant" data-role-type="merchant">
                         <div className="role-header">
-                            <span className="role-title-badge">🟠 Merchant</span>
+                            <span className="role-title-badge flex items-center gap-1.5"><Store size={13} className="text-amber-500" /> Merchant</span>
                             <span className="role-persona">Retailer / Store Owner</span>
                         </div>
                         <ul className="bullet-list">
@@ -599,7 +600,7 @@ export default function UserGuidePage() {
                 <div className="roles-grid">
                     <div className="role-card role-user" data-role-type="user">
                         <div className="role-header">
-                            <span className="role-title-badge">🔵 AjuBaju User</span>
+                            <span className="role-title-badge flex items-center gap-1.5"><ShoppingBag size={13} className="text-blue-500" /> AjuBaju User</span>
                             <span className="role-persona">Consumer / Shopper</span>
                         </div>
                         <ul className="bullet-list">
@@ -611,7 +612,7 @@ export default function UserGuidePage() {
 
                     <div className="role-card role-choja" data-role-type="choja">
                         <div className="role-header">
-                            <span className="role-title-badge">🟣 Choja</span>
+                            <span className="role-title-badge flex items-center gap-1.5"><Tag size={13} className="text-purple-500" /> Choja</span>
                             <span className="role-persona">Classifieds / C2C Poster</span>
                         </div>
                         <ul className="bullet-list">
@@ -623,7 +624,7 @@ export default function UserGuidePage() {
 
                     <div className="role-card role-merchant" data-role-type="merchant">
                         <div className="role-header">
-                            <span className="role-title-badge">🟠 Merchant</span>
+                            <span className="role-title-badge flex items-center gap-1.5"><Store size={13} className="text-amber-500" /> Merchant</span>
                             <span className="role-persona">Retailer / Store Owner</span>
                         </div>
                         <ul className="bullet-list">
@@ -643,7 +644,7 @@ export default function UserGuidePage() {
                 <div className="roles-grid">
                     <div className="role-card role-user" data-role-type="user">
                         <div className="role-header">
-                            <span className="role-title-badge">🔵 AjuBaju User</span>
+                            <span className="role-title-badge flex items-center gap-1.5"><ShoppingBag size={13} className="text-blue-500" /> AjuBaju User</span>
                             <span className="role-persona">Consumer / Shopper</span>
                         </div>
                         <ul className="bullet-list">
@@ -655,7 +656,7 @@ export default function UserGuidePage() {
 
                     <div className="role-card role-choja" data-role-type="choja">
                         <div className="role-header">
-                            <span className="role-title-badge">🟣 Choja</span>
+                            <span className="role-title-badge flex items-center gap-1.5"><Tag size={13} className="text-purple-500" /> Choja</span>
                             <span className="role-persona">Classifieds / C2C Poster</span>
                         </div>
                         <ul className="bullet-list">
@@ -666,7 +667,7 @@ export default function UserGuidePage() {
 
                     <div className="role-card role-merchant" data-role-type="merchant">
                         <div className="role-header">
-                            <span className="role-title-badge">🟠 Merchant</span>
+                            <span className="role-title-badge flex items-center gap-1.5"><Store size={13} className="text-amber-500" /> Merchant</span>
                             <span className="role-persona">Retailer / Store Owner</span>
                         </div>
                         <ul className="bullet-list">
@@ -687,7 +688,7 @@ export default function UserGuidePage() {
                 <div className="roles-grid">
                     <div className="role-card role-user" data-role-type="user">
                         <div className="role-header">
-                            <span className="role-title-badge">🔵 AjuBaju User</span>
+                            <span className="role-title-badge flex items-center gap-1.5"><ShoppingBag size={13} className="text-blue-500" /> AjuBaju User</span>
                             <span className="role-persona">Consumer / Shopper</span>
                         </div>
                         <ul className="bullet-list">
@@ -699,7 +700,7 @@ export default function UserGuidePage() {
 
                     <div className="role-card role-choja" data-role-type="choja">
                         <div className="role-header">
-                            <span className="role-title-badge">🟣 Choja</span>
+                            <span className="role-title-badge flex items-center gap-1.5"><Tag size={13} className="text-purple-500" /> Choja</span>
                             <span className="role-persona">Classifieds / C2C Poster</span>
                         </div>
                         <ul className="bullet-list">
@@ -711,7 +712,7 @@ export default function UserGuidePage() {
 
                     <div className="role-card role-merchant" data-role-type="merchant">
                         <div className="role-header">
-                            <span className="role-title-badge">🟠 Merchant</span>
+                            <span className="role-title-badge flex items-center gap-1.5"><Store size={13} className="text-amber-500" /> Merchant</span>
                             <span className="role-persona">Retailer / Store Owner</span>
                         </div>
                         <ul className="bullet-list">
@@ -732,7 +733,7 @@ export default function UserGuidePage() {
                 <div className="roles-grid">
                     <div className="role-card role-user" data-role-type="user">
                         <div className="role-header">
-                            <span className="role-title-badge">🔵 AjuBaju User</span>
+                            <span className="role-title-badge flex items-center gap-1.5"><ShoppingBag size={13} className="text-blue-500" /> AjuBaju User</span>
                             <span className="role-persona">Consumer / Shopper</span>
                         </div>
                         <ul className="bullet-list">
@@ -744,7 +745,7 @@ export default function UserGuidePage() {
 
                     <div className="role-card role-choja" data-role-type="choja">
                         <div className="role-header">
-                            <span className="role-title-badge">🟣 Choja</span>
+                            <span className="role-title-badge flex items-center gap-1.5"><Tag size={13} className="text-purple-500" /> Choja</span>
                             <span className="role-persona">Classifieds / C2C Poster</span>
                         </div>
                         <ul className="bullet-list">
@@ -755,7 +756,7 @@ export default function UserGuidePage() {
 
                     <div className="role-card role-merchant" data-role-type="merchant">
                         <div className="role-header">
-                            <span className="role-title-badge">🟠 Merchant</span>
+                            <span className="role-title-badge flex items-center gap-1.5"><Store size={13} className="text-amber-500" /> Merchant</span>
                             <span className="role-persona">Retailer / Store Owner</span>
                         </div>
                         <ul className="bullet-list">
@@ -776,7 +777,7 @@ export default function UserGuidePage() {
                 <div className="roles-grid">
                     <div className="role-card role-user" data-role-type="user">
                         <div className="role-header">
-                            <span className="role-title-badge">🔵 AjuBaju User</span>
+                            <span className="role-title-badge flex items-center gap-1.5"><ShoppingBag size={13} className="text-blue-500" /> AjuBaju User</span>
                             <span className="role-persona">Consumer / Shopper</span>
                         </div>
                         <ul className="bullet-list">
@@ -788,7 +789,7 @@ export default function UserGuidePage() {
 
                     <div className="role-card role-choja" data-role-type="choja">
                         <div className="role-header">
-                            <span className="role-title-badge">🟣 Choja</span>
+                            <span className="role-title-badge flex items-center gap-1.5"><Tag size={13} className="text-purple-500" /> Choja</span>
                             <span className="role-persona">Classifieds / C2C Poster</span>
                         </div>
                         <ul className="bullet-list">
@@ -799,7 +800,7 @@ export default function UserGuidePage() {
 
                     <div className="role-card role-merchant" data-role-type="merchant">
                         <div className="role-header">
-                            <span className="role-title-badge">🟠 Merchant</span>
+                            <span className="role-title-badge flex items-center gap-1.5"><Store size={13} className="text-amber-500" /> Merchant</span>
                             <span className="role-persona">Retailer / Store Owner</span>
                         </div>
                         <ul className="bullet-list">
@@ -820,7 +821,7 @@ export default function UserGuidePage() {
                 <div className="roles-grid">
                     <div className="role-card role-user" data-role-type="user">
                         <div className="role-header">
-                            <span className="role-title-badge">🔵 AjuBaju User</span>
+                            <span className="role-title-badge flex items-center gap-1.5"><ShoppingBag size={13} className="text-blue-500" /> AjuBaju User</span>
                             <span className="role-persona">Consumer / Shopper</span>
                         </div>
                         <div className="step-list">
@@ -833,7 +834,7 @@ export default function UserGuidePage() {
 
                     <div className="role-card role-choja" data-role-type="choja">
                         <div className="role-header">
-                            <span className="role-title-badge">🟣 Choja</span>
+                            <span className="role-title-badge flex items-center gap-1.5"><Tag size={13} className="text-purple-500" /> Choja</span>
                             <span className="role-persona">Classifieds / C2C Poster</span>
                         </div>
                         <ul className="bullet-list">
@@ -844,7 +845,7 @@ export default function UserGuidePage() {
 
                     <div className="role-card role-merchant" data-role-type="merchant">
                         <div className="role-header">
-                            <span className="role-title-badge">🟠 Merchant</span>
+                            <span className="role-title-badge flex items-center gap-1.5"><Store size={13} className="text-amber-500" /> Merchant</span>
                             <span className="role-persona">Retailer / Store Owner</span>
                         </div>
                         <div className="step-list">
@@ -868,9 +869,9 @@ export default function UserGuidePage() {
                         <thead>
                             <tr>
                                 <th>Operational Dimension</th>
-                                <th className="col-user">🔵 AjuBaju User (Shopper)</th>
-                                <th className="col-choja">🟣 Choja (Classifieds)</th>
-                                <th className="col-merchant">🟠 Merchant (Retailer)</th>
+                                <th className="col-user"><span className="flex items-center justify-center gap-1.5"><ShoppingBag size={14} className="text-blue-500" /> AjuBaju User (Shopper)</span></th>
+                                <th className="col-choja"><span className="flex items-center justify-center gap-1.5"><Tag size={14} className="text-purple-500" /> Choja (Classifieds)</span></th>
+                                <th className="col-merchant"><span className="flex items-center justify-center gap-1.5"><Store size={14} className="text-amber-500" /> Merchant (Retailer)</span></th>
                             </tr>
                         </thead>
                         <tbody>

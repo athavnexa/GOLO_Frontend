@@ -751,15 +751,15 @@ function ProductDetailContent() {
 
                 <div className="space-y-2 text-sm">
                   {merchantAddress && (
-                    <div className="flex items-center gap-2">
-                      <MapPin size={16} className="text-[#157a4f]" />
-                      <span className="text-[#666]">{merchantAddress}</span>
+                    <div className="flex items-start gap-2 break-words">
+                      <MapPin size={16} className="text-[#157a4f] shrink-0 mt-0.5" />
+                      <span className="text-[#666] break-words flex-1 min-w-0">{merchantAddress}</span>
                     </div>
                   )}
                   {merchantPhone && (
                     <div className="flex items-center gap-2">
-                      <Phone size={16} className="text-[#157a4f]" />
-                      <span className="text-[#666]">{merchantPhone}</span>
+                      <Phone size={16} className="text-[#157a4f] shrink-0" />
+                      <span className="text-[#666] truncate">{merchantPhone}</span>
                     </div>
                   )}
                 </div>
@@ -792,12 +792,12 @@ function ProductDetailContent() {
         )}
 
         <section className="bg-white rounded-2xl p-6 sm:p-8 mb-8 border border-[#e5e7eb] shadow-sm">
-          <div className="mb-6 pb-4 border-b border-[#f0f2f5] flex items-center justify-between">
+          <div className="mb-6 pb-4 border-b border-[#f0f2f5] flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
-              <h2 className="text-2xl font-bold text-[#1f2329]">Product Details</h2>
-              <p className="text-sm text-[#66707b] mt-1">Comprehensive information and availability for this item</p>
+              <h2 className="text-xl sm:text-2xl font-bold text-[#1f2329]">Product Details</h2>
+              <p className="text-xs sm:text-sm text-[#66707b] mt-1">Comprehensive information and availability for this item</p>
             </div>
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-[#e8f6ef] text-[#157a4f]">
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-[#e8f6ef] text-[#157a4f] self-start sm:self-auto">
               Verified Product
             </span>
           </div>

@@ -1309,16 +1309,16 @@ function NavbarContent({
         }}
       >
         <div className="w-full h-[52px] md:h-[60px] flex items-center justify-between gap-3">
-          {/* MOBILE TOP LEFT: Icon with background oval shape (no text logo) */}
+          {/* MOBILE TOP LEFT: App Icon Circle */}
           <Link
             href="/"
-            className="flex md:hidden h-11 w-14 items-center justify-center rounded-full bg-white shadow-sm transition-all duration-200 border-2 border-[#157A4F] shadow-[0_2px_8px_rgba(21,122,79,0.18)] shrink-0"
+            className="flex md:hidden w-10 h-10 items-center justify-center rounded-full bg-white shadow-md transition-all duration-200 border border-gray-200/60 shrink-0"
             aria-label="AjuBaju Home"
           >
             <img
               src="/images/ajubaju-icon-green.png"
               alt="AjuBaju Icon"
-              className="h-[21px] w-auto shrink-0 object-contain"
+              className="h-5 w-auto shrink-0 object-contain"
               loading="eager"
               draggable={false}
             />
@@ -1589,11 +1589,11 @@ function NavbarContent({
                   <button
                     type="button"
                     onClick={handleNotifBellClick}
-                    className="relative w-9 h-9 rounded-full flex items-center justify-center bg-white shadow-md hover:scale-105 transition"
+                    className="relative w-10 h-10 rounded-full flex items-center justify-center bg-white shadow-md hover:scale-105 transition border border-gray-200/60 shrink-0"
                     style={{ color: "#157A4F" }}
                     aria-label="Notifications"
                   >
-                    <Bell size={18} />
+                    <Bell size={20} />
                     {unreadCount > 0 && (
                       <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">
                         {unreadCount > 9 ? "9+" : unreadCount}
@@ -1700,9 +1700,9 @@ function NavbarContent({
                     onClick={handleProfileAvatarClick}
                     className="flex items-center gap-2 cursor-pointer"
                   >
-                    <div className="relative w-9 h-9">
+                    <div className="relative w-10 h-10 shrink-0">
                       <div
-                        className="w-9 h-9 rounded-full flex items-center justify-center shadow-md hover:scale-105 transition bg-white overflow-hidden border border-gray-200/60"
+                        className="w-10 h-10 rounded-full flex items-center justify-center shadow-md hover:scale-105 transition bg-white overflow-hidden border border-gray-200/60"
                         style={{ color: "#157A4F" }}
                       >
                         <img
@@ -1880,7 +1880,7 @@ function NavbarContent({
                 <div className="md:hidden relative" ref={profileRef}>
                   <button
                     onClick={() => setShowProfileMenu((prev) => !prev)}
-                    className="w-10 h-10 rounded-full flex items-center justify-center bg-gray-50 shadow-sm hover:bg-gray-100 transition-colors"
+                    className="w-10 h-10 rounded-full flex items-center justify-center bg-white shadow-md hover:bg-gray-50 border border-gray-200/60 transition-colors shrink-0"
                   >
                     <MoreVertical size={20} className="text-gray-600" />
                   </button>

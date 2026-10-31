@@ -25,6 +25,7 @@ import {
   Shield,
   AlertTriangle,
   CircleX,
+  Heart,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { getMerchantReviewStats, getMerchantReviews, updateMerchantReviewStatus } from "../../lib/api/merchant";;
@@ -457,7 +458,10 @@ export default function MerchantReviewsRatingsPage() {
           </aside>
         </main>
 
-        <footer className="h-8 px-4 text-[9px] text-gray-500 flex items-center">Made with 💜</footer>
+        <footer className="h-8 px-4 text-[9px] text-gray-500 flex items-center gap-1">
+          <span>Made with</span>
+          <Heart size={11} className="text-purple-600 fill-purple-600 inline" />
+        </footer>
       </div>
     </div>
   );

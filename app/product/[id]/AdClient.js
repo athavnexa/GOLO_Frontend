@@ -464,8 +464,8 @@ export default function ProductDetails({ params }) {
 			<Navbar />
 
 			<div className="relative z-10 min-h-screen bg-transparent pt-6 md:pt-8">
-				<div className="max-w-7xl mx-auto px-6 py-10">
-					<p className="text-sm text-gray-500 mb-6">
+				<div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10 w-full min-w-0 max-w-full overflow-x-hidden sm:overflow-x-visible">
+					<p className="text-sm text-gray-500 mb-6 truncate">
 						<Link href="/choja" className="hover:text-[#157A4F] transition-colors">
 							Home
 						</Link>
@@ -475,10 +475,10 @@ export default function ProductDetails({ params }) {
 						</span>
 					</p>
 
-					<div className="grid lg:grid-cols-3 gap-10">
-						<div className="lg:col-span-2">
+					<div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-10 w-full min-w-0 max-w-full">
+						<div className="lg:col-span-2 min-w-0 w-full max-w-full">
 							{isTextOnlyAd ? (
-								<div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-200">
+								<div className="bg-white p-4 sm:p-8 rounded-2xl shadow-sm border border-gray-200 min-w-0 w-full">
 									<div className="flex flex-wrap items-center gap-3 mb-6">
 										<span className="text-xs font-semibold bg-[#EAF6F0] text-[#157A4F] px-3 py-1 rounded-full">
 											Text Only Ad
@@ -646,7 +646,7 @@ export default function ProductDetails({ params }) {
 							</div>
 
 							{basicInformationEntries.length > 0 && (
-								<div className="bg-white p-6 rounded-2xl shadow-sm mt-6 border border-gray-200">
+								<div className="bg-white p-4 sm:p-6 rounded-2xl shadow-sm mt-6 border border-gray-200 min-w-0 w-full">
 									<h2 className="font-semibold text-lg mb-4">Basic Information</h2>
 									<div className="grid sm:grid-cols-2 gap-3">
 										{basicInformationEntries.map(([label, value]) => (
@@ -660,7 +660,7 @@ export default function ProductDetails({ params }) {
 							)}
 
 							{categorySpecificEntries.length > 0 && (
-								<div className="bg-white p-6 rounded-2xl shadow-sm mt-6 border border-gray-200">
+								<div className="bg-white p-4 sm:p-6 rounded-2xl shadow-sm mt-6 border border-gray-200 min-w-0 w-full">
 									<h2 className="font-semibold text-lg mb-4">
 										{ad?.category || "Category"} Details
 									</h2>
@@ -677,9 +677,9 @@ export default function ProductDetails({ params }) {
 							)}
 						</div>
 
-						<div>
-							<div className="sticky top-24 space-y-6">
-								<div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+						<div className="min-w-0 w-full max-w-full">
+							<div className="lg:sticky lg:top-24 space-y-6 min-w-0 w-full">
+								<div className="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-200 min-w-0 w-full">
 									<div className="flex justify-between items-center">
 										{resolvedDisplayPrice !== null ? (
 											<p className="text-gray-500 font-medium">
@@ -727,7 +727,7 @@ export default function ProductDetails({ params }) {
 									</button>
 								</div>
 
-								<div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
+								<div className="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-gray-200 min-w-0 w-full">
 									<p className="text-sm font-semibold text-gray-800 mb-3">Ad Uploader Details</p>
 									<div className="flex items-start gap-3">
 										<div className="w-11 h-11 rounded-full bg-[#ecf8f1] text-[#157A4F] font-bold flex items-center justify-center shrink-0">
@@ -746,8 +746,9 @@ export default function ProductDetails({ params }) {
 												</p>
 											)}
 											{sellerCity && (
-												<p className="text-xs text-gray-400 mt-1">
-													📍 {sellerCity}
+												<p className="text-xs text-gray-400 mt-1 flex items-center gap-1">
+													<MapPin size={12} className="shrink-0" />
+													<span>{sellerCity}</span>
 												</p>
 											)}
 										</div>

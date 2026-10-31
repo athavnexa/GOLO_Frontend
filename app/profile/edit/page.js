@@ -6,7 +6,8 @@ import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import { useAuth } from "../../context/AuthContext";
 import { sendPasswordChangeOTP, verifyPasswordChangeOTP, changePasswordWithOTP } from "../../lib/api/auth";
-import { updateProfile } from "../../lib/api/user";;
+import { updateProfile } from "../../lib/api/user";
+import { User, Lock, Eye, EyeOff } from "lucide-react";
 
 export default function EditProfilePage() {
   const { user, isAuthenticated, loading: authLoading, refreshProfile } = useAuth();
@@ -294,7 +295,10 @@ export default function EditProfilePage() {
                     : "text-gray-600 hover:text-gray-900"
                 }`}
               >
-                👤 Profile Information
+                <span className="flex items-center justify-center gap-2">
+                  <User size={16} />
+                  <span>Profile Information</span>
+                </span>
               </button>
               <button
                 onClick={() => setActiveTab("password")}
@@ -304,7 +308,10 @@ export default function EditProfilePage() {
                     : "text-gray-600 hover:text-gray-900"
                 }`}
               >
-                🔒 Change Password
+                <span className="flex items-center justify-center gap-2">
+                  <Lock size={16} />
+                  <span>Change Password</span>
+                </span>
               </button>
             </div>
 
@@ -511,7 +518,7 @@ export default function EditProfilePage() {
                                   onClick={() => setShowPassword(!showPassword)}
                                   className="absolute right-4 top-3.5 text-gray-500 hover:text-gray-700"
                                 >
-                                  {showPassword ? "👁️" : "👁️‍🗨️"}
+                                  {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
                                 </button>
                               </div>
                             </div>
@@ -539,7 +546,7 @@ export default function EditProfilePage() {
                                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                                   className="absolute right-4 top-3.5 text-gray-500 hover:text-gray-700"
                                 >
-                                  {showConfirmPassword ? "👁️" : "👁️‍🗨️"}
+                                  {showConfirmPassword ? <Eye size={18} /> : <EyeOff size={18} />}
                                 </button>
                               </div>
                             </div>

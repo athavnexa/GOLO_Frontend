@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import { Lock, AlertTriangle, ShieldAlert } from "lucide-react";
 
 export default function PrivacyPolicyPage() {
   const [mounted, setMounted] = useState(false);
@@ -1025,14 +1026,14 @@ export default function PrivacyPolicyPage() {
 
               <p className="text-gray-900 font-bold mb-6 text-xl border-t border-gray-200 pt-8">Security measures may include:</p>
               <ul className="grid grid-cols-1 md:grid-cols-2 gap-4 list-none mb-10 text-gray-800 font-medium">
-                <li className="bg-white px-6 py-4 rounded-xl border border-gray-200 shadow-sm flex items-center gap-3"><span className="text-[#157A4F]">🔒</span> access controls</li>
-                <li className="bg-white px-6 py-4 rounded-xl border border-gray-200 shadow-sm flex items-center gap-3"><span className="text-[#157A4F]">🔒</span> authentication controls</li>
-                <li className="bg-white px-6 py-4 rounded-xl border border-gray-200 shadow-sm flex items-center gap-3"><span className="text-[#157A4F]">🔒</span> password protection/encryption</li>
-                <li className="bg-white px-6 py-4 rounded-xl border border-gray-200 shadow-sm flex items-center gap-3"><span className="text-[#157A4F]">🔒</span> secure transmission</li>
-                <li className="bg-white px-6 py-4 rounded-xl border border-gray-200 shadow-sm flex items-center gap-3"><span className="text-[#157A4F]">🔒</span> restricted access to sensitive information</li>
-                <li className="bg-white px-6 py-4 rounded-xl border border-gray-200 shadow-sm flex items-center gap-3"><span className="text-[#157A4F]">🔒</span> security monitoring</li>
-                <li className="bg-white px-6 py-4 rounded-xl border border-gray-200 shadow-sm flex items-center gap-3"><span className="text-[#157A4F]">🔒</span> session management</li>
-                <li className="bg-white px-6 py-4 rounded-xl border border-gray-200 shadow-sm flex items-center gap-3"><span className="text-[#157A4F]">🔒</span> fraud and abuse detection</li>
+                <li className="bg-white px-6 py-4 rounded-xl border border-gray-200 shadow-sm flex items-center gap-3"><Lock size={15} className="text-[#157A4F] shrink-0" /> access controls</li>
+                <li className="bg-white px-6 py-4 rounded-xl border border-gray-200 shadow-sm flex items-center gap-3"><Lock size={15} className="text-[#157A4F] shrink-0" /> authentication controls</li>
+                <li className="bg-white px-6 py-4 rounded-xl border border-gray-200 shadow-sm flex items-center gap-3"><Lock size={15} className="text-[#157A4F] shrink-0" /> password protection/encryption</li>
+                <li className="bg-white px-6 py-4 rounded-xl border border-gray-200 shadow-sm flex items-center gap-3"><Lock size={15} className="text-[#157A4F] shrink-0" /> secure transmission</li>
+                <li className="bg-white px-6 py-4 rounded-xl border border-gray-200 shadow-sm flex items-center gap-3"><Lock size={15} className="text-[#157A4F] shrink-0" /> restricted access to sensitive information</li>
+                <li className="bg-white px-6 py-4 rounded-xl border border-gray-200 shadow-sm flex items-center gap-3"><Lock size={15} className="text-[#157A4F] shrink-0" /> security monitoring</li>
+                <li className="bg-white px-6 py-4 rounded-xl border border-gray-200 shadow-sm flex items-center gap-3"><Lock size={15} className="text-[#157A4F] shrink-0" /> session management</li>
+                <li className="bg-white px-6 py-4 rounded-xl border border-gray-200 shadow-sm flex items-center gap-3"><Lock size={15} className="text-[#157A4F] shrink-0" /> fraud and abuse detection</li>
               </ul>
 
               <div className="bg-red-50 border border-red-200 p-6 rounded-xl text-center">
@@ -1147,7 +1148,7 @@ export default function PrivacyPolicyPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:p-8 mt-8">
                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-red-200">
-                  <h3 className="text-xl font-bold text-red-600 mb-4 flex items-center gap-2"><span>⚠️</span> 21.1 Important Data Warning</h3>
+                  <h3 className="text-xl font-bold text-red-600 mb-4 flex items-center gap-2"><AlertTriangle size={20} className="text-red-600 shrink-0" /> 21.1 Important Data Warning</h3>
                   <p className="mb-3 text-sm font-semibold">Before proceeding, the Merchant will be shown a prominent warning explaining that deletion may permanently remove or make unavailable:</p>
                   <ul className="list-disc pl-6 space-y-1 text-sm text-gray-600 mb-3">
                     <li>Merchant account information;</li>
@@ -1422,7 +1423,7 @@ export default function PrivacyPolicyPage() {
             </h2></div>
             <div className="text-base md:text-lg text-gray-700 leading-relaxed bg-red-50/50 p-6 md:p-8 rounded-2xl border border-red-100">
               <p className="text-xl font-bold text-red-900 mb-4 flex items-center gap-3">
-                <span className="text-2xl">🔞</span> AjuBaju is intended for individuals aged 18 years and above.
+                <ShieldAlert size={22} className="text-red-600 shrink-0" /> AjuBaju is intended for individuals aged 18 years and above.
               </p>
               <p className="mb-4 font-medium">AjuBaju does not knowingly intend to provide its services to children below the applicable minimum age.</p>
               <p className="text-gray-600">If AjuBaju becomes aware that personal data belonging to a minor has been collected without an appropriate legal basis or consent, AjuBaju may take reasonable steps to delete or otherwise handle such information in accordance with applicable law.</p>

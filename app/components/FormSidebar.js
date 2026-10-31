@@ -2,7 +2,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
-import { createAd } from "../lib/api/ads";;
+import { createAd } from "../lib/api/ads";
+import { CheckCircle2 } from "lucide-react";
 import InappropriateImageModal from "./InappropriateImageModal";
 import ModerationWarningModal from "../../components/ModerationWarningModal";
 
@@ -429,7 +430,10 @@ export default function FormSidebar({
         {/* Success Message */}
         {submitSuccess && (
           <div className="bg-green-50 border border-green-200 rounded-xl p-3 text-center">
-            <p className="text-green-700 font-semibold">🎉 Ad posted successfully!</p>
+            <p className="text-green-700 font-semibold flex items-center justify-center gap-1.5">
+              <CheckCircle2 size={16} className="text-green-600 shrink-0" />
+              <span>Ad posted successfully!</span>
+            </p>
             <p className="text-green-600 text-sm mt-1">Redirecting to My Ads...</p>
           </div>
         )}

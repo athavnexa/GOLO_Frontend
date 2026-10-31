@@ -1,7 +1,7 @@
 "use client";
 
 import AuthLayout from "./../../components/AuthLayout";
-import { Mail, Lock, EyeOff, Eye } from "lucide-react";
+import { Mail, Lock, EyeOff, Eye, AlertTriangle } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -286,8 +286,9 @@ export default function LoginPage() {
 
               {/* Session Expired */}
               {sessionExpired && (
-                <p className="text-[#92400E] bg-[#FEF3C7] border border-[#F59E0B] rounded-lg p-2.5 text-xs mb-5 text-center">
-                  ⚠️ Your session expired. Please log in again to continue.
+                <p className="text-[#92400E] bg-[#FEF3C7] border border-[#F59E0B] rounded-lg p-2.5 text-xs mb-5 text-center flex items-center justify-center gap-1.5">
+                  <AlertTriangle size={15} className="text-[#F59E0B] shrink-0" />
+                  <span>Your session expired. Please log in again to continue.</span>
                 </p>
               )}
 

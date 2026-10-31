@@ -161,8 +161,9 @@ export default function MerchantLandingPage() {
                     <p className="text-gray-500 text-[13px] leading-relaxed mb-6">
                       We've sent a welcome email to <strong className="text-[#157a4f]">{inviteEmail}</strong> with your registration link. Please check your inbox (and spam folder).
                     </p>
-                    <div className="bg-[#f0faf5] border border-[#c3e6d4] rounded-xl px-4 py-3 text-[12px] text-[#0f5c3d] font-semibold mb-6">
-                      📧 Don't see it? Check your spam / promotions folder.
+                    <div className="bg-[#f0faf5] border border-[#c3e6d4] rounded-xl px-4 py-3 text-[12px] text-[#0f5c3d] font-semibold mb-6 flex items-center gap-2">
+                      <Mail size={15} className="text-[#157a4f] shrink-0" />
+                      <span>Don't see it? Check your spam / promotions folder.</span>
                     </div>
                     <button
                       onClick={closeInviteModal}

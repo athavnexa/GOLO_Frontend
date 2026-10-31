@@ -319,9 +319,9 @@ function CategoryBarContent({ variant = "choja", preferredCategories = [] }) {
   const iconLabelGap = isMobile ? "3px" : "5px";
   const iconSize = isMobile ? "32px" : "40px";
   const iconGlyphSize = isMobile ? 15 : 18;
-  const labelMinHeight = isMobile ? "26px" : "32px";
-  const pillPadding = isMobile ? "6px 4px" : "8px 6px";
-  const pillWidth = isMobile ? "80px" : "106px";
+  const labelMinHeight = isMobile ? "18px" : "32px";
+  const pillPadding = isMobile ? "4px 2px" : "8px 6px";
+  const pillWidth = isMobile ? "70px" : "106px";
 
   return (
     <>
@@ -416,11 +416,14 @@ function CategoryBarContent({ variant = "choja", preferredCategories = [] }) {
                     <IconComponent size={iconGlyphSize} color={dark} strokeWidth={2} />
                   </span>
                   <span
+                    className="golo-cat-label"
                     style={{
-                      display: isSingleWord ? "block" : "-webkit-box",
-                      WebkitLineClamp: isSingleWord ? 1 : 2,
+                      display: isMobile ? "flex" : (isSingleWord ? "block" : "-webkit-box"),
+                      alignItems: "center",
+                      justifyContent: "center",
+                      WebkitLineClamp: isMobile ? 1 : (isSingleWord ? 1 : 2),
                       WebkitBoxOrient: "vertical",
-                      whiteSpace: isSingleWord ? "nowrap" : "normal",
+                      whiteSpace: isMobile ? "nowrap" : (isSingleWord ? "nowrap" : "normal"),
                       overflow: "hidden",
                       textOverflow: "ellipsis",
                       wordBreak: "normal",
@@ -437,12 +440,22 @@ function CategoryBarContent({ variant = "choja", preferredCategories = [] }) {
                       minHeight: labelMinHeight,
                     }}
                   >
-                    {cat.name}
+                    <span
+                      style={{
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: isMobile ? "nowrap" : (isSingleWord ? "nowrap" : "normal"),
+                        display: isMobile ? "inline-block" : "inline",
+                        maxWidth: "100%",
+                      }}
+                    >
+                      {cat.name}
+                    </span>
                     {variant !== "golocal" && cat.sub && (
                       <ChevronDown
                         size={11}
                         style={{
-                          display: "inline",
+                          display: "inline-block",
                           verticalAlign: "middle",
                           marginLeft: "2px",
                           flexShrink: 0,
@@ -460,6 +473,7 @@ function CategoryBarContent({ variant = "choja", preferredCategories = [] }) {
             <button
               onClick={() => setShowAllModal(true)}
               title="See All Categories"
+              className="golo-category-pill"
               style={{
                 display: "flex",
                 flexDirection: "column",
@@ -489,6 +503,7 @@ function CategoryBarContent({ variant = "choja", preferredCategories = [] }) {
                 <Grid size={iconGlyphSize} />
               </span>
               <span 
+                className="golo-cat-label"
                 style={{ 
                   display: "block",
                   whiteSpace: "nowrap",

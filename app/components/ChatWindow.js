@@ -1,7 +1,7 @@
 "use client";
 
 import { createPortal } from "react-dom";
-import { ArrowLeft, Check, CheckCheck, Paperclip, Phone, PhoneIncoming, PhoneMissed, PhoneOutgoing, Send, X, MoreVertical } from "lucide-react";
+import { ArrowLeft, Check, CheckCheck, Paperclip, Phone, PhoneIncoming, PhoneMissed, PhoneOutgoing, Send, X, MoreVertical, MessageCircle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import UserReportModal from "../components/UserReportModal";
@@ -196,7 +196,10 @@ export default function ChatWindow({
         )}
 
         {!loading && messages.length === 0 && (
-          <div className="text-sm text-gray-500">No messages yet. Say hi 👋</div>
+          <div className="text-sm text-gray-500 flex items-center gap-1.5">
+            <MessageCircle size={16} className="text-[#157A4F]" />
+            <span>No messages yet. Say hi</span>
+          </div>
         )}
 
         {messages.map((message, index) => {
@@ -291,7 +294,10 @@ export default function ChatWindow({
                             isMine ? "bg-white/15" : "bg-gray-100"
                           }`}
                         >
-                          <span className="truncate max-w-[220px]">📎 {attachment.name || "Attachment"}</span>
+                          <span className="truncate max-w-[220px] flex items-center gap-1.5">
+                            <Paperclip size={13} className="shrink-0" />
+                            <span className="truncate">{attachment.name || "Attachment"}</span>
+                          </span>
                           <span className="font-semibold">Open</span>
                         </a>
                       );

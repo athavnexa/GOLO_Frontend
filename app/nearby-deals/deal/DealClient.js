@@ -753,7 +753,7 @@ function NearbyDealDetailsContent() {
       )}
       <Navbar />
 
-      <div className="relative z-10 mx-auto max-w-[1260px] px-4 lg:px-6 pt-10 md:pt-14 pb-4 lg:pb-6">
+      <div className="relative z-10 mx-auto max-w-[1260px] w-full min-w-0 px-4 lg:px-6 pt-10 md:pt-14 pb-4 lg:pb-6 overflow-x-hidden sm:overflow-x-visible">
         <button
           onClick={() => router.back()}
           className="mb-4 inline-flex items-center gap-2 text-sm font-semibold text-[#666] hover:text-[#111] transition-colors"
@@ -948,10 +948,10 @@ function NearbyDealDetailsContent() {
         </section>
 
         {/* Selected Products & Details Section */}
-        <section className="mt-8 mb-16 grid gap-6 lg:grid-cols-[1.75fr_1fr] items-start">
-          <div className="space-y-6">
-            <div className="rounded-2xl border border-[#e5e7eb] bg-white p-6 shadow-sm">
-              <h2 className="text-[28px] font-bold text-[#1f2329]">
+        <section className="mt-8 mb-16 grid grid-cols-1 lg:grid-cols-[1.75fr_1fr] gap-6 items-start w-full min-w-0 max-w-full">
+          <div className="space-y-6 min-w-0 w-full max-w-full">
+            <div className="rounded-2xl border border-[#e5e7eb] bg-white p-4 sm:p-6 shadow-sm min-w-0 w-full">
+              <h2 className="text-xl sm:text-[28px] font-bold text-[#1f2329]">
                 Selected Products
               </h2>
               {selectedProducts.length === 0 ? (
@@ -959,7 +959,7 @@ function NearbyDealDetailsContent() {
                   No product details were provided for this offer.
                 </p>
               ) : (
-                <div className="mt-4 space-y-3">
+                <div className="mt-4 space-y-3 min-w-0 w-full">
                   {selectedProducts.map((item, index) => {
                     const productId =
                       item?.productId || item?.id || item?._id;
@@ -975,10 +975,10 @@ function NearbyDealDetailsContent() {
                             )}`
                           )
                         }
-                        className="rounded-[12px] border border-[#d8dce3] bg-white p-3 flex items-center gap-3 cursor-pointer hover:shadow-md hover:border-[#157a4f] transition"
+                        className="rounded-[12px] border border-[#d8dce3] bg-white p-3 flex items-center justify-between gap-3 cursor-pointer hover:shadow-md hover:border-[#157a4f] transition min-w-0 w-full"
                         title="View product details"
                       >
-                        <div className="relative h-16 w-16 overflow-hidden rounded-lg border border-[#e5e7eb] bg-[#f3f4f6] shrink-0">
+                        <div className="relative h-14 w-14 sm:h-16 sm:w-16 overflow-hidden rounded-lg border border-[#e5e7eb] bg-[#f3f4f6] shrink-0">
                           <SafeImage
                             src={
                               item?.imageUrl || "/images/deal2.avif"
@@ -988,8 +988,8 @@ function NearbyDealDetailsContent() {
                             className="object-cover"
                           />
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-[15px] font-semibold text-[#1f2329] truncate">
+                        <div className="flex-1 min-w-0 pr-1">
+                          <p className="text-[14px] sm:text-[15px] font-semibold text-[#1f2329] truncate">
                             {item?.productName || "Product"}
                           </p>
                           <p className="text-[12px] text-[#6b7280]">
@@ -1000,15 +1000,15 @@ function NearbyDealDetailsContent() {
                             )}
                           </p>
                         </div>
-                        <div className="text-right shrink-0">
-                          <p className="text-[16px] font-bold text-[#157a4f]">
+                        <div className="text-right shrink-0 whitespace-nowrap">
+                          <p className="text-[15px] sm:text-[16px] font-bold text-[#157a4f]">
                             Rs.
                             {toNumber(
                               item?.offerPrice,
                               0
                             ).toLocaleString("en-IN")}
                           </p>
-                          <p className="text-[12px] text-[#9ca3af] line-through">
+                          <p className="text-[11px] sm:text-[12px] text-[#9ca3af] line-through">
                             Rs.
                             {toNumber(
                               item?.originalPrice,
@@ -1024,56 +1024,56 @@ function NearbyDealDetailsContent() {
             </div>
 
             {offer?.exampleUsage && (
-              <div className="rounded-2xl border border-[#dce8df] bg-[#f7fcf9] p-5 shadow-sm">
+              <div className="rounded-2xl border border-[#dce8df] bg-[#f7fcf9] p-4 sm:p-5 shadow-sm min-w-0 w-full">
                 <div className="mb-3 flex items-center gap-2">
-                  <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#157a4f] text-white">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#157a4f] text-white shrink-0">
                     <Info size={14} />
                   </div>
                   <h3 className="text-[17px] font-bold text-[#1f2329]">How to Use</h3>
                 </div>
-                <p className="text-sm leading-7 text-[#475467] whitespace-pre-line">
+                <p className="text-sm leading-7 text-[#475467] whitespace-pre-line break-words">
                   {offer.exampleUsage}
                 </p>
               </div>
             )}
 
             {/* Terms & Restrictions - Exact below products */}
-            <div className="rounded-2xl border border-[#e5e7eb] bg-white p-6 shadow-sm">
-              <h2 className="text-2xl font-bold text-[#1f2329] mb-2">
+            <div className="rounded-2xl border border-[#e5e7eb] bg-white p-4 sm:p-6 shadow-sm min-w-0 w-full">
+              <h2 className="text-xl sm:text-2xl font-bold text-[#1f2329] mb-2">
                 Terms & Restrictions
               </h2>
-              <p className="text-sm text-[#66707b] mb-4">
+              <p className="text-sm text-[#66707b] mb-4 break-words">
                 Please review the important conditions before claiming this offer.
               </p>
 
-              <div className="space-y-4">
+              <div className="space-y-4 min-w-0 w-full">
                 {offer?.termsAndConditions ? (
-                  <div className="border border-[#e5e7eb] rounded-lg overflow-hidden">
+                  <div className="border border-[#e5e7eb] rounded-lg overflow-hidden min-w-0 w-full">
                     <button
                       onClick={() =>
                         setExpandedTerms(expandedTerms === 0 ? null : 0)
                       }
-                      className="w-full flex items-center justify-between p-4 hover:bg-[#f9fafb] transition"
+                      className="w-full flex items-center justify-between p-3.5 sm:p-4 hover:bg-[#f9fafb] transition gap-2"
                     >
-                      <p className="font-bold text-[#1f2329]">
+                      <p className="font-bold text-[#1f2329] text-sm sm:text-base text-left truncate">
                         Terms & Conditions
                       </p>
                       <ChevronDown
                         size={20}
-                        className={`text-[#666] transition-transform ${
+                        className={`text-[#666] shrink-0 transition-transform ${
                           expandedTerms === 0 ? "rotate-180" : ""
                         }`}
                       />
                     </button>
                     {expandedTerms === 0 && (
-                      <div className="px-4 pb-4 bg-[#f9fafb]">
+                      <div className="px-3.5 pb-4 sm:px-4 bg-[#f9fafb]">
                         <div className="space-y-2.5 text-sm leading-7 text-[#4b5563]">
                           {String(offer.termsAndConditions)
                             .split(/\r?\n+/)
                             .map((line) => line.trim())
                             .filter(Boolean)
                             .map((line, idx) => (
-                              <p key={`offer-term-${idx}`} className="rounded-lg bg-white px-3 py-2 border border-[#eef2f7]">
+                              <p key={`offer-term-${idx}`} className="rounded-lg bg-white px-3 py-2 border border-[#eef2f7] break-words">
                                 {line}
                               </p>
                             ))}
@@ -1101,15 +1101,15 @@ function NearbyDealDetailsContent() {
                   ].map((item) => (
                     <div
                       key={item.title}
-                      className="rounded-xl border border-[#e7edf3] bg-[#fbfcfd] p-4 md:p-5"
+                      className="rounded-xl border border-[#e7edf3] bg-[#fbfcfd] p-4 md:p-5 min-w-0 w-full"
                     >
                       <div className="mb-2 flex items-center gap-2">
-                        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#fff4db] text-[#a96d00]">
+                        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#fff4db] text-[#a96d00] shrink-0">
                           <AlertCircle size={13} />
                         </div>
                         <h3 className="text-sm font-bold text-[#1f2329]">{item.title}</h3>
                       </div>
-                      <p className="rounded-lg border border-[#eef2f7] bg-white px-3 py-2 text-xs leading-6 text-[#4b5563]">
+                      <p className="rounded-lg border border-[#eef2f7] bg-white px-3 py-2 text-xs leading-6 text-[#4b5563] break-words">
                         {item.content}
                       </p>
                     </div>
@@ -1117,14 +1117,12 @@ function NearbyDealDetailsContent() {
                 )}
               </div>
             </div>
-
-          
           </div>
 
           {/* Merchant Card Sidebar */}
-          <aside className="bg-white rounded-2xl p-6 h-fit border border-[#e5e7eb] sticky top-[104px] shadow-sm">
-            <div className="flex gap-3 mb-4">
-              <div className="w-12 h-12 rounded-full overflow-hidden bg-[#f0f0f0] flex-shrink-0">
+          <aside className="bg-white rounded-2xl p-4 sm:p-6 h-fit border border-[#e5e7eb] lg:sticky lg:top-[104px] shadow-sm min-w-0 w-full max-w-full">
+            <div className="flex items-center gap-3 mb-4 min-w-0">
+              <div className="w-12 h-12 rounded-full overflow-hidden bg-[#f0f0f0] shrink-0">
                 <SafeImage
                   src={
                     offer?.merchant?.profilePhoto || "/images/place2.avif"
@@ -1135,23 +1133,25 @@ function NearbyDealDetailsContent() {
                   className="w-full h-full object-cover"
                 />
               </div>
-              <div>
-                <p className="font-bold text-[#1f2329]">
+              <div className="min-w-0 flex-1">
+                <p className="font-bold text-[#1f2329] truncate">
                   {offer?.merchant?.name || "Store"}
                 </p>
-                <p className="text-xs text-[#666] flex items-center gap-1">
-                  <Star size={12} className="text-[#f4ba34]" fill="#f4ba34" />
-                  {offerReviewStats.totalReviews
-                    ? `${offerReviewStats.averageRating}/5 from ${
-                        offerReviewStats.totalReviews
-                      } offer review${
-                        offerReviewStats.totalReviews > 1 ? "s" : ""
-                      }`
-                    : "Verified Store"}
+                <p className="text-xs text-[#666] flex items-center gap-1 truncate">
+                  <Star size={12} className="text-[#f4ba34] shrink-0" fill="#f4ba34" />
+                  <span className="truncate">
+                    {offerReviewStats.totalReviews
+                      ? `${offerReviewStats.averageRating}/5 from ${
+                          offerReviewStats.totalReviews
+                        } offer review${
+                          offerReviewStats.totalReviews > 1 ? "s" : ""
+                        }`
+                      : "Verified Store"}
+                  </span>
                 </p>
               </div>
             </div>
-            <div className="bg-[#f9fafb] rounded-lg p-3 mb-3">
+            <div className="bg-[#f9fafb] rounded-lg p-3 mb-3 min-w-0">
               <p className="text-xs font-bold text-[#4a5fc1] uppercase tracking-wide mb-1">
                 Response time
               </p>
@@ -1159,12 +1159,15 @@ function NearbyDealDetailsContent() {
                 Usually &lt;1 hour
               </p>
             </div>
-            <div className="bg-[#f9fafb] rounded-lg p-3 mb-4">
+            <div className="bg-[#f9fafb] rounded-lg p-3 mb-4 min-w-0">
               <p className="text-xs font-bold text-[#4a5fc1] uppercase tracking-wide mb-1">
                 Location
               </p>
-              <p className="text-xs text-[#666] flex items-center gap-1">
-                <MapPin size={12} /> {offer?.merchant?.address || "Location"}
+              <p className="text-xs text-[#666] flex items-start gap-1.5 break-words">
+                <MapPin size={14} className="shrink-0 mt-0.5 text-[#157a4f]" />
+                <span className="flex-1 min-w-0 break-words leading-relaxed">
+                  {offer?.merchant?.address || "Location"}
+                </span>
               </p>
             </div>
             <button

@@ -7,7 +7,8 @@ import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import Recommended from "@/app/components/Recommended";
 import { getAdById } from "../../lib/api/ads";
-import { getMerchantProductById } from "../../lib/api/merchant";;
+import { getMerchantProductById } from "../../lib/api/merchant";
+import { MapPin } from "lucide-react";
 
 function MerchantProductSkeleton() {
   return (
@@ -220,7 +221,10 @@ export default function MerchantProductDetails({ params }) {
                         <p className="text-xs text-gray-500 mt-0.5 break-all">{product.merchant.email}</p>
                       )}
                       {product?.merchant?.city && (
-                        <p className="text-xs text-gray-400 mt-1">📍 {product.merchant.city}</p>
+                        <p className="text-xs text-gray-400 mt-1 flex items-center gap-1">
+                          <MapPin size={12} className="shrink-0" />
+                          <span>{product.merchant.city}</span>
+                        </p>
                       )}
                     </div>
                   </div>

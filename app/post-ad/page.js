@@ -46,7 +46,7 @@ function PostAdContent() {
       type: "Service",
       time: "15m ago",
       image: "/images/template2.webp",
-      title: "New café opening this Sunday ☕",
+      title: "New café opening this Sunday",
       description:
         "Opening offer: Flat 20% off for first 3 days.",
       location1: "Model Town, 0.8km",

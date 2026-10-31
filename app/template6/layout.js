@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Instagram, Facebook, Twitter } from "lucide-react";
+import { Instagram, Facebook, Twitter, Mail, MapPin } from "lucide-react";
 
 export default function Template6Layout({ children }) {
   const pathname = usePathname();
@@ -150,13 +150,13 @@ export default function Template6Layout({ children }) {
               </h4>
               <ul className="space-y-2 text-[12px] text-white/80">
                 <li className="flex items-center gap-2">
-                  <span>✉</span>
+                  <Mail size={14} className="shrink-0" />
                   <a href="mailto:hello@stylehaven.com" className="hover:text-white transition-colors">
                     hello@stylehaven.com
                   </a>
                 </li>
                 <li className="flex items-center gap-2">
-                  <span>📍</span>
+                  <MapPin size={14} className="shrink-0" />
                   <span>123 Fashion Ave, NY</span>
                 </li>
               </ul>

@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Download, Eye, Package, Plus, Search, Trash2, User, Wallet } from "lucide-react";
+import { Download, Eye, Package, Plus, Search, Trash2, User, Wallet, AlertTriangle } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useRoleProtection, LoadingScreen } from "../../components/RoleBasedRedirect";
 import { deleteMerchantProduct, getMerchantProducts, selectActiveProducts } from "../../lib/api/merchant";;
@@ -514,8 +514,9 @@ export default function MerchantProductsPage() {
                     Select the products you want to keep **Active** (available for promotions/offers). All unselected products will remain in your inventory but will be set to **Inactive**.
                   </p>
 
-                  <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800 leading-relaxed font-medium">
-                    ⚠️ <strong>Important Note:</strong> This selection is a <strong>one-time save</strong>. Once finalized and saved, you cannot edit or change your active products selection again under your current plan tier.
+                  <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800 leading-relaxed font-medium flex items-start gap-2">
+                    <AlertTriangle size={16} className="text-amber-600 shrink-0 mt-0.5" />
+                    <span><strong>Important Note:</strong> This selection is a <strong>one-time save</strong>. Once finalized and saved, you cannot edit or change your active products selection again under your current plan tier.</span>
                   </div>
 
                   {saveSelectionError && (

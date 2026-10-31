@@ -2,6 +2,7 @@
 import { useState, useEffect, useMemo } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import { SunMoon, Printer } from "lucide-react";
 
 // ─── FAQ Data ──────────────────────────────────────────────────────────────────
 // Each section id matches the anchor used in the HTML sidebar nav.
@@ -284,8 +285,14 @@ export default function FAQPage() {
           </nav>
           {/* Footer */}
           <div style={{ paddingTop:16, borderTop:"1px solid var(--fq-b)", display:"flex", gap:8 }}>
-            <button onClick={toggleTheme} style={footerBtn}>🌓 Theme</button>
-            <button onClick={() => window.print()} style={footerBtn}>🖨️ Print / PDF</button>
+            <button onClick={toggleTheme} style={{ ...footerBtn, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+              <SunMoon size={15} />
+              <span>Theme</span>
+            </button>
+            <button onClick={() => window.print()} style={{ ...footerBtn, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+              <Printer size={15} />
+              <span>Print / PDF</span>
+            </button>
           </div>
         </aside>
 

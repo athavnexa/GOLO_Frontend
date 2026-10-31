@@ -349,7 +349,10 @@ function LocationPickerContent({ isOpen, onClose, onLocationSelect, initialLocat
 
           {/* Instructions */}
           <div className="absolute bottom-6 left-6 bg-white rounded-[8px] shadow-lg p-4 max-w-[280px]">
-            <p className="text-[12px] text-[#1f1f1f] font-semibold mb-2">📍 How to select location:</p>
+            <p className="text-[12px] text-[#1f1f1f] font-semibold mb-2 flex items-center gap-1.5">
+              <MapPin size={13} className="text-[#157a4f] shrink-0" />
+              <span>How to select location:</span>
+            </p>
             <ul className="text-[11px] text-[#666] space-y-1">
               <li>• Click anywhere on the map to set pin (pinpoint)</li>
               <li>• Use search above to find your location</li>

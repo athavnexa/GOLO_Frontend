@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "../../context/AuthContext";
 import MerchantNavbar from "../MerchantNavbar";
 import { getMerchantRealtimeAnalytics } from "../../lib/api/merchant";;
-import { RefreshCcw, Tag, Users, Eye, TrendingUp, CreditCard, ChevronDown, Smartphone } from "lucide-react";
+import { RefreshCcw, Tag, Users, Eye, TrendingUp, CreditCard, ChevronDown, Smartphone, Crown } from "lucide-react";
 
 export default function MerchantAnalyticsPage() {
   const router = useRouter();
@@ -161,8 +161,10 @@ export default function MerchantAnalyticsPage() {
           Want to add more products ?
         </div>
         <div className="w-px h-4 bg-amber-300"></div>
-        <button className="font-bold text-amber-600 hover:text-amber-800 flex items-center gap-1">
-          <span className="text-xl leading-none">👑</span> Upgrade your plan <span className="text-[16px] leading-none">›</span>
+        <button className="font-bold text-amber-600 hover:text-amber-800 flex items-center gap-1.5">
+          <Crown size={16} className="text-amber-500 shrink-0" />
+          <span>Upgrade your plan</span>
+          <span className="text-[16px] leading-none">›</span>
         </button>
       </div>
     </div>

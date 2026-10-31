@@ -190,12 +190,12 @@ export default function MyDeals() {
       <Navbar />
 
       <div className="relative z-10 min-h-screen bg-transparent pt-10 md:pt-14">
-        <div className="max-w-[1320px] mx-auto px-5 lg:px-8 py-8 lg:py-10">
+        <div className="max-w-[1320px] mx-auto px-4 sm:px-5 lg:px-8 py-6 sm:py-8 lg:py-10">
           <div className="flex flex-col lg:flex-row lg:items-start gap-6 lg:gap-8">
             <main className="flex-1 min-w-0">
               <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
                 <div>
-                  <h1 className="text-[34px] leading-none font-semibold text-[#1f1f1f]">
+                  <h1 className="text-2xl sm:text-[34px] leading-none font-semibold text-[#1f1f1f]">
                     My Deals
                   </h1>
                   <p className="mt-2 text-[13px] text-[#6f6f6f]">
@@ -210,17 +210,17 @@ export default function MyDeals() {
                   return (
                     <div
                       key={item.label}
-                      className="rounded-[10px] border border-[#d8d8d8] bg-[#f8f8f8] px-4 py-3 min-h-[55px] shadow-[0_1px_0_rgba(0,0,0,0.03)]"
+                      className="rounded-[10px] border border-[#d8d8d8] bg-[#f8f8f8] px-3 sm:px-4 py-3 min-h-[55px] shadow-[0_1px_0_rgba(0,0,0,0.03)] min-w-0"
                     >
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
                         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#f4b128] text-white shrink-0">
                           <Icon size={16} />
                         </div>
-                        <div>
-                          <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-[#777]">
+                        <div className="min-w-0 flex-1">
+                          <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-[#777] truncate">
                             {item.label}
                           </p>
-                          <p className="text-[20px] leading-none font-semibold text-[#1b1b1b] mt-1">
+                          <p className="text-[18px] sm:text-[20px] leading-none font-semibold text-[#1b1b1b] mt-1">
                             {item.value}
                           </p>
                         </div>
@@ -237,15 +237,15 @@ export default function MyDeals() {
                       <button
                         key={tab}
                         onClick={() => setActiveTab(tab)}
-                        className={`h-8 px-4 rounded-full text-[12px] font-medium border transition ${activeTab === tab ? "bg-[#1f8c55] border-[#1f8c55] text-white" : "bg-white border-[#e0e0e0] text-[#666] hover:border-[#cfcfcf] hover:text-[#333]"}`}
+                        className={`h-8 px-3.5 sm:px-4 rounded-full text-[12px] font-medium border transition ${activeTab === tab ? "bg-[#1f8c55] border-[#1f8c55] text-white" : "bg-white border-[#e0e0e0] text-[#666] hover:border-[#cfcfcf] hover:text-[#333]"}`}
                       >
                         {tab}
                       </button>
                     ))}
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-2">
-                    <div className="flex items-center h-9 px-3 rounded-lg border border-[#e5e5e5] bg-[#fbfbfb] text-[12px] min-w-[200px] sm:min-w-[240px] focus-within:border-[#1f8c55] focus-within:bg-white transition">
+                  <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0">
+                    <div className="flex items-center h-9 px-3 rounded-lg border border-[#e5e5e5] bg-[#fbfbfb] text-[12px] flex-1 sm:flex-initial min-w-0 sm:min-w-[240px] focus-within:border-[#1f8c55] focus-within:bg-white transition">
                       <Search size={13} className="mr-2 text-[#a6a6a6] shrink-0" />
                       <input
                         type="text"
