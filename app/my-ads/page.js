@@ -334,7 +334,7 @@ export default function MyAds() {
                           (typeof editSelectedCategory === "string"
                             ? editSelectedCategory
                             : editSelectedCategory?.name || "General"),
-                        images: uploadedUrls.filter((u) => typeof u === 'string' && (u.startsWith('http://') || u.startsWith('https://'))),
+                        images: uploadedUrls.filter((u) => typeof u === 'string' && (u.startsWith('http://') || u.startsWith('https://') || u.startsWith('/'))),
                         price: resolvedPrice,
                         location: editCities?.[0] || "India",
                         city: editCities?.[0] || "",

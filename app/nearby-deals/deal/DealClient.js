@@ -648,22 +648,11 @@ function NearbyDealDetailsContent() {
     setReportError("");
 
     try {
-      const BASE_URL = "/api/proxy";
-      const token = localStorage.getItem("accessToken");
-      const res = await fetch(`${BASE_URL}/offers/${offerId}/report`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(token && { Authorization: `Bearer ${token}` })
-        },
-        body: JSON.stringify({
-          reason: reportReason,
-          description: reportDescription
-        })
+      const data = await reportOffer(offerId, {
+        reason: reportReason,
+        description: reportDescription
       });
-
-      const data = await res.json();
-      if (res.ok && data.success) {
+      if (data && (data.success || data.status === "success" || data.id)) {
         setReportSuccess(true);
       } else {
         setReportError(data.message || "Failed to submit report");

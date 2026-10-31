@@ -295,19 +295,19 @@ export default function Hero() {
   };
 
   const getSlideClasses = (index, current, length) => {
-    if (length <= 1) return "opacity-100 z-30 scale-100 translate-x-0 rounded-[20px] sm:rounded-[32px] shadow-2xl";
+    if (length <= 1) return "opacity-100 z-30 scale-100 translate-x-0 rounded-[20px] sm:rounded-[32px] shadow-[0_20px_50px_rgba(0,0,0,0.22)] ring-1 ring-black/5";
 
     const diff = (index - current + length) % length;
     
     if (diff === 0) {
       // Active slide (Center)
-      return "opacity-100 z-30 scale-100 translate-x-0 rounded-[20px] sm:rounded-[32px] shadow-2xl";
+      return "opacity-100 z-30 scale-100 translate-x-0 rounded-[20px] sm:rounded-[32px] shadow-[0_20px_50px_rgba(0,0,0,0.22)] ring-1 ring-black/5";
     } else if (diff === 1) {
       // Next slide (Right)
-      return "opacity-60 z-20 scale-[0.80] translate-x-[94%] blur-[2px] rounded-[20px] sm:rounded-[32px] cursor-pointer hover:opacity-80";
+      return "opacity-60 z-20 scale-[0.80] translate-x-[94%] blur-[2px] rounded-[20px] sm:rounded-[32px] shadow-[0_12px_30px_rgba(0,0,0,0.14)] cursor-pointer hover:opacity-80";
     } else if (diff === length - 1) {
       // Prev slide (Left)
-      return "opacity-60 z-20 scale-[0.80] -translate-x-[94%] blur-[2px] rounded-[20px] sm:rounded-[32px] cursor-pointer hover:opacity-80";
+      return "opacity-60 z-20 scale-[0.80] -translate-x-[94%] blur-[2px] rounded-[20px] sm:rounded-[32px] shadow-[0_12px_30px_rgba(0,0,0,0.14)] cursor-pointer hover:opacity-80";
     } else {
       // Hidden slides
       return "opacity-0 z-10 scale-50 translate-x-0 rounded-[20px] sm:rounded-[32px] pointer-events-none";
@@ -335,8 +335,8 @@ export default function Hero() {
 
   if (loading) {
     return (
-      <section className="relative w-full overflow-hidden bg-[#F8F6F2]">
-        <div className="relative h-[170px] w-full bg-[#ece9e1] sm:h-[360px] sm:aspect-auto md:h-[450px] lg:h-[530px]" />
+      <section className="relative w-full overflow-hidden bg-transparent">
+        <div className="relative h-[170px] w-full bg-[#ece9e1]/60 sm:h-[360px] sm:aspect-auto md:h-[450px] lg:h-[530px]" />
       </section>
     );
   }
@@ -346,7 +346,7 @@ export default function Hero() {
   }
 
   return (
-    <section className="relative w-full overflow-hidden bg-[#F8F6F2]">
+    <section className="relative w-full overflow-hidden bg-transparent">
 
       {/* Carousel Wrapper */}
       <div 

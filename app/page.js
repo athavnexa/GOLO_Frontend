@@ -10,6 +10,7 @@ import CategoryBar from "./components/CategoryBar";
 import Hero from "./components/Hero";
 import Footer from "./components/Footer";
 import { getHomepageRecommendations } from "./lib/api";
+import { useApiQuery } from "./lib/hooks/useApiQuery";
 
 function formatValidityText(endDate, fallbackText = "") {
   if (!endDate) return fallbackText;
@@ -32,7 +33,7 @@ function formatValidityText(endDate, fallbackText = "") {
 
 function SectionSkeleton({ title }) {
   return (
-    <section className="border-t border-[#bcc4cf] bg-[#f4f4f4] py-7 sm:py-10">
+    <section className="bg-[#f4f4f4] py-7 sm:py-10">
       <div className="mx-auto max-w-[1260px] px-4 lg:px-6">
         <div className="mb-5 h-8 w-56 animate-pulse rounded-full bg-[#e2e8f0]" />
         <div className="flex gap-4 overflow-hidden pb-2">
@@ -94,7 +95,7 @@ function SectionCarousel({ title, items, onItemClick }) {
   };
 
   return (
-    <section className="border-t border-[#bcc4cf] bg-[#f4f4f4] py-7 sm:py-10">
+    <section className="bg-[#f4f4f4] py-7 sm:py-10">
       <div className="mx-auto max-w-[1260px] px-4 lg:px-6">
         <h2 className="mb-5 text-[22px] font-semibold text-[#343943] sm:text-[28px]">
           {title}
@@ -232,8 +233,6 @@ function SectionCarousel({ title, items, onItemClick }) {
 
 function HomeContent() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [dynamicSections, setDynamicSections] = useState([]);
-  const [isLoadingRows, setIsLoadingRows] = useState(true);
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, loading, getUserAccountType } = useAuth();
@@ -251,77 +250,63 @@ function HomeContent() {
     }
   }, [user, loading, router, getUserAccountType]);
 
-  useEffect(() => {
-    let cancelled = false;
+  // SWR Cached Query for instant navigation and smooth revalidation
+  const cacheKey = [
+    'homepage_recommendations',
+    selectedLocation || '',
+    selectedQuery || '',
+    lat || '',
+    lng || ''
+  ];
 
-    async function loadHomepageRows() {
-      setIsLoadingRows(true);
-      try {
-        const response = await getHomepageRecommendations({
-            location: selectedLocation || undefined,
-            q: selectedQuery || undefined,
-            lat: lat || undefined,
-            lng: lng || undefined,
-        });
-
-        if (cancelled) return;
-
-        if (Array.isArray(response)) {
-            const mappedSections = response.map(section => ({
-                ...section,
-                items: (section.products || []).map((p, index) => {
-                    const isShop = p.type === 'shop' || p.type === 'merchant';
-                    const storeName = p.storeName || p.merchant?.storeName || p.merchantStoreName || p.merchantName || p.merchant?.name || (isShop ? p.title : "");
-                    const location = p.storeLocation || p.merchantLocation || p.location || p.city || p.merchant?.storeLocation || p.merchant?.city || "";
-                    const price = p.price !== undefined && p.price !== null && p.price !== "" ? Number(p.price) : null;
-                    const originalPrice = p.originalPrice !== undefined && p.originalPrice !== null && p.originalPrice !== "" ? Number(p.originalPrice) : null;
-                    const discountPercent = p.discountPercent !== undefined && Number(p.discountPercent) > 0 
-                      ? Number(p.discountPercent) 
-                      : (price && originalPrice && originalPrice > price ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0);
-                    const validityText = formatValidityText(p.endDate || p.validUntil || p.expiryDate || p.promotionExpiryText, "");
-
-                    return {
-                        id: p.id || p.offerId || p.merchantId || p.userId || `item-${index}`,
-                        offerId: p.offerId || p.id,
-                        merchantId: p.merchantId || p.merchant?.merchantId || p.userId,
-                        title: isShop ? (storeName || p.title || 'View Store') : (p.title || "Special Offer"),
-                        subtitle: p.description || p.subtitle || p.businessDescription || "",
-                        storeName,
-                        merchantName: storeName,
-                        location,
-                        price,
-                        originalPrice,
-                        discountPercent,
-                        validityText,
-                        image: p.imageUrl || p.profilePhoto || p.image || (Array.isArray(p.images) && p.images[0]) || "/images/placeholder.webp",
-                        badge: discountPercent > 0 ? `${discountPercent}% OFF` : (p.promoTag || p.badge || ""),
-                        buttonLabel: isShop ? "View Store" : "View Deal",
-                        type: p.type || 'deal'
-                    };
-                })
-            }));
-            
-            setDynamicSections(mappedSections.filter(s => s.items.length > 0));
-        } else {
-            setDynamicSections([]);
-        }
-      } catch (err) {
-        if (!cancelled) {
-          setDynamicSections([]);
-        }
-      } finally {
-        if (!cancelled) {
-          setIsLoadingRows(false);
-        }
-      }
+  const { data: rawSections, isLoading } = useApiQuery(
+    cacheKey,
+    () => getHomepageRecommendations({
+      location: selectedLocation || undefined,
+      q: selectedQuery || undefined,
+      lat: lat || undefined,
+      lng: lng || undefined,
+    }),
+    {
+      dedupingInterval: 5000,
     }
+  );
 
-    loadHomepageRows();
+  const dynamicSections = (Array.isArray(rawSections) ? rawSections : []).map(section => ({
+    ...section,
+    items: (section.products || []).map((p, index) => {
+      const isShop = p.type === 'shop' || p.type === 'merchant';
+      const storeName = p.storeName || p.merchant?.storeName || p.merchantStoreName || p.merchantName || p.merchant?.name || (isShop ? p.title : "");
+      const location = p.storeLocation || p.merchantLocation || p.location || p.city || p.merchant?.storeLocation || p.merchant?.city || "";
+      const price = p.price !== undefined && p.price !== null && p.price !== "" ? Number(p.price) : null;
+      const originalPrice = p.originalPrice !== undefined && p.originalPrice !== null && p.originalPrice !== "" ? Number(p.originalPrice) : null;
+      const discountPercent = p.discountPercent !== undefined && Number(p.discountPercent) > 0 
+        ? Number(p.discountPercent) 
+        : (price && originalPrice && originalPrice > price ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0);
+      const validityText = formatValidityText(p.endDate || p.validUntil || p.expiryDate || p.promotionExpiryText, "");
 
-    return () => {
-      cancelled = true;
-    };
-  }, [selectedLocation, selectedQuery, lat, lng]);
+      return {
+        id: p.id || p.offerId || p.merchantId || p.userId || `item-${index}`,
+        offerId: p.offerId || p.id,
+        merchantId: p.merchantId || p.merchant?.merchantId || p.userId,
+        title: isShop ? (storeName || p.title || 'View Store') : (p.title || "Special Offer"),
+        subtitle: p.description || p.subtitle || p.businessDescription || "",
+        storeName,
+        merchantName: storeName,
+        location,
+        price,
+        originalPrice,
+        discountPercent,
+        validityText,
+        image: p.imageUrl || p.profilePhoto || p.image || (Array.isArray(p.images) && p.images[0]) || "/images/placeholder.webp",
+        badge: discountPercent > 0 ? `${discountPercent}% OFF` : (p.promoTag || p.badge || ""),
+        buttonLabel: isShop ? "View Store" : "View Deal",
+        type: p.type || 'deal'
+      };
+    })
+  })).filter(s => s.items.length > 0);
+
+  const isLoadingRows = isLoading && dynamicSections.length === 0;
 
   const handleShopClick = (item) => {
     if (!item?.merchantId) return;
@@ -341,14 +326,24 @@ function HomeContent() {
         }
       `}</style>
 
-      <main className="min-h-screen bg-[#f4f4f4]">
-        <Navbar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
-        <CategoryBar
-          variant="golocal"
-          preferredCategories={user?.preferredCategories || []}
+      <main className="min-h-screen bg-[#f4f4f4] relative overflow-x-hidden">
+        {/* Seamless Warm Golden-Yellow Gradient Layer — stretches downwards just before middle of screen and dissolves smoothly into #f4f4f4 */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute left-0 right-0 top-0 z-0"
+          style={{
+            height: "clamp(460px, 52vh, 560px)",
+            background:
+              "linear-gradient(180deg, #f8a812 0%, #f9be42 18%, #fad081 38%, #fce1a4 58%, rgba(253, 233, 185, 0.65) 74%, rgba(244, 244, 244, 0.45) 88%, #f4f4f4 100%)",
+          }}
         />
 
-        <div className="bg-[#f4c035]">
+        <div className="relative z-10">
+          <Navbar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+          <CategoryBar
+            variant="golocal"
+            preferredCategories={user?.preferredCategories || []}
+          />
           <Hero />
         </div>
 

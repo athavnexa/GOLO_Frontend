@@ -11,6 +11,7 @@ import {
   X, Mail, CheckCircle, Loader2
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { sendMerchantRegistrationInvite } from "../lib/api";
 
 function FadeInScroll({ children, delay = 0, className = "" }) {
   return (
@@ -79,14 +80,7 @@ export default function MerchantLandingPage() {
     setInviteLoading(true);
     setInviteError("");
     try {
-      const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
-      const res = await fetch(`${apiBase}/merchant/send-registration-invite`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data?.message || "Failed to send email.");
+      await sendMerchantRegistrationInvite(email);
       setInviteSuccess(true);
     } catch (err) {
       setInviteError(err.message || "Something went wrong. Please try again.");

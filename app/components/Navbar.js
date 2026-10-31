@@ -1283,26 +1283,20 @@ function NavbarContent({
 
   return (
     <>
-      {/* SHARED GRADIENT LAYER — matches reference exactly:
-          colors: ["#f8a812", "#fad081", "#f8f6f265"], vertical, height 270,
-          sits behind both the header and the category bar below it so the
-          gradient is continuous with zero seam. */}
-      <div
-        aria-hidden="true"
-        style={{
-          height: 220,
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          zIndex: 0,
-          background:
-            "linear-gradient(180deg, #f8a812 0%, #fad081 50%, #f8f6f265 100%)",
-          pointerEvents: "none",
-        }}
-      />
+      {/* SHARED EXTENDED DISSOLVING GRADIENT LAYER for secondary pages (matches homepage stretch and seamless dissolve) */}
+      {pathname !== "/" && (
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute left-0 right-0 top-0 z-0"
+          style={{
+            height: "clamp(460px, 52vh, 560px)",
+            background:
+              "linear-gradient(180deg, #f8a812 0%, #f9be42 18%, #fad081 38%, #fce1a4 58%, rgba(253, 233, 185, 0.65) 74%, rgba(243, 243, 243, 0.45) 88%, rgba(243, 243, 243, 0) 100%)",
+          }}
+        />
+      )}
       <header
-        className="sticky top-0 z-[9999] py-4 px-4 md:py-4 md:px-8 border-0"
+        className="sticky top-0 z-[9999] py-3 px-4 md:py-4 md:px-8 border-0"
         style={{
           background: scrolled
             ? "linear-gradient(180deg, #f8a812 0%, #fad081 100%)"
@@ -1314,10 +1308,25 @@ function NavbarContent({
           marginBottom: -2,
         }}
       >
-        <div className="w-full h-[60px] flex items-center justify-between gap-3">
-          {/* LOGO TOGGLE PILLS */}
+        <div className="w-full h-[52px] md:h-[60px] flex items-center justify-between gap-3">
+          {/* MOBILE TOP LEFT: Icon with background oval shape (no text logo) */}
+          <Link
+            href="/"
+            className="flex md:hidden h-11 w-14 items-center justify-center rounded-full bg-white shadow-sm transition-all duration-200 border-2 border-[#157A4F] shadow-[0_2px_8px_rgba(21,122,79,0.18)] shrink-0"
+            aria-label="AjuBaju Home"
+          >
+            <img
+              src="/images/ajubaju-icon-green.png"
+              alt="AjuBaju Icon"
+              className="h-[21px] w-auto shrink-0 object-contain"
+              loading="eager"
+              draggable={false}
+            />
+          </Link>
+
+          {/* LOGO TOGGLE PILLS (Desktop only) */}
           {!isMerchantSurface ? (
-            <div className="flex min-w-0 shrink-0 items-center gap-2">
+            <div className="hidden md:flex min-w-0 shrink-0 items-center gap-2">
               <Link
                 href="/"
                 className={`flex h-11 w-[138px] items-center justify-center gap-2 rounded-full bg-white px-3 shadow-sm transition-all duration-200 border-2 ${
@@ -1343,7 +1352,7 @@ function NavbarContent({
               </Link>
               <Link
                 href="/choja"
-                className={`hidden h-11 w-[138px] items-center justify-center gap-2 rounded-full bg-white px-3 shadow-sm transition-all duration-200 sm:flex border-2 ${
+                className={`flex h-11 w-[138px] items-center justify-center gap-2 rounded-full bg-white px-3 shadow-sm transition-all duration-200 border-2 ${
                   isChojaActive
                     ? "border-[#157A4F] shadow-[0_2px_8px_rgba(21,122,79,0.18)]"
                     : "border-transparent hover:border-gray-200 hover:opacity-95"
@@ -1358,7 +1367,7 @@ function NavbarContent({
           ) : (
             <Link
               href={logoHref}
-              className="flex h-11 w-[138px] items-center justify-center gap-2 rounded-full bg-white px-3 shadow-sm transition-all duration-200 border-2 border-[#157A4F] shadow-[0_2px_8px_rgba(21,122,79,0.18)] hover:opacity-90"
+              className="hidden md:flex h-11 w-[138px] items-center justify-center gap-2 rounded-full bg-white px-3 shadow-sm transition-all duration-200 border-2 border-[#157A4F] shadow-[0_2px_8px_rgba(21,122,79,0.18)] hover:opacity-90"
             >
               <img
                 src="/images/ajubaju-icon.png"
@@ -1903,10 +1912,10 @@ function NavbarContent({
           </div>
         </div>
 
-        {/* MOBILE SEARCH + LOCATION ROW */}
-        <div className="-mx-4 px-4 py-2 md:hidden">
+        {/* MOBILE ROW 2: Search Bar */}
+        <div className="py-2 md:hidden">
           <div
-            className="relative mx-auto flex h-[46px] w-full max-w-[358px] items-center rounded-full bg-white px-4 shadow-[0_12px_30px_rgba(15,23,42,0.12)]"
+            className="relative flex h-[46px] w-full items-center rounded-full bg-white px-4 shadow-[0_12px_30px_rgba(15,23,42,0.12)]"
             ref={mobileSearchContainerRef}
           >
             <div className="flex min-w-0 flex-1 items-center">
@@ -1930,7 +1939,7 @@ function NavbarContent({
                   setShowSearchHistory(true);
                   setShowSuggestions(false);
                 }}
-                placeholder="Search for services,"
+                placeholder="Search for services..."
                 className="min-w-0 flex-1 bg-transparent text-[15px] font-medium text-[#1f2933] outline-none placeholder:text-[#85878b]"
               />
               <button
@@ -2012,10 +2021,10 @@ function NavbarContent({
             </div>
           </div>
         </div>
-        {/* Mobile surface-switch row replaces the old text-link nav row.
-            Border removed to keep the header-to-category-bar gradient seamless. */}
+
+        {/* MOBILE ROW 3: AjuBaju and CHOJA surface-switch buttons */}
         {!isMerchantSurface && (
-          <div className="-mx-4 flex gap-2 px-4 pb-2 pt-2 text-[14px] font-extrabold md:hidden">
+          <div className="flex gap-2 pt-1 pb-1.5 text-[14px] font-extrabold md:hidden">
             <Link
               href="/"
               className={`flex h-11 flex-1 items-center justify-center gap-2 rounded-full bg-white shadow-sm transition-all duration-200 border-2 ${
@@ -2054,6 +2063,7 @@ function NavbarContent({
             </Link>
           </div>
         )}
+
       </header>
 
       {voiceModalOpen && (

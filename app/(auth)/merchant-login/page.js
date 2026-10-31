@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "../../context/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
+import { sendMerchantRegistrationInvite } from "../../lib/api";
 
 export default function MerchantLoginPage() {
   const quotes = [
@@ -72,14 +73,7 @@ export default function MerchantLoginPage() {
     setInviteLoading(true);
     setInviteError("");
     try {
-      const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
-      const res = await fetch(`${apiBase}/merchant/send-registration-invite`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: mail }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data?.message || "Failed to send email.");
+      await sendMerchantRegistrationInvite(mail);
       setInviteSuccess(true);
     } catch (err) {
       setInviteError(err.message || "Something went wrong. Please try again.");

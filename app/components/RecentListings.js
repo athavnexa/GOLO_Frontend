@@ -4,7 +4,8 @@ import Image from "next/image";
 import { useEffect, useState, useRef, Suspense } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
-import { getAllAds, getNearbyAds, searchAds, trackAdView, trackAdContactClick } from "../lib/api/ads";;
+import { getAllAds, getNearbyAds, searchAds, trackAdView, trackAdContactClick } from "../lib/api/ads";
+import { useApiQuery } from "../lib/hooks/useApiQuery";
 import { useAuth } from "../context/AuthContext";
 import AuthRequiredModal from "./AuthRequiredModal";
 import { normalizeAppPath } from "../lib/path";
@@ -84,9 +85,6 @@ function assignBentoLayout(adsList) {
 function RecentListingsContent() {
     const searchParams = useSearchParams();
     const pathname = normalizeAppPath(usePathname());
-    const [ads, setAds] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
     const [sortValue, setSortValue] = useState("createdAt_desc");
     const [userLocation, setUserLocation] = useState(() => {
         if (typeof window !== "undefined") {
@@ -130,84 +128,81 @@ function RecentListingsContent() {
         }
     }, []);
 
-    useEffect(() => {
-        async function fetchAds() {
-            try {
-                setLoading(true);
-                const [sortBy, sortOrder] = sortValue.split("_");
-                const resolvedLat = (manualLatitude !== null || location) ? manualLatitude : userLocation?.lat;
-                const resolvedLng = (manualLongitude !== null || location) ? manualLongitude : userLocation?.lng;
+    const resolvedLat = (manualLatitude !== null || location) ? manualLatitude : userLocation?.lat;
+    const resolvedLng = (manualLongitude !== null || location) ? manualLongitude : userLocation?.lng;
 
-                let response;
-                // Choja should show the full public feed by default.
-                // Use nearby ads only when the user explicitly selects Nearby.
-                if (sortValue === "distance_asc" && resolvedLat && resolvedLng) {
-                    response = await getNearbyAds({
-                        lat: resolvedLat,
-                        lng: resolvedLng,
-                        category,
-                        page: 1,
-                        limit: 50
-                    });
-                } else if (q || location || category || resolvedLat || resolvedLng) {
-                    response = await searchAds({
-                        q,
-                        category,
-                        location,
-                        sortBy,
-                        sortOrder,
-                        lat: resolvedLat || undefined,
-                        lng: resolvedLng || undefined,
-                        page: 1,
-                        limit: 50,
-                    });
-                } else {
-                    response = await getAllAds({
-                        page: 1,
-                        limit: 50,
-                        sortBy,
-                        sortOrder,
-                    });
-                }
+    const queryKey = [
+        'choja_recent_listings',
+        q || '',
+        category || '',
+        location || '',
+        sortValue || '',
+        resolvedLat || '',
+        resolvedLng || ''
+    ];
 
-                if (response.success) {
-                    const adsList = response.data?.ads || response.data || [];
-                    setAds(adsList);
-                } else {
-                    setError("Could not load listings.");
-                    setAds([]);
-                }
-            } catch (err) {
-                console.error("Error fetching ads:", err);
-                setError("Failed to load listings.");
-                setAds([]);
-            } finally {
-                setLoading(false);
+    const { data: response, error: queryError, isLoading } = useApiQuery(
+        queryKey,
+        async () => {
+            const [sortBy, sortOrder] = sortValue.split("_");
+            if (sortValue === "distance_asc" && resolvedLat && resolvedLng) {
+                return getNearbyAds({
+                    lat: resolvedLat,
+                    lng: resolvedLng,
+                    category,
+                    page: 1,
+                    limit: 50
+                });
+            } else if (q || location || category || resolvedLat || resolvedLng) {
+                return searchAds({
+                    q,
+                    category,
+                    location,
+                    sortBy,
+                    sortOrder,
+                    lat: resolvedLat || undefined,
+                    lng: resolvedLng || undefined,
+                    page: 1,
+                    limit: 50,
+                });
+            } else {
+                return getAllAds({
+                    page: 1,
+                    limit: 50,
+                    sortBy,
+                    sortOrder,
+                });
             }
+        },
+        {
+            dedupingInterval: 4000,
         }
-        fetchAds();
-    }, [q, category, location, sortValue, userLocation, manualLatitude, manualLongitude]);
+    );
+
+    const ads = (response?.success ? (response.data?.ads || response.data || []) : []);
+    const loading = isLoading && ads.length === 0;
+    const error = queryError ? "Failed to load listings." : (response && !response.success ? "Could not load listings." : "");
 
     const layoutAds = assignBentoLayout(ads);
 
     return (
         <section className="w-full pt-4 pb-10">
 
-            {/* Compact count + sort bar */}
-            <div className="w-full px-6 lg:px-8 mb-6 flex items-center justify-between gap-3 flex-wrap">
-                <p className="text-sm text-gray-400 font-medium">
-                    {loading ? "Loading…" : ads.length > 0
-                        ? `${ads.length} ad${ads.length !== 1 ? "s" : ""}`
-                        : "No ads found"}
-                    {q && <span> for &quot;{q}&quot;</span>}
-                    {location && <span>{q ? " in " : " for "}&quot;{location}&quot;</span>}
-                </p>
+            {/* Compact sort bar (ad count removed as requested) */}
+            <div className={`w-full px-6 lg:px-8 mb-6 flex items-center ${(q || location || loading || (!loading && ads.length === 0)) ? "justify-between" : "justify-end"} gap-3 flex-wrap`}>
+                {(q || location || loading || (!loading && ads.length === 0)) && (
+                    <p className="text-sm text-gray-500 font-medium">
+                        {loading ? "Loading…" : ads.length === 0 ? "No ads found" : ""}
+                        {q && <span>{ads.length > 0 ? "Results for " : ""}&quot;{q}&quot;</span>}
+                        {location && <span>{q ? " in " : (ads.length > 0 ? "Results in " : "")}&quot;{location}&quot;</span>}
+                    </p>
+                )}
                 <div className="flex items-center gap-2">
-                    <label className="text-xs text-gray-400 font-semibold">Sort:</label>
+                    <label className="text-xs text-gray-500 font-semibold">Sort:</label>
                     <select
                         value={sortValue}
                         onChange={e => setSortValue(e.target.value)}
-                        className="border border-gray-200 rounded-xl px-3.5 py-2 text-xs font-semibold text-gray-700 bg-white cursor-pointer"
+                        className="border border-gray-200 rounded-xl px-3.5 py-2 text-xs font-semibold text-gray-700 bg-white cursor-pointer shadow-sm hover:border-gray-300 transition"
                     >
                         {SORT_OPTIONS.map(o => (
                             <option key={o.value} value={o.value}>{o.label}</option>

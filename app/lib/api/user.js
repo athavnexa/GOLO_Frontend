@@ -186,3 +186,24 @@ export async function deleteUserAccount(payload) {
  * Permanently delete merchant account & all store data
  * @param {{ reason: string, customReason?: string, confirmation: string }} payload
  */
+
+export async function debitWallet({ amount, description, referenceId, referenceType = 'ad' }) {
+    return apiClient('/wallets/debit', {
+        method: 'POST',
+        body: JSON.stringify({ amount, description, referenceId, referenceType }),
+    });
+}
+
+export async function submitSupportTicket(formData) {
+    return apiClient('/support-tickets', {
+        method: 'POST',
+        body: JSON.stringify(formData),
+    });
+}
+
+export async function reportOffer(offerId, { reason, description }) {
+    return apiClient('/offers/' + encodeURIComponent(offerId) + '/report', {
+        method: 'POST',
+        body: JSON.stringify({ reason, description }),
+    });
+}

@@ -319,9 +319,9 @@ function CategoryBarContent({ variant = "choja", preferredCategories = [] }) {
   const iconLabelGap = isMobile ? "3px" : "5px";
   const iconSize = isMobile ? "32px" : "40px";
   const iconGlyphSize = isMobile ? 15 : 18;
-  const labelMinHeight = isMobile ? "20px" : "26px";
-  const pillPadding = isMobile ? "6px 8px" : "9px 14px";
-  const pillWidth = isMobile ? "80px" : "104px";
+  const labelMinHeight = isMobile ? "26px" : "32px";
+  const pillPadding = isMobile ? "6px 4px" : "8px 6px";
+  const pillWidth = isMobile ? "80px" : "106px";
 
   return (
     <>
@@ -342,7 +342,7 @@ function CategoryBarContent({ variant = "choja", preferredCategories = [] }) {
           width: "100%",
           background: "transparent",
           position: "relative",
-          zIndex: 1,
+          zIndex: 10,
           border: "0 solid transparent",
           borderBottom: "0 solid transparent",
           boxShadow: "none",
@@ -380,11 +380,13 @@ function CategoryBarContent({ variant = "choja", preferredCategories = [] }) {
               const active = isCategoryActive(cat.name);
               const { bg, dark } = colorForCategory(cat.name);
               const IconComponent = iconMapForVariant[cat.name] || Package;
+              const isSingleWord = !cat.name.includes(" ");
               return (
                 <button
                   key={cat.name}
                   ref={(el) => (buttonRefs.current[cat.name] = el)}
                   className="golo-category-pill"
+                  title={cat.name}
                   onClick={() => handleCategoryClick(cat)}
                   style={{
                     display: "flex",
@@ -415,12 +417,14 @@ function CategoryBarContent({ variant = "choja", preferredCategories = [] }) {
                   </span>
                   <span
                     style={{
-                      display: "-webkit-box",
-                      WebkitLineClamp: 2,
+                      display: isSingleWord ? "block" : "-webkit-box",
+                      WebkitLineClamp: isSingleWord ? 1 : 2,
                       WebkitBoxOrient: "vertical",
+                      whiteSpace: isSingleWord ? "nowrap" : "normal",
                       overflow: "hidden",
                       textOverflow: "ellipsis",
-                      wordBreak: "break-word",
+                      wordBreak: "normal",
+                      overflowWrap: "normal",
                       fontSize: isMobile ? "11px" : "12.5px",
                       fontWeight: 700,
                       color: active ? "#157A4F" : "#1f2933",
@@ -429,6 +433,7 @@ function CategoryBarContent({ variant = "choja", preferredCategories = [] }) {
                       borderBottom: active ? "2px solid #157A4F" : "2px solid transparent",
                       paddingBottom: "2px",
                       width: "100%",
+                      maxWidth: "100%",
                       minHeight: labelMinHeight,
                     }}
                   >
@@ -440,6 +445,7 @@ function CategoryBarContent({ variant = "choja", preferredCategories = [] }) {
                           display: "inline",
                           verticalAlign: "middle",
                           marginLeft: "2px",
+                          flexShrink: 0,
                           transition: "transform 0.2s",
                           transform: activeDropdown === cat.name ? "rotate(180deg)" : "none",
                         }}
@@ -453,6 +459,7 @@ function CategoryBarContent({ variant = "choja", preferredCategories = [] }) {
             {/* SEE ALL — static, always visible on the right */}
             <button
               onClick={() => setShowAllModal(true)}
+              title="See All Categories"
               style={{
                 display: "flex",
                 flexDirection: "column",
@@ -483,12 +490,10 @@ function CategoryBarContent({ variant = "choja", preferredCategories = [] }) {
               </span>
               <span 
                 style={{ 
-                  display: "-webkit-box",
-                  WebkitLineClamp: 2,
-                  WebkitBoxOrient: "vertical",
+                  display: "block",
+                  whiteSpace: "nowrap",
                   overflow: "hidden",
                   textOverflow: "ellipsis",
-                  wordBreak: "break-word",
                   fontSize: isMobile ? "11px" : "12.5px", 
                   fontWeight: 700, 
                   color: "#1f2933",
@@ -497,6 +502,7 @@ function CategoryBarContent({ variant = "choja", preferredCategories = [] }) {
                   borderBottom: "2px solid transparent",
                   paddingBottom: "2px",
                   width: "100%",
+                  maxWidth: "100%",
                   minHeight: labelMinHeight,
                 }}
               >

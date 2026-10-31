@@ -463,10 +463,10 @@ export default function ProductDetails({ params }) {
 		<>
 			<Navbar />
 
-			<div className="relative z-10 min-h-screen bg-transparent -mt-10 pt-4">
+			<div className="relative z-10 min-h-screen bg-transparent pt-6 md:pt-8">
 				<div className="max-w-7xl mx-auto px-6 py-10">
 					<p className="text-sm text-gray-500 mb-6">
-						<Link href="/" className="hover:text-[#157A4F] transition-colors">
+						<Link href="/choja" className="hover:text-[#157A4F] transition-colors">
 							Home
 						</Link>
 						<span className="mx-1">›</span>

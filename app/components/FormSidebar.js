@@ -29,7 +29,6 @@ export default function FormSidebar({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [submitSuccess, setSubmitSuccess] = useState(false);
-  const [isFeatured, setIsFeatured] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("image");
   const [moderationWarningInfo, setModerationWarningInfo] = useState({ isOpen: false, message: "", restrictedUntil: null });
@@ -88,8 +87,7 @@ export default function FormSidebar({
   const effectiveDailyRate = computeEffectiveDailyRate();
   const daysCount = selectedDates && selectedDates.length > 0 ? selectedDates.length : 0;
   const daysCharge = daysCount * effectiveDailyRate;
-  const featuredCharge = isFeatured ? 100 : 0;
-  const subtotal = daysCharge + featuredCharge;
+  const subtotal = daysCharge;
   const pgCharge = subtotal * 0.025;
   const gst = (subtotal + pgCharge) * 0.18;
   const total = subtotal + pgCharge + gst;
@@ -178,7 +176,7 @@ export default function FormSidebar({
         for (const img of uploadedImages) {
           if (img.file) {
             try {
-              const uploadedData = await uploadToCloudinary(img.file);
+              const uploadedData = await uploadToCloudinary(img.file, { folder: 'ads' });
               uploadedUrls.push(uploadedData.url);
             } catch (error) {
               console.error('Failed to upload image:', error);
@@ -205,8 +203,8 @@ export default function FormSidebar({
           (typeof selectedCategory === 'string'
             ? "General"
             : (selectedCategory?.subCategory || rawCategoryName || "General")),
-        // Swap out dummy logic with our permanently uploaded Cloudinary URLs
-        images: uploadedUrls.filter((u) => typeof u === 'string' && (u.startsWith('http://') || u.startsWith('https://'))),
+        // Preserve all uploaded Cloudflare R2 / CDN media URLs
+        images: uploadedUrls.filter((u) => typeof u === 'string' && (u.startsWith('http://') || u.startsWith('https://') || u.startsWith('/'))),
         price: resolvedPrice,
         location: cities?.[0] || "India",
         city: cities?.[0] || "",
@@ -221,7 +219,7 @@ export default function FormSidebar({
           email: user?.email || "",
           preferredContactMethod: "phone"
         },
-        templateId: templateId || 1,
+        templateId: Number(templateId) || 1,
         selectedDates: selectedDates || [],
         negotiable: Boolean(categoryDetails?.negotiable),
         tags: [typeof selectedCategory === 'string' ? selectedCategory : selectedCategory?.name].filter(Boolean),
@@ -383,22 +381,6 @@ export default function FormSidebar({
           Promotion & Pricing
         </h4>
 
-        {/* Featured Ad Checkbox */}
-        <div className="border border-yellow-200 bg-yellow-50 rounded-xl p-4">
-          <label className="flex items-center gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={isFeatured}
-              onChange={(e) => setIsFeatured(e.target.checked)}
-              className="w-5 h-5 rounded border-gray-300 text-[#157A4F] cursor-pointer"
-            />
-            <div>
-              <p className="font-semibold text-gray-800 text-sm">Featured Ad</p>
-              <p className="text-xs text-gray-600">Boost visibility for ₹100 extra</p>
-            </div>
-          </label>
-        </div>
-
         <div className="space-y-3 text-sm">
 
           {/* Rate per day */}
@@ -412,14 +394,6 @@ export default function FormSidebar({
             <span className="text-gray-600">Days ({daysCount})</span>
             <span className="font-medium">₹{daysCharge.toFixed(2)}</span>
           </div>
-
-          {/* Featured Charge */}
-          {isFeatured && (
-            <div className="flex justify-between">
-              <span className="text-gray-600">Featured Ad Charge</span>
-              <span className="font-medium">₹{featuredCharge.toFixed(2)}</span>
-            </div>
-          )}
 
           {/* Subtotal */}
           <div className="flex justify-between">

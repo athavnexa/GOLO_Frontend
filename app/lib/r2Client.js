@@ -68,10 +68,27 @@ export function getR2PublicUrl(key) {
   const baseUrl = (process.env.NEXT_PUBLIC_CLOUDFLARE_R2_PUBLIC_URL || '').trim().replace(/\/+$/, '');
   const cleanKey = (key || '').replace(/^\/+/, '');
   
-  if (!baseUrl || baseUrl.includes('your-r2-public-domain')) {
-    return `/uploads/${cleanKey}`;
+  if (baseUrl && !baseUrl.includes('your-r2-public-domain')) {
+    return `${baseUrl}/${cleanKey}`;
   }
-  return `${baseUrl}/${cleanKey}`;
+  return `/api/media/file/${cleanKey}`;
+}
+
+/**
+ * Fetch an object directly from Cloudflare R2
+ */
+export async function getObjectFromR2({ key, range }) {
+  const cleanKey = (key || '').replace(/^\/+/, '');
+  const client = getR2Client();
+  const bucket = getR2BucketName();
+
+  const command = new GetObjectCommand({
+    Bucket: bucket,
+    Key: cleanKey,
+    Range: range || undefined,
+  });
+
+  return client.send(command);
 }
 
 /**

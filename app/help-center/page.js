@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Navbar from "../components/Navbar";
+import { submitSupportTicket } from "../lib/api";
 import Footer from "../components/Footer";
 import { LifeBuoy, Send, MessageSquare, AlertCircle, CheckCircle } from "lucide-react";
 import { motion } from "framer-motion";
@@ -33,17 +34,10 @@ export default function HelpCenterPage() {
     setErrorMessage("");
 
     try {
-      const res = await fetch("/api/proxy/support-tickets", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...formData,
-          // If the user is logged in, you could append their ID here
-          userId: typeof window !== "undefined" && localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")).id : undefined
-        }),
+      await submitSupportTicket({
+        ...formData,
+        userId: typeof window !== "undefined" && localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")).id : undefined
       });
-
-      if (!res.ok) throw new Error("Failed to submit support ticket");
 
       setStatus("success");
       setFormData({ customerName: "", contactNo: "", email: "", issueType: "", description: "" });

@@ -80,7 +80,7 @@ export default function FormContent() {
         : 4;
 
   return (
-    <div className="bg-gradient-to-br from-gray-50 via-blue-50 to-white min-h-screen flex flex-col">
+    <div className="relative min-h-screen flex flex-col bg-transparent overflow-x-hidden">
 
       {/* Navbar */}
       <Navbar />

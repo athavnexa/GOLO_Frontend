@@ -21,10 +21,6 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'res.cloudinary.com',
-      },
-      {
-        protocol: 'https',
         hostname: '*.r2.dev',
       },
       {
@@ -52,9 +48,9 @@ const nextConfig = {
 
     return [
       {
-        // Legacy Cloudinary proxy rewrite during migration
+        // Cloudflare R2 media streaming proxy
         source: '/media/:path*',
-        destination: 'https://res.cloudinary.com/:path*',
+        destination: '/api/media/file/:path*',
       },
       {
         source: '/socket.io/:path*',

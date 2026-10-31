@@ -9,7 +9,7 @@ import { useAuth } from "../../context/AuthContext";
 import SocialButtons from "../../components/SocialButtons";
 import LocationPicker from "../../components/LocationPicker";
 import StoreLocationMap from "../../components/StoreLocationMap";
-import { API_BASE_URL } from "../../lib/api/core";;
+import { sendEmailOtp, verifyEmailOtp } from "../../lib/api";
 
 const MERCHANT_CATEGORIES = [
   {
@@ -283,13 +283,7 @@ export default function RegisterPage() {
     setError("");
     setSuccess("");
     try {
-      const res = await fetch(`${API_BASE_URL}/users/email-otp/send`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email.trim(), type: "register", accountType }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Failed to send OTP");
+      await sendEmailOtp({ email: email.trim(), type: "register", accountType });
       setOtpSent(true);
       setSuccess("OTP sent to your email!");
     } catch (err) {
@@ -308,13 +302,7 @@ export default function RegisterPage() {
     setError("");
     setSuccess("");
     try {
-      const res = await fetch(`${API_BASE_URL}/users/email-otp/verify`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email.trim(), otp: otp.trim() }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Invalid OTP");
+      await verifyEmailOtp({ email: email.trim(), otp: otp.trim() });
       setOtpVerified(true);
       setSuccess("Email verified successfully!");
     } catch (err) {

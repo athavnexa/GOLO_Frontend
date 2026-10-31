@@ -140,3 +140,28 @@ export async function changePassword(currentPassword, newPassword) {
 // WISHLIST APIs
 // ============================================================
 
+
+export async function sendEmailOtp({ email, type = 'register', accountType = 'user' }) {
+    return apiClient('/users/email-otp/send', {
+        method: 'POST',
+        body: JSON.stringify({ email: email?.trim(), type, accountType }),
+    });
+}
+
+export async function verifyEmailOtp({ email, otp }) {
+    return apiClient('/users/email-otp/verify', {
+        method: 'POST',
+        body: JSON.stringify({ email: email?.trim(), otp: otp?.trim() }),
+    });
+}
+
+export async function validateReferralCode(referralCode) {
+    if (!referralCode) return { valid: false, message: 'Referral code required' };
+    return apiClient('/users/referral/validate/' + encodeURIComponent(referralCode.trim()));
+}
+
+export async function syncPendingMerchantLocation() {
+    return apiClient('/users/pending-location/sync', {
+        method: 'POST',
+    });
+}

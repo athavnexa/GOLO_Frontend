@@ -92,12 +92,7 @@ export function AuthProvider({ children }) {
         if (typeof window !== "undefined" && userDataWithType?.accountType === "merchant") {
             try {
                 // Ask server to sync any pending merchant location saved during registration
-                const backendApiBase = API_BASE_URL;
-                await fetch(`${backendApiBase}/users/pending-location/sync`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    credentials: 'include',
-                });
+                await syncPendingMerchantLocation();
             } catch (syncError) {
                 console.warn("Pending merchant location sync failed:", syncError);
             }

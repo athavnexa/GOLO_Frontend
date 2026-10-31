@@ -7,8 +7,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "../../context/AuthContext";
 import LocationPicker from "../../components/LocationPicker";
-import { API_BASE_URL } from "../../lib/api/core";
-import { validateMerchantStep } from "../../lib/api/auth";;
+import { validateMerchantStep, validateReferralCode } from "../../lib/api/auth";
 import { uploadToCloudinary } from "../../services/cloudinaryConfig";
 
 const MERCHANT_CATEGORIES = [
@@ -209,8 +208,7 @@ export default function MerchantRegisterPage() {
       }
       setValidatingReferral(true);
       try {
-        const res = await fetch(`${API_BASE_URL}/users/referral/validate/${referralCode}`);
-        const data = await res.json();
+        const data = await validateReferralCode(referralCode);
         setReferralResult(data);
       } catch (err) {
         setReferralResult({ valid: false, message: 'Failed to validate code' });

@@ -2161,3 +2161,58 @@ export async function deleteMerchantAccount(payload) {
         body: JSON.stringify(payload),
     });
 }
+
+// ==================== STANDARDIZED API METHODS ====================
+
+export async function sendEmailOtp({ email, type = 'register', accountType = 'user' }) {
+    return apiClient('/users/email-otp/send', {
+        method: 'POST',
+        body: JSON.stringify({ email: email?.trim(), type, accountType }),
+    });
+}
+
+export async function verifyEmailOtp({ email, otp }) {
+    return apiClient('/users/email-otp/verify', {
+        method: 'POST',
+        body: JSON.stringify({ email: email?.trim(), otp: otp?.trim() }),
+    });
+}
+
+export async function validateReferralCode(referralCode) {
+    if (!referralCode) return { valid: false, message: 'Referral code required' };
+    return apiClient('/users/referral/validate/' + encodeURIComponent(referralCode.trim()));
+}
+
+export async function syncPendingMerchantLocation() {
+    return apiClient('/users/pending-location/sync', {
+        method: 'POST',
+    });
+}
+
+export async function sendMerchantRegistrationInvite(email) {
+    return apiClient('/merchant/send-registration-invite', {
+        method: 'POST',
+        body: JSON.stringify({ email: email?.trim()?.toLowerCase() }),
+    });
+}
+
+export async function debitWallet({ amount, description, referenceId, referenceType = 'ad' }) {
+    return apiClient('/wallets/debit', {
+        method: 'POST',
+        body: JSON.stringify({ amount, description, referenceId, referenceType }),
+    });
+}
+
+export async function submitSupportTicket(formData) {
+    return apiClient('/support-tickets', {
+        method: 'POST',
+        body: JSON.stringify(formData),
+    });
+}
+
+export async function reportOffer(offerId, { reason, description }) {
+    return apiClient('/offers/' + encodeURIComponent(offerId) + '/report', {
+        method: 'POST',
+        body: JSON.stringify({ reason, description }),
+    });
+}

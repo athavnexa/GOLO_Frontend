@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import { createAd } from "../../lib/api/ads";
-import { openRazorpayCheckout } from "../../lib/api/merchant";;
+import { openRazorpayCheckout } from "../../lib/api/merchant";
+import { debitWallet } from "../../lib/api";
 import { useAuth } from "../../context/AuthContext";
 
 export default function PostAdPaymentPage() {
@@ -94,18 +95,11 @@ export default function PostAdPaymentPage() {
       if (response?.success) {
         if (walletToUse > 0) {
           try {
-            await fetch("/api/proxy/wallets/debit", {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${localStorage.getItem("token") || localStorage.getItem("golo_token")}`
-              },
-              body: JSON.stringify({
-                amount: walletToUse,
-                description: `Payment for Ad: ${pending.adData.title || "AjuBaju"}`,
-                referenceId: response.data?.adId || "ad",
-                referenceType: "ad"
-              })
+            await debitWallet({
+              amount: walletToUse,
+              description: `Payment for Ad: ${pending.adData.title || "AjuBaju"}`,
+              referenceId: response.data?.adId || "ad",
+              referenceType: "ad"
             });
           } catch (e) {
             console.error("Failed to debit wallet", e);
@@ -132,7 +126,7 @@ export default function PostAdPaymentPage() {
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-white py-12 px-6">
+      <div className="relative z-10 min-h-screen bg-transparent py-12 px-6">
         <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
           <button
             type="button"

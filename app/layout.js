@@ -2,6 +2,7 @@ import "./globals.css";
 import "leaflet/dist/leaflet.css";
 import { AuthProvider } from "./context/AuthContext";
 import { VoucherProvider } from "./context/VoucherContext";
+import QueryProvider from "./context/QueryProvider";
 import GlobalAppBanner from "./components/GlobalAppBanner";
 import PlatformReviewModal from "./components/PlatformReviewModal";
 import ClarityAnalytics from "./components/ClarityAnalytics";
@@ -116,10 +117,12 @@ export default function RootLayout({ children }) {
       <body className="relative isolate bg-[#f3f3f3] font-sans">
         <AuthProvider>
           <VoucherProvider>
-            <main className="relative z-10 min-h-screen bg-[#f3f3f3]">{children}</main>
-            <GlobalAppBanner />
-            <PlatformReviewModal />
-            <ClarityAnalytics />
+            <QueryProvider>
+              <main className="relative z-10 min-h-screen bg-[#f3f3f3]">{children}</main>
+              <GlobalAppBanner />
+              <PlatformReviewModal />
+              <ClarityAnalytics />
+            </QueryProvider>
           </VoucherProvider>
         </AuthProvider>
       </body>

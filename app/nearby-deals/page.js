@@ -955,14 +955,15 @@ function NearbyDealsPageContent() {
   }
 
   return (
-    <main className="min-h-screen bg-[#F3F3F3]">
+    <main className="relative min-h-screen bg-transparent overflow-x-hidden">
       <Navbar />
-      <CategoryBar
-        variant="golocal"
-        preferredCategories={user?.preferredCategories || []}
-      />
+      <div className="relative z-10 w-full">
+        <CategoryBar
+          variant="golocal"
+          preferredCategories={user?.preferredCategories || []}
+        />
 
-      <section className="mx-auto max-w-[1400px] px-4 py-4 sm:px-6 sm:py-6">
+        <section className="mx-auto max-w-[1400px] px-4 py-4 sm:px-6 sm:py-6">
         <button
           type="button"
           onClick={() => setShowMobileFilters((value) => !value)}
@@ -1572,6 +1573,7 @@ function NearbyDealsPageContent() {
           </div>
         </div>
       </section>
+      </div>
 
       <Footer />
 

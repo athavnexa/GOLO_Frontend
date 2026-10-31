@@ -1211,3 +1211,10 @@ export async function deleteMerchantAccount(payload) {
         body: JSON.stringify(payload),
     });
 }
+
+export async function sendMerchantRegistrationInvite(email) {
+    return apiClient('/merchant/send-registration-invite', {
+        method: 'POST',
+        body: JSON.stringify({ email: email?.trim()?.toLowerCase() }),
+    });
+}

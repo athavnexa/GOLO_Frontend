@@ -13,10 +13,8 @@ const R2_CONFIG = {
  * Validate whether Cloudflare R2 configuration is available
  */
 export function isR2Configured() {
-  return Boolean(
-    process.env.NEXT_PUBLIC_CLOUDFLARE_R2_PUBLIC_URL &&
-    process.env.NEXT_PUBLIC_CLOUDFLARE_R2_PUBLIC_URL !== 'https://your-r2-public-domain-or-pub-hash.r2.dev'
-  );
+  // Always true now that Cloudflare R2 is our primary storage system
+  return true;
 }
 
 /**
@@ -25,9 +23,12 @@ export function isR2Configured() {
 export function isValidR2Url(url) {
   if (!url || typeof url !== 'string') return false;
   return (
+    url.includes('/api/media/file/') ||
+    url.includes('/api/media/') ||
     url.includes('.r2.dev') ||
     url.includes('.cloudflarestorage.com') ||
-    (R2_CONFIG.publicUrl && url.startsWith(R2_CONFIG.publicUrl))
+    (R2_CONFIG.publicUrl && url.startsWith(R2_CONFIG.publicUrl)) ||
+    url.startsWith('/uploads/')
   );
 }
 

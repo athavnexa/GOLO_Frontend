@@ -1508,7 +1508,7 @@ body {
   .golo-category-pill {
     width: auto !important;
     max-width: 190px !important;
-    padding: 9px 14px !important;
+    padding: 8px 6px !important;
     scroll-snap-align: start;
   }
 

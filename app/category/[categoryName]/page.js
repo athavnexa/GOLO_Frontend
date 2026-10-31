@@ -428,16 +428,18 @@ function CategoryPageContent() {
 
 export default function CategoryPage() {
     return (
-        <>
+        <main className="relative min-h-screen bg-transparent overflow-x-hidden">
             <Navbar />
-            <CategoryBar />
-            <Suspense fallback={
-                <div className="w-full px-6 lg:px-8 py-20 bg-gray-50 animate-pulse rounded-3xl mx-auto max-w-7xl mt-10 h-96" />
-            }>
-                <CategoryPageContent />
-            </Suspense>
+            <div className="relative z-10 w-full">
+                <CategoryBar />
+                <Suspense fallback={
+                    <div className="w-full px-6 lg:px-8 py-20 bg-gray-50 animate-pulse rounded-3xl mx-auto max-w-7xl mt-10 h-96" />
+                }>
+                    <CategoryPageContent />
+                </Suspense>
+            </div>
             <Footer />
-        </>
+        </main>
     );
 }
 
