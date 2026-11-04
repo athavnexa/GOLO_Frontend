@@ -143,7 +143,15 @@ export default function NotificationsPage() {
                       key={notif._id}
                       onClick={() => {
                         if (!notif.read) handleMarkRead(notif._id);
-                        if (notif.offerId) router.push(`/nearby-deals/deal?offerId=${notif.offerId}`);
+                        if (notif.targetUrl) {
+                          router.push(notif.targetUrl);
+                        } else if (notif.productId) {
+                          router.push(`/nearby-deals/product?id=${notif.productId}`);
+                        } else if (notif.offerId) {
+                          router.push(`/nearby-deals/deal?offerId=${notif.offerId}`);
+                        } else if (notif.adId) {
+                          router.push(`/product/${notif.adId}`);
+                        }
                       }}
                       className={`flex items-start gap-4 px-5 py-4 border border-[#e5e5e5] rounded-xl shadow-sm transition cursor-pointer group ${notif.read ? "bg-white" : "bg-green-50 hover:bg-green-100"}`}
                     >

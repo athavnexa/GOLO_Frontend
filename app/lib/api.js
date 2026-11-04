@@ -2079,7 +2079,7 @@ export async function saveSearchHistory({ query, location = '' } = {}) {
     }
 }
 
-export async function createItemDemandRequest({ keyword, originalQuery, userContact, userName, location, notes } = {}) {
+export async function createItemDemandRequest({ keyword, originalQuery, userContact, userName, location, notes, userId } = {}) {
     const sessionId = getSearchSessionId();
     try {
         return await apiClient('/search/item-demand-request', {
@@ -2091,6 +2091,7 @@ export async function createItemDemandRequest({ keyword, originalQuery, userCont
                 userName,
                 location,
                 notes,
+                userId,
                 sessionId,
             }),
         });

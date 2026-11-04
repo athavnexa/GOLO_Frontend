@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useAuth } from "../context/AuthContext";
 import { Search, Bell, Sparkles, RotateCcw, CheckCircle2, X } from "lucide-react";
 import { createItemDemandRequest } from "../lib/api/ads";
 
@@ -42,6 +43,8 @@ export default function SearchEmptyState({
   onSelectCategory,
 }) {
   const [showModal, setShowModal] = useState(false);
+  const auth = useAuth();
+  const user = auth?.user;
   const [showAllCategories, setShowAllCategories] = useState(false);
   const [userContact, setUserContact] = useState("");
   const [userName, setUserName] = useState("");
@@ -49,6 +52,17 @@ export default function SearchEmptyState({
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState("");
+
+  useEffect(() => {
+    if (user && showModal) {
+      if (!userName && (user.fullName || user.name)) {
+        setUserName(user.fullName || user.name);
+      }
+      if (!userContact && (user.email || user.phone || user.phoneNumber)) {
+        setUserContact(user.email || user.phone || user.phoneNumber);
+      }
+    }
+  }, [user, showModal]);
 
   const handleSubmitRequest = async (e) => {
     e.preventDefault();
@@ -68,6 +82,7 @@ export default function SearchEmptyState({
         userName: userName.trim(),
         location: location || "",
         notes: userNotes.trim(),
+        userId: user?.id || user?._id || undefined,
       });
 
       if (res?.success) {
@@ -197,7 +212,7 @@ export default function SearchEmptyState({
                 </div>
                 <h4 className="text-lg font-bold text-gray-900">Request Received!</h4>
                 <p className="mt-1.5 text-sm text-gray-600">
-                  We&rsquo;ve recorded your demand for <strong>&ldquo;{query}&rdquo;</strong>. Our onboarding team is already alerting nearby sellers to stock this!
+                  We&rsquo;ve recorded your demand for <strong>&ldquo;{query}&rdquo;</strong>. You will be automatically notified as soon as this product or a related item becomes available!
                 </p>
               </div>
             ) : (

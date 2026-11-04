@@ -1637,18 +1637,30 @@ function NavbarContent({
                                 
                                 let targetUrl = '/profile/notifications';
                                 
-                                const isOfferNotif = ['order_placed', 'order_accepted', 'order_rejected', 'new_offer', 'expiring_offer'].includes(notif.type);
-                                const isAdNotif = ['wishlist_add', 'wishlist_remove'].includes(notif.type);
-                                const referenceId = notif.offerId || notif.adId;
+                                if (notif.targetUrl) {
+                                  targetUrl = notif.targetUrl;
+                                } else if (notif.type === 'item_available') {
+                                  if (notif.productId) {
+                                    targetUrl = `/nearby-deals/product?id=${notif.productId}`;
+                                  } else if (notif.offerId) {
+                                    targetUrl = `/nearby-deals/deal?offerId=${notif.offerId}`;
+                                  } else if (notif.adId) {
+                                    targetUrl = `/product/${notif.adId}`;
+                                  }
+                                } else {
+                                  const isOfferNotif = ['order_placed', 'order_accepted', 'order_rejected', 'new_offer', 'expiring_offer'].includes(notif.type);
+                                  const isAdNotif = ['wishlist_add', 'wishlist_remove'].includes(notif.type);
+                                  const referenceId = notif.offerId || notif.adId;
 
-                                if (isOfferNotif && referenceId && referenceId !== 'order') {
-                                  targetUrl = `/nearby-deals/deal?offerId=${referenceId}`;
-                                } else if (isAdNotif && notif.adId) {
-                                  targetUrl = `/product/${notif.adId}`;
-                                } else if (notif.adId && !isOfferNotif) {
-                                  targetUrl = `/product/${notif.adId}`;
-                                } else if (notif.offerId) {
-                                  targetUrl = `/nearby-deals/deal?offerId=${notif.offerId}`;
+                                  if (isOfferNotif && referenceId && referenceId !== 'order') {
+                                    targetUrl = `/nearby-deals/deal?offerId=${referenceId}`;
+                                  } else if (isAdNotif && notif.adId) {
+                                    targetUrl = `/product/${notif.adId}`;
+                                  } else if (notif.adId && !isOfferNotif) {
+                                    targetUrl = `/product/${notif.adId}`;
+                                  } else if (notif.offerId) {
+                                    targetUrl = `/nearby-deals/deal?offerId=${notif.offerId}`;
+                                  }
                                 }
                                 
                                 router.push(targetUrl);
