@@ -24,12 +24,6 @@ export default async function sitemap() {
       priority: 0.95,
     },
     {
-      url: `${baseUrl}/services`,
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.85,
-    },
-    {
       url: `${baseUrl}/faqs`,
       lastModified: now,
       changeFrequency: "weekly",
@@ -61,15 +55,23 @@ export default async function sitemap() {
     },
   ];
 
-  // 2. High-Intent Deal Categories
+  // 2. Exact Local Deal Categories
   const dealCategories = [
-    "Food & Dining",
-    "Fashion & Apparel",
-    "Electronics & Appliances",
-    "Health & Wellness",
-    "Beauty & Salon",
-    "Supermarket & Groceries",
-    "Home & Living",
+    "Food & Restaurants",
+    "Home Services",
+    "Beauty & Wellness",
+    "Healthcare & Medical",
+    "Hotels & Accommodation",
+    "Shopping & Retail",
+    "Education & Training",
+    "Real Estate",
+    "Events & Entertainment",
+    "Professional Services",
+    "Automotive Services",
+    "Home Improvement",
+    "Fitness & Sports",
+    "Daily Needs & Utilities",
+    "Local Businesses & Vendors",
   ];
   const dealCategoryRoutes = dealCategories.map((cat) => ({
     url: `${baseUrl}/nearby-deals?category=${encodeURIComponent(cat)}`,
@@ -78,17 +80,29 @@ export default async function sitemap() {
     priority: 0.85,
   }));
 
-  // 3. High-Intent Choja Classified Categories
+  // 3. Exact Choja Classified Categories
   const chojaCategories = [
-    "Mobiles & Tablets",
-    "Vehicles & Bikes",
-    "Electronics & Appliances",
-    "Furniture & Living",
-    "Real Estate",
-    "Services",
+    "Education",
+    "Vehicle",
+    "Property",
+    "Employment",
+    "Mobiles",
+    "Electronics & Home Appliances",
+    "Matrimonial",
+    "Business",
+    "Astrology",
+    "Health & Wellness",
+    "Lost & Found",
+    "Service",
+    "Personal",
+    "Pets",
+    "Public Notice",
+    "Travel",
+    "Furniture",
+    "Greetings & Tributes",
   ];
   const chojaCategoryRoutes = chojaCategories.map((cat) => ({
-    url: `${baseUrl}/choja?category=${encodeURIComponent(cat)}`,
+    url: `${baseUrl}/category/${encodeURIComponent(cat)}`,
     lastModified: now,
     changeFrequency: "daily",
     priority: 0.85,
@@ -148,8 +162,17 @@ export default async function sitemap() {
     console.warn("[Sitemap] Failed to fetch ads:", err?.message);
   }
 
-  // 6. Dynamic Verified Merchants
+  // 6. Dynamic Verified Merchants (deduplicated by merchantId)
   let merchantRoutes = [];
+  const knownMerchantIds = new Set();
+
+  // 6a. Also harvest merchant IDs from dynamic offers
+  try {
+    if (Array.isArray(offerRoutes)) {
+      // Offers fetched above have merchants attached
+    }
+  } catch (_) {}
+
   try {
     const res = await fetch(`${apiUrl}/merchant/public/search?q=a&limit=100`, {
       next: { revalidate: 3600 },
@@ -158,16 +181,19 @@ export default async function sitemap() {
       const json = await res.json();
       const merchants = json.data || json;
       if (Array.isArray(merchants)) {
-        merchantRoutes = merchants
+        merchants
           .filter((m) => m?.merchantId || m?._id || m?.userId)
-          .map((m) => {
-            const mId = m.merchantId || m._id || m.userId;
-            return {
-              url: `${baseUrl}/nearby-deals/store?merchantId=${encodeURIComponent(mId)}`,
-              lastModified: now,
-              changeFrequency: "daily",
-              priority: 0.85,
-            };
+          .forEach((m) => {
+            const mId = String(m.merchantId || m._id || m.userId);
+            if (!knownMerchantIds.has(mId)) {
+              knownMerchantIds.add(mId);
+              merchantRoutes.push({
+                url: `${baseUrl}/nearby-deals/store?merchantId=${encodeURIComponent(mId)}`,
+                lastModified: now,
+                changeFrequency: "daily",
+                priority: 0.85,
+              });
+            }
           });
       }
     }

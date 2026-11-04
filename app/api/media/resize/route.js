@@ -51,20 +51,30 @@ export async function GET(request) {
     let contentType = 'image/webp';
 
     // 1. Fetch source image buffer (Direct R2, Local file vs Remote URL)
-    if (imageUrl.includes('/api/media/file/') && isR2Configured()) {
-      const r2Key = imageUrl.split('/api/media/file/')[1]?.split('?')[0];
-      if (r2Key) {
-        try {
-          const r2Obj = await getObjectFromR2({ key: decodeURIComponent(r2Key) });
-          const stream = r2Obj.Body;
-          const chunks = [];
-          for await (const chunk of stream) {
-            chunks.push(chunk);
-          }
-          imageBuffer = Buffer.concat(chunks);
-        } catch (r2Err) {
-          console.warn(`R2 direct read failed for ${r2Key}, trying fetch fallback:`, r2Err?.message);
+    const publicUrl = (process.env.NEXT_PUBLIC_CLOUDFLARE_R2_PUBLIC_URL || process.env.CLOUDFLARE_R2_PUBLIC_URL || '').trim().replace(/\/+$/, '');
+    let r2Key = null;
+
+    if (isR2Configured()) {
+      if (imageUrl.includes('/api/media/file/')) {
+        r2Key = imageUrl.split('/api/media/file/')[1]?.split('?')[0];
+      } else if (publicUrl && imageUrl.startsWith(publicUrl)) {
+        r2Key = imageUrl.replace(publicUrl, '').replace(/^\/+/, '').split('?')[0];
+      } else if (imageUrl.includes('.r2.dev/')) {
+        r2Key = imageUrl.split('.r2.dev/')[1]?.split('?')[0];
+      }
+    }
+
+    if (r2Key) {
+      try {
+        const r2Obj = await getObjectFromR2({ key: decodeURIComponent(r2Key) });
+        const stream = r2Obj.Body;
+        const chunks = [];
+        for await (const chunk of stream) {
+          chunks.push(chunk);
         }
+        imageBuffer = Buffer.concat(chunks);
+      } catch (r2Err) {
+        console.warn(`R2 direct read failed for ${r2Key}, trying fetch fallback:`, r2Err?.message);
       }
     }
     if (imageUrl.startsWith('/') && !imageUrl.startsWith('//')) {

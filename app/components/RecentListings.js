@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useState, useRef, Suspense } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
@@ -431,18 +432,16 @@ function MultiImageAd({ ad, className, isAuthenticated, onRequireAuth }) {
         return () => clearInterval(interval);
     }, [images.length]);
 
-    const handleCardClick = () => {
-        const targetId = ad.adId || ad._id;
-        if (targetId) {
-            trackAdView(targetId);
-            router.push(`/product/${targetId}`);
-        }
-    };
+    const targetId = ad.adId || ad._id;
+    const targetUrl = targetId ? `/product/${targetId}` : "#";
 
     return (
-        <div
-            onClick={handleCardClick}
-            className={`relative rounded-3xl overflow-hidden group cursor-pointer shadow-sm hover:shadow-2xl transition ${className}`}
+        <Link
+            href={targetUrl}
+            onClick={() => {
+                if (targetId) trackAdView(targetId);
+            }}
+            className={`relative block rounded-3xl overflow-hidden group cursor-pointer shadow-sm hover:shadow-2xl transition ${className}`}
             data-colspan={getColSpanFromClass(ad.col)}
             data-rowspan={getRowSpanFromClass(ad.row)}
         >
@@ -470,6 +469,7 @@ function MultiImageAd({ ad, className, isAuthenticated, onRequireAuth }) {
                 <div className="flex gap-3 mt-4">
                     <button
                         onClick={(e) => {
+                            e.preventDefault();
                             e.stopPropagation();
                             if (!isAuthenticated) {
                                 onRequireAuth();
@@ -484,6 +484,7 @@ function MultiImageAd({ ad, className, isAuthenticated, onRequireAuth }) {
                     </button>
                     <button
                         onClick={(e) => {
+                            e.preventDefault();
                             e.stopPropagation();
                             if (!isAuthenticated) {
                                 onRequireAuth();
@@ -508,7 +509,7 @@ function MultiImageAd({ ad, className, isAuthenticated, onRequireAuth }) {
                     />
                 ))}
             </div>
-        </div>
+        </Link>
     );
 }
 
@@ -516,18 +517,16 @@ function SingleImageAd({ ad, className, isAuthenticated, onRequireAuth }) {
     const router = useRouter();
     const image = ad.images && ad.images[0] ? getSafeImageSrc(ad.images[0]) : "/images/placeholder.webp";
 
-    const handleCardClick = () => {
-        const targetId = ad.adId || ad._id;
-        if (targetId) {
-            trackAdView(targetId);
-            router.push(`/product/${targetId}`);
-        }
-    };
+    const targetId = ad.adId || ad._id;
+    const targetUrl = targetId ? `/product/${targetId}` : "#";
 
     return (
-        <div
-            onClick={handleCardClick}
-            className={`relative rounded-3xl overflow-hidden group cursor-pointer shadow-sm hover:shadow-xl transition ${className}`}
+        <Link
+            href={targetUrl}
+            onClick={() => {
+                if (targetId) trackAdView(targetId);
+            }}
+            className={`relative block rounded-3xl overflow-hidden group cursor-pointer shadow-sm hover:shadow-xl transition ${className}`}
             data-colspan={getColSpanFromClass(ad.col)}
             data-rowspan={getRowSpanFromClass(ad.row)}
         >
@@ -550,6 +549,7 @@ function SingleImageAd({ ad, className, isAuthenticated, onRequireAuth }) {
                 <div className="flex gap-2 mt-3">
                     <button
                         onClick={(e) => {
+                            e.preventDefault();
                             e.stopPropagation();
                             if (!isAuthenticated) {
                                 onRequireAuth();
@@ -564,6 +564,7 @@ function SingleImageAd({ ad, className, isAuthenticated, onRequireAuth }) {
                     </button>
                     <button
                         onClick={(e) => {
+                            e.preventDefault();
                             e.stopPropagation();
                             if (!isAuthenticated) {
                                 onRequireAuth();
@@ -578,25 +579,23 @@ function SingleImageAd({ ad, className, isAuthenticated, onRequireAuth }) {
                     </button>
                 </div>
             </div>
-        </div>
+        </Link>
     );
 }
 
 function TextAd({ ad, className, isAuthenticated, onRequireAuth }) {
     const router = useRouter();
 
-    const handleCardClick = () => {
-        const targetId = ad.adId || ad._id;
-        if (targetId) {
-            trackAdView(targetId);
-            router.push(`/product/${targetId}`);
-        }
-    };
+    const targetId = ad.adId || ad._id;
+    const targetUrl = targetId ? `/product/${targetId}` : "#";
 
     return (
-        <div
-            onClick={handleCardClick}
-            className={`bg-white rounded-3xl p-6 shadow-sm hover:shadow-xl transition cursor-pointer flex flex-col justify-between ${className}`}
+        <Link
+            href={targetUrl}
+            onClick={() => {
+                if (targetId) trackAdView(targetId);
+            }}
+            className={`bg-white rounded-3xl p-6 shadow-sm hover:shadow-xl transition cursor-pointer flex flex-col justify-between block ${className}`}
             data-colspan={getColSpanFromClass(ad.col)}
             data-rowspan={getRowSpanFromClass(ad.row)}
         >
@@ -624,6 +623,7 @@ function TextAd({ ad, className, isAuthenticated, onRequireAuth }) {
                 </button>
                 <button
                     onClick={(e) => {
+                        e.preventDefault();
                         e.stopPropagation();
                         if (!isAuthenticated) {
                             onRequireAuth();
@@ -637,6 +637,6 @@ function TextAd({ ad, className, isAuthenticated, onRequireAuth }) {
                     Call
                 </button>
             </div>
-        </div>
+        </Link>
     );
 }

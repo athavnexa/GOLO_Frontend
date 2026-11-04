@@ -212,6 +212,35 @@ export default function Footer() {
         </div>
       </div>
 
+      {/* SEO Popular Categories & Classifieds Directory Section */}
+      <div className="border-t border-[#d88c1b] py-8 px-6">
+        <div className="mx-auto max-w-[1200px]">
+          <h4 className="text-[14px] font-extrabold text-[#241a07] mb-3 uppercase tracking-wider">
+            Popular Local Deals &amp; Offers
+          </h4>
+          <div className="flex flex-wrap gap-x-6 gap-y-2 mb-6 text-[13px] font-medium text-[#4c3a16]">
+            <Link href="/nearby-deals?category=Food%20%26%20Restaurants" className="hover:text-[#111] transition-colors">Food &amp; Restaurants</Link>
+            <Link href="/nearby-deals?category=Shopping%20%26%20Retail" className="hover:text-[#111] transition-colors">Shopping &amp; Retail</Link>
+            <Link href="/nearby-deals?category=Beauty%20%26%20Wellness" className="hover:text-[#111] transition-colors">Beauty &amp; Wellness</Link>
+            <Link href="/nearby-deals?category=Healthcare%20%26%20Medical" className="hover:text-[#111] transition-colors">Healthcare &amp; Medical</Link>
+            <Link href="/nearby-deals?category=Home%20Services" className="hover:text-[#111] transition-colors">Home Services</Link>
+            <Link href="/nearby-deals?category=Daily%20Needs%20%26%20Utilities" className="hover:text-[#111] transition-colors">Daily Needs &amp; Utilities</Link>
+          </div>
+
+          <h4 className="text-[14px] font-extrabold text-[#241a07] mb-3 uppercase tracking-wider">
+            Choja Classifieds Marketplace
+          </h4>
+          <div className="flex flex-wrap gap-x-6 gap-y-2 text-[13px] font-medium text-[#4c3a16]">
+            <Link href="/category/Mobiles" className="hover:text-[#111] transition-colors">Mobiles</Link>
+            <Link href="/category/Vehicle" className="hover:text-[#111] transition-colors">Vehicle</Link>
+            <Link href="/category/Property" className="hover:text-[#111] transition-colors">Property</Link>
+            <Link href="/category/Electronics%20%26%20Home%20Appliances" className="hover:text-[#111] transition-colors">Electronics &amp; Home Appliances</Link>
+            <Link href="/category/Furniture" className="hover:text-[#111] transition-colors">Furniture</Link>
+            <Link href="/category/Employment" className="hover:text-[#111] transition-colors">Employment</Link>
+          </div>
+        </div>
+      </div>
+
       {/* Bottom Copyright Bar */}
       <div className="bg-[#cf8618] border-t border-[#d88c1b] py-5 px-6">
         <div className="mx-auto max-w-[1200px] flex flex-col md:flex-row items-center justify-between gap-4">

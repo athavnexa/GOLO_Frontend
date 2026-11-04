@@ -22,6 +22,7 @@ export const metadata = {
 export default function ChojaPage() {
   return (
     <main className="relative z-10 min-h-screen bg-transparent">
+      <h1 className="sr-only">Choja Classifieds - Buy & Sell Used Items, Vehicles, Mobiles and Properties Near You</h1>
       <Suspense fallback={<div className="h-16 bg-gray-50 animate-pulse" />}>
         <Navbar />
       </Suspense>

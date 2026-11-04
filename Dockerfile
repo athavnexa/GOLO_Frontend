@@ -1,81 +1,61 @@
-# ==============================
-# Builder Stage
-# ==============================
-FROM node:20-bullseye-slim AS builder
+# --- BUILD STAGE ---
+# Using Debian Bookworm-Slim for updated package repositories and faster network mirrors
+FROM node:20-bookworm-slim AS builder
 
 ENV DEBIAN_FRONTEND=noninteractive
-
 WORKDIR /app
 
-# Build-time public env vars (baked into the client bundle by Next.js)
-ARG NEXT_PUBLIC_API_URL
-ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+# Switch to standard mirrors, install minimal build requirements, and clean up
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3 \
+    build-essential \
+    git \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install build tools for native deps
-RUN apt-get update \
-	&& apt-get install -y --no-install-recommends python3 build-essential git curl ca-certificates \
-	&& rm -rf /var/lib/apt/lists/*
+# Set python path for node-gyp
+ENV npm_config_python=/usr/bin/python3
 
-# Copy package files
-COPY package*.json ./
+COPY package.json package-lock.json ./
 
-# Install dependencies
+# Leverage Docker cache layers for Node modules
 RUN npm ci
 
-# Copy source code
 COPY . .
-
-ARG NEXT_PUBLIC_API_URL
-ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
-
-RUN echo $NEXT_PUBLIC_API_URL
-
-
-# Build app
 RUN npm run build
 
+# --- PRODUCTION RUNTIME STAGE ---
+FROM node:20-bookworm-slim AS runner
 
-# ==============================
-# Production Stage
-# ==============================
-FROM node:20-bullseye-slim AS runner
-
-ARG NEXT_PUBLIC_API_URL
 ENV NODE_ENV=production
-ENV PORT=3001
-ENV HOSTNAME=0.0.0.0
-ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 WORKDIR /app
 
-# Install curl for health checks
+# Create unprivileged system user securely
+RUN groupadd -r app && useradd -r -g app -s /sbin/nologin app
+
+# Install only curl and certificates for runtime health checks
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Create non-root user
-RUN groupadd -r nextjs && \
-    useradd -r -g nextjs -d /app -s /usr/sbin/nologin nextjs
+# Copy production assets directly from builder (avoids secondary npm ci download lag)
+COPY --from=builder /app/package.json /app/package-lock.json ./
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/scripts ./scripts
+COPY --from=builder /app/update-merchant-categories.js ./
+COPY --from=builder /app/check-merchants.js ./
 
-# Copy standalone build
-COPY --from=builder /app/.next/standalone ./
+# Clean up devDependencies from the node_modules directory to keep the image slim
+RUN npm prune --omit=dev && npm cache clean --force
 
-# Copy static assets
-COPY --from=builder /app/.next/static ./.next/static
+# Adjust ownership to unprivileged user
+RUN chown -R app:app /app
+USER app
 
-# Copy public folder
-COPY --from=builder /app/public ./public
+EXPOSE 3002
 
-# Permissions
-RUN chown -R nextjs:nextjs /app
+HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
+    CMD curl -f http://localhost:3002/ || exit 1
 
-USER nextjs
-
-EXPOSE 3001
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
-  CMD curl -f http://localhost:3001 || exit 1
-
-# Start Next.js
-CMD ["node", "server.js"]
+CMD ["node", "dist/main.js"]

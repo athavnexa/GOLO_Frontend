@@ -1,4 +1,12 @@
 import "./globals.css";
+import { Poppins } from "next/font/google";
+
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+  variable: "--font-poppins",
+});
 import "leaflet/dist/leaflet.css";
 import { AuthProvider } from "./context/AuthContext";
 import { VoucherProvider } from "./context/VoucherContext";
@@ -71,6 +79,14 @@ export const metadata = {
       "max-snippet": -1,
     },
   },
+  icons: {
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/icon.png", sizes: "192x192", type: "image/png" },
+    ],
+    apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
+  },
+  manifest: "/manifest.json",
 };
 
 const structuredSchema = {
@@ -103,18 +119,12 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
-          rel="stylesheet"
-        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredSchema) }}
         />
       </head>
-      <body className="relative isolate bg-[#f3f3f3] font-sans">
+      <body className={`${poppins.className} ${poppins.variable} relative isolate bg-[#f3f3f3] font-sans`}>
         <AuthProvider>
           <VoucherProvider>
             <QueryProvider>

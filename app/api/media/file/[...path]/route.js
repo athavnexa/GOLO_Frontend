@@ -34,6 +34,13 @@ export async function GET(request, context) {
       return NextResponse.json({ error: 'File key is required' }, { status: 400 });
     }
 
+    const publicUrl = (process.env.NEXT_PUBLIC_CLOUDFLARE_R2_PUBLIC_URL || process.env.CLOUDFLARE_R2_PUBLIC_URL || '').trim().replace(/\/+$/, '');
+    if (publicUrl && !publicUrl.includes('your-r2-public-domain')) {
+      const cleanKey = key.replace(/^\/+/, '');
+      // Redirect 301 to Cloudflare R2 Public URL for direct CDN delivery
+      return NextResponse.redirect(`${publicUrl}/${cleanKey}`, { status: 301 });
+    }
+
     const rangeHeader = request.headers.get('range') || undefined;
 
     // 1. Try reading from Cloudflare R2 if configured

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
@@ -242,14 +243,13 @@ export default function Recommended() {
             {isRefreshing && (
               <span className="text-xs font-medium text-gray-400">Refreshing...</span>
             )}
-            <button
-              type="button"
-              onClick={() => router.push("/nearby-deals")}
-              className="theme-button-accent px-4 py-2 rounded-full text-sm transition"
+            <Link
+              href="/nearby-deals"
+              className="theme-button-accent px-4 py-2 rounded-full text-sm transition inline-block text-center"
               suppressHydrationWarning={true}
             >
               View More →
-            </button>
+            </Link>
           </div>
         </div>
 
@@ -355,47 +355,42 @@ export default function Recommended() {
 
           {/* Deal Cards */}
           {fetchState === "success" &&
-            deals.map((deal, i) => (
-              <article
-                key={deal.id || i}
-                onClick={() =>
-                  deal.id &&
-                  router.push(`/nearby-deals/deal?offerId=${encodeURIComponent(deal.id)}`)
-                }
-                className="group flex-shrink-0 w-64 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-[#157A4F] hover:shadow-lg cursor-pointer"
-              >
-                <div className="relative h-36 w-full overflow-hidden bg-gray-100">
-                  <img
-                    src={deal.img}
-                    alt={deal.title}
-                    className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
-                    loading="lazy"
-                    onError={(e) => { e.currentTarget.src = "/images/deal2.avif"; }}
-                  />
-                  <span className="absolute left-2 top-2 rounded-full bg-gradient-to-r from-[#157A4F] to-[#28A745] px-2 py-0.5 text-[10px] font-bold text-white shadow-sm">
-                    Recommended
-                  </span>
-                </div>
+            deals.map((deal, i) => {
+              const dealUrl = deal.id ? `/nearby-deals/deal?offerId=${encodeURIComponent(deal.id)}` : "#";
+              return (
+                <Link
+                  key={deal.id || i}
+                  href={dealUrl}
+                  className="group flex-shrink-0 w-64 block overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-[#157A4F] hover:shadow-lg cursor-pointer"
+                >
+                  <div className="relative h-36 w-full overflow-hidden bg-gray-100">
+                    <img
+                      src={deal.img}
+                      alt={deal.title}
+                      className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
+                      loading="lazy"
+                      onError={(e) => { e.currentTarget.src = "/images/deal2.avif"; }}
+                    />
+                    <span className="absolute left-2 top-2 rounded-full bg-gradient-to-r from-[#157A4F] to-[#28A745] px-2 py-0.5 text-[10px] font-bold text-white shadow-sm">
+                      Recommended
+                    </span>
+                  </div>
 
-                <div className="p-3">
-                  <h3 className="line-clamp-1 text-sm font-bold text-gray-900">{deal.title}</h3>
-                  <p className="mt-1 text-[11px] text-gray-500 line-clamp-2">
-                    {deal.description || "Discover live deals near you."}
-                  </p>
-                  <p className="mt-2 text-sm font-semibold text-[#157A4F]">{deal.discount}</p>
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (deal.id) router.push(`/nearby-deals/deal?offerId=${encodeURIComponent(deal.id)}`);
-                    }}
-                    className="mt-3 w-full rounded-lg border border-gray-200 bg-[#F7F7F7] py-2 text-xs font-bold text-gray-800 transition-colors duration-200 hover:border-[#157A4F] hover:bg-[#157A4F] hover:text-white"
-                  >
-                    View Deal
-                  </button>
-                </div>
-              </article>
-            ))}
+                  <div className="p-3">
+                    <h3 className="line-clamp-1 text-sm font-bold text-gray-900">{deal.title}</h3>
+                    <p className="mt-1 text-[11px] text-gray-500 line-clamp-2">
+                      {deal.description || "Discover live deals near you."}
+                    </p>
+                    <p className="mt-2 text-sm font-semibold text-[#157A4F]">{deal.discount}</p>
+                    <span
+                      className="mt-3 block text-center w-full rounded-lg border border-gray-200 bg-[#F7F7F7] py-2 text-xs font-bold text-gray-800 transition-colors duration-200 group-hover:border-[#157A4F] group-hover:bg-[#157A4F] group-hover:text-white"
+                    >
+                      View Deal
+                    </span>
+                  </div>
+                </Link>
+              );
+            })}
 
           </div>{/* end scroll row */}
         </div>{/* end relative wrapper */}

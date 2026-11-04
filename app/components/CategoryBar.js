@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useMemo } from "react";
 import { usePathname } from "next/navigation";
+import Link from "next/link";
 import {
   ChevronDown,
   Grid,
@@ -240,6 +241,35 @@ function CategoryBarContent({ variant = "choja", preferredCategories = [] }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const getCategoryHref = (categoryName, sub = null) => {
+    if (variant === "golocal") {
+      const nextParams = new URLSearchParams();
+      nextParams.set("category", categoryName);
+
+      const currentParams =
+        typeof window !== "undefined"
+          ? new URLSearchParams(window.location.search)
+          : null;
+
+      const currentLocation = currentParams?.get("location");
+      if (currentLocation) {
+        nextParams.set("location", currentLocation);
+      }
+
+      const currentQuery = currentParams?.get("q");
+      if (currentQuery) {
+        nextParams.set("q", currentQuery);
+      }
+
+      return withFrontendBasePath(`/nearby-deals?${nextParams.toString()}`);
+    }
+
+    const encoded = encodeURIComponent(categoryName);
+    return sub
+      ? withFrontendBasePath(`/category/${encoded}?sub=${encodeURIComponent(sub)}`)
+      : withFrontendBasePath(`/category/${encoded}`);
+  };
+
   const navigateToCategory = (categoryName, sub = null) => {
     if (variant === "golocal") {
       const nextParams = new URLSearchParams();
@@ -381,27 +411,11 @@ function CategoryBarContent({ variant = "choja", preferredCategories = [] }) {
               const { bg, dark } = colorForCategory(cat.name);
               const IconComponent = iconMapForVariant[cat.name] || Package;
               const isSingleWord = !cat.name.includes(" ");
-              return (
-                <button
-                  key={cat.name}
-                  ref={(el) => (buttonRefs.current[cat.name] = el)}
-                  className="golo-category-pill"
-                  title={cat.name}
-                  onClick={() => handleCategoryClick(cat)}
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "flex-start",
-                    gap: iconLabelGap,
-                    background: "transparent",
-                    border: "none",
-                    cursor: "pointer",
-                    width: pillWidth,
-                    flexShrink: 0,
-                    padding: pillPadding,
-                  }}
-                >
+              const hasSubMenu = variant !== "golocal" && Boolean(cat.sub);
+              const categoryHref = getCategoryHref(cat.name);
+
+              const pillInner = (
+                <>
                   <span
                     style={{
                       width: iconSize,
@@ -465,7 +479,62 @@ function CategoryBarContent({ variant = "choja", preferredCategories = [] }) {
                       />
                     )}
                   </span>
-                </button>
+                </>
+              );
+
+              if (hasSubMenu) {
+                return (
+                  <button
+                    key={cat.name}
+                    ref={(el) => (buttonRefs.current[cat.name] = el)}
+                    className="golo-category-pill"
+                    title={cat.name}
+                    onClick={() => handleCategoryClick(cat)}
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "flex-start",
+                      gap: iconLabelGap,
+                      background: "transparent",
+                      border: "none",
+                      cursor: "pointer",
+                      width: pillWidth,
+                      flexShrink: 0,
+                      padding: pillPadding,
+                    }}
+                  >
+                    {pillInner}
+                  </button>
+                );
+              }
+
+              return (
+                <Link
+                  key={cat.name}
+                  href={categoryHref}
+                  ref={(el) => (buttonRefs.current[cat.name] = el)}
+                  className="golo-category-pill"
+                  title={cat.name}
+                  onClick={() => {
+                    if (variant === "golocal") setGolocalActiveCategory(cat.name);
+                  }}
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "flex-start",
+                    gap: iconLabelGap,
+                    background: "transparent",
+                    textDecoration: "none",
+                    cursor: "pointer",
+                    width: pillWidth,
+                    flexShrink: 0,
+                    padding: pillPadding,
+                  }}
+                >
+                  {pillInner}
+                </Link>
               );
             })}
             
@@ -548,27 +617,29 @@ function CategoryBarContent({ variant = "choja", preferredCategories = [] }) {
             }}
           >
             <style>{`@keyframes fadeDown { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }`}</style>
-            <button
-              onClick={() => navigateToCategory(activeDropdown)}
-              style={{ width: "100%", textAlign: "left", padding: "10px 14px", borderRadius: "10px", border: "none", background: "transparent", fontWeight: 700, fontSize: "14px", color: "#157A4F", cursor: "pointer" }}
+            <Link
+              href={getCategoryHref(activeDropdown)}
+              onClick={() => setActiveDropdown(null)}
+              style={{ display: "block", textDecoration: "none", width: "100%", textAlign: "left", padding: "10px 14px", borderRadius: "10px", border: "none", background: "transparent", fontWeight: 700, fontSize: "14px", color: "#157A4F", cursor: "pointer" }}
               onMouseEnter={e => e.currentTarget.style.background = "#f0fdf4"}
               onMouseLeave={e => e.currentTarget.style.background = "transparent"}
             >
               All {activeDropdown}
-            </button>
+            </Link>
             <div style={{ height: "1px", background: "#e5e7eb", margin: "4px 0" }} />
             {mainCategories
               .find((c) => c.name === activeDropdown)
               ?.sub?.map((subItem) => (
-                <button
+                <Link
                   key={subItem}
-                  onClick={() => navigateToCategory(activeDropdown, subItem)}
-                  style={{ width: "100%", textAlign: "left", padding: "9px 14px", borderRadius: "10px", border: "none", background: "transparent", fontSize: "13px", fontWeight: 500, color: "#374151", cursor: "pointer" }}
+                  href={getCategoryHref(activeDropdown, subItem)}
+                  onClick={() => setActiveDropdown(null)}
+                  style={{ display: "block", textDecoration: "none", width: "100%", textAlign: "left", padding: "9px 14px", borderRadius: "10px", border: "none", background: "transparent", fontSize: "13px", fontWeight: 500, color: "#374151", cursor: "pointer" }}
                   onMouseEnter={e => e.currentTarget.style.background = "#f9fafb"}
                   onMouseLeave={e => e.currentTarget.style.background = "transparent"}
                 >
                   {subItem}
-                </button>
+                </Link>
               ))}
           </div>,
           document.body
@@ -597,10 +668,16 @@ function CategoryBarContent({ variant = "choja", preferredCategories = [] }) {
                   const IconComponent = (variant === "golocal" ? golocalIconMap : allIconMap)[cat.name] || Package;
                   const active = isCategoryActive(cat.name);
                   return (
-                    <button
+                    <Link
                       key={cat.name}
-                      onClick={() => navigateToCategory(cat.name)}
+                      href={getCategoryHref(cat.name)}
+                      onClick={() => {
+                        setShowAllModal(false);
+                        if (variant === "golocal") setGolocalActiveCategory(cat.name);
+                      }}
                       style={{
+                        display: "block",
+                        textDecoration: "none",
                         padding: "14px 10px",
                         borderRadius: "14px",
                         border: active ? `1.5px solid ${dark}` : "1.5px solid transparent",
@@ -630,7 +707,7 @@ function CategoryBarContent({ variant = "choja", preferredCategories = [] }) {
                         <IconComponent size={20} color={dark} strokeWidth={2} />
                       </span>
                       {cat.name}
-                    </button>
+                    </Link>
                   );
                 })}
               </div>
@@ -643,10 +720,13 @@ function CategoryBarContent({ variant = "choja", preferredCategories = [] }) {
                       const { bg, dark } = colorForCategory(cat);
                       const IconComponent = allIconMap[cat] || Package;
                       return (
-                        <button
+                        <Link
                           key={cat}
-                          onClick={() => navigateToCategory(cat)}
+                          href={getCategoryHref(cat)}
+                          onClick={() => setShowAllModal(false)}
                           style={{
+                            display: "block",
+                            textDecoration: "none",
                             padding: "14px 10px",
                             borderRadius: "14px",
                             border: "1.5px solid transparent",
@@ -676,7 +756,7 @@ function CategoryBarContent({ variant = "choja", preferredCategories = [] }) {
                             <IconComponent size={20} color={dark} strokeWidth={2} />
                           </span>
                           {cat}
-                        </button>
+                        </Link>
                       );
                     })}
                   </div>

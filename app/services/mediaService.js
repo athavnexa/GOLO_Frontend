@@ -4,7 +4,7 @@
  * 100% powered by Cloudflare R2 and Sharp.
  */
 
-import { uploadToR2, isValidR2Url, isR2Configured } from './cloudflareR2Config.js';
+import { uploadToR2, isValidR2Url, isR2Configured, getR2PublicUrl } from './cloudflareR2Config.js';
 
 /**
  * Upload a media file (Image, Video, or Document) to Cloudflare R2
@@ -23,5 +23,5 @@ export function isValidMediaUrl(url) {
   return isValidR2Url(url);
 }
 
-export { uploadToR2, isValidR2Url, isR2Configured };
+export { uploadToR2, isValidR2Url, isR2Configured, getR2PublicUrl };
 export default uploadMedia;

@@ -1,13 +1,48 @@
 /**
  * Cloudflare R2 Media Configuration & Upload Service
  * Manages Cloudflare R2 file uploads, URL generation, and fallback logic.
+ * 100% Browser and Client Component Safe (No Node.js built-ins).
  */
 
 const R2_CONFIG = {
-  publicUrl: process.env.NEXT_PUBLIC_CLOUDFLARE_R2_PUBLIC_URL || '',
+  publicUrl: (process.env.NEXT_PUBLIC_CLOUDFLARE_R2_PUBLIC_URL || process.env.CLOUDFLARE_R2_PUBLIC_URL || '').trim().replace(/\/+$/, ''),
   uploadApi: '/api/media/upload',
   presignApi: '/api/media/presign',
 };
+
+/**
+ * Resolves any key, legacy streaming route, or upload path to the Cloudflare R2 Public URL.
+ * Pure string manipulation - 100% client-safe (no Node.js fs/path dependencies).
+ */
+export function getR2PublicUrl(keyOrUrl) {
+  if (!keyOrUrl) return '';
+  const baseUrl = (process.env.NEXT_PUBLIC_CLOUDFLARE_R2_PUBLIC_URL || process.env.CLOUDFLARE_R2_PUBLIC_URL || '').trim().replace(/\/+$/, '');
+
+  let clean = String(keyOrUrl).trim();
+
+  // If already full public URL with configured domain, return as-is
+  if (baseUrl && clean.startsWith(baseUrl)) {
+    return clean;
+  }
+
+  // Extract clean key from legacy streaming proxies, uploads, or r2.dev URLs
+  if (clean.includes('/api/media/file/')) {
+    clean = clean.split('/api/media/file/')[1];
+  } else if (clean.includes('/api/media/')) {
+    clean = clean.split('/api/media/')[1];
+  } else if (clean.includes('.r2.dev/')) {
+    clean = clean.split('.r2.dev/')[1];
+  } else if (clean.startsWith('/uploads/')) {
+    clean = clean.replace(/^\/uploads\//, '');
+  }
+
+  clean = clean.split('?')[0].replace(/^\/+/, '');
+
+  if (baseUrl && !baseUrl.includes('your-r2-public-domain')) {
+    return `${baseUrl}/${clean}`;
+  }
+  return `/api/media/file/${clean}`;
+}
 
 /**
  * Validate whether Cloudflare R2 configuration is available

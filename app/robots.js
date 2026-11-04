@@ -12,8 +12,6 @@ export default function robots() {
           "/choja",
           "/choja/*",
           "/product/*",
-          "/services",
-          "/services/*",
           "/category/*",
           "/help-center",
           "/faqs",
@@ -76,7 +74,7 @@ export default function robots() {
       // Explicit directives for AI Search & Answer Engines (ChatGPT, Perplexity, Gemini, Claude)
       {
         userAgent: "GPTBot",
-        allow: ["/", "/nearby-deals", "/choja", "/product/*", "/services", "/faqs", "/help-center"],
+        allow: ["/", "/nearby-deals", "/choja", "/category/*", "/product/*", "/faqs", "/help-center"],
         disallow: ["/admin/*", "/merchant/*", "/profile/*", "/chats/*"],
       },
       {
@@ -85,12 +83,12 @@ export default function robots() {
       },
       {
         userAgent: "PerplexityBot",
-        allow: ["/", "/nearby-deals", "/choja", "/product/*", "/services", "/faqs", "/help-center"],
+        allow: ["/", "/nearby-deals", "/choja", "/category/*", "/product/*", "/faqs", "/help-center"],
         disallow: ["/admin/*", "/merchant/*", "/profile/*", "/chats/*"],
       },
       {
         userAgent: "ClaudeBot",
-        allow: ["/", "/nearby-deals", "/choja", "/product/*", "/services", "/faqs", "/help-center"],
+        allow: ["/", "/nearby-deals", "/choja", "/category/*", "/product/*", "/faqs", "/help-center"],
         disallow: ["/admin/*", "/merchant/*", "/profile/*", "/chats/*"],
       },
       {

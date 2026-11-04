@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ChevronLeft, ChevronRight, MapPin, Clock, Store, Tag } from "lucide-react";
@@ -129,101 +130,101 @@ function SectionCarousel({ title, items, onItemClick }) {
             className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2"
             style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
           >
-            {items.map((item) => (
-              <article
-                key={item.id}
-                onClick={() => onItemClick(item)}
-                className="group cursor-pointer flex-none snap-start overflow-hidden rounded-[14px] border border-[#e2e8f0] bg-white shadow-[0_2px_12px_rgba(15,23,42,0.06)] hover:shadow-[0_8px_24px_rgba(15,23,42,0.12)] transition-all duration-300 w-[260px] min-w-[260px] max-w-[260px] sm:w-[280px] sm:min-w-[280px] sm:max-w-[280px] md:w-[250px] md:min-w-[250px] md:max-w-[250px] lg:w-[280px] lg:min-w-[280px] lg:max-w-[280px] flex flex-col"
-              >
-                <div className="relative h-[150px] sm:h-[180px] w-full overflow-hidden bg-gray-100">
-                  <Image
-                    src={item.image}
-                    alt={item.title}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
-                    unoptimized
-                  />
+            {items.map((item) => {
+              const itemUrl = (item.type === 'shop' || item.type === 'merchant')
+                ? (item.merchantId ? `/nearby-deals/store?merchantId=${encodeURIComponent(item.merchantId)}` : '#')
+                : (item.offerId ? `/nearby-deals/deal?offerId=${encodeURIComponent(item.offerId)}` : '#');
 
-                  {item.badge && (
-                    <span className="absolute left-2.5 top-2.5 rounded-md bg-[#ff6b00] px-2 py-0.5 text-[10px] sm:text-[11px] font-bold text-white shadow-sm flex items-center gap-1">
-                      <Tag size={10} className="stroke-[2.5]" />
-                      {item.badge}
-                    </span>
-                  )}
+              return (
+                <Link
+                  key={item.id}
+                  href={itemUrl}
+                  className="group cursor-pointer flex-none snap-start overflow-hidden rounded-[14px] border border-[#e2e8f0] bg-white shadow-[0_2px_12px_rgba(15,23,42,0.06)] hover:shadow-[0_8px_24px_rgba(15,23,42,0.12)] transition-all duration-300 w-[260px] min-w-[260px] max-w-[260px] sm:w-[280px] sm:min-w-[280px] sm:max-w-[280px] md:w-[250px] md:min-w-[250px] md:max-w-[250px] lg:w-[280px] lg:min-w-[280px] lg:max-w-[280px] flex flex-col block"
+                >
+                  <div className="relative h-[150px] sm:h-[180px] w-full overflow-hidden bg-gray-100">
+                    <Image
+                      src={item.image}
+                      alt={item.title}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+                      unoptimized
+                    />
 
-                  {item.validityText && (
-                    <div className="absolute right-2.5 bottom-2.5 rounded-full bg-black/65 backdrop-blur-sm px-2 py-0.5 text-[9px] sm:text-[10px] font-medium text-white flex items-center gap-1 shadow-sm max-w-[80%] truncate">
-                      <Clock size={10} className="shrink-0 text-[#f5b849]" />
-                      <span className="truncate">{item.validityText}</span>
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex flex-1 flex-col justify-between bg-[#ffe1a3] p-3 sm:p-3.5 gap-1.5 min-h-[165px]">
-                  <div>
-                    <h3
-                      title={item.title}
-                      className="line-clamp-1 text-[14px] sm:text-[16px] font-bold leading-tight text-[#222730] tracking-tight group-hover:text-[#157A4F] transition-colors"
-                    >
-                      {item.title}
-                    </h3>
-
-                    {(item.storeName || item.merchantName) && (
-                      <div className="flex items-center gap-1 text-[11px] sm:text-[12px] font-semibold text-[#5c4a1e] truncate mt-1">
-                        <Store size={12} className="shrink-0 text-[#8c7438]" />
-                        <span className="truncate">{item.storeName || item.merchantName}</span>
-                      </div>
+                    {item.badge && (
+                      <span className="absolute left-2.5 top-2.5 rounded-md bg-[#ff6b00] px-2 py-0.5 text-[10px] sm:text-[11px] font-bold text-white shadow-sm flex items-center gap-1">
+                        <Tag size={10} className="stroke-[2.5]" />
+                        {item.badge}
+                      </span>
                     )}
 
-                    {item.location && (
-                      <div className="flex items-center gap-1 text-[10px] sm:text-[11px] text-[#786432] truncate mt-0.5">
-                        <MapPin size={11} className="shrink-0 text-[#d97706]" />
-                        <span className="truncate">{item.location}</span>
+                    {item.validityText && (
+                      <div className="absolute right-2.5 bottom-2.5 rounded-full bg-black/65 backdrop-blur-sm px-2 py-0.5 text-[9px] sm:text-[10px] font-medium text-white flex items-center gap-1 shadow-sm max-w-[80%] truncate">
+                        <Clock size={10} className="shrink-0 text-[#f5b849]" />
+                        <span className="truncate">{item.validityText}</span>
                       </div>
                     )}
                   </div>
 
-                  <div className="pt-1.5 border-t border-[#f0cf85]">
-                    <div className="flex items-baseline justify-between gap-1">
-                      {item.price !== null && item.price !== undefined && Number(item.price) > 0 ? (
-                        <div className="flex items-baseline gap-1.5 truncate">
-                          <span className="text-[15px] sm:text-[17px] font-extrabold text-[#157A4F]">
-                            ₹{Number(item.price).toLocaleString()}
-                          </span>
-                          {item.originalPrice && Number(item.originalPrice) > Number(item.price) && (
-                            <span className="text-[11px] sm:text-[12px] text-[#8c7438] line-through font-medium">
-                              ₹{Number(item.originalPrice).toLocaleString()}
-                            </span>
-                          )}
+                  <div className="flex flex-1 flex-col justify-between bg-[#ffe1a3] p-3 sm:p-3.5 gap-1.5 min-h-[165px]">
+                    <div>
+                      <h3
+                        title={item.title}
+                        className="line-clamp-1 text-[14px] sm:text-[16px] font-bold leading-tight text-[#222730] tracking-tight group-hover:text-[#157A4F] transition-colors"
+                      >
+                        {item.title}
+                      </h3>
+
+                      {(item.storeName || item.merchantName) && (
+                        <div className="flex items-center gap-1 text-[11px] sm:text-[12px] font-semibold text-[#5c4a1e] truncate mt-1">
+                          <Store size={12} className="shrink-0 text-[#8c7438]" />
+                          <span className="truncate">{item.storeName || item.merchantName}</span>
                         </div>
-                      ) : (
-                        <span className="text-[11px] sm:text-[12px] font-bold text-[#157A4F] truncate">
-                          {item.type === 'shop' || item.type === 'merchant' ? 'Visit Store' : 'Special Offer'}
-
-                        </span>
                       )}
 
-                      {item.discountPercent > 0 && (
-                        <span className="text-[10px] font-bold text-[#b45309] bg-[#fde68a] px-1.5 py-0.5 rounded shrink-0">
-                          {item.discountPercent}% OFF
-                        </span>
+                      {item.location && (
+                        <div className="flex items-center gap-1 text-[10px] sm:text-[11px] text-[#786432] truncate mt-0.5">
+                          <MapPin size={11} className="shrink-0 text-[#d97706]" />
+                          <span className="truncate">{item.location}</span>
+                        </div>
                       )}
                     </div>
 
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onItemClick(item);
-                      }}
-                      className="mt-2 h-8 sm:h-9 w-full rounded-[7px] bg-[#2f9d3c] hover:bg-[#258330] active:scale-[0.99] text-[12px] sm:text-[13px] font-semibold text-white transition flex items-center justify-center gap-1 shadow-sm"
-                    >
-                      <span>{item.buttonLabel}</span>
-                    </button>
+                    <div className="pt-1.5 border-t border-[#f0cf85]">
+                      <div className="flex items-baseline justify-between gap-1">
+                        {item.price !== null && item.price !== undefined && Number(item.price) > 0 ? (
+                          <div className="flex items-baseline gap-1.5 truncate">
+                            <span className="text-[15px] sm:text-[17px] font-extrabold text-[#157A4F]">
+                              ₹{Number(item.price).toLocaleString()}
+                            </span>
+                            {item.originalPrice && Number(item.originalPrice) > Number(item.price) && (
+                              <span className="text-[11px] sm:text-[12px] text-[#8c7438] line-through font-medium">
+                                ₹{Number(item.originalPrice).toLocaleString()}
+                              </span>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-[11px] sm:text-[12px] font-bold text-[#157A4F] truncate">
+                            {item.type === 'shop' || item.type === 'merchant' ? 'Visit Store' : 'Special Offer'}
+                          </span>
+                        )}
+
+                        {item.discountPercent > 0 && (
+                          <span className="text-[10px] font-bold text-[#b45309] bg-[#fde68a] px-1.5 py-0.5 rounded shrink-0">
+                            {item.discountPercent}% OFF
+                          </span>
+                        )}
+                      </div>
+
+                      <span
+                        className="mt-2 h-8 sm:h-9 w-full rounded-[7px] bg-[#2f9d3c] group-hover:bg-[#258330] text-[12px] sm:text-[13px] font-semibold text-white transition flex items-center justify-center gap-1 shadow-sm"
+                      >
+                        <span>{item.buttonLabel}</span>
+                      </span>
+                    </div>
                   </div>
-                </div>
-              </article>
-            ))}
+                </Link>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -327,6 +328,7 @@ function HomeContent() {
       `}</style>
 
       <main className="min-h-screen bg-[#f4f4f4] relative overflow-x-hidden">
+        <h1 className="sr-only">AjuBaju - Best Local Deals, Store Offers, Discounts & Choja Classifieds</h1>
         {/* Seamless Warm Golden-Yellow Gradient Layer — stretches downwards just before middle of screen and dissolves smoothly into #f4f4f4 */}
         <div
           aria-hidden="true"
