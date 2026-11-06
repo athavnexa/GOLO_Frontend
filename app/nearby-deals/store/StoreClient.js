@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
-import { MapPin, Phone, Star, ArrowRight, ExternalLink, ShieldCheck, ShoppingBag, UserPlus, Check } from "lucide-react";
+import { MapPin, Phone, Star, ArrowRight, ExternalLink, ShieldCheck, ShoppingBag, UserPlus, Check, Navigation } from "lucide-react";
 import dynamic from "next/dynamic";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
@@ -337,6 +337,13 @@ function NearbyStoreContent() {
     merchant?.merchantProfile?.storeLocation ||
     offerLocation?.address ||
     "";
+  const directionsUrl = hasMapLocation
+    ? `https://www.google.com/maps/dir/?api=1&destination=${resolvedLatitude},${resolvedLongitude}`
+    : resolvedAddress
+    ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent([merchant?.name, resolvedAddress].filter(Boolean).join(", "))}`
+    : merchant?.name && (merchant?.profile?.city || merchant?.merchantProfile?.city)
+    ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${merchant.name}, ${merchant.profile?.city || merchant.merchantProfile?.city}`)}`
+    : null;
   const resolvedPhone =
     merchant?.profile?.phone ||
     merchant?.merchantProfile?.contactNumber ||
@@ -516,6 +523,31 @@ function NearbyStoreContent() {
                   Pinpoint map showing the merchant store for easier tracking and navigation.
                 </p>
               ) : null}
+
+              {/* Get Directions Button */}
+              {directionsUrl ? (
+                <a
+                  href={directionsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-[#157a4f] px-4 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-[#116641] hover:shadow-md active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-[#157a4f] focus:ring-offset-2 cursor-pointer"
+                  title="Open directions in Google Maps"
+                >
+                  <Navigation size={16} className="shrink-0" />
+                  <span>Get Directions</span>
+                  <ExternalLink size={14} className="opacity-80 shrink-0 ml-0.5" />
+                </a>
+              ) : (
+                <button
+                  type="button"
+                  disabled
+                  className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-[#f3f4f6] px-4 py-3 text-sm font-semibold text-[#9ca3af] cursor-not-allowed border border-[#e5e7eb]"
+                  title="Address coordinates not available for directions"
+                >
+                  <Navigation size={16} className="shrink-0" />
+                  <span>Directions Unavailable</span>
+                </button>
+              )}
             </div>
           </aside>
         </section>
