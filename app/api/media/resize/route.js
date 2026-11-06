@@ -11,6 +11,50 @@ export const dynamic = 'force-dynamic';
 const VALID_FORMATS = new Set(['webp', 'avif', 'jpeg', 'jpg', 'png']);
 
 /**
+ * Validates remote image URLs to prevent Server-Side Request Forgery (SSRF)
+ * and prevent using this endpoint as an open HTTP proxy.
+ */
+function isAllowedRemoteImageHost(urlStr) {
+  try {
+    const parsed = new URL(urlStr);
+    if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') return false;
+
+    const hostname = parsed.hostname.toLowerCase();
+
+    // Block private/local IP ranges and local hostnames (SSRF prevention)
+    if (
+      hostname === 'localhost' ||
+      hostname === '127.0.0.1' ||
+      hostname === '0.0.0.0' ||
+      hostname === '::1' ||
+      hostname === '169.254.169.254' ||
+      hostname.endsWith('.internal') ||
+      hostname.endsWith('.local') ||
+      hostname.endsWith('.localhost') ||
+      /^10\./.test(hostname) ||
+      /^192\.168\./.test(hostname) ||
+      /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(hostname)
+    ) {
+      return false;
+    }
+
+    // Permitted image CDNs and storage domains
+    const allowedDomains = [
+      'pub-21e329eb32bd4d239fbb89a98ea331f9.r2.dev',
+      'r2.dev',
+      'cloudflarestorage.com',
+      'res.cloudinary.com',
+      'images.unsplash.com',
+      'ajubaju.co.in',
+    ];
+
+    return allowedDomains.some((d) => hostname === d || hostname.endsWith(`.${d}`));
+  } catch {
+    return false;
+  }
+}
+
+/**
  * GET /api/media/resize
  * Dynamic Sharp Image Transformation and Resizing Endpoint
  *
@@ -51,7 +95,8 @@ export async function GET(request) {
     let contentType = 'image/webp';
 
     // 1. Fetch source image buffer (Direct R2, Local file vs Remote URL)
-    const publicUrl = (process.env.NEXT_PUBLIC_CLOUDFLARE_R2_PUBLIC_URL || process.env.CLOUDFLARE_R2_PUBLIC_URL || '').trim().replace(/\/+$/, '');
+    const CANONICAL_R2_PUBLIC_URL = 'https://pub-21e329eb32bd4d239fbb89a98ea331f9.r2.dev';
+    const publicUrl = (process.env.NEXT_PUBLIC_CLOUDFLARE_R2_PUBLIC_URL || process.env.CLOUDFLARE_R2_PUBLIC_URL || CANONICAL_R2_PUBLIC_URL).trim().replace(/\/+$/, '');
     let r2Key = null;
 
     if (isR2Configured()) {
@@ -61,6 +106,8 @@ export async function GET(request) {
         r2Key = imageUrl.replace(publicUrl, '').replace(/^\/+/, '').split('?')[0];
       } else if (imageUrl.includes('.r2.dev/')) {
         r2Key = imageUrl.split('.r2.dev/')[1]?.split('?')[0];
+      } else if (imageUrl.startsWith('/uploads/') || imageUrl.startsWith('uploads/')) {
+        r2Key = imageUrl.replace(/^\/+/, '').split('?')[0];
       }
     }
 
@@ -77,34 +124,51 @@ export async function GET(request) {
         console.warn(`R2 direct read failed for ${r2Key}, trying fetch fallback:`, r2Err?.message);
       }
     }
-    if (imageUrl.startsWith('/') && !imageUrl.startsWith('//')) {
-      const cleanPath = imageUrl.replace(/^\/+/, '');
-      const localFilePath = path.join(process.cwd(), 'public', cleanPath);
 
-      if (fs.existsSync(localFilePath)) {
-        imageBuffer = fs.readFileSync(localFilePath);
-      } else {
-        // Fallback to fetching via origin
-        const origin = request.nextUrl.origin;
-        const res = await fetch(`${origin}/${cleanPath}`);
-        if (!res.ok) {
-          return NextResponse.json({ error: 'Local image not found' }, { status: 404 });
+    if (!imageBuffer) {
+      if (imageUrl.startsWith('/') && !imageUrl.startsWith('//')) {
+        const publicDir = path.resolve(process.cwd(), 'public');
+        const cleanPath = imageUrl.replace(/^\/+/, '').replace(/\\/g, '/');
+        const localFilePath = path.resolve(publicDir, cleanPath);
+
+        // Prevent directory traversal outside public directory
+        if (!localFilePath.startsWith(publicDir)) {
+          return NextResponse.json({ error: 'Access denied' }, { status: 403 });
         }
+
+        if (fs.existsSync(localFilePath)) {
+          imageBuffer = fs.readFileSync(localFilePath);
+        } else {
+          // Fallback to fetching via origin
+          const origin = request.nextUrl.origin;
+          const res = await fetch(`${origin}/${encodeURI(cleanPath)}`);
+          if (!res.ok) {
+            return NextResponse.json({ error: 'Local image not found' }, { status: 404 });
+          }
+          imageBuffer = Buffer.from(await res.arrayBuffer());
+        }
+      } else {
+        // Prevent SSRF and unauthorized domain proxying
+        if (!isAllowedRemoteImageHost(imageUrl)) {
+          return NextResponse.json(
+            { error: 'Remote image host is not authorized or points to an internal resource' },
+            { status: 403 }
+          );
+        }
+
+        // Remote URL (Cloudflare R2, Cloudinary, S3, etc.)
+        const res = await fetch(imageUrl, {
+          headers: {
+            'User-Agent': 'GOLO-Sharp-Mediator/1.0',
+          },
+        });
+
+        if (!res.ok) {
+          return NextResponse.json({ error: `Failed to fetch source image: ${res.status}` }, { status: res.status });
+        }
+
         imageBuffer = Buffer.from(await res.arrayBuffer());
       }
-    } else {
-      // Remote URL (Cloudflare R2, Cloudinary, S3, etc.)
-      const res = await fetch(imageUrl, {
-        headers: {
-          'User-Agent': 'GOLO-Sharp-Mediator/1.0',
-        },
-      });
-
-      if (!res.ok) {
-        return NextResponse.json({ error: `Failed to fetch source image: ${res.status}` }, { status: res.status });
-      }
-
-      imageBuffer = Buffer.from(await res.arrayBuffer());
     }
 
     // 2. Inspect with Sharp

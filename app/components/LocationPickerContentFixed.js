@@ -33,7 +33,6 @@ function LocationPickerContent({ isOpen, onClose, onLocationSelect, initialLocat
 
   // Log state changes for debugging
   useEffect(() => {
-    console.log("📊 [State Update] showResults:", showResults, "| searchResults count:", searchResults.length, "| loading:", loading);
   }, [showResults, searchResults, loading]);
 
   // Load Leaflet on client side
@@ -159,34 +158,27 @@ function LocationPickerContent({ isOpen, onClose, onLocationSelect, initialLocat
     const trimmedQuery = query?.trim() || "";
 
     if (!trimmedQuery) {
-      console.log("❌ [performSearch] Empty query");
       setSearchResults([]);
       setSearchMessage("");
       setShowResults(false);
       return;
     }
 
-    console.log("🔎 [performSearch] Starting search for:", trimmedQuery);
     setLoading(true);
     setShowResults(true);
     setSearchMessage(`Searching for "${trimmedQuery}"...`);
     
     try {
-      console.log("⏳ [performSearch] Calling searchLocations API");
       const results = await searchLocations(trimmedQuery, {
         proximity: selectedLocation || getIndiaCenter(),
       });
       const normalizedResults = Array.isArray(results) ? results : [];
       
-      console.log("📊 [performSearch] Got results:", normalizedResults.length);
       
       if (normalizedResults.length > 0) {
-        console.log("✅ [performSearch] Found", normalizedResults.length, "locations");
-        console.log("🎯 [performSearch] Setting search results and showing dropdown");
         setSearchResults(normalizedResults);
         setSearchMessage("");
       } else {
-        console.log("⚠️  [performSearch] No results found");
         setSearchResults([]);
         setSearchMessage(`No locations found for "${trimmedQuery}". Try a broader city or area name.`);
       }
@@ -196,32 +188,26 @@ function LocationPickerContent({ isOpen, onClose, onLocationSelect, initialLocat
       setSearchMessage(`Search failed for "${trimmedQuery}". Please try again.`);
     } finally {
       setLoading(false);
-      console.log("✔️  [performSearch] Complete");
     }
   }
 
   // Handle input change with debounce
   function handleSearchInputChange(e) {
     const query = e.target.value;
-    console.log("✏️  [handleSearchInputChange] User typed:", query);
     setSearchQuery(query);
 
     // Clear previous timeout
     if (searchTimeoutRef.current) {
-      console.log("⏱️  [handleSearchInputChange] Clearing previous timeout");
       clearTimeout(searchTimeoutRef.current);
     }
 
     // Only search if query has at least 3 characters to reduce API calls
     if (query.trim().length >= 3) {
-      console.log("📝 [handleSearchInputChange] Query length:", query.length, "- Setting debounce timer (400ms)");
       searchTimeoutRef.current = setTimeout(() => {
-        console.log("⏰ [handleSearchInputChange] Debounce timer fired");
         performSearch(query);
       }, 400); // 400ms debounce
     } else {
       // Clear results if less than 3 characters
-      console.log("❌ [handleSearchInputChange] Query too short, clearing results");
       setSearchResults([]);
       setSearchMessage("");
       setShowResults(false);
@@ -240,7 +226,6 @@ function LocationPickerContent({ isOpen, onClose, onLocationSelect, initialLocat
 
   // Handle location selection from search results
   function selectFromResults(location) {
-    console.log("🎯 [selectFromResults] User selected location:", location.displayName);
     setSelectedLocation({
       lat: location.coordinates.lat,
       lng: location.coordinates.lng,
@@ -248,7 +233,6 @@ function LocationPickerContent({ isOpen, onClose, onLocationSelect, initialLocat
     });
 
     addMarker(location.coordinates.lng, location.coordinates.lat);
-    console.log("📍 [selectFromResults] Marker added, closing dropdown");
     setShowResults(false);
     setSearchQuery("");
     setSearchResults([]);
@@ -268,7 +252,6 @@ function LocationPickerContent({ isOpen, onClose, onLocationSelect, initialLocat
 
   if (!isOpen) return null;
 
-  console.log("🎨 [render] Rendering dropdown - showResults:", showResults, "results count:", searchResults.length);
 
   return (
     <div className="fixed inset-0 z-[10001] bg-black/50 flex items-center justify-center">
@@ -315,7 +298,6 @@ function LocationPickerContent({ isOpen, onClose, onLocationSelect, initialLocat
         {/* Search Results Dropdown - Separate Layer Above Map */}
         {showResults && (
           <div className="absolute left-6 right-6 top-[108px] bg-white border border-[#ddd] rounded-[8px] shadow-2xl max-h-[300px] overflow-y-auto z-[9999]">
-            {console.log("🎯 [render] Rendering", searchResults.length, "results in fixed layer")}
             {searchResults.length > 0 ? (
               searchResults.map((location, idx) => (
                 <button

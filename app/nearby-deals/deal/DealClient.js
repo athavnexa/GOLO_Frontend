@@ -32,6 +32,7 @@ import Navbar from "../../components/Navbar";
 import { reverseGeocode } from "../../services/leafletService";
 import Footer from "../../components/Footer";
 import ImageCarousel from "../../components/ImageCarousel";
+import { getR2PublicUrl } from "../../services/cloudflareR2Config";
 
 function getTimeRemaining(endDate) {
   if (!endDate) return null;
@@ -54,27 +55,38 @@ function isLocalUri(src) {
   );
 }
 
-function SafeImage({ src, alt = "", fill = false, width, height, className, unoptimized = false, style, ...rest }) {
-  const safeSrc = src || "";
-  if (isLocalUri(safeSrc)) {
-    // Render a regular img for local file URIs. When using `fill` emulate
-    // object-fit via inline styles so it behaves like next/image fill.
+function SafeImage({ src, alt = "", fill = false, width, height, className, unoptimized = true, style, onError, ...rest }) {
+  const resolved = src ? getR2PublicUrl(src) : "/images/deal2.avif";
+  const [imgSrc, setImgSrc] = useState(resolved);
+
+  useEffect(() => {
+    setImgSrc(src ? getR2PublicUrl(src) : "/images/deal2.avif");
+  }, [src]);
+
+  const handleImgError = (e) => {
+    if (imgSrc !== "/images/deal2.avif") {
+      setImgSrc("/images/deal2.avif");
+    }
+    if (onError) onError(e);
+  };
+
+  if (isLocalUri(imgSrc)) {
     const inlineStyle = fill
       ? { width: "100%", height: "100%", objectFit: "cover", display: "block", ...(style || {}) }
       : { display: "block", ...(style || {}) };
 
-    return <img src={safeSrc} alt={alt} className={className} style={inlineStyle} {...rest} />;
+    return <img src={imgSrc} alt={alt} className={className} style={inlineStyle} onError={handleImgError} {...rest} />;
   }
 
-  // Otherwise use Next.js Image which benefits from optimization
   return (
     <Image
-      src={safeSrc}
+      src={imgSrc}
       alt={alt}
       {...(fill ? { fill: true } : { width, height })}
       className={className}
       unoptimized={unoptimized}
       style={style}
+      onError={handleImgError}
       {...rest}
     />
   );
@@ -310,9 +322,9 @@ function NearbyDealDetailsContent() {
 
     setLikeLoading(true);
     try {
-      console.log("Toggling wishlist for offerId:", offerId);
+
       const res = await toggleWishlist(offerId);
-      console.log("Wishlist toggle response:", res);
+
       const newLikedState = res?.data?.isLiked ?? !isLiked;
       setIsLiked(newLikedState);
       setLikesCount((prev) =>
@@ -699,6 +711,27 @@ function NearbyDealDetailsContent() {
     }
   };
 
+  const offerImages = useMemo(() => {
+    const list = [];
+    if (Array.isArray(offer?.images) && offer.images.length > 0) {
+      list.push(...offer.images);
+    }
+    if (offer?.imageUrl) list.push(offer.imageUrl);
+    if (offer?.offerImage) list.push(offer.offerImage);
+    if (offer?.image) list.push(offer.image);
+    if (Array.isArray(offer?.selectedProducts)) {
+      offer.selectedProducts.forEach((p) => {
+        if (p?.imageUrl) list.push(p.imageUrl);
+        if (p?.image) list.push(p.image);
+        if (Array.isArray(p?.images)) list.push(...p.images);
+      });
+    }
+    if (offer?.merchant?.shopPhoto) list.push(offer.merchant.shopPhoto);
+
+    const filtered = Array.from(new Set(list.filter(Boolean)));
+    return filtered.length > 0 ? filtered.map(getR2PublicUrl) : ["/images/deal2.avif"];
+  }, [offer]);
+
   if (loadingOffer) {
     return <OfferDetailSkeleton />;
   }
@@ -766,7 +799,7 @@ function NearbyDealDetailsContent() {
             {/* Image */}
             <div className="relative overflow-hidden rounded-xl bg-[#f0f0f0] w-full h-[300px] lg:h-[400px]">
               <ImageCarousel 
-                images={[offer?.imageUrl || "/images/deal2.avif"]} 
+                images={offerImages} 
                 videoUrl={offer?.videoUrl} 
                 alt={offer?.title || "Offer"}
                 disableZoom={true}

@@ -38,7 +38,7 @@ export async function searchLocations(query, options = {}) {
           countrycodes: options.country || 'in',
         });
         const nomUrl = `${NOMINATIM_API_BASE}/search?${nomParams.toString()}`;
-        console.log("🌐 [searchLocations] Nominatim API URL:", nomUrl);
+
 
         const nomResponse = await fetch(nomUrl, {
           headers: {
@@ -86,7 +86,7 @@ export async function searchLocations(query, options = {}) {
 
     // Call our backend API which proxies to GeoNames
     const url = `${API_BASE_URL}/regions/search?${params.toString()}`;
-    console.log("🌐 [searchLocations] API URL:", url);
+
     
     const controller = new AbortController();
     const timeoutId = setTimeout(() => {
@@ -104,7 +104,7 @@ export async function searchLocations(query, options = {}) {
 
     clearTimeout(timeoutId);
 
-    console.log("📡 [searchLocations] Response status:", response.status);
+
 
     if (!response.ok) {
       console.error("❌ [searchLocations] API error - Status:", response.status, response.statusText);
@@ -131,7 +131,7 @@ export async function searchLocations(query, options = {}) {
       type: item.type
     }));
     
-    console.log("📊 [searchLocations] Formatted results:", formatted.length);
+
     return formatted;
   } catch (error) {
     console.error("❌ [searchLocations] Exception caught:", {

@@ -1,9 +1,16 @@
 /**
- * Cloudflare CDN, R2 & Sharp Next.js Image Loader
- * 100% powered by Cloudflare R2 and high-performance server-side Sharp optimization.
+ * Cloudflare CDN, R2 & Next.js Image Loader
+ * High-performance direct delivery from Cloudflare R2 CDN edge.
  */
 
-const R2_PUBLIC_URL = (process.env.NEXT_PUBLIC_CLOUDFLARE_R2_PUBLIC_URL || process.env.CLOUDFLARE_R2_PUBLIC_URL || '').trim().replace(/\/+$/, '');
+const CANONICAL_R2_PUBLIC_URL = 'https://pub-21e329eb32bd4d239fbb89a98ea331f9.r2.dev';
+
+const R2_PUBLIC_URL = (
+  process.env.NEXT_PUBLIC_CLOUDFLARE_R2_PUBLIC_URL ||
+  process.env.CLOUDFLARE_R2_PUBLIC_URL ||
+  CANONICAL_R2_PUBLIC_URL
+).trim().replace(/\/+$/, '');
+
 const USE_IMAGE_RESIZING = process.env.NEXT_PUBLIC_CLOUDFLARE_IMAGE_RESIZING === 'true';
 
 export default function cloudflareLoader({ src, width, quality = 75 }) {
@@ -14,54 +21,41 @@ export default function cloudflareLoader({ src, width, quality = 75 }) {
     return src;
   }
 
-  let targetSrc = src;
+  const targetSrc = src.trim();
 
-  // If URL points to local streaming proxy (/api/media/file/) or uploads, resolve to public URL directly
-  if (R2_PUBLIC_URL && !R2_PUBLIC_URL.includes('your-r2-public-domain')) {
-    if (targetSrc.includes('/api/media/file/')) {
-      const key = targetSrc.split('/api/media/file/')[1]?.split('?')[0]?.replace(/^\/+/, '');
-      if (key) targetSrc = `${R2_PUBLIC_URL}/${key}`;
-    } else if (targetSrc.includes('/api/media/')) {
-      const key = targetSrc.split('/api/media/')[1]?.split('?')[0]?.replace(/^\/+/, '');
-      if (key) targetSrc = `${R2_PUBLIC_URL}/${key}`;
-    } else if (targetSrc.startsWith('/uploads/')) {
-      const key = targetSrc.replace(/^\/uploads\//, '')?.split('?')[0]?.replace(/^\/+/, '');
-      if (key) targetSrc = `${R2_PUBLIC_URL}/${key}`;
-    }
-  }
-
-  // Cloudflare R2 & Media Storage
-  const isR2Url = Boolean(R2_PUBLIC_URL && targetSrc.startsWith(R2_PUBLIC_URL));
-  const isMediaUrl =
-    targetSrc.startsWith('/api/media/file/') ||
-    targetSrc.startsWith('/api/media/') ||
-    targetSrc.startsWith('/uploads/') ||
-    targetSrc.includes('.r2.dev') ||
-    targetSrc.includes('.cloudflarestorage.com') ||
-    isR2Url;
-
-  if (isMediaUrl) {
-    // If Cloudflare Image Resizing is enabled on custom domain / Cloudflare zone
-    if (USE_IMAGE_RESIZING && (isR2Url || targetSrc.includes('.r2.dev'))) {
+  // 1. Direct external CDN delivery (Cloudflare R2, Cloudinary, AWS S3, etc.)
+  if (targetSrc.startsWith('http://') || targetSrc.startsWith('https://')) {
+    // If Cloudflare Image Resizing is enabled on custom zone
+    if (USE_IMAGE_RESIZING && (targetSrc.startsWith(R2_PUBLIC_URL) || targetSrc.includes('.r2.dev'))) {
       const cleanSrc = targetSrc.replace(/^https?:\/\/[^/]+/, '');
       const domain = R2_PUBLIC_URL || targetSrc.split('/').slice(0, 3).join('/');
       return `${domain}/cdn-cgi/image/width=${width},quality=${quality},format=auto${cleanSrc}`;
     }
-
-    // Direct Cloudflare R2 Public URL delivery:
-    // When public URL is configured, deliver directly from Cloudflare R2 CDN
-    if (isR2Url || targetSrc.includes('.r2.dev')) {
-      return targetSrc;
-    }
-
-    // Fallback through local Sharp image resizer for local upload files
-    return `/api/media/resize?url=${encodeURIComponent(targetSrc)}&w=${width}&q=${quality}&format=webp`;
-  }
-
-  // Local assets (static icons, banners)
-  if (targetSrc.startsWith('/')) {
+    // Direct CDN delivery with zero serverless latency
     return targetSrc;
   }
 
-  return targetSrc;
+  // 2. Resolve legacy streaming proxies (/api/media/file/) or uploads to public R2 CDN directly
+  if (targetSrc.includes('/api/media/file/')) {
+    const key = targetSrc.split('/api/media/file/')[1]?.split('?')[0]?.replace(/^\/+/, '');
+    if (key) return `${R2_PUBLIC_URL}/${key}`;
+  } else if (targetSrc.includes('/api/media/')) {
+    const key = targetSrc.split('/api/media/')[1]?.split('?')[0]?.replace(/^\/+/, '');
+    if (key) return `${R2_PUBLIC_URL}/${key}`;
+  } else if (targetSrc.startsWith('/uploads/')) {
+    const key = targetSrc.replace(/^\/uploads\//, '')?.split('?')[0]?.replace(/^\/+/, '');
+    if (key) return `${R2_PUBLIC_URL}/${key}`;
+  } else if (targetSrc.startsWith('uploads/')) {
+    const key = targetSrc.split('?')[0]?.replace(/^\/+/, '');
+    if (key) return `${R2_PUBLIC_URL}/${key}`;
+  }
+
+  // 3. Local static assets (e.g. /images/deal2.avif, /icons/favicon.ico)
+  if (targetSrc.startsWith('/images/') || targetSrc.startsWith('/icons/') || targetSrc.startsWith('/placeholder')) {
+    return targetSrc;
+  }
+
+  // 4. Default: resolve bare key directly to Cloudflare R2 CDN
+  const cleanKey = targetSrc.replace(/^\/+/, '');
+  return `${R2_PUBLIC_URL}/${cleanKey}`;
 }

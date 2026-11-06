@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { getR2PublicUrl } from "../services/cloudflareR2Config";
 
 function isLocalUri(src) {
   return typeof src === "string" && (
@@ -19,65 +20,104 @@ function SafeImage({
   priority,
   quality,
   sizes,
+  onError,
   ...rest
 }) {
-  if (isLocalUri(src)) {
+  const [imgSrc, setImgSrc] = useState(src || "/images/deal2.avif");
+
+  useEffect(() => {
+    setImgSrc(src || "/images/deal2.avif");
+  }, [src]);
+
+  const handleImgError = (e) => {
+    if (imgSrc !== "/images/deal2.avif") {
+      setImgSrc("/images/deal2.avif");
+    }
+    if (onError) onError(e);
+  };
+
+  if (isLocalUri(imgSrc)) {
     const inlineStyle = fill
       ? { width: "100%", height: "100%", objectFit: "cover", display: "block", ...(style || {}) }
       : { display: "block", ...(style || {}) };
 
-    return <img src={src} alt={alt} className={className} style={inlineStyle} {...rest} />;
+    return (
+      <img
+        src={imgSrc}
+        alt={alt}
+        className={className}
+        style={inlineStyle}
+        onError={handleImgError}
+        {...rest}
+      />
+    );
   }
 
   return (
     <Image
-      src={src || "/images/deal2.avif"}
+      src={imgSrc}
       alt={alt}
       fill={fill}
       className={className}
       style={style}
+      unoptimized={true}
+      priority={priority}
+      sizes={sizes}
+      onError={handleImgError}
       {...rest}
     />
   );
 }
 
 export default function ImageCarousel({ images = [], videoUrl = null, alt = "Product", disableZoom = false }) {
+  // Normalize incoming URLs to ensure direct Cloudflare R2 CDN resolution
+  const normalizedImages = (images || [])
+    .filter(Boolean)
+    .map((url) => getR2PublicUrl(url));
+
   const mediaList = [
-    ...(images || []).map(url => ({ type: 'image', url }))
+    ...(normalizedImages.length > 0 ? normalizedImages : ["/images/deal2.avif"]).map((url) => ({
+      type: "image",
+      url,
+    })),
   ];
+
   if (videoUrl) {
-    mediaList.push({ type: 'video', url: videoUrl });
+    mediaList.push({ type: "video", url: videoUrl });
   }
 
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(true);
   const [isHovering, setIsHovering] = useState(false);
   const [zoomData, setZoomData] = useState({ xPercent: 50, yPercent: 50, xPixel: 0, yPixel: 0 });
   const [loadedImages, setLoadedImages] = useState({});
   const LENS_SIZE = 120;
   const mainImageRef = useRef(null);
 
-  // Preload all images when component mounts or mediaList changes
+  // Preload all images in the background
   useEffect(() => {
     if (mediaList.length === 0) return;
-    
+
     mediaList.forEach((media) => {
-      if (media.type === 'image' && !loadedImages[media.url]) {
+      if (media.type === "image" && !loadedImages[media.url]) {
         const img = new window.Image();
         img.src = media.url;
         img.onload = () => {
-          setLoadedImages(prev => ({ ...prev, [media.url]: true }));
+          setLoadedImages((prev) => ({ ...prev, [media.url]: true }));
+        };
+        img.onerror = () => {
+          setLoadedImages((prev) => ({ ...prev, [media.url]: true }));
         };
       }
     });
-  }, [mediaList]);
+  }, [mediaList, loadedImages]);
 
   // Auto-rotate images every 3 seconds with infinity loop
   useEffect(() => {
-    if (mediaList.length === 0 || isHovering) return;
-    
+    if (mediaList.length <= 1 || isHovering) return;
+
     // Don't auto-rotate if current is video
-    if (mediaList[currentIndex]?.type === 'video') return;
+    if (mediaList[currentIndex]?.type === "video") return;
 
     const timer = setInterval(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % mediaList.length);
@@ -85,10 +125,6 @@ export default function ImageCarousel({ images = [], videoUrl = null, alt = "Pro
 
     return () => clearInterval(timer);
   }, [mediaList, isHovering, currentIndex]);
-
-  useEffect(() => {
-    setImageLoaded(false);
-  }, [currentIndex]);
 
   const handlePrev = () => {
     if (mediaList.length === 0) return;
@@ -103,17 +139,17 @@ export default function ImageCarousel({ images = [], videoUrl = null, alt = "Pro
   // Show empty state if no media
   if (mediaList.length === 0) {
     return (
-      <div className="relative w-full h-[400px] lg:h-[500px] bg-[#f0f0f0] rounded-xl overflow-hidden flex items-center justify-center">
+      <div className="relative w-full h-[300px] lg:h-[400px] bg-[#f0f0f0] rounded-xl overflow-hidden flex items-center justify-center">
         <div className="text-sm text-[#666]">No media available</div>
       </div>
     );
   }
 
-  const currentMedia = mediaList[currentIndex];
-  const isVideo = currentMedia.type === 'video';
+  const currentMedia = mediaList[currentIndex] || mediaList[0];
+  const isVideo = currentMedia?.type === "video";
 
   const handleMouseMove = (event) => {
-    if (isVideo) return; // Disable zoom lens on video {
+    if (isVideo) return; // Disable zoom lens on video
     const rect = event.currentTarget.getBoundingClientRect();
     if (!rect.width || !rect.height) return;
 
@@ -132,7 +168,7 @@ export default function ImageCarousel({ images = [], videoUrl = null, alt = "Pro
     <div className="relative w-full overflow-visible">
       <div
         ref={mainImageRef}
-        className="relative w-full h-[400px] lg:h-[500px] bg-[#f0f0f0] rounded-xl overflow-hidden group"
+        className="relative w-full h-[300px] lg:h-[400px] bg-[#f0f0f0] rounded-xl overflow-hidden group"
         onMouseEnter={() => setIsHovering(true)}
         onMouseLeave={() => setIsHovering(false)}
         onMouseMove={handleMouseMove}
@@ -141,9 +177,9 @@ export default function ImageCarousel({ images = [], videoUrl = null, alt = "Pro
         <div className="relative w-full h-full">
           {isVideo ? (
             <div className="w-full h-full bg-black flex items-center justify-center">
-              <video 
-                src={currentMedia.url} 
-                controls 
+              <video
+                src={currentMedia.url}
+                controls
                 autoPlay
                 className="w-full h-full object-contain"
                 onLoadedData={() => setImageLoaded(true)}
@@ -155,19 +191,10 @@ export default function ImageCarousel({ images = [], videoUrl = null, alt = "Pro
               alt={`${alt} - Image ${currentIndex + 1}`}
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              className={`object-cover transition-opacity duration-300 ${
-                imageLoaded ? "opacity-100" : "opacity-0"
-              }`}
+              className="object-cover transition-opacity duration-200"
               onLoad={() => setImageLoaded(true)}
               priority={currentIndex === 0}
-              quality={90}
             />
-          )}
-
-          {!imageLoaded && !isVideo && (
-            <div className="absolute inset-0 flex items-center justify-center bg-[#f0f0f0]">
-              <div className="text-sm text-[#666]">Loading image...</div>
-            </div>
           )}
 
           {isHovering && !isVideo && !disableZoom && (
@@ -212,8 +239,8 @@ export default function ImageCarousel({ images = [], videoUrl = null, alt = "Pro
                   key={index}
                   onClick={() => setCurrentIndex(index)}
                   className={`h-2 rounded-full transition-all ${
-                    index === currentIndex 
-                      ? "bg-white w-6" 
+                    index === currentIndex
+                      ? "bg-white w-6"
                       : "bg-white/50 hover:bg-white/70 w-2"
                   }`}
                   aria-label={`Go to media ${index + 1}`}
@@ -229,11 +256,10 @@ export default function ImageCarousel({ images = [], videoUrl = null, alt = "Pro
         )}
       </div>
 
-      {/* Enhanced Zoom Popup - Now with preloaded images */}
-      {isHovering && !isVideo && !disableZoom && loadedImages[currentMedia.url] && (
-        <div className="hidden lg:block absolute top-0 left-[calc(100%+24px)] w-[calc(83.333%)] h-[500px] rounded-xl border border-[#e5e7eb] bg-white shadow-2xl overflow-hidden z-50 pointer-events-none">
+      {/* Enhanced Zoom Popup - Uses direct CDN image */}
+      {isHovering && !isVideo && !disableZoom && (
+        <div className="hidden lg:block absolute top-0 left-[calc(100%+24px)] w-[calc(83.333%)] h-[400px] rounded-xl border border-[#e5e7eb] bg-white shadow-2xl overflow-hidden z-50 pointer-events-none">
           <div className="relative w-full h-full">
-            {/* High Quality Zoomed Image */}
             <div
               className="w-full h-full"
               style={{
@@ -245,17 +271,8 @@ export default function ImageCarousel({ images = [], videoUrl = null, alt = "Pro
                 transition: "background-position 0.05s ease-out",
               }}
             />
-            
-            {/* Optional: Add a subtle inner shadow for depth */}
             <div className="absolute inset-0 shadow-inner pointer-events-none" />
           </div>
-        </div>
-      )}
-      
-      {/* Optional: Show loading indicator for zoom popup */}
-      {isHovering && !isVideo && !loadedImages[currentMedia.url] && (
-        <div className="hidden lg:block absolute top-0 left-[calc(100%+24px)] w-[calc(83.333%)] h-[500px] rounded-xl border border-[#e5e7eb] bg-white shadow-2xl overflow-hidden z-50 pointer-events-none flex items-center justify-center">
-          <div className="text-sm text-[#666]">Loading zoom view...</div>
         </div>
       )}
     </div>

@@ -28,28 +28,11 @@ export const API_ORIGIN_URL = typeof window !== 'undefined'
         'http://localhost:3002'
     );
 
-const _MASKED_BASE = '/media';
-// Capture the cloud name so it is preserved in the masked path: /media/<cloudname>/image/upload/...
-const _CLOUDINARY_URL_RE = /https?:\/\/res\.cloudinary\.com\/([^/]+)\//g;
-
 function _maskCloudinaryStr(str) {
-    if (!str || typeof str !== 'string') return str;
-    if (!str.includes('res.cloudinary.com')) return str;
-    // Replace origin but keep cloud name: /media/<cloudname>/
-    return str.replace(_CLOUDINARY_URL_RE, (_match, cloudName) => `${_MASKED_BASE}/${cloudName}/`);
+    return str;
 }
 
 function _maskCloudinaryDeep(obj) {
-    if (obj === null || obj === undefined) return obj;
-    if (typeof obj === 'string') return _maskCloudinaryStr(obj);
-    if (Array.isArray(obj)) return obj.map(_maskCloudinaryDeep);
-    if (typeof obj === 'object') {
-        const out = {};
-        for (const k of Object.keys(obj)) {
-            out[k] = _maskCloudinaryDeep(obj[k]);
-        }
-        return out;
-    }
     return obj;
 }
 
@@ -79,18 +62,21 @@ export function getStoredRefreshToken() {
 
 export function setStoredAuthTokens({ accessToken = '', refreshToken = '' } = {}) {
     if (typeof window === 'undefined') return;
+    const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:';
+    const cookieOptions = { expires: 7, path: '/', sameSite: 'lax', secure: isHttps };
+
     if (accessToken) {
-        Cookies.set(ACCESS_TOKEN_STORAGE_KEY, accessToken, { expires: 7, path: '/' });
-        Cookies.set('accessToken', accessToken, { expires: 7, path: '/' });
-        Cookies.set('authToken', accessToken, { expires: 7, path: '/' });
+        Cookies.set(ACCESS_TOKEN_STORAGE_KEY, accessToken, cookieOptions);
+        Cookies.set('accessToken', accessToken, cookieOptions);
+        Cookies.set('authToken', accessToken, cookieOptions);
     } else {
         Cookies.remove(ACCESS_TOKEN_STORAGE_KEY, { path: '/' });
         Cookies.remove('accessToken', { path: '/' });
         Cookies.remove('authToken', { path: '/' });
     }
     if (refreshToken) {
-        Cookies.set(REFRESH_TOKEN_STORAGE_KEY, refreshToken, { expires: 7, path: '/' });
-        Cookies.set('refreshToken', refreshToken, { expires: 7, path: '/' });
+        Cookies.set(REFRESH_TOKEN_STORAGE_KEY, refreshToken, cookieOptions);
+        Cookies.set('refreshToken', refreshToken, cookieOptions);
     } else {
         Cookies.remove(REFRESH_TOKEN_STORAGE_KEY, { path: '/' });
         Cookies.remove('refreshToken', { path: '/' });

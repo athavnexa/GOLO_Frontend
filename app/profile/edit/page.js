@@ -114,11 +114,7 @@ export default function EditProfilePage() {
     }
 
     try {
-      console.log('Updating profile with:', { 
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone 
-      });
+
       
       const response = await updateProfile({
         name: formData.name,
@@ -126,7 +122,7 @@ export default function EditProfilePage() {
         profile: { phone: formData.phone },
       });
 
-      console.log('Update response:', response);
+
 
       if (response.success) {
         showMessage("success", "Profile updated successfully!");
@@ -151,9 +147,9 @@ export default function EditProfilePage() {
     setPasswordChanged(false);
 
     try {
-      console.log('Requesting OTP...');
+
       const response = await sendPasswordChangeOTP();
-      console.log('OTP Response:', response);
+
       
       if (response.success) {
         setOtpSent(true);

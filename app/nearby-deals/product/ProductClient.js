@@ -19,7 +19,8 @@ import ImageCarousel from "../../components/ImageCarousel";
 import { useAuth } from "../../context/AuthContext";
 import { getNearbyOffers } from "../../lib/api/ads";
 import { toggleWishlist, getWishlistIds, getAdWishlistCount } from "../../lib/api/user";
-import { getMerchantProductById, getPublicMerchantProductById, getPublicMerchantProfile, getPublicMerchantReviewStats, logProductView } from "../../lib/api/merchant";;
+import { getMerchantProductById, getPublicMerchantProductById, getPublicMerchantProfile, getPublicMerchantReviewStats, logProductView } from "../../lib/api/merchant";
+import { getR2PublicUrl } from "../../services/cloudflareR2Config";
 
 function isLocalImageUri(src) {
   return typeof src === "string" && (
@@ -27,19 +28,34 @@ function isLocalImageUri(src) {
   );
 }
 
-function SafeImage({ src, alt = "", width, height, className = "", ...rest }) {
-  const safeSrc = src || "/images/place2.avif";
-  if (isLocalImageUri(safeSrc)) {
-    return <img src={safeSrc} alt={alt} className={className} {...rest} />;
+function SafeImage({ src, alt = "", width, height, className = "", unoptimized = true, onError, ...rest }) {
+  const resolved = src ? getR2PublicUrl(src) : "/images/place2.avif";
+  const [imgSrc, setImgSrc] = useState(resolved);
+
+  useEffect(() => {
+    setImgSrc(src ? getR2PublicUrl(src) : "/images/place2.avif");
+  }, [src]);
+
+  const handleImgError = (e) => {
+    if (imgSrc !== "/images/place2.avif") {
+      setImgSrc("/images/place2.avif");
+    }
+    if (onError) onError(e);
+  };
+
+  if (isLocalImageUri(imgSrc)) {
+    return <img src={imgSrc} alt={alt} className={className} onError={handleImgError} {...rest} />;
   }
 
   return (
     <Image
-      src={safeSrc}
+      src={imgSrc}
       alt={alt}
       width={width}
       height={height}
       className={className}
+      unoptimized={unoptimized}
+      onError={handleImgError}
       {...rest}
     />
   );
@@ -374,7 +390,17 @@ function ProductDetailContent() {
   const productName = product?.productName || product?.name || "Product";
   const productPrice = Number(product?.offerPrice || product?.price || 0);
   const originalPrice = Number(product?.originalPrice || 0);
-  const productImages = product?.images && product.images.length > 0 ? product.images : [product?.imageUrl || product?.image || "/images/deal2.avif"];
+  const productImages = useMemo(() => {
+    const list = [];
+    if (Array.isArray(product?.images) && product.images.length > 0) {
+      list.push(...product.images);
+    }
+    if (product?.imageUrl) list.push(product.imageUrl);
+    if (product?.image) list.push(product.image);
+
+    const filtered = Array.from(new Set(list.filter(Boolean)));
+    return filtered.length > 0 ? filtered.map(getR2PublicUrl) : ["/images/deal2.avif"];
+  }, [product]);
   const productVideo = product?.videoUrl || null;
   const productDescription = product?.description || "Description unavailable.";
   const safeStock = Number(product?.stockQuantity ?? 0);
@@ -393,12 +419,13 @@ function ProductDetailContent() {
     merchant?.name ||
     product?.merchantName ||
     "Merchant";
-  const merchantPhoto =
+  const merchantPhoto = getR2PublicUrl(
     merchant?.profilePhoto ||
     merchantProfile?.profilePhoto ||
     merchant?.shopPhoto ||
     merchantProfile?.shopPhoto ||
-    "/images/place2.avif";
+    "/images/place2.avif"
+  );
   const merchantBio =
     merchant?.bio ||
     merchantProfile?.bio ||

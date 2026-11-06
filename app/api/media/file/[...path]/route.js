@@ -34,7 +34,8 @@ export async function GET(request, context) {
       return NextResponse.json({ error: 'File key is required' }, { status: 400 });
     }
 
-    const publicUrl = (process.env.NEXT_PUBLIC_CLOUDFLARE_R2_PUBLIC_URL || process.env.CLOUDFLARE_R2_PUBLIC_URL || '').trim().replace(/\/+$/, '');
+    const CANONICAL_R2_PUBLIC_URL = 'https://pub-21e329eb32bd4d239fbb89a98ea331f9.r2.dev';
+    const publicUrl = (process.env.NEXT_PUBLIC_CLOUDFLARE_R2_PUBLIC_URL || process.env.CLOUDFLARE_R2_PUBLIC_URL || CANONICAL_R2_PUBLIC_URL).trim().replace(/\/+$/, '');
     if (publicUrl && !publicUrl.includes('your-r2-public-domain')) {
       const cleanKey = key.replace(/^\/+/, '');
       // Redirect 301 to Cloudflare R2 Public URL for direct CDN delivery
@@ -82,7 +83,15 @@ export async function GET(request, context) {
     }
 
     // 2. Local Fallback Check (public/uploads/)
-    const localFilePath = path.join(process.cwd(), 'public', 'uploads', key);
+    const publicUploadsDir = path.resolve(process.cwd(), 'public', 'uploads');
+    const sanitizedKey = String(key || '').replace(/\\/g, '/');
+    const localFilePath = path.resolve(publicUploadsDir, sanitizedKey);
+
+    // Prevent directory traversal outside public/uploads
+    if (!localFilePath.startsWith(publicUploadsDir)) {
+      return NextResponse.json({ error: 'Access denied' }, { status: 403 });
+    }
+
     if (fs.existsSync(localFilePath)) {
       const stat = fs.statSync(localFilePath);
       const totalSize = stat.size;

@@ -15,6 +15,9 @@ const nextConfig = {
   turbopack: {
     root: FRONTEND_ROOT,
   },
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production' ? { exclude: ['error'] } : false,
+  },
   images: {
     loader: 'custom',
     loaderFile: './app/lib/cloudflareLoader.js',

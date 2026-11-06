@@ -4,8 +4,10 @@
  * 100% Browser and Client Component Safe (No Node.js built-ins).
  */
 
+const CANONICAL_R2_PUBLIC_URL = 'https://pub-21e329eb32bd4d239fbb89a98ea331f9.r2.dev';
+
 const R2_CONFIG = {
-  publicUrl: (process.env.NEXT_PUBLIC_CLOUDFLARE_R2_PUBLIC_URL || process.env.CLOUDFLARE_R2_PUBLIC_URL || '').trim().replace(/\/+$/, ''),
+  publicUrl: (process.env.NEXT_PUBLIC_CLOUDFLARE_R2_PUBLIC_URL || process.env.CLOUDFLARE_R2_PUBLIC_URL || CANONICAL_R2_PUBLIC_URL).trim().replace(/\/+$/, ''),
   uploadApi: '/api/media/upload',
   presignApi: '/api/media/presign',
 };
@@ -16,12 +18,25 @@ const R2_CONFIG = {
  */
 export function getR2PublicUrl(keyOrUrl) {
   if (!keyOrUrl) return '';
-  const baseUrl = (process.env.NEXT_PUBLIC_CLOUDFLARE_R2_PUBLIC_URL || process.env.CLOUDFLARE_R2_PUBLIC_URL || '').trim().replace(/\/+$/, '');
+  const baseUrl = (process.env.NEXT_PUBLIC_CLOUDFLARE_R2_PUBLIC_URL || process.env.CLOUDFLARE_R2_PUBLIC_URL || CANONICAL_R2_PUBLIC_URL).trim().replace(/\/+$/, '');
 
   let clean = String(keyOrUrl).trim();
 
-  // If already full public URL with configured domain, return as-is
-  if (baseUrl && clean.startsWith(baseUrl)) {
+  // If already full remote URL (Cloudflare R2 CDN, Cloudinary, AWS S3, etc.)
+  if (clean.startsWith('http://') || clean.startsWith('https://')) {
+    // If it contains legacy localhost streaming proxy, unwrap the key
+    if (clean.includes('/api/media/file/')) {
+      const key = clean.split('/api/media/file/')[1]?.split('?')[0]?.replace(/^\/+/, '');
+      if (key) return `${baseUrl}/${key}`;
+    } else if (clean.includes('/api/media/')) {
+      const key = clean.split('/api/media/')[1]?.split('?')[0]?.replace(/^\/+/, '');
+      if (key) return `${baseUrl}/${key}`;
+    }
+    return clean;
+  }
+
+  // Local static asset like /images/deal2.avif
+  if (clean.startsWith('/images/') || clean.startsWith('/icons/') || clean.startsWith('/placeholder')) {
     return clean;
   }
 
@@ -34,14 +49,16 @@ export function getR2PublicUrl(keyOrUrl) {
     clean = clean.split('.r2.dev/')[1];
   } else if (clean.startsWith('/uploads/')) {
     clean = clean.replace(/^\/uploads\//, '');
+  } else if (clean.startsWith('uploads/')) {
+    clean = clean;
   }
 
   clean = clean.split('?')[0].replace(/^\/+/, '');
 
-  if (baseUrl && !baseUrl.includes('your-r2-public-domain')) {
+  if (baseUrl) {
     return `${baseUrl}/${clean}`;
   }
-  return `/api/media/file/${clean}`;
+  return `/${clean}`;
 }
 
 /**
@@ -141,7 +158,7 @@ export async function uploadToR2(file, options = {}) {
         key,
       };
     } catch (presignErr) {
-      console.warn('Presigned upload failed, falling back to standard upload route:', presignErr);
+      // Presigned upload unavailable; fallback to standard upload route
     }
   }
 

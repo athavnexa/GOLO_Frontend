@@ -9,6 +9,7 @@ import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import { getNearbyOffers } from "../../lib/api/ads";
 import { getPublicMerchantProducts, getPublicMerchantProfile, getPublicMerchantStoreLocation, getPublicMerchantReviewStats, toggleFollowMerchant, checkFollowStatus } from "../../lib/api/merchant";
+import { getR2PublicUrl } from "../../services/cloudflareR2Config";
 
 // Dynamically import Leaflet map
 const LeafletMap = dynamic(() => import("../../components/LeafletMap"), { ssr: false });
@@ -344,14 +345,15 @@ function NearbyStoreContent() {
     merchant?.profile?.bio ||
     merchant?.merchantProfile?.storeSubCategory ||
     "Premium services and products from our trusted merchant";
-  const resolvedStoreImage =
+  const resolvedStoreImage = getR2PublicUrl(
     merchant?.shopPhoto ||
     merchant?.merchantProfile?.shopPhoto ||
     offers[0]?.merchant?.shopPhoto ||
     products.find((item) => item?.image || item?.imageUrl)?.image ||
     products.find((item) => item?.image || item?.imageUrl)?.imageUrl ||
     merchant?.profilePhoto ||
-    "/images/default-user-avatar.jpg";
+    "/images/default-user-avatar.jpg"
+  );
 
   const storeCategory = merchant?.profile?.category || merchant?.merchantProfile?.storeCategory || merchant?.category || "Store";
   const storeSubCategory = merchant?.profile?.subCategory || merchant?.merchantProfile?.storeSubCategory || merchant?.subCategory || "";
@@ -370,7 +372,7 @@ function NearbyStoreContent() {
             <div className="flex items-center gap-4">
               <div className="h-16 w-16 overflow-hidden rounded-full border-2 border-[#1f8f4f] shrink-0 lg:h-20 lg:w-20">
                 <Image
-                  src={merchant?.profilePhoto || merchant?.merchantProfile?.profilePhoto || resolvedStoreImage}
+                  src={getR2PublicUrl(merchant?.profilePhoto || merchant?.merchantProfile?.profilePhoto) || resolvedStoreImage}
                   alt={merchant?.name || "Store"}
                   width={80}
                   height={80}
@@ -541,10 +543,11 @@ function NearbyStoreContent() {
                               >
                                 <div className="relative h-40 overflow-hidden bg-[#f8fafc]">
                                   <Image
-                                    src={offer?.imageUrl || "/images/deal2.avif"}
+                                    src={getR2PublicUrl(offer?.imageUrl) || "/images/deal2.avif"}
                                     alt={offer?.title || "Offer"}
                                     fill
                                     className="object-cover group-hover:scale-105 transition-transform duration-500"
+                                    unoptimized
                                   />
                                   <div className="absolute top-2 left-2 bg-[#157a4f] text-white px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wider">
                                     Popular
@@ -591,10 +594,11 @@ function NearbyStoreContent() {
                               <div className="group bg-white rounded-2xl border border-[#f1f5f9] overflow-hidden hover:shadow-lg hover:border-[#157a4f] transition-all duration-300 flex flex-col h-full">
                                 <div className="relative h-40 overflow-hidden bg-[#f8fafc]">
                                   <Image
-                                    src={product?.image || product?.imageUrl || "/images/place2.avif"}
+                                    src={getR2PublicUrl(product?.image || product?.imageUrl) || "/images/place2.avif"}
                                     alt={product?.name || "Product"}
                                     fill
                                     className="object-cover group-hover:scale-105 transition-transform duration-500"
+                                    unoptimized
                                   />
                                   {product?.originalPrice > product?.price && (
                                     <div className="absolute top-2 right-2 bg-[#e7a91d] text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow-sm">
@@ -655,10 +659,11 @@ function NearbyStoreContent() {
                               >
                                 <div className="relative h-40 overflow-hidden">
                                   <Image
-                                    src={offer?.imageUrl || "/images/deal2.avif"}
+                                    src={getR2PublicUrl(offer?.imageUrl) || "/images/deal2.avif"}
                                     alt={offer?.title || "Offer"}
                                     fill
                                     className="object-cover group-hover:scale-105 transition-transform duration-500"
+                                    unoptimized
                                   />
                                   <div className="absolute top-2 left-2 bg-white/90 backdrop-blur-sm text-[#1f2329] px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest shadow-sm">
                                     Offer

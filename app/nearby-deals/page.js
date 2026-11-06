@@ -11,7 +11,8 @@ import Footer from "../components/Footer";
 import AuthRequiredModal from "../components/AuthRequiredModal";
 import { MerchantSearchCard, ProductSearchCard } from "../components/SearchCards";
 import SearchEmptyState from "../components/SearchEmptyState";
-import { getNearbyOffers, searchMerchants, searchProducts, unifiedSearch } from "../lib/api/ads";;
+import { getNearbyOffers, searchMerchants, searchProducts, unifiedSearch } from "../lib/api/ads";
+import { getR2PublicUrl } from "../services/cloudflareR2Config";
 
 function OfferCardMedia({ imageUrl, videoUrl, title }) {
   const [showVideo, setShowVideo] = useState(false);
@@ -42,9 +43,10 @@ function OfferCardMedia({ imageUrl, videoUrl, title }) {
         />
       ) : (
         <img
-          src={imageUrl || "/images/deal2.avif"}
+          src={getR2PublicUrl(imageUrl) || "/images/deal2.avif"}
           alt={title}
           className="h-full w-full object-cover transition-opacity duration-500"
+          onError={(e) => { e.currentTarget.src = "/images/deal2.avif"; }}
         />
       )}
     </div>

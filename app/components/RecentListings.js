@@ -85,6 +85,7 @@ function assignBentoLayout(adsList) {
 
 function RecentListingsContent() {
     const searchParams = useSearchParams();
+    const router = useRouter();
     const pathname = normalizeAppPath(usePathname());
     const [sortValue, setSortValue] = useState("createdAt_desc");
     const [userLocation, setUserLocation] = useState(() => {
@@ -120,17 +121,31 @@ function RecentListingsContent() {
     // Get user location for proximity sorting
     useEffect(() => {
         if ("geolocation" in navigator) {
-            navigator.geolocation.getCurrentPosition((position) => {
-                setUserLocation({
-                    lat: position.coords.latitude,
-                    lng: position.coords.longitude
-                });
-            });
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    setUserLocation({
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    });
+                },
+                () => {
+                    // Geolocation permission denied or unavailable — proceed without userLocation
+                },
+                { timeout: 8000, maximumAge: 60000 }
+            );
         }
     }, []);
 
     const resolvedLat = (manualLatitude !== null || location) ? manualLatitude : userLocation?.lat;
     const resolvedLng = (manualLongitude !== null || location) ? manualLongitude : userLocation?.lng;
+
+    const isProximitySort = sortValue === "distance_asc";
+    const hasLocationFilter = Boolean(location || manualLatitude !== null);
+
+    // Only include coordinates in queryKey when proximity sort or explicit location filter is requested.
+    // This prevents background GPS acquisition from wiping away listings for new visitors!
+    const activeQueryLat = (isProximitySort || hasLocationFilter) ? (resolvedLat || '') : '';
+    const activeQueryLng = (isProximitySort || hasLocationFilter) ? (resolvedLng || '') : '';
 
     const queryKey = [
         'choja_recent_listings',
@@ -138,64 +153,183 @@ function RecentListingsContent() {
         category || '',
         location || '',
         sortValue || '',
-        resolvedLat || '',
-        resolvedLng || ''
+        activeQueryLat,
+        activeQueryLng
     ];
 
     const { data: response, error: queryError, isLoading } = useApiQuery(
         queryKey,
         async () => {
             const [sortBy, sortOrder] = sortValue.split("_");
-            if (sortValue === "distance_asc" && resolvedLat && resolvedLng) {
-                return getNearbyAds({
-                    lat: resolvedLat,
-                    lng: resolvedLng,
-                    category,
-                    page: 1,
-                    limit: 50
-                });
-            } else if (q || location || category || resolvedLat || resolvedLng) {
-                return searchAds({
-                    q,
-                    category,
-                    location,
-                    sortBy,
-                    sortOrder,
-                    lat: resolvedLat || undefined,
-                    lng: resolvedLng || undefined,
+
+            // 1. Proximity Sort ("Nearby"):
+            if (isProximitySort) {
+                if (resolvedLat && resolvedLng) {
+                    try {
+                        const nearbyRes = await getNearbyAds({
+                            lat: resolvedLat,
+                            lng: resolvedLng,
+                            category,
+                            page: 1,
+                            limit: 50
+                        });
+                        const nearbyAds = nearbyRes?.success
+                            ? (nearbyRes.data?.ads || nearbyRes.data || [])
+                            : [];
+                        if (nearbyAds.length > 0) {
+                            return nearbyRes;
+                        }
+                    } catch (e) {
+                        console.warn("Failed fetching nearby ads:", e);
+                    }
+                }
+
+                // Fallback for Nearby: No ads nearby or no location permission
+                const fallbackRes = await getAllAds({
                     page: 1,
                     limit: 50,
+                    category,
+                    sortBy: "createdAt",
+                    sortOrder: "desc",
                 });
-            } else {
-                return getAllAds({
-                    page: 1,
-                    limit: 50,
-                    sortBy,
-                    sortOrder,
-                });
+                return {
+                    ...fallbackRes,
+                    isFallback: true,
+                    fallbackNotice: (resolvedLat && resolvedLng)
+                        ? "No ads found in your immediate area. Showing recent listings across all regions."
+                        : "Enable location for distance sorting. Showing recent listings across all regions.",
+                };
             }
+
+            // 2. Search / Category / Location filtering:
+            if (q || location || category) {
+                try {
+                    const searchRes = await searchAds({
+                        q,
+                        category,
+                        location,
+                        sortBy,
+                        sortOrder,
+                        lat: location ? (resolvedLat || undefined) : undefined,
+                        lng: location ? (resolvedLng || undefined) : undefined,
+                        page: 1,
+                        limit: 50,
+                    });
+                    const searchAdsList = searchRes?.success
+                        ? (searchRes.data?.ads || searchRes.data || [])
+                        : [];
+
+                    if (searchAdsList.length > 0) {
+                        return searchRes;
+                    }
+
+                    // If search returned 0 ads with coordinates, retry without coordinates first
+                    if (location && (resolvedLat || resolvedLng)) {
+                        const broaderRes = await searchAds({
+                            q,
+                            category,
+                            location,
+                            sortBy,
+                            sortOrder,
+                            page: 1,
+                            limit: 50,
+                        });
+                        const broaderList = broaderRes?.success
+                            ? (broaderRes.data?.ads || broaderRes.data || [])
+                            : [];
+                        if (broaderList.length > 0) {
+                            return {
+                                ...broaderRes,
+                                isFallback: true,
+                                fallbackNotice: "Showing all matching ads in " + location + ".",
+                            };
+                        }
+                    }
+
+                    // Universal fallback: If specific search/filter returned 0 ads,
+                    // fall back to recent ads across the platform so visitors never see a dead screen
+                    const allAdsFallback = await getAllAds({
+                        page: 1,
+                        limit: 50,
+                        sortBy,
+                        sortOrder,
+                    });
+                    const allList = allAdsFallback?.success
+                        ? (allAdsFallback.data?.ads || allAdsFallback.data || [])
+                        : [];
+                    if (allList.length > 0) {
+                        let notice = "Showing recent listings across all categories.";
+                        if (location && !q) {
+                            notice = 'No listings found in "' + location + '". Showing recent listings from other areas.';
+                        } else if (category && !q) {
+                            notice = 'No listings found in ' + category + '. Showing recent listings across all categories.';
+                        } else if (q) {
+                            notice = 'No listings matched "' + q + '". Showing popular recent listings instead.';
+                        }
+                        return {
+                            ...allAdsFallback,
+                            isFallback: true,
+                            fallbackNotice: notice,
+                        };
+                    }
+
+                    return searchRes;
+                } catch (e) {
+                    console.error("Error searching ads:", e);
+                    const fallbackRes = await getAllAds({
+                        page: 1,
+                        limit: 50,
+                        category,
+                        sortBy,
+                        sortOrder,
+                    });
+                    return fallbackRes;
+                }
+            }
+
+            // 3. Default Choja browse: Always fetch all active platform ads
+            return getAllAds({
+                page: 1,
+                limit: 50,
+                category,
+                sortBy,
+                sortOrder,
+            });
         },
         {
             dedupingInterval: 4000,
         }
     );
 
-    const ads = (response?.success ? (response.data?.ads || response.data || []) : []);
+    const rawAds = response?.success ? (response.data?.ads || response.data || []) : [];
+    const ads = Array.isArray(rawAds) ? rawAds : [];
     const loading = isLoading && ads.length === 0;
     const error = queryError ? "Failed to load listings." : (response && !response.success ? "Could not load listings." : "");
+    const isFallback = Boolean(response?.isFallback);
+    const fallbackNotice = response?.fallbackNotice || "";
 
     const layoutAds = assignBentoLayout(ads);
 
     return (
         <section className="w-full pt-4 pb-10">
 
-            {/* Compact sort bar (ad count removed as requested) */}
-            <div className={`w-full px-4 sm:px-6 lg:px-8 mb-6 flex items-center ${(q || location || loading || (!loading && ads.length === 0)) ? "justify-between" : "justify-end"} gap-3 flex-wrap`}>
-                {(q || location || loading || (!loading && ads.length === 0)) && (
+            {/* Compact sort bar */}
+            <div className={`w-full px-4 sm:px-6 lg:px-8 mb-6 flex items-center ${(q || location || isFallback || loading || (!loading && ads.length === 0)) ? "justify-between" : "justify-end"} gap-3 flex-wrap`}>
+                {(q || location || isFallback || loading || (!loading && ads.length === 0)) && (
                     <p className="text-sm text-gray-500 font-medium">
-                        {loading ? "Loading…" : ads.length === 0 ? "No ads found" : ""}
-                        {q && <span>{ads.length > 0 ? "Results for " : ""}&quot;{q}&quot;</span>}
-                        {location && <span>{q ? " in " : (ads.length > 0 ? "Results in " : "")}&quot;{location}&quot;</span>}
+                        {loading
+                            ? "Loading…"
+                            : isFallback
+                                ? "Showing Popular Listings"
+                                : ads.length === 0
+                                    ? "No ads found"
+                                    : (q && location
+                                        ? <span>Results for &quot;{q}&quot; in &quot;{location}&quot;</span>
+                                        : q
+                                            ? <span>Results for &quot;{q}&quot;</span>
+                                            : location
+                                                ? <span>Results in &quot;{location}&quot;</span>
+                                                : "")}
                     </p>
                 )}
                 <div className="flex items-center gap-2">
@@ -234,9 +368,53 @@ function RecentListingsContent() {
                 </div>
             )}
 
+            {/* Fallback Notice Banner */}
+            {isFallback && fallbackNotice && (
+                <div className="w-full px-4 sm:px-6 lg:px-8 mb-4">
+                    <div className="bg-amber-50/95 border border-amber-200/90 rounded-2xl px-4 py-3 flex items-center justify-between gap-3 text-amber-900 text-xs sm:text-sm shadow-sm backdrop-blur-sm">
+                        <div className="flex items-center gap-2.5">
+                            <span className="text-base sm:text-lg">📍</span>
+                            <span className="font-medium">{fallbackNotice}</span>
+                        </div>
+                        {(location || sortValue === "distance_asc") && (
+                            <button
+                                onClick={() => {
+                                    setSortValue("createdAt_desc");
+                                    router.push("/choja");
+                                }}
+                                className="text-xs font-bold text-amber-800 hover:text-amber-950 underline underline-offset-2 whitespace-nowrap transition cursor-pointer"
+                            >
+                                View All
+                            </button>
+                        )}
+                    </div>
+                </div>
+            )}
+
             {!loading && !error && ads.length === 0 && (
-                <div className="text-center py-16 px-5 text-gray-500">
-                    <p>No listings available yet.</p>
+                <div className="text-center py-16 px-5 max-w-md mx-auto">
+                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
+                        🔍
+                    </div>
+                    <p className="text-lg font-bold text-gray-900 mb-1.5">
+                        {q ? ('No ads found for "' + q + '"') : location ? ('No ads found in "' + location + '"') : "No listings available right now"}
+                    </p>
+                    <p className="text-sm text-gray-500 mb-6">
+                        {q || location
+                            ? "We couldn't find any listings matching your search. Try different keywords or browse all active classifieds."
+                            : "New listings are posted regularly. Check back soon or post the first ad!"}
+                    </p>
+                    {(q || location || sortValue !== "createdAt_desc") && (
+                        <button
+                            onClick={() => {
+                                setSortValue("createdAt_desc");
+                                router.push("/choja");
+                            }}
+                            className="inline-flex items-center justify-center px-6 py-2.5 rounded-full bg-[#157a4f] text-white text-xs font-bold shadow-md hover:bg-[#126542] transition cursor-pointer"
+                        >
+                            Browse All Classifieds
+                        </button>
+                    )}
                 </div>
             )}
 

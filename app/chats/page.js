@@ -742,7 +742,7 @@ function ChatsPageContent() {
       });
 
       socket.on("new_message", (incoming) => {
-        console.log("[SOCKET] Received new_message:", incoming);
+
         if (incoming.conversationId === selectedConversationIdRef.current) {
           setMessages((prev) => {
             const exists = prev.some((item) => item.id === incoming.id);
@@ -778,7 +778,7 @@ function ChatsPageContent() {
       });
 
       socket.on("conversation_updated", (event) => {
-        console.log("[SOCKET] Received conversation_updated:", event);
+
         setConversations((prev) => {
           const exists = prev.some((c) => c.id === event.conversationId);
           if (!exists) {

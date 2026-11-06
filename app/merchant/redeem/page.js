@@ -77,7 +77,7 @@ export default function MerchantQRScannerPage() {
     const generateCode = async () => {
       if (scanResult?.voucherId && !scanResult?.verificationCode && verificationStatus === "valid") {
         try {
-          console.log("Generating verification code for voucher:", scanResult.voucherId);
+      
           const response = await generateVerificationCodeHandler(scanResult._id || scanResult.voucherId);
           
           // Update scanResult with the generated verification code
@@ -224,7 +224,7 @@ export default function MerchantQRScannerPage() {
 
       // Check if it's a manual verification code (XXXX-XXXX-XXXX format)
       if (/^[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/i.test(input)) {
-        console.log("Processing as manual verification code:", input);
+    
         
         // Verify using verification code
         verifyResponse = await verifyVoucherByCode(input);
@@ -245,7 +245,7 @@ export default function MerchantQRScannerPage() {
       } 
       // Otherwise treat as QR code scan
       else if (input.startsWith("voucher-")) {
-        console.log("Processing as QR code scan:", input);
+    
         
         // QR code format from backend: "voucher-{voucherId}-{offerId}"
         // Example: "voucher-VOUCHER-1713427200000-OFFER-123456"

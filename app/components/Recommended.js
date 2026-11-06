@@ -6,7 +6,8 @@ import { useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { getNearbyOffers } from "../lib/api/ads";
-import { getProfile } from "../lib/api/user";;
+import { getProfile } from "../lib/api/user";
+import { getR2PublicUrl } from "../services/cloudflareR2Config";
 
 // Maps backend-stored category labels → offer category filter strings
 // These must match what merchants set as their businessCategory/storeCategory
@@ -38,7 +39,7 @@ function buildDealCard(offer) {
   return {
     id,
     title: offer?.title || "Untitled Deal",
-    img: offer?.imageUrl || offer?.images?.[0] || "/images/deal1.jpg",
+    img: getR2PublicUrl(offer?.imageUrl || offer?.images?.[0]) || "/images/deal1.jpg",
     discount:
       offer?.discountPercent > 0
         ? `${offer.discountPercent}% OFF`

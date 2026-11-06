@@ -2,6 +2,25 @@ import { redirect } from "next/navigation";
 import { getPublicMerchantProductById } from "../../lib/api/merchant";
 import ProductClient from "./ProductClient";
 
+const CANONICAL_R2_PUBLIC_URL = "https://pub-21e329eb32bd4d239fbb89a98ea331f9.r2.dev";
+
+function resolveAbsoluteUrl(path) {
+  if (!path) return "https://ajubaju.co.in/images/merchant_shop_storefront.png";
+  if (path.startsWith("http://") || path.startsWith("https://")) return path;
+  if (path.startsWith("/api/media/file/")) {
+    const key = path.replace("/api/media/file/", "");
+    return `${CANONICAL_R2_PUBLIC_URL}/${key.replace(/^\/+/, "")}`;
+  }
+  if (path.startsWith("/uploads/") || path.startsWith("uploads/")) {
+    return `${CANONICAL_R2_PUBLIC_URL}/${path.replace(/^\/+/, "")}`;
+  }
+  if (path.startsWith("/")) return `https://ajubaju.co.in${path}`;
+  if (path.includes("/")) {
+    return `${CANONICAL_R2_PUBLIC_URL}/${path}`;
+  }
+  return `https://ajubaju.co.in/${path}`;
+}
+
 export async function generateMetadata(props) {
   const searchParams = await props.searchParams;
   const id = searchParams?.id;
@@ -23,14 +42,12 @@ export async function generateMetadata(props) {
     }
 
     const defaultImage = "https://ajubaju.co.in/images/merchant_shop_storefront.png"; // Must be PNG/JPG for WhatsApp
-    let ogImage = product.images?.[0] || product.image || defaultImage;
+    let ogImage = product.images?.[0] || product.image || product.imageUrl || defaultImage;
 
     // WhatsApp rejects .webp and .avif. If it's Cloudinary with f_auto, replace it.
     if (typeof ogImage === "string") {
       ogImage = ogImage.replace("f_auto", "f_jpg").replace(/\.webp$|\.avif$/, ".jpg");
-      if (ogImage.startsWith("/")) {
-        ogImage = `https://ajubaju.co.in${ogImage}`;
-      }
+      ogImage = resolveAbsoluteUrl(ogImage);
     }
 
     const desc = product.description || `Check out ${product.name} on AjuBaju!`;

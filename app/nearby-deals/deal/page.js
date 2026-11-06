@@ -1,10 +1,22 @@
 import { redirect } from "next/navigation";
 import DealClient from "./DealClient";
 
+const CANONICAL_R2_PUBLIC_URL = "https://pub-21e329eb32bd4d239fbb89a98ea331f9.r2.dev";
+
 function getAbsoluteUrl(path) {
   if (!path) return "https://ajubaju.co.in/images/merchant_shop_storefront.png";
-  if (path.startsWith("http")) return path;
+  if (path.startsWith("http://") || path.startsWith("https://")) return path;
+  if (path.startsWith("/api/media/file/")) {
+    const key = path.replace("/api/media/file/", "");
+    return `${CANONICAL_R2_PUBLIC_URL}/${key.replace(/^\/+/, "")}`;
+  }
+  if (path.startsWith("/uploads/") || path.startsWith("uploads/")) {
+    return `${CANONICAL_R2_PUBLIC_URL}/${path.replace(/^\/+/, "")}`;
+  }
   if (path.startsWith("/")) return `https://ajubaju.co.in${path}`;
+  if (path.includes("/")) {
+    return `${CANONICAL_R2_PUBLIC_URL}/${path}`;
+  }
   return `https://ajubaju.co.in/${path}`;
 }
 

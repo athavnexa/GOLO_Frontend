@@ -39,13 +39,13 @@ export default function VerifyPage() {
 
   const handleSubmit = () => {
     const finalOtp = otp.join("");
-    console.log("Submitted OTP:", finalOtp);
+    // OTP submitted securely
   };
 
   const handleResend = () => {
     if (timer === 0) {
       setTimer(30);
-      console.log("Resend triggered");
+
     }
   };
 
