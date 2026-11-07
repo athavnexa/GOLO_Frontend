@@ -162,7 +162,7 @@ export default function CreateMerchantOfferPage() {
         ? firstRes.data.products
         : [];
 
-      if (firstRes?.data?.needsActiveProductsSelection) {
+      if (firstRes?.data?.needsActiveProductsSelection && firstRes?.data?.maxActiveProducts !== -1) {
         setNeedsSelection(true);
         setMaxProductsCount(firstRes.data.maxActiveProducts);
       }
@@ -1188,7 +1188,7 @@ export default function CreateMerchantOfferPage() {
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden p-6 animate-in zoom-in-95 duration-300">
             <h3 className="text-xl font-bold text-gray-900 mb-2">Active Products Selection Required</h3>
             <p className="text-gray-600 mb-6 text-sm leading-relaxed">
-              You must select the <span className="font-semibold text-[#2f9e58]">{maxProductsCount}</span> active products included in your plan before you can upload an offer.
+              You must select the <span className="font-semibold text-[#2f9e58]">{maxProductsCount === -1 ? 'unlimited' : maxProductsCount}</span> active products included in your plan before you can upload an offer.
             </p>
             <div className="flex justify-end">
               <button

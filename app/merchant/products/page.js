@@ -66,7 +66,7 @@ export default function MerchantProductsPage() {
       setSelectedActiveIds(selectedActiveIds.filter(x => x !== id));
       setSaveSelectionError("");
     } else {
-      if (selectedActiveIds.length >= maxActiveAllowed) {
+      if (maxActiveAllowed !== -1 && selectedActiveIds.length >= maxActiveAllowed) {
         setSaveSelectionError(`You can only select up to ${maxActiveAllowed} active product${maxActiveAllowed === 1 ? '' : 's'}.`);
         return;
       }
@@ -75,14 +75,31 @@ export default function MerchantProductsPage() {
     }
   };
 
+  const handleSelectAll = () => {
+    setSelectedActiveIds(selectionProductsList.map((p) => p.id));
+    setSaveSelectionError("");
+  };
+
+  const handleDeselectAll = () => {
+    setSelectedActiveIds([]);
+    setSaveSelectionError("");
+  };
+
   const handleSaveActiveProducts = async () => {
     try {
       setSaveSelectionError("");
-      const totalProdsCount = selectionProductsList.length;
-      const expectedCount = Math.min(maxActiveAllowed, totalProdsCount);
-      if (selectedActiveIds.length !== expectedCount) {
-        setSaveSelectionError(`You must select exactly ${expectedCount} active product${expectedCount === 1 ? '' : 's'} before saving.`);
-        return;
+      if (maxActiveAllowed !== -1) {
+        const totalProdsCount = selectionProductsList.length;
+        const expectedCount = Math.min(maxActiveAllowed, totalProdsCount);
+        if (selectedActiveIds.length !== expectedCount) {
+          setSaveSelectionError(`You must select exactly ${expectedCount} active product${expectedCount === 1 ? '' : 's'} before saving.`);
+          return;
+        }
+      } else {
+        if (selectedActiveIds.length === 0 && selectionProductsList.length > 0) {
+          setSaveSelectionError("Please select at least one active product.");
+          return;
+        }
       }
       await selectActiveProducts(selectedActiveIds);
       setIsSelectionModalOpen(false);
@@ -498,7 +515,11 @@ export default function MerchantProductsPage() {
                   <div>
                     <h3 className="text-xl font-bold text-gray-900">Finalize Active Products</h3>
                     <p className="text-xs text-gray-500 mt-1">
-                      Your current plan allows up to <span className="font-semibold text-[#2f9e58]">{maxActiveAllowed}</span> active product{maxActiveAllowed === 1 ? '' : 's'}.
+                      {maxActiveAllowed === -1 ? (
+                        <>Your current plan allows <span className="font-semibold text-[#2f9e58]">Unlimited</span> active products.</>
+                      ) : (
+                        <>Your current plan allows up to <span className="font-semibold text-[#2f9e58]">{maxActiveAllowed}</span> active product{maxActiveAllowed === 1 ? '' : 's'}.</>
+                      )}
                     </p>
                   </div>
                   <button
@@ -516,8 +537,34 @@ export default function MerchantProductsPage() {
 
                   <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800 leading-relaxed font-medium flex items-start gap-2">
                     <AlertTriangle size={16} className="text-amber-600 shrink-0 mt-0.5" />
-                    <span><strong>Important Note:</strong> This selection is a <strong>one-time save</strong>. Once finalized and saved, you cannot edit or change your active products selection again under your current plan tier.</span>
+                    <span>
+                      <strong>Important Note:</strong> {maxActiveAllowed === -1 ? (
+                        "Your top tier plan includes unlimited active products. You can activate all products or select specific ones for your promotions."
+                      ) : (
+                        <>This selection is a <strong>one-time save</strong>. Once finalized and saved, you cannot edit or change your active products selection again under your current plan tier.</>
+                      )}
+                    </span>
                   </div>
+
+                  {maxActiveAllowed === -1 && selectionProductsList.length > 0 && (
+                    <div className="flex justify-end gap-3 text-xs pt-1">
+                      <button
+                        type="button"
+                        onClick={handleSelectAll}
+                        className="text-[#2f9e58] hover:underline font-semibold"
+                      >
+                        Select All ({selectionProductsList.length})
+                      </button>
+                      <span className="text-gray-300">|</span>
+                      <button
+                        type="button"
+                        onClick={handleDeselectAll}
+                        className="text-gray-500 hover:underline font-semibold"
+                      >
+                        Deselect All
+                      </button>
+                    </div>
+                  )}
 
                   {saveSelectionError && (
                     <div className="p-3 bg-red-50 border border-red-100 rounded-lg text-xs font-semibold text-red-600">
@@ -579,7 +626,7 @@ export default function MerchantProductsPage() {
 
                 <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
                   <span className="text-xs text-gray-500 font-medium">
-                    Selected: <span className="font-bold text-gray-700">{selectedActiveIds.length}</span> / {maxActiveAllowed}
+                    Selected: <span className="font-bold text-gray-700">{selectedActiveIds.length}</span> / {maxActiveAllowed === -1 ? 'Unlimited' : maxActiveAllowed}
                   </span>
                   <div className="flex gap-2">
                     <button

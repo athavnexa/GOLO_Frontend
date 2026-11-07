@@ -139,13 +139,8 @@ export async function GET(request) {
         if (fs.existsSync(localFilePath)) {
           imageBuffer = fs.readFileSync(localFilePath);
         } else {
-          // Fallback to fetching via origin
-          const origin = request.nextUrl.origin;
-          const res = await fetch(`${origin}/${encodeURI(cleanPath)}`);
-          if (!res.ok) {
-            return NextResponse.json({ error: 'Local image not found' }, { status: 404 });
-          }
-          imageBuffer = Buffer.from(await res.arrayBuffer());
+          // Local file does not exist on disk in public/
+          return NextResponse.json({ error: 'Local image not found' }, { status: 404 });
         }
       } else {
         // Prevent SSRF and unauthorized domain proxying
@@ -156,18 +151,26 @@ export async function GET(request) {
           );
         }
 
-        // Remote URL (Cloudflare R2, Cloudinary, S3, etc.)
-        const res = await fetch(imageUrl, {
-          headers: {
-            'User-Agent': 'GOLO-Sharp-Mediator/1.0',
-          },
-        });
+        try {
+          // Remote URL (Cloudflare R2, Cloudinary, S3, etc.)
+          const res = await fetch(imageUrl, {
+            headers: {
+              'User-Agent': 'GOLO-Sharp-Mediator/1.0',
+            },
+          });
 
-        if (!res.ok) {
-          return NextResponse.json({ error: `Failed to fetch source image: ${res.status}` }, { status: res.status });
+          if (!res.ok) {
+            return NextResponse.json({ error: `Failed to fetch source image: ${res.status}` }, { status: res.status });
+          }
+
+          imageBuffer = Buffer.from(await res.arrayBuffer());
+        } catch (fetchErr) {
+          console.warn(`Remote image fetch failed for [${imageUrl}]:`, fetchErr?.message);
+          return NextResponse.json(
+            { error: `Unable to retrieve source image: ${fetchErr?.message || 'Network error'}` },
+            { status: 502 }
+          );
         }
-
-        imageBuffer = Buffer.from(await res.arrayBuffer());
       }
     }
 
@@ -236,7 +239,8 @@ export async function GET(request) {
       },
     });
   } catch (error) {
-    console.error('Sharp Image Resize Error:', error);
+    const failedUrl = request?.nextUrl?.searchParams?.get('url') || 'unknown';
+    console.error(`Sharp Image Resize Error [url=${failedUrl}]:`, error);
     return NextResponse.json(
       { error: 'Image processing failed: ' + (error?.message || 'Unknown error') },
       { status: 500 }
