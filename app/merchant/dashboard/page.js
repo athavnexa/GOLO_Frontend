@@ -156,13 +156,13 @@ function MerchantDashboardContent() {
 
           {/* Header Section */}
           <section className="mt-4 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-100 pb-6">
-            <div className="flex items-start gap-4">
-              <div className="flex-shrink-0 w-20 h-20 rounded-full border-2 border-[#F59E0B] flex items-center justify-center text-[#F59E0B] text-2xl font-bold bg-orange-50 relative overflow-hidden">
+            <div className="flex items-start gap-3 sm:gap-4 min-w-0">
+              <div className="flex-shrink-0 w-14 h-14 sm:w-20 sm:h-20 rounded-full border-2 border-[#F59E0B] flex items-center justify-center text-[#F59E0B] text-xl sm:text-2xl font-bold bg-orange-50 relative overflow-hidden">
                   <Image src={merchantProfile?.profilePhoto || "/images/default-user-avatar.jpg"} alt={shopName} fill style={{ objectFit: "cover" }} />
               </div>
-              <div>
-                <h1 className="text-[32px] font-semibold leading-none text-[#1e1e1e] lg:text-[42px]">{shopName}</h1>
-                <div className="flex items-center gap-2 mt-3">
+              <div className="min-w-0 flex-1">
+                <h1 className="text-[22px] sm:text-[32px] lg:text-[42px] font-semibold leading-tight text-[#1e1e1e] break-words">{shopName}</h1>
+                <div className="flex flex-wrap items-center gap-2 mt-2 sm:mt-3">
                   <span className="px-2 py-0.5 bg-[#DCFCE7] text-[#157A4F] text-[11px] font-bold rounded">Open</span>
                   <span className="text-[12px] text-gray-500">Last updated {Math.floor((new Date() - lastUpdated) / 60000)} min ago</span>
                 </div>
@@ -178,80 +178,80 @@ function MerchantDashboardContent() {
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
-              <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-md text-sm font-medium hover:bg-gray-50 transition-colors">
+            <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 w-full md:w-auto">
+              <button className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 rounded-md text-sm font-medium hover:bg-gray-50 transition-colors whitespace-nowrap">
                 <Download size={16} /> Export CSV
               </button>
-              <button onClick={() => router.push("/merchant/offers/create")} className="flex items-center gap-2 px-4 py-2 bg-[#157A4F] text-white rounded-md text-sm font-medium hover:bg-[#10623E] transition-colors">
+              <button onClick={() => router.push("/merchant/offers/create")} className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-[#157A4F] text-white rounded-md text-sm font-medium hover:bg-[#10623E] transition-colors whitespace-nowrap">
                 <Plus size={16} /> Add New Offer
               </button>
             </div>
           </section>
 
           {/* Stats Grid */}
-          <section className="mt-6 flex flex-col gap-4 md:grid md:grid-cols-5">
+          <section className="mt-5 sm:mt-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4">
             {/* Total Orders */}
-            <div className="bg-white rounded-[16px] p-5 shadow-sm border border-gray-100 flex flex-col justify-between relative overflow-hidden h-32">
-              <div className="flex justify-between items-start">
-                <h3 className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Total Orders</h3>
-                <div className="w-7 h-7 rounded-full bg-[#f4f4f1] text-[#2cb56e] flex items-center justify-center">
+            <div className="bg-white rounded-[16px] p-4 sm:p-5 shadow-sm border border-gray-100 flex flex-col justify-between relative overflow-hidden min-h-[110px] sm:h-32">
+              <div className="flex justify-between items-start gap-2">
+                <h3 className="text-[10px] sm:text-[11px] font-bold text-gray-500 uppercase tracking-wider">Total Orders</h3>
+                <div className="w-7 h-7 shrink-0 rounded-full bg-[#f4f4f1] text-[#2cb56e] flex items-center justify-center">
                   <ShoppingBag size={14} />
                 </div>
               </div>
               <div>
-                <div className="text-[28px] font-bold text-gray-900 leading-none">{totalOrders}</div>
+                <div className="text-[22px] sm:text-[26px] xl:text-[28px] font-bold text-gray-900 leading-none truncate">{totalOrders}</div>
               </div>
             </div>
 
             {/* Revenue */}
-            <div className="bg-white rounded-[16px] p-5 shadow-sm border border-gray-100 flex flex-col justify-between relative overflow-hidden h-32">
-              <div className="flex justify-between items-start">
-                <h3 className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Revenue</h3>
-                <div className="w-7 h-7 rounded-full bg-[#eefaf2] text-[#2f9e58] flex items-center justify-center">
+            <div className="bg-white rounded-[16px] p-4 sm:p-5 shadow-sm border border-gray-100 flex flex-col justify-between relative overflow-hidden min-h-[110px] sm:h-32">
+              <div className="flex justify-between items-start gap-2">
+                <h3 className="text-[10px] sm:text-[11px] font-bold text-gray-500 uppercase tracking-wider">Revenue</h3>
+                <div className="w-7 h-7 shrink-0 rounded-full bg-[#eefaf2] text-[#2f9e58] flex items-center justify-center">
                   <IndianRupee size={14} />
                 </div>
               </div>
               <div>
-                <div className="text-[28px] font-bold text-gray-900 leading-none">{revenue}</div>
+                <div className="text-[22px] sm:text-[26px] xl:text-[28px] font-bold text-gray-900 leading-none truncate">{revenue}</div>
               </div>
             </div>
 
             {/* Customers */}
-            <div className="bg-white rounded-[16px] p-5 shadow-sm border border-gray-100 flex flex-col justify-between relative overflow-hidden h-32">
-              <div className="flex justify-between items-start">
-                <h3 className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Customers</h3>
-                <div className="w-7 h-7 rounded-full bg-[#eff6ff] text-[#3B82F6] flex items-center justify-center">
+            <div className="bg-white rounded-[16px] p-4 sm:p-5 shadow-sm border border-gray-100 flex flex-col justify-between relative overflow-hidden min-h-[110px] sm:h-32">
+              <div className="flex justify-between items-start gap-2">
+                <h3 className="text-[10px] sm:text-[11px] font-bold text-gray-500 uppercase tracking-wider">Customers</h3>
+                <div className="w-7 h-7 shrink-0 rounded-full bg-[#eff6ff] text-[#3B82F6] flex items-center justify-center">
                   <Users size={14} />
                 </div>
               </div>
               <div>
-                <div className="text-[28px] font-bold text-gray-900 leading-none">{customers}</div>
+                <div className="text-[22px] sm:text-[26px] xl:text-[28px] font-bold text-gray-900 leading-none truncate">{customers}</div>
               </div>
             </div>
 
             {/* Active Offers */}
-            <div className="bg-white rounded-[16px] p-5 shadow-sm border border-gray-100 flex flex-col justify-between relative overflow-hidden h-32">
-              <div className="flex justify-between items-start">
-                <h3 className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Active Offers</h3>
-                <div className="w-7 h-7 rounded-full bg-[#fcf5e3] text-[#f59e0b] flex items-center justify-center">
+            <div className="bg-white rounded-[16px] p-4 sm:p-5 shadow-sm border border-gray-100 flex flex-col justify-between relative overflow-hidden min-h-[110px] sm:h-32">
+              <div className="flex justify-between items-start gap-2">
+                <h3 className="text-[10px] sm:text-[11px] font-bold text-gray-500 uppercase tracking-wider">Active Offers</h3>
+                <div className="w-7 h-7 shrink-0 rounded-full bg-[#fcf5e3] text-[#f59e0b] flex items-center justify-center">
                   <Tag size={14} />
                 </div>
               </div>
               <div>
-                <div className="text-[28px] font-bold text-gray-900 leading-none">{activeOffers}</div>
+                <div className="text-[22px] sm:text-[26px] xl:text-[28px] font-bold text-gray-900 leading-none truncate">{activeOffers}</div>
               </div>
             </div>
 
             {/* Followers */}
-            <div className="bg-white rounded-[16px] p-5 shadow-sm border border-gray-100 flex flex-col justify-between relative overflow-hidden h-32">
-              <div className="flex justify-between items-start">
-                <h3 className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Followers</h3>
-                <div className="w-7 h-7 rounded-full bg-[#fdf2f2] text-[#ef4444] flex items-center justify-center">
+            <div className="col-span-2 sm:col-span-1 bg-white rounded-[16px] p-4 sm:p-5 shadow-sm border border-gray-100 flex flex-col justify-between relative overflow-hidden min-h-[110px] sm:h-32">
+              <div className="flex justify-between items-start gap-2">
+                <h3 className="text-[10px] sm:text-[11px] font-bold text-gray-500 uppercase tracking-wider">Followers</h3>
+                <div className="w-7 h-7 shrink-0 rounded-full bg-[#fdf2f2] text-[#ef4444] flex items-center justify-center">
                   <Heart size={14} />
                 </div>
               </div>
               <div>
-                <div className="text-[28px] font-bold text-gray-900 leading-none">{followers}</div>
+                <div className="text-[22px] sm:text-[26px] xl:text-[28px] font-bold text-gray-900 leading-none truncate">{followers}</div>
               </div>
             </div>
           </section>
@@ -286,8 +286,9 @@ function MerchantDashboardContent() {
                   <div className="flex items-center gap-1.5"><div className="w-3 h-1 bg-[#8B5CF6] rounded-full"></div> Conversion Rate (%)</div>
                 </div>
 
-                <div className="relative h-[250px] w-full mt-4">
-                  <svg viewBox="0 0 800 250" className="w-full h-full overflow-visible">
+                <div className="relative w-full mt-4 overflow-x-auto pb-1">
+                  <div className="h-[220px] sm:h-[250px] min-w-[520px] sm:min-w-0">
+                    <svg viewBox="0 0 800 250" className="w-full h-full">
                     {/* Y Axis Lines */}
                     {[0, 1, 2, 3, 4].map((i) => {
                       const y = 220 - (i * 40);
@@ -331,14 +332,15 @@ function MerchantDashboardContent() {
                       <circle key={`purple-${i}`} cx={p.x} cy={p.y} r="3" fill="#8B5CF6" />
                     ))}
                   </svg>
+                  </div>
                 </div>
               </div>
 
               {/* Top Performing Offers */}
-              <div className="border border-gray-200 rounded-xl p-5 bg-white overflow-hidden">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-bold">Top Performing Offers</h3>
-                  <Link href="/merchant/offers" className="text-[13px] font-bold text-[#157A4F] flex items-center gap-1 hover:underline">
+              <div className="border border-gray-200 rounded-xl p-4 sm:p-5 bg-white overflow-hidden">
+                <div className="flex items-center justify-between gap-2 mb-4">
+                  <h3 className="text-base sm:text-lg font-bold">Top Performing Offers</h3>
+                  <Link href="/merchant/offers" className="text-[12px] sm:text-[13px] font-bold text-[#157A4F] flex items-center gap-1 hover:underline shrink-0 whitespace-nowrap">
                     View All Offers <ArrowRight size={14} />
                   </Link>
                 </div>
@@ -382,11 +384,11 @@ function MerchantDashboardContent() {
               </div>
 
               {/* Recent Orders */}
-              <div className="border border-gray-200 rounded-xl p-5 bg-white overflow-hidden">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-bold">Recent Orders</h3>
+              <div className="border border-gray-200 rounded-xl p-4 sm:p-5 bg-white overflow-hidden">
+                <div className="flex items-center justify-between gap-2 mb-4">
+                  <h3 className="text-base sm:text-lg font-bold">Recent Orders</h3>
                   <button 
-                    className="text-[13px] font-bold text-[#157A4F] flex items-center gap-1 hover:underline"
+                    className="text-[12px] sm:text-[13px] font-bold text-[#157A4F] flex items-center gap-1 hover:underline shrink-0 whitespace-nowrap"
                     onClick={() => router.push('/merchant/orders')}
                   >
                     View All Orders <ArrowRight size={14} />
@@ -492,19 +494,19 @@ function MerchantDashboardContent() {
               </div>
 
               {/* Preview Your Store */}
-              <div className="border border-[#FDE68A] bg-[#FEF3C7] rounded-xl p-5 relative overflow-hidden flex items-center justify-between">
-                <div className="relative z-10 w-2/3">
-                  <h3 className="text-lg font-bold text-[#92400E]">Preview Your Store</h3>
+              <div className="border border-[#FDE68A] bg-[#FEF3C7] rounded-xl p-4 sm:p-5 relative overflow-hidden flex items-center justify-between">
+                <div className="relative z-10 w-[62%] sm:w-2/3 pr-2">
+                  <h3 className="text-base sm:text-lg font-bold text-[#92400E]">Preview Your Store</h3>
                   <p className="text-xs text-[#B45309] mt-1 mb-4 leading-relaxed font-medium">
                     See exactly how customers see your store.
                   </p>
                   <Link href="/">
-                    <button className="bg-white text-[13px] font-bold text-gray-700 px-4 py-2 rounded-full shadow-sm flex items-center gap-2 hover:bg-gray-50 transition-colors">
+                    <button className="bg-white text-[12px] sm:text-[13px] font-bold text-gray-700 px-3.5 sm:px-4 py-2 rounded-full shadow-sm flex items-center gap-2 hover:bg-gray-50 transition-colors">
                       Open Shop <ArrowRight size={14} className="text-gray-400" />
                     </button>
                   </Link>
                 </div>
-                <div className="absolute right-0 top-0 bottom-0 w-[45%] overflow-hidden rounded-l-3xl shadow-[-10px_0_15px_-3px_rgba(0,0,0,0.1)]">
+                <div className="absolute right-0 top-0 bottom-0 w-[38%] sm:w-[45%] overflow-hidden rounded-l-3xl shadow-[-10px_0_15px_-3px_rgba(0,0,0,0.1)]">
                   <Image 
                     src="/images/merchant_shop_storefront.png" 
                     alt="Store Preview" 
@@ -516,23 +518,23 @@ function MerchantDashboardContent() {
               </div>
 
               {/* Latest Reviews */}
-              <div className="border border-gray-200 rounded-xl p-5 bg-white">
-                <div className="flex items-center justify-between mb-5">
-                  <h3 className="text-lg font-bold">Latest Reviews</h3>
-                  <button className="text-[13px] font-bold text-[#157A4F] flex items-center gap-1 hover:underline">
+              <div className="border border-gray-200 rounded-xl p-4 sm:p-5 bg-white">
+                <div className="flex items-center justify-between gap-2 mb-5">
+                  <h3 className="text-base sm:text-lg font-bold">Latest Reviews</h3>
+                  <button className="text-[12px] sm:text-[13px] font-bold text-[#157A4F] flex items-center gap-1 hover:underline shrink-0 whitespace-nowrap">
                     View All Reviews <ArrowRight size={14} />
                   </button>
                 </div>
                 <div className="space-y-4">
                   {(summary?.latestReviews || []).map((review) => (
                     <div key={review._id} className="pb-4 border-b border-gray-100 last:border-0 last:pb-0">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full overflow-hidden bg-[#F3E8FF] text-[#8B5CF6] flex items-center justify-center font-bold text-sm">
+                      <div className="flex items-center justify-between gap-2 mb-2">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-8 h-8 shrink-0 rounded-full overflow-hidden bg-[#F3E8FF] text-[#8B5CF6] flex items-center justify-center font-bold text-sm">
                             {review.userName[0]}
                           </div>
-                          <div>
-                            <p className="text-sm font-bold text-gray-900">{review.userName}</p>
+                          <div className="min-w-0">
+                            <p className="text-sm font-bold text-gray-900 truncate">{review.userName}</p>
                             <div className="flex items-center text-[#F59E0B]">
                               {[...Array(5)].map((_, i) => (
                                 <svg key={i} className={`w-3 h-3 ${i < review.rating ? "fill-current" : "text-gray-200 fill-current"}`} viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
@@ -540,9 +542,9 @@ function MerchantDashboardContent() {
                             </div>
                           </div>
                         </div>
-                        <span className="text-[11px] text-gray-400 font-medium">{timeAgo(review.createdAt)}</span>
+                        <span className="text-[11px] text-gray-400 font-medium shrink-0">{timeAgo(review.createdAt)}</span>
                       </div>
-                      <p className="text-[13px] text-gray-600 font-medium ml-11">{review.content}</p>
+                      <p className="text-[13px] text-gray-600 font-medium ml-0 sm:ml-11">{review.content}</p>
                     </div>
                   ))}
                 </div>
@@ -555,8 +557,8 @@ function MerchantDashboardContent() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-[#FF9800] text-[#111827] pt-10 pb-6 mt-8">
-        <div className="max-w-[1400px] mx-auto px-4 lg:px-8 xl:px-12 grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+      <footer className="bg-[#FF9800] text-[#111827] pt-8 sm:pt-10 pb-6 mt-8">
+        <div className="max-w-[1400px] mx-auto px-4 lg:px-8 xl:px-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 mb-8">
           <div>
             <div className="flex items-center gap-2 mb-4">
               <div className="w-8 h-8 rounded bg-[#157A4F] text-white flex items-center justify-center font-bold text-xl">A</div>
@@ -596,12 +598,12 @@ function MerchantDashboardContent() {
               Subscribe to get tips and updates to grow your business.
             </p>
             <div className="flex items-stretch rounded overflow-hidden h-10 w-full max-w-[300px] border border-gray-100">
-              <input type="email" placeholder="Enter your email" className="px-3 text-sm flex-1 text-gray-900 outline-none bg-white" />
-              <button className="bg-[#157A4F] text-white px-4 text-sm font-bold hover:bg-[#10623E] transition-colors">Subscribe</button>
+              <input type="email" placeholder="Enter your email" className="px-3 text-sm flex-1 min-w-0 text-gray-900 outline-none bg-white" />
+              <button className="bg-[#157A4F] text-white px-4 text-sm font-bold hover:bg-[#10623E] transition-colors shrink-0">Subscribe</button>
             </div>
           </div>
         </div>
-        <div className="max-w-[1400px] mx-auto px-4 lg:px-8 xl:px-12 pt-6 border-t border-[#F57C00] flex flex-col md:flex-row items-center justify-between text-[11px] font-bold">
+        <div className="max-w-[1400px] mx-auto px-4 lg:px-8 xl:px-12 pt-6 border-t border-[#F57C00] flex flex-col md:flex-row items-center justify-between gap-2 text-center md:text-left text-[11px] font-bold">
           <p>© 2026 AjuBaju Merchant Dashboard. All rights reserved.</p>
           <p>Built for smarter local business growth.</p>
         </div>
