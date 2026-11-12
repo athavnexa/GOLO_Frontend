@@ -157,6 +157,17 @@ export async function uploadBufferToR2({ buffer, key, contentType, metadata = {}
   }
 
   // 2. Development Fallback: Store in public/uploads until user pastes R2 keys
+  if (process.env.VERCEL) {
+    const missing = [];
+    if (!(process.env.CLOUDFLARE_R2_ACCOUNT_ID || '').trim()) missing.push('CLOUDFLARE_R2_ACCOUNT_ID');
+    if (!(process.env.CLOUDFLARE_R2_ACCESS_KEY_ID || '').trim()) missing.push('CLOUDFLARE_R2_ACCESS_KEY_ID');
+    if (!(process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY || '').trim()) missing.push('CLOUDFLARE_R2_SECRET_ACCESS_KEY');
+    if (!(process.env.CLOUDFLARE_R2_BUCKET_NAME || '').trim()) missing.push('CLOUDFLARE_R2_BUCKET_NAME');
+    throw new Error(
+      `Cloudflare R2 is not configured on Vercel (${missing.length ? `missing: ${missing.join(', ')}` : 'placeholder values detected'}). Add them in Vercel Dashboard -> Settings -> Environment Variables and redeploy.`
+    );
+  }
+
   try {
     const uploadsDir = path.join(process.cwd(), 'public', 'uploads', path.dirname(cleanKey));
     if (!fs.existsSync(uploadsDir)) {

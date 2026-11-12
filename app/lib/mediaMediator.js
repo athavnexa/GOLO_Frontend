@@ -4,7 +4,6 @@
  * Powered by `sharp` for native C++ image optimization, format conversion, and compression.
  */
 
-import sharp from 'sharp';
 import { uploadBufferToR2, getR2PublicUrl } from './r2Client.js';
 
 // Configuration limits
@@ -24,6 +23,7 @@ export const MEDIA_LIMITS = {
  * - Strips heavy camera metadata while preserving color profile
  */
 export async function processImageWithSharp(inputBuffer, options = {}) {
+  const { default: sharp } = await import('sharp');
   const maxDim = options.maxDimension || MEDIA_LIMITS.MAX_IMAGE_DIMENSION;
   const quality = options.quality || MEDIA_LIMITS.WEBP_QUALITY;
 
